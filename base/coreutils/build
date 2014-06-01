@@ -1,0 +1,9 @@
+name coreutils
+version 8.22
+mode autotools
+sources http://ftp.gnu.org/gnu/coreutils/coreutils-$VERSION.tar.xz uname.patch
+
+config-extra --disable-acl --enable-xattr --disable-libcap \
+             --enable-install-program=arch,hostname \
+             --enable-no-install-program=kill \
+             FORCE_UNSAFE_CONFIGURE=1

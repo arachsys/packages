@@ -1,0 +1,14 @@
+name screen
+version 4.2.1
+sources http://ftp.gnu.org/gnu/screen/screen-$VERSION.tar.gz
+mode autotools
+enable setuid
+
+config-extra --enable-locale --enable-telnet --enable-colors256 \
+           --enable-rxvt_osc --disable-socket-dir \
+           --with-sys-screenrc=/etc/screenrc
+config-remove --localedir
+
+post-install() {
+  mv -f $DST/bin/screen-$VERSION $DST/bin/screen
+}

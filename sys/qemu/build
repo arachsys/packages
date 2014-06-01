@@ -1,0 +1,83 @@
+name qemu
+version 2.0.0
+mode autotools
+
+config-reset --prefix= --datadir=/lib --docdir=/lib/doc \
+  --libexecdir=/lib/qemu --mandir=/lib/man --disable-curses --disable-sdl \
+  --disable-slirp --disable-vnc-{sasl,tls} --audio-drv-list= \
+  --target-list="$(feature targets || echo $(uname -m)-softmmu)"
+
+if enabled glib; then
+  requires glib
+  requires pkg-config
+fi
+
+if enabled gnutls; then
+  requires gnutls
+  config-extra --enable-vnc-tls --enable-vnc-ws
+fi
+
+prepare() {
+  unpack http://wiki.qemu-project.org/download/qemu-$VERSION.tar.bz2
+  unpack -C autoconf http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz
+  unpack -C automake http://ftp.gnu.org/gnu/automake/automake-1.14.tar.xz
+  unpack -C libtool http://ftp.gnu.org/gnu/libtool/libtool-2.4.2.tar.xz
+  if ! enabled glib; then
+    unpack -C libffi ftp://sourceware.org/pub/libffi/libffi-3.0.13.tar.gz
+    unpack -C glib \
+      http://ftp.gnome.org/pub/gnome/sources/glib/2.40/glib-2.40.0.tar.xz
+    apply -C glib glib-paths.patch
+    unpack -C pkg-config \
+      http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz
+  fi
+}
+
+pre-config() {
+  mkdir -p $SRC/tools/bin
+  export PATH=$SRC/tools/bin:$PATH
+
+  for DIR in autoconf automake libtool; do
+    cd $SRC/$DIR
+    $SRC/$DIR/configure --prefix=$SRC/tools --datarootdir='${prefix}/lib' \
+                        --includedir='${prefix}/lib/include'
+    make install
+  done
+
+  if ! enabled glib; then
+    cd $SRC/pkg-config
+    $SRC/pkg-config/configure --prefix=$SRC/tools \
+                              --datarootdir='${prefix}/lib' \
+                              --with-internal-glib
+    make install
+
+    for DIR in libffi glib; do
+      cd $SRC/$DIR
+      $SRC/$DIR/configure --prefix=$SRC/tools --datarootdir='${prefix}/lib' \
+                          --includedir='${prefix}/lib/include' \
+                          --disable-builddir --disable-shared --enable-static \
+                          --with-pic MSGFMT=/bin/true
+      make install
+    done
+  fi
+
+  cd $SRC
+}
+
+post-config() {
+  if ! enabled glib; then
+    sed -e 's/-lgthread-2.0/-Wl,-Bstatic \0 -Wl,-Bdynamic/g' \
+        -e 's/-lglib-2.0/-Wl,-Bstatic \0 -Wl,-Bdynamic/g' \
+        -i config-host.mak
+  fi
+}
+
+post-install() {
+  if [[ -f $DST/bin/qemu-system-x86_64 ]]; then
+    mv $DST/bin/qemu-system-x86{_64,}
+  fi
+}
+
+tidy() {
+  rm -f -r $DST/{etc,var}
+  strip $DST/bin/* $DST/lib/qemu/qemu-bridge-helper
+}

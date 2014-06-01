@@ -1,0 +1,21 @@
+name ncurses
+version 5.9
+mode autotools
+
+prepare() {
+  unpack http://ftp.gnu.org/gnu/ncurses/ncurses-$VERSION.tar.gz
+  sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src
+}
+
+config-extra --with-shared --without-debug --enable-widec --enable-const \
+             --enable-overwrite
+
+post-install() {
+  for LIB in ncurses form panel menu; do
+    echo "INPUT(-l${LIB}w)" >$DST/lib/lib${LIB}.so
+    ln -f -s lib${LIB}w.a $DST/lib/lib${LIB}.a
+  done
+  ln -f -s libncurses++w.a $DST/lib/libncurses++.a
+  ln -f -s libncurses.so $DST/lib/libcurses.so
+  ln -f -s libncurses.a $DST/lib/libcurses.a
+}

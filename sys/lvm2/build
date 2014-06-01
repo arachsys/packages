@@ -1,0 +1,22 @@
+name lvm2
+version 2.02.106
+mode autotools
+
+prepare() {
+  unpack ftp://sources.redhat.com/pub/lvm2/LVM2.$VERSION.tgz \
+         lvm2-$VERSION.tar.gz
+  apply paths.patch
+}
+
+config-extra --with-default-locking-dir=/run/lock/lvm \
+             --with-default-pid-dir=/run --with-default-run-dir=/run/lvm \
+             --with-lvm1=none --with-staticdir=/bin --with-thin=internal \
+             --with-thin-check= --with-usrsbindir=/bin
+
+if enabled dmeventd; then
+  config-extra --enable-cmdlib --enable-dmeventd
+fi
+
+post-install() {
+  rm -f $DST/bin/lvmdump
+}

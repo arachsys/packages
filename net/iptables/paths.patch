@@ -1,0 +1,25 @@
+diff --git a/iptables/Makefile.am b/iptables/Makefile.am
+index bdd4da1..3c51f9c 100644
+--- a/iptables/Makefile.am
++++ b/iptables/Makefile.am
+@@ -50,6 +50,6 @@ pkgconfig_DATA = xtables.pc
+ install-exec-hook:
+ 	-if test -z "${DESTDIR}"; then /sbin/ldconfig; fi;
+ 	${INSTALL} -dm0755 "${DESTDIR}${bindir}";
+-	for i in ${vx_bin_links}; do ${LN_S} -f "${sbindir}/xtables-multi" "${DESTDIR}${bindir}/$$i"; done;
++	for i in ${vx_bin_links}; do ${LN_S} -f xtables-multi "${DESTDIR}${bindir}/$$i"; done;
+ 	for i in ${v4_sbin_links}; do ${LN_S} -f xtables-multi "${DESTDIR}${sbindir}/$$i"; done;
+ 	for i in ${v6_sbin_links}; do ${LN_S} -f xtables-multi "${DESTDIR}${sbindir}/$$i"; done;
+diff --git a/iptables/Makefile.in b/iptables/Makefile.in
+index 44aba34..d0080dc 100644
+--- a/iptables/Makefile.in
++++ b/iptables/Makefile.in
+@@ -896,7 +896,7 @@ ip6tables.8: ${srcdir}/ip6tables.8.in ../extensions/matches6.man ../extensions/t
+ install-exec-hook:
+ 	-if test -z "${DESTDIR}"; then /sbin/ldconfig; fi;
+ 	${INSTALL} -dm0755 "${DESTDIR}${bindir}";
+-	for i in ${vx_bin_links}; do ${LN_S} -f "${sbindir}/xtables-multi" "${DESTDIR}${bindir}/$$i"; done;
++	for i in ${vx_bin_links}; do ${LN_S} -f xtables-multi "${DESTDIR}${bindir}/$$i"; done;
+ 	for i in ${v4_sbin_links}; do ${LN_S} -f xtables-multi "${DESTDIR}${sbindir}/$$i"; done;
+ 	for i in ${v6_sbin_links}; do ${LN_S} -f xtables-multi "${DESTDIR}${sbindir}/$$i"; done;
+ 

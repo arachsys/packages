@@ -1,0 +1,15 @@
+name ppp
+version 2.4.6
+sources ftp://ftp.samba.org/pub/ppp/ppp-$VERSION.tar.gz paths.patch
+enabled pcap && requires pcap
+
+build() {
+  enabled pcap || sed -e '/^FILTER=/s/^/#/' -i pppd/Makefile.linux
+  rm -f include/linux/if_pppol2tp.h
+  $SRC/configure
+  make DESTDIR= BINDIR=/bin INCDIR=/lib/include LIBDIR=/lib/pppd \
+    MANDIR=/lib/man
+  make install DESTDIR=$DST BINDIR=$DST/bin ETCDIR=$DST/etc/ppp \
+    INCDIR=$DST/lib/include LIBDIR=$DST/lib/pppd MANDIR=$DST/lib/man
+  chmod a-sx $DST/lib/pppd/*.so
+}

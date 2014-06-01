@@ -1,0 +1,13 @@
+diff --git a/src/transports/pipe.c b/src/transports/pipe.c
+index 15714f3..f44eee3 100644
+--- a/src/transports/pipe.c
++++ b/src/transports/pipe.c
+@@ -99,7 +99,7 @@ pipe_transport_options_block pipe_transport_option_defaults = {
+   NULL,           /* cmd */
+   NULL,           /* allow_commands */
+   NULL,           /* environment */
+-  US"/bin:/usr/bin",  /* path */
++  US"/bin",       /* path */
+   NULL,           /* message_prefix (reset in init if not bsmtp) */
+   NULL,           /* message_suffix (ditto) */
+   US mac_expanded_string(EX_TEMPFAIL) ":"    /* temp_errors */

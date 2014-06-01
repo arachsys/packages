@@ -1,0 +1,5 @@
+name mtr
+version 0.85
+mode autotools
+sources ftp://ftp.bitwizard.nl/mtr/mtr-$VERSION.tar.gz
+enable setuid

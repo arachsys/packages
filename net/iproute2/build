@@ -1,0 +1,13 @@
+name iproute2
+version 3.14.0
+sources http://kernel.org/pub/linux/utils/net/iproute2/iproute2-$VERSION.tar.xz \
+        paths.patch
+requires -b flex
+requires iptables
+
+build() {
+  PKG_CONFIG=/bin/false $SRC/configure
+  make install DESTDIR=$DST CONFDIR=/etc/iproute2 DOCDIR=/lib/doc/iproute2 \
+    LIBDIR=/lib MANDIR=/lib/man SBINDIR=/bin DBM_INCLUDE=/lib/include
+  rm -f $DST/bin/{ifcfg,routef,routel,rtpr}
+}

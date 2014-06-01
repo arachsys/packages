@@ -1,0 +1,33 @@
+diff --git a/src/config/settings-get.pl b/src/config/settings-get.pl
+index f31ff46..17a9c19 100755
+--- a/src/config/settings-get.pl
++++ b/src/config/settings-get.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env perl
++#!/bin/perl
+ use strict;
+ 
+ print '#include "lib.h"'."\n";
+diff --git a/src/lib/mountpoint.c b/src/lib/mountpoint.c
+index c107156..bd2a8b6 100644
+--- a/src/lib/mountpoint.c
++++ b/src/lib/mountpoint.c
+@@ -35,7 +35,7 @@
+ #ifdef MOUNTPOINT_SOLARIS
+ #  define MTAB_PATH MNTTAB /* Solaris */
+ #else
+-#  define MTAB_PATH "/etc/mtab" /* Linux */
++#  define MTAB_PATH "/run/mtab" /* Linux */
+ #endif
+ 
+ /* AIX doesn't have these defined */
+diff --git a/src/lib/unicodemap.pl b/src/lib/unicodemap.pl
+index c18c273..13a41b3 100755
+--- a/src/lib/unicodemap.pl
++++ b/src/lib/unicodemap.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env perl
++#!/bin/perl
+ use strict;
+ 
+ my (%titlecase8, %uni8_decomp);

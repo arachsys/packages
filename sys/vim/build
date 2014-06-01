@@ -1,0 +1,27 @@
+name vim
+version 7.4.274
+mode autotools
+
+prepare() {
+  local COUNT FILE MAJOR MINOR PATCH
+  IFS=. read MAJOR MINOR PATCH <<< "$VERSION"
+
+  unpack ftp://ftp.vim.org/pub/vim/unix/vim-$MAJOR.$MINOR.tar.bz2
+
+  for (( COUNT = 1; COUNT <= PATCH; COUNT++ )); do
+    FILE=$MAJOR.$MINOR/$MAJOR.$MINOR.$(printf %03d $COUNT)
+    apply -p 0 ftp://ftp.vim.org/pub/vim/patches/$FILE \
+      vim-$MAJOR-$MINOR-$COUNT.patch
+  done
+
+  apply paths.patch
+}
+
+
+config-extra --enable-multibyte --disable-gui --without-x
+compile-extra VIMRTLOC=/lib/vim
+install-extra VIMRTLOC=/lib/vim
+
+post-install() {
+  ln -f -s vim $DST/bin/vi
+}

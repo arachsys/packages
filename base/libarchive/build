@@ -1,0 +1,13 @@
+name libarchive
+version 3.1.2
+mode autotools
+sources http://www.libarchive.org/downloads/libarchive-$VERSION.tar.gz
+
+config-extra --disable-acl --enable-bsdtar=dynamic --enable-bsdcpio=dynamic \
+             --enable-xattr --without-expat --without-xml2 --with-bz2lib \
+             --with-lzma --with-zlib
+
+post-install() {
+  mv $DST/bin/{bsdcpio,cpio}
+  mv $DST/bin/{bsdtar,tar}
+}

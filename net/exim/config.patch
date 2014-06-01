@@ -1,0 +1,69 @@
+diff --git a/Local/Makefile b/Local/Makefile
+new file mode 100644
+index 0000000..0f69430
+--- /dev/null
++++ b/Local/Makefile
+@@ -0,0 +1,43 @@
++AUTH_CRAM_MD5=yes
++AUTH_DOVECOT=yes
++AUTH_PLAINTEXT=yes
++AUTH_SPA=yes
++BIN_DIRECTORY=/bin
++COMPRESS_COMMAND=gzip
++COMPRESS_SUFFIX=gz
++CONFIGURE_FILE=/etc/exim.conf:/etc/exim/exim.conf
++EXIM_USER=ref:mail
++FIXED_NEVER_USERS=root
++HAVE_IPV6=yes
++HEADERS_CHARSET="UTF-8"
++LOG_FILE_PATH=syslog
++LOOKUP_DBM=yes
++LOOKUP_LSEARCH=yes
++LOOKUP_DNSDB=yes
++LOOKUP_CDB=yes
++LOOKUP_DSEARCH=yes
++LOOKUP_NIS=yes
++LOOKUP_NISPLUS=yes
++LOOKUP_PASSWD=yes
++PERL_COMMAND=/bin/perl
++PCRE_LIBS=-lpcre
++ROUTER_ACCEPT=yes
++ROUTER_DNSLOOKUP=yes
++ROUTER_IPLITERAL=yes
++ROUTER_MANUALROUTE=yes
++ROUTER_QUERYPROGRAM=yes
++ROUTER_REDIRECT=yes
++SPOOL_DIRECTORY=/var/lib/exim
++SUPPORT_MAILDIR=yes
++SUPPORT_MAILSTORE=yes
++SUPPORT_MBX=yes
++SUPPORT_TLS=yes
++SYSLOG_LONG_LINES=yes
++SYSLOG_LOG_PID=yes
++TLS_LIBS=-lssl -lcrypto
++TRANSPORT_APPENDFILE=yes
++TRANSPORT_AUTOREPLY=yes
++TRANSPORT_PIPE=yes
++TRANSPORT_SMTP=yes
++USE_READLINE=yes
++ZCAT_COMMAND=zcat
+diff --git a/OS/Makefile-Linux b/OS/Makefile-Linux
+index 990f884..60b159a 100644
+--- a/OS/Makefile-Linux
++++ b/OS/Makefile-Linux
+@@ -13,13 +13,13 @@ CHGRP_COMMAND=look_for_it
+ CHMOD_COMMAND=look_for_it
+ 
+ # Preserve CFLAGS and CFLAGS_DYNAMIC from the caller/environment
+-CFLAGS ?= -O -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
++CFLAGS ?= -Os -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+ CFLAGS_DYNAMIC ?= -shared -rdynamic
+ 
+ DBMLIB = -ldb
+ USE_DB = yes
+ 
+-LIBS = -lnsl -lcrypt -lm
++LIBS = -ldl -lnsl -lcrypt -lm
+ LIBRESOLV = -lresolv
+ 
+ X11=/usr/X11R6

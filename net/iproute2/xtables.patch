@@ -1,0 +1,13 @@
+diff --git a/configure b/configure
+index 0f4444f..7dd8aaa 100755
+--- a/configure
++++ b/configure
+@@ -51,7 +51,7 @@ int main(int argc, char **argv)
+ 
+ EOF
+ 
+-if gcc -I$INCLUDE $IPTC -o $TMPDIR/ipttest $TMPDIR/ipttest.c $IPTL $(pkg-config xtables --cflags --libs) -ldl >/dev/null 2>&1
++if gcc -I$INCLUDE $IPTC -o $TMPDIR/ipttest $TMPDIR/ipttest.c $IPTL -ldl >/dev/null 2>&1
+ then
+ 	echo "TC_CONFIG_XT:=y" >>Config
+ 	echo "using xtables"

@@ -1,0 +1,29 @@
+diff --git a/ip/ipnetns.c b/ip/ipnetns.c
+index 1d8d3dc..b73ca51 100644
+--- a/ip/ipnetns.c
++++ b/ip/ipnetns.c
+@@ -18,7 +18,7 @@
+ #include "utils.h"
+ #include "ip_common.h"
+ 
+-#define NETNS_RUN_DIR "/var/run/netns"
++#define NETNS_RUN_DIR "/run/netns"
+ #define NETNS_ETC_DIR "/etc/netns"
+ 
+ #ifndef CLONE_NEWNET
+diff --git a/man/man8/ip-netns.8 b/man/man8/ip-netns.8
+index 6aa6e93..796036c 100644
+--- a/man/man8/ip-netns.8
++++ b/man/man8/ip-netns.8
+@@ -39,9 +39,9 @@ A network namespace is logically another copy of the network stack,
+ with its own routes, firewall rules, and network devices.
+ 
+ By convention a named network namespace is an object at
+-.BR "/var/run/netns/" NAME
++.BR "/run/netns/" NAME
+ that can be opened.  The file descriptor resulting from opening
+-.BR "/var/run/netns/" NAME
++.BR "/run/netns/" NAME
+ refers to the specified network namespace.  Holding that file
+ descriptor open keeps the network namespace alive.  The file
+ descriptor can be used with the

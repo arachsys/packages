@@ -1,0 +1,22 @@
+name whois
+version 5.1.3
+sources http://ftp.debian.org/debian/pool/main/w/whois/whois_$VERSION.tar.xz
+
+enabled nls && requires -b gettext
+enabled libidn && requires libidn
+
+build() {
+  sed -e s:/usr/share/locale:/lib/locale: -i config.h
+  make whois $(enabled libidn && echo HAVE_LIBIDN=1)
+  install -s -D whois $DST/bin/whois
+  install -m 0644 -D whois.1 $DST/lib/man/man1/whois.1
+  install -m 0644 -D whois.conf.5 $DST/lib/man/man5/whois.config.5
+
+  if enabled nls; then
+    cd po
+    make all
+    for MO in *.mo; do
+      install -m 0644 -D $MO $DST/lib/locale/${MO%.mo}/LC_MESSAGES/whois.mo
+    done
+  fi
+}

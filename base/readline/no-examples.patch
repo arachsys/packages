@@ -1,0 +1,12 @@
+diff --git a/Makefile.in b/Makefile.in
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -221,7 +221,7 @@
+ 
+ maybe-uninstall-headers: uninstall-headers
+ 
+-install-static: installdirs $(STATIC_LIBS) install-headers install-doc install-examples
++install-static: installdirs $(STATIC_LIBS) install-headers install-doc
+ 	-$(MV) $(DESTDIR)$(libdir)/libreadline.a $(DESTDIR)$(libdir)/libreadline.old
+ 	$(INSTALL_DATA) libreadline.a $(DESTDIR)$(libdir)/libreadline.a
+ 	-test -n "$(RANLIB)" && $(RANLIB) $(DESTDIR)$(libdir)/libreadline.a

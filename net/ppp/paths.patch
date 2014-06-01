@@ -1,0 +1,35 @@
+diff --git a/configure b/configure
+index 56816b8..090e27e 100755
+--- a/configure
++++ b/configure
+@@ -2,7 +2,7 @@
+ # $Id: configure,v 1.38 2008/06/15 07:08:49 paulus Exp $
+ 
+ # Where to install stuff by default
+-DESTDIR=/usr/local
++DESTDIR=
+ SYSCONF=/etc
+ 
+ #  if [ -d /NextApps ]; then
+diff --git a/pppd/Makefile.linux b/pppd/Makefile.linux
+index 060db6a..63e085e 100644
+--- a/pppd/Makefile.linux
++++ b/pppd/Makefile.linux
+@@ -117,7 +117,7 @@ CFLAGS   += -DHAS_SHADOW
+ #LIBS     += -lshadow $(LIBS)
+ endif
+ 
+-ifneq ($(wildcard /usr/include/crypt.h),)
++ifneq ($(wildcard /lib/include/crypt.h),)
+ CFLAGS  += -DHAVE_CRYPT_H=1
+ LIBS	+= -lcrypt
+ endif
+@@ -169,7 +169,7 @@ LIBS	+= -ldl
+ endif
+ 
+ ifdef FILTER
+-ifneq ($(wildcard /usr/include/pcap-bpf.h),)
++ifneq ($(wildcard /lib/include/pcap-bpf.h),)
+ LIBS    += -lpcap
+ CFLAGS  += -DPPP_FILTER
+ endif

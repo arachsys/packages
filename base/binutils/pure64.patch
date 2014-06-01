@@ -1,0 +1,28 @@
+diff --git a/ld/emulparams/elf32_x86_64.sh b/ld/emulparams/elf32_x86_64.sh
+index d34297b..b5ffd34 100644
+--- a/ld/emulparams/elf32_x86_64.sh
++++ b/ld/emulparams/elf32_x86_64.sh
+@@ -29,8 +29,8 @@ fi
+ case "$target" in
+   x86_64*-linux*|i[3-7]86-*-linux-*)
+     case "$EMULATION_NAME" in
+-      *32*) LIBPATH_SUFFIX=x32 ;;
+-      *64*) LIBPATH_SUFFIX=64 ;;
++      *32*) LIBPATH_SUFFIX= ;;
++      *64*) LIBPATH_SUFFIX= ;;
+     esac
+     ;;
+ esac
+diff --git a/ld/emulparams/elf_x86_64.sh b/ld/emulparams/elf_x86_64.sh
+index 4842257..a5ea0e4 100644
+--- a/ld/emulparams/elf_x86_64.sh
++++ b/ld/emulparams/elf_x86_64.sh
+@@ -29,7 +29,7 @@ fi
+ case "$target" in
+   x86_64*-linux*|i[3-7]86-*-linux-*)
+     case "$EMULATION_NAME" in
+-      *64*) LIBPATH_SUFFIX=64 ;;
++      *64*) LIBPATH_SUFFIX= ;;
+     esac
+     ;;
+   *-*-solaris2*)

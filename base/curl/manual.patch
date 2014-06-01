@@ -1,0 +1,38 @@
+diff --git a/src/mkhelp.pl b/src/mkhelp.pl
+index 444b669..7ed86f7 100644
+--- a/src/mkhelp.pl
++++ b/src/mkhelp.pl
+@@ -6,7 +6,7 @@
+ #                            | (__| |_| |  _ <| |___
+ #                             \___|\___/|_| \_\_____|
+ #
+-# Copyright (C) 1998 - 2011, Daniel Stenberg, <daniel@haxx.se>, et al.
++# Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+ #
+ # This software is licensed as described in the file COPYING, which
+ # you should have received as part of this distribution. The terms
+@@ -256,6 +256,10 @@ foot();
+ 
+ sub foot {
+   print <<FOOT
++#else /* !USE_MANUAL */
++/* built-in manual is disabled, blank function */
++#include "tool_hugehelp.h"
++void hugehelp(void) {}
+ #endif /* USE_MANUAL */
+ FOOT
+   ;
+diff --git a/src/tool_hugehelp.c b/src/tool_hugehelp.c
+index 97a3e32..ff0725a 100644
+--- a/src/tool_hugehelp.c
++++ b/src/tool_hugehelp.c
+@@ -8192,5 +8192,9 @@ void hugehelp(void)
+   }
+   inflateEnd(&z);
+ }
++#else /* !USE_MANUAL */
++/* built-in manual is disabled, blank function */
++#include "tool_hugehelp.h"
++void hugehelp(void) {}
+ #endif /* USE_MANUAL */
+ #endif /* HAVE_LIBZ */

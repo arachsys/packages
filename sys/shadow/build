@@ -1,0 +1,26 @@
+name shadow
+version 4.1.5.1
+mode autotools
+enable setuid setgid
+
+prepare() {
+  unpack http://cdn.debian.net/debian/pool/main/s/shadow/shadow_$VERSION.orig.tar.gz \
+         shadow-$VERSION.tar.gz
+  apply chfn.patch
+  apply paths.patch
+}
+
+config-extra --without-audit
+
+if enabled pam; then
+  depends pam
+  config-extra --with-libpam
+else
+  config-extra --without-libpam
+fi
+
+post-install() {
+  chgrp shadow $DST/bin/{chage,expiry}
+  chmod u-s,g+s $DST/bin/{chage,expiry}
+  find $DST -name 'groups*' -delete
+}

@@ -1,0 +1,36 @@
+diff --git a/gcc/gcc.c b/gcc/gcc.c
+index cc6a08e..fefdc5f 100644
+--- a/gcc/gcc.c
++++ b/gcc/gcc.c
+@@ -1095,10 +1095,10 @@ static const char *gcc_libexec_prefix;
+ /* Default prefixes to attach to command names.  */
+ 
+ #ifndef STANDARD_STARTFILE_PREFIX_1
+-#define STANDARD_STARTFILE_PREFIX_1 "/lib/"
++#define STANDARD_STARTFILE_PREFIX_1 "/lib/static/"
+ #endif
+ #ifndef STANDARD_STARTFILE_PREFIX_2
+-#define STANDARD_STARTFILE_PREFIX_2 "/usr/lib/"
++#define STANDARD_STARTFILE_PREFIX_2 ""
+ #endif
+ 
+ #ifdef CROSS_DIRECTORY_STRUCTURE  /* Don't use these prefixes for a cross compiler.  */
+@@ -5925,10 +5925,14 @@ is_directory (const char *path1, bool linker)
+       && IS_DIR_SEPARATOR (path[0])
+       && ((cp - path == 6
+ 	   && filename_ncmp (path + 1, "lib", 3) == 0)
+-	  || (cp - path == 10
+-	      && filename_ncmp (path + 1, "usr", 3) == 0
+-	      && IS_DIR_SEPARATOR (path[4])
+-	      && filename_ncmp (path + 5, "lib", 3) == 0)))
++         || (cp - path == 13
++             && filename_ncmp (path + 1, "lib", 3) == 0
++             && IS_DIR_SEPARATOR (path[4])
++             && filename_ncmp (path + 5, "static", 6) == 0)
++         || (cp - path == 13
++             && filename_ncmp (path + 1, "lib", 3) == 0
++             && IS_DIR_SEPARATOR (path[4])
++             && filename_ncmp (path + 5, "shared", 6) == 0)))
+     return 0;
+ 
+   return (stat (path, &st) >= 0 && S_ISDIR (st.st_mode));

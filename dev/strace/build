@@ -1,0 +1,4 @@
+name strace
+version 4.8
+mode autotools
+sources http://downloads.sourceforge.net/project/strace/strace/$VERSION/strace-$VERSION.tar.xz

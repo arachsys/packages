@@ -1,0 +1,19 @@
+diff --git a/lib/ipmi_main.c b/lib/ipmi_main.c
+index 14ca183..b7f97ef 100644
+--- a/lib/ipmi_main.c
++++ b/lib/ipmi_main.c
+@@ -819,12 +819,12 @@ ipmi_main(int argc, char ** argv,
+ 	}
+ 
+ 	/* if no interface was specified but a
+-	 * hostname was then use LAN by default
++	 * hostname was then use LANPLUS by default
+ 	 * otherwise the default is hardcoded
+ 	 * to use the first entry in the list
+ 	 */
+ 	if (intfname == NULL && hostname != NULL) {
+-		intfname = strdup("lan");
++		intfname = strdup("lanplus");
+ 		if (intfname == NULL) {
+ 			lprintf(LOG_ERR, "%s: malloc failure", progname);
+ 			goto out_free;

@@ -1,0 +1,14 @@
+name libsasl
+version 2.1.25
+sources http://ftp.andrew.cmu.edu/pub/cyrus-mail/cyrus-sasl-$VERSION.tar.gz
+mode autotools
+
+config-extra --disable-gssapi --disable-java --disable-sample \
+             --enable-login --enable-ntlm --enable-passdss --enable-shared \
+             --enable-static --without-dblib --without-gdbm --without-pam \
+             --without-saslauthd --with-configdir=/etc/sasl2 \
+             --with-plugindir=/lib/sasl2
+
+post-install() {
+  rm -f -r $DST/bin
+}

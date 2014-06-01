@@ -1,0 +1,37 @@
+name glibc
+version 2.19
+enable rpaths setuid
+sources http://ftp.gnu.org/gnu/glibc/glibc-$VERSION.tar.xz \
+        ldd-bash.patch paths.patch pure64.patch
+
+build() {
+  mkdir build && cd build
+  $SRC/configure --host=$CHOST --build=$CHOST --prefix= \
+                 --datarootdir=/lib --includedir=/lib/include \
+                 --libdir=/lib/shared --libexecdir=/lib --sbindir=/bin \
+                 --without-cvs --without-gd --with-tls --disable-profile \
+                 --disable-nscd --enable-add-ons=libidn,nptl \
+                 --enable-kernel=3.0 --enable-obsolete-rpc \
+                 --enable-static-nss --enable-stackguard-randomization
+
+  echo 'auditdir=${prefix}/lib/audit' >>configparms
+  echo 'gconvdir=${prefix}/lib/gconv' >>configparms
+  echo 'localedir=${prefix}/lib/locale' >>configparms
+  echo 'rootsbindir=${prefix}/bin' >>configparms
+  make sbindir=/bin
+
+  echo 'slibdir=${prefix}/lib/shared' >>configparms
+  make install install_root=$DST sbindir=/bin
+
+  sed -e 's:\$LIB/:\$LIB/shared/:g' -e 's/libSegFault/libsegfault/g' \
+      -i $DST/bin/{catchsegv,xtrace}
+  sed -e 's:shared/\([^ ]*\.a\):static/\1:g' \
+      -e 's:shared/\(ld-linux.*\.so\):\1:g' \
+      -i $DST/lib/shared/lib{c,pthread}.so
+  mv $DST/lib/shared/lib{SegFault,segfault}.so
+  rm -f $DST/lib/shared/libBrokenLocale*
+  for LDSO in $DST/lib/shared/ld-linux*.so*; do
+    ln -f -s shared/$(readlink $LDSO) $DST/lib/${LDSO##*/}
+    rm $LDSO
+  done
+}

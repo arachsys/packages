@@ -1,0 +1,9 @@
+name ipmitool
+version 1.8.14
+sources http://prdownloads.sourceforge.net/ipmitool/ipmitool-$VERSION.tar.bz2 \
+        lanplus.patch
+mode autotools
+
+post-install() {
+  rm -f -r $DST/lib/ipmitool
+}

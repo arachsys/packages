@@ -1,0 +1,40 @@
+diff --git a/read.c b/read.c
+index 15d1b13..85554af 100644
+--- a/read.c
++++ b/read.c
+@@ -109,11 +109,6 @@ static const char *default_include_directories[] =
+ # define INCLUDEDIR "."
+ #endif
+     INCLUDEDIR,
+-#ifndef _AMIGA
+-    "/usr/gnu/include",
+-    "/usr/local/include",
+-    "/usr/include",
+-#endif
+     0
+   };
+ 
+diff --git a/remake.c b/remake.c
+index 138cdc6..34b454f 100644
+--- a/remake.c
++++ b/remake.c
+@@ -1522,10 +1522,6 @@ library_search (const char *lib, FILE_TIMESTAMP *mtime_ptr)
+ {
+   static char *dirs[] =
+     {
+-#ifndef _AMIGA
+-      "/lib",
+-      "/usr/lib",
+-#endif
+ #if defined(WINDOWS32) && !defined(LIBDIR)
+ /*
+  * This is completely up to the user at product install time. Just define
+@@ -1534,6 +1530,8 @@ library_search (const char *lib, FILE_TIMESTAMP *mtime_ptr)
+ #define LIBDIR "."
+ #endif
+       LIBDIR,                   /* Defined by configuration.  */
++      "/lib/shared",
++      "/lib/static",
+       0
+     };
+ 

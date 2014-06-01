@@ -1,0 +1,4 @@
+name gzip
+version 1.6
+mode autotools
+sources http://ftp.gnu.org/gnu/gzip/gzip-$VERSION.tar.xz

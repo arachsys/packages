@@ -1,0 +1,4 @@
+name m4
+version 1.4.17
+mode autotools
+sources http://ftp.gnu.org/gnu/m4/m4-$VERSION.tar.xz

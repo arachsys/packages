@@ -1,0 +1,14 @@
+name e2fsprogs
+version 1.42.9
+mode autotools
+sources http://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v$VERSION/e2fsprogs-$VERSION.tar.xz \
+        paths.patch
+
+config-extra --libexecdir='${prefix}/bin' --disable-{blkid,libblkid} \
+             --disable-fsck --disable-{findfs,libuuid,uuidgen,uuidd} \
+             --enable-elf-shlibs PKG_CONFIG=/bin/true LDFLAGS="-lblkid -luuid"
+
+post-install() {
+  make install-libs DESTDIR=$DST
+  rm -f $DST/lib/e2initrd_helper
+}

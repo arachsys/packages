@@ -1,0 +1,10 @@
+name bzip2
+version 1.0.6
+sources http://www.bzip.org/$VERSION/bzip2-$VERSION.tar.gz \
+        makefile.patch scripts.patch
+
+build() {
+  make PREFIX=
+  make install PREFIX=$DST
+  mv $DST{,/lib}/include
+}

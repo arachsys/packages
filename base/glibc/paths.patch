@@ -1,0 +1,229 @@
+diff --git a/elf/sprof.c b/elf/sprof.c
+index 60f310f..ae4235f 100644
+--- a/elf/sprof.c
++++ b/elf/sprof.c
+@@ -619,7 +619,7 @@ load_shobj (const char *name)
+       *++cp = '\0';
+ 
+       /* First add the debuginfo file name only.  */
+-      static const char usrlibdebug[]= "/usr/lib/debug/";
++      static const char usrlibdebug[]= "/lib/debug/";
+       char *workbuf = (char *) alloca (sizeof (usrlibdebug)
+ 				       + (cp - realname)
+ 				       + strlen (debuginfo_fname));
+diff --git a/login/Makefile b/login/Makefile
+index 430c6d9..c2281ed 100644
+--- a/login/Makefile
++++ b/login/Makefile
+@@ -28,7 +28,7 @@ routines := getlogin getlogin_r setlogin getlogin_r_chk \
+ 	    utmp_file utmpname updwtmp getpt grantpt unlockpt ptsname \
+ 	    ptsname_r_chk
+ 
+-CFLAGS-grantpt.c = -DLIBEXECDIR='"$(libexecdir)"'
++CFLAGS-grantpt.c = -DLIBEXECDIR='"$(bindir)"'
+ 
+ others = utmpdump
+ 
+@@ -37,7 +37,7 @@ include ../Makeconfig
+ ifeq (yes,$(build-pt-chown))
+ others += pt_chown
+ others-pie = pt_chown
+-install-others-programs = $(inst_libexecdir)/pt_chown
++install-others-programs = $(inst_bindir)/pt_chown
+ endif
+ 
+ subdir-dirs = programs
+@@ -71,6 +71,6 @@ LDFLAGS-pt_chown = -Wl,-z,now
+ endif
+ 
+ # pt_chown needs to be setuid root.
+-$(inst_libexecdir)/pt_chown: $(objpfx)pt_chown $(+force)
++$(inst_bindir)/pt_chown: $(objpfx)pt_chown $(+force)
+ 	$(make-target-directory)
+ 	-$(INSTALL_PROGRAM) -m 4755 -o root $< $@
+diff --git a/nis/nis_call.c b/nis/nis_call.c
+index b97f8a1..08f639a 100644
+--- a/nis/nis_call.c
++++ b/nis/nis_call.c
+@@ -591,7 +591,7 @@ nis_server_cache_search (const_nis_name name, int search_parent,
+   struct stat64 st;
+ 
+   int saved_errno = errno;
+-  if (stat64 ("/var/nis/NIS_COLD_START", &st) < 0)
++  if (stat64 ("/var/lib/nis/NIS_COLD_START", &st) < 0)
+     st.st_mtime = nis_cold_start_mtime + 1;
+   __set_errno (saved_errno);
+ 
+diff --git a/nis/nis_file.c b/nis/nis_file.c
+index 0034ab9..e6f0d31 100644
+--- a/nis/nis_file.c
++++ b/nis/nis_file.c
+@@ -72,7 +72,7 @@ write_nis_obj (const char *name, const void *obj, iofct_t writefct)
+ }
+ 
+ 
+-static const char cold_start_file[] = "/var/nis/NIS_COLD_START";
++static const char cold_start_file[] = "/var/lib/nis/NIS_COLD_START";
+ 
+ directory_obj *
+ readColdStartFile (void)
+diff --git a/nis/ypclnt.c b/nis/ypclnt.c
+index 7469d3b..d63f63c 100644
+--- a/nis/ypclnt.c
++++ b/nis/ypclnt.c
+@@ -32,7 +32,7 @@
+ 
+ /* This should only be defined on systems with a BSD compatible ypbind */
+ #ifndef BINDINGDIR
+-# define BINDINGDIR "/var/yp/binding"
++# define BINDINGDIR "/var/lib/yp/binding"
+ #endif
+ 
+ struct dom_binding
+diff --git a/nscd/nscd-client.h b/nscd/nscd-client.h
+index 360852b..7d98620 100644
+--- a/nscd/nscd-client.h
++++ b/nscd/nscd-client.h
+@@ -34,10 +34,10 @@
+ #define NSCD_VERSION 2
+ 
+ /* Path of the file where the PID of the running system is stored.  */
+-#define _PATH_NSCDPID	 "/var/run/nscd/nscd.pid"
++#define _PATH_NSCDPID	 "/run/nscd/nscd.pid"
+ 
+ /* Path for the Unix domain socket.  */
+-#define _PATH_NSCDSOCKET "/var/run/nscd/socket"
++#define _PATH_NSCDSOCKET "/run/nscd/socket"
+ 
+ /* Path for the configuration file.  */
+ #define _PATH_NSCDCONF	 "/etc/nscd.conf"
+diff --git a/nscd/nscd.h b/nscd/nscd.h
+index cbd402a..384525d 100644
+--- a/nscd/nscd.h
++++ b/nscd/nscd.h
+@@ -112,14 +112,14 @@ struct database_dyn
+ 
+ 
+ /* Paths of the file for the persistent storage.  */
+-#define _PATH_NSCD_PASSWD_DB	"/var/db/nscd/passwd"
+-#define _PATH_NSCD_GROUP_DB	"/var/db/nscd/group"
+-#define _PATH_NSCD_HOSTS_DB	"/var/db/nscd/hosts"
+-#define _PATH_NSCD_SERVICES_DB	"/var/db/nscd/services"
+-#define _PATH_NSCD_NETGROUP_DB	"/var/db/nscd/netgroup"
++#define _PATH_NSCD_PASSWD_DB	"/var/lib/nscd/passwd"
++#define _PATH_NSCD_GROUP_DB	"/var/lib/nscd/group"
++#define _PATH_NSCD_HOSTS_DB	"/var/lib/nscd/hosts"
++#define _PATH_NSCD_SERVICES_DB	"/var/lib/nscd/services"
++#define _PATH_NSCD_NETGROUP_DB	"/var/lib/nscd/netgroup"
+ 
+ /* Path used when not using persistent storage.  */
+-#define _PATH_NSCD_XYZ_DB_TMP	"/var/run/nscd/dbXXXXXX"
++#define _PATH_NSCD_XYZ_DB_TMP	"/run/nscd/dbXXXXXX"
+ 
+ /* Maximum alignment requirement we will encounter.  */
+ #define BLOCK_ALIGN_LOG 3
+diff --git a/nss/db-Makefile b/nss/db-Makefile
+index 26b277d..2cd8cb1 100644
+--- a/nss/db-Makefile
++++ b/nss/db-Makefile
+@@ -22,7 +22,7 @@ DATABASES = $(wildcard /etc/passwd /etc/group /etc/ethers /etc/protocols \
+ 		       /etc/rpc /etc/services /etc/shadow /etc/gshadow \
+ 		       /etc/netgroup)
+ 
+-VAR_DB = /var/db
++VAR_DB = /var/lib
+ 
+ AWK = awk
+ MAKEDB = makedb --quiet
+diff --git a/sunrpc/key_call.c b/sunrpc/key_call.c
+index e0a076b..29f06a9 100644
+--- a/sunrpc/key_call.c
++++ b/sunrpc/key_call.c
+@@ -453,7 +453,7 @@ getkeyserv_handle (int vers)
+ 
+   if ((kcp->client == (CLIENT *) NULL))
+     /* Use the AF_UNIX transport */
+-    kcp->client = clnt_create ("/var/run/keyservsock", KEY_PROG, vers, "unix");
++    kcp->client = clnt_create ("/run/keyserv/socket", KEY_PROG, vers, "unix");
+ 
+   if (kcp->client == (CLIENT *) NULL)
+     return (CLIENT *) NULL;
+diff --git a/sysdeps/generic/ldconfig.h b/sysdeps/generic/ldconfig.h
+index d96089d..7eec7a9 100644
+--- a/sysdeps/generic/ldconfig.h
++++ b/sysdeps/generic/ldconfig.h
+@@ -41,7 +41,7 @@
+ #define FLAG_ARM_LIBSF		0x0b00
+ 
+ /* Name of auxiliary cache.  */
+-#define _PATH_LDCONFIG_AUX_CACHE "/var/cache/ldconfig/aux-cache"
++#define _PATH_LDCONFIG_AUX_CACHE "/var/lib/ldconfig/aux-cache"
+ 
+ /* Declared in cache.c.  */
+ extern void print_cache (const char *cache_name);
+diff --git a/sysdeps/unix/confstr.h b/sysdeps/unix/confstr.h
+index 15859c3..6877aed 100644
+--- a/sysdeps/unix/confstr.h
++++ b/sysdeps/unix/confstr.h
+@@ -1 +1 @@
+-#define	CS_PATH	"/bin:/usr/bin"
++#define	CS_PATH	"/bin"
+diff --git a/sysdeps/unix/sysv/linux/paths.h b/sysdeps/unix/sysv/linux/paths.h
+index 1342ab3..52b5ff8 100644
+--- a/sysdeps/unix/sysv/linux/paths.h
++++ b/sysdeps/unix/sysv/linux/paths.h
+@@ -33,15 +33,14 @@
+ #define	_PATHS_H_
+ 
+ /* Default search path. */
+-#define	_PATH_DEFPATH	"/usr/bin:/bin"
++#define	_PATH_DEFPATH	"/bin"
+ /* All standard utilities path. */
+-#define	_PATH_STDPATH \
+-	"/usr/bin:/bin:/usr/sbin:/sbin"
++#define	_PATH_STDPATH	"/bin"
+ 
+ #define	_PATH_BSHELL	"/bin/sh"
+ #define	_PATH_CONSOLE	"/dev/console"
+ #define	_PATH_CSHELL	"/bin/csh"
+-#define	_PATH_DEVDB	"/var/run/dev.db"
++#define	_PATH_DEVDB	"/run/dev.db"
+ #define	_PATH_DEVNULL	"/dev/null"
+ #define	_PATH_DRUM	"/dev/drum"
+ #define	_PATH_GSHADOW	"/etc/gshadow"
+@@ -49,27 +48,27 @@
+ #define	_PATH_KMEM	"/dev/kmem"
+ #define	_PATH_LASTLOG	"/var/log/lastlog"
+ #define	_PATH_MAILDIR	"/var/mail"
+-#define	_PATH_MAN	"/usr/share/man"
++#define	_PATH_MAN	"/lib/man"
+ #define	_PATH_MEM	"/dev/mem"
+ #define	_PATH_MNTTAB	"/etc/fstab"
+-#define	_PATH_MOUNTED	"/etc/mtab"
++#define	_PATH_MOUNTED	"/run/mtab"
+ #define	_PATH_NOLOGIN	"/etc/nologin"
+ #define	_PATH_PRESERVE	"/var/lib"
+-#define	_PATH_RWHODIR	"/var/spool/rwho"
+-#define	_PATH_SENDMAIL	"/usr/sbin/sendmail"
++#define	_PATH_RWHODIR	"/var/lib/rwho"
++#define	_PATH_SENDMAIL	"/bin/sendmail"
+ #define	_PATH_SHADOW	"/etc/shadow"
+ #define	_PATH_SHELLS	"/etc/shells"
+ #define	_PATH_TTY	"/dev/tty"
+ #define	_PATH_UNIX	"/boot/vmlinux"
+-#define	_PATH_UTMP	"/var/run/utmp"
+-#define	_PATH_VI	"/usr/bin/vi"
++#define	_PATH_UTMP	"/run/utmp"
++#define	_PATH_VI	"/bin/vi"
+ #define	_PATH_WTMP	"/var/log/wtmp"
+ 
+ /* Provide trailing slash, since mostly used for building pathnames. */
+ #define	_PATH_DEV	"/dev/"
+ #define	_PATH_TMP	"/tmp/"
+-#define	_PATH_VARDB	"/var/db/"
+-#define	_PATH_VARRUN	"/var/run/"
++#define	_PATH_VARDB	"/var/lib/"
++#define	_PATH_VARRUN	"/run/"
+ #define	_PATH_VARTMP	"/var/tmp/"
+ 
+ #endif /* !_PATHS_H_ */

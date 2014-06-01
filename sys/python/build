@@ -1,0 +1,29 @@
+name python
+version 2.7.6
+mode autotools
+requires berkeley-db
+
+prepare() {
+  unpack http://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.xz \
+         python-$VERSION.tar.xz
+  apply getpath.patch
+  apply paths.patch
+  apply rpath.patch
+}
+
+config-extra --enable-shared --with-fpectl --enable-ipv6
+
+post-install() {
+  rm -f $DST/bin/smtpd.py $DST/bin/python{,${VERSION%%.*}}{,-config} \
+     $DST/lib/pkgconfig/python{,${VERSION%%.*}}.pc
+  mv $DST/bin/python{${VERSION%.${VERSION##*.*.}},}
+  mv $DST/bin/python{${VERSION%.${VERSION##*.*.}},}-config
+  mv $DST/lib/pkgconfig/python{-${VERSION%.${VERSION##*.*.}},}.pc
+  mkdir -p $DST/lib/static
+  mv $DST/lib/python/config/*.a $DST/lib/static/
+  find $DST -type f | while read FILE; do
+    if [ "$(head -c 2 "$FILE")" = "#!" ]; then
+      sed -e "1s/python[^ ]*/python/g" -i "$FILE"
+    fi
+  done
+}

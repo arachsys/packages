@@ -1,0 +1,4 @@
+name sed
+version 4.2.2
+mode autotools
+sources http://ftp.gnu.org/gnu/sed/sed-$VERSION.tar.bz2

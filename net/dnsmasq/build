@@ -1,0 +1,8 @@
+name dnsmasq
+version 2.70
+sources http://www.thekelleys.org.uk/dnsmasq/dnsmasq-$VERSION.tar.gz
+
+build() {
+  make BINDIR=/bin MANDIR=/lib/man LOCALEDIR=/lib/locale
+  make install BINDIR=/bin MANDIR=/lib/man LOCALEDIR=/lib/locale DESTDIR=$DST
+}

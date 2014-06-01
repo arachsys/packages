@@ -1,0 +1,46 @@
+diff --git a/pcap-config.in b/pcap-config.in
+index 206be3b..5c09d7e 100644
+--- a/pcap-config.in
++++ b/pcap-config.in
+@@ -8,7 +8,6 @@ prefix="@prefix@"
+ exec_prefix="@exec_prefix@"
+ includedir="@includedir@"
+ libdir="@libdir@"
+-V_RPATH_OPT="@V_RPATH_OPT@"
+ LIBS="@LIBS@"
+ 
+ static=0
+@@ -36,16 +35,6 @@ do
+ 	esac
+ 	shift
+ done
+-if [ "$V_RPATH_OPT" != "" ]
+-then
+-	#
+-	# If libdir isn't /usr/lib, add it to the run-time linker path.
+-	#
+-	if [ "$libdir" != "/usr/lib" ]
+-	then
+-		RPATH=$V_RPATH_OPT$libdir
+-	fi
+-fi
+ if [ "$static" = 1 ]
+ then
+ 	#
+@@ -75,7 +64,7 @@ else
+ 	#
+ 	if [ "$show_cflags" = 1 -a "$show_libs" = 1 ]
+ 	then
+-		echo "-I$includedir -L$libdir $RPATH -lpcap"
++		echo "-I$includedir -L$libdir -lpcap"
+ 	elif [ "$show_cflags" = 1 -a "$show_additional_libs" = 1 ]
+ 	then
+ 		echo "-I$includedir"
+@@ -84,6 +73,6 @@ else
+ 		echo "-I$includedir"
+ 	elif [ "$show_libs" = 1 ]
+ 	then
+-		echo "-L$libdir $RPATH -lpcap"
++		echo "-L$libdir -lpcap"
+ 	fi
+ fi

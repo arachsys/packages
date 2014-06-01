@@ -1,0 +1,17 @@
+diff --git a/readpass.c b/readpass.c
+--- a/readpass.c
++++ b/readpass.c
+@@ -139,11 +139,8 @@
+ 	if ((flags & RP_USE_ASKPASS) && getenv("DISPLAY") == NULL)
+ 		return (flags & RP_ALLOW_EOF) ? NULL : xstrdup("");
+ 
+-	if (use_askpass && getenv("DISPLAY")) {
+-		if (getenv(SSH_ASKPASS_ENV))
+-			askpass = getenv(SSH_ASKPASS_ENV);
+-		else
+-			askpass = _PATH_SSH_ASKPASS_DEFAULT;
++	if (use_askpass && getenv("DISPLAY") && getenv(SSH_ASKPASS_ENV)) {
++		askpass = getenv(SSH_ASKPASS_ENV);
+ 		if ((ret = ssh_askpass(askpass, prompt)) == NULL)
+ 			if (!(flags & RP_ALLOW_EOF))
+ 				return xstrdup("");

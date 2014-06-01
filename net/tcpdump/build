@@ -1,0 +1,9 @@
+name tcpdump
+version 4.5.1
+sources http://www.tcpdump.org/release/tcpdump-$VERSION.tar.gz
+mode autotools
+requires libpcap
+
+post-install() {
+  rm -f $DST/bin/tcpdump.*
+}

@@ -1,0 +1,230 @@
+diff --git a/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm b/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm
+index 6ddd21d..42fb813 100644
+--- a/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm
++++ b/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm
+@@ -1640,8 +1640,8 @@ sub pagers_guessing {
+     }
+ 
+     if ($self->is_cygwin) {
+-        if (($pagers[0] eq 'less') || ($pagers[0] eq '/usr/bin/less')) {
+-            unshift @pagers, '/usr/bin/less -isrR';
++        if (($pagers[0] eq 'less') || ($pagers[0] eq '/bin/less')) {
++            unshift @pagers, '/bin/less -isrR';
+             unshift @pagers, $ENV{PAGER}  if $ENV{PAGER};
+        }
+     }
+diff --git a/cpan/Term-Cap/Cap.pm b/cpan/Term-Cap/Cap.pm
+index 9a70251..8353907 100644
+--- a/cpan/Term-Cap/Cap.pm
++++ b/cpan/Term-Cap/Cap.pm
+@@ -142,7 +142,7 @@ sub termcap_path
+         # Defaults
+         push( @termcap_path,
+             exists $ENV{'HOME'} ? $ENV{'HOME'} . '/.termcap' : undef,
+-            '/etc/termcap', '/usr/share/misc/termcap', );
++            '/etc/termcap', '/lib/misc/termcap', );
+     }
+ 
+     # return the list of those termcaps that exist
+diff --git a/cpan/podlators/lib/Pod/Text/Termcap.pm b/cpan/podlators/lib/Pod/Text/Termcap.pm
+index 18ba7b2..f85071b 100644
+--- a/cpan/podlators/lib/Pod/Text/Termcap.pm
++++ b/cpan/podlators/lib/Pod/Text/Termcap.pm
+@@ -43,8 +43,8 @@ sub new {
+     # $ENV{HOME} is usually not set on Windows.  The default Term::Cap path
+     # may not work on Solaris.
+     my $home = exists $ENV{HOME} ? "$ENV{HOME}/.termcap:" : '';
+-    $ENV{TERMPATH} = $home . '/etc/termcap:/usr/share/misc/termcap'
+-                           . ':/usr/share/lib/termcap';
++    $ENV{TERMPATH} = $home . '/etc/termcap:/lib/misc/termcap'
++                           . ':/lib/termcap';
+ 
+     # Fall back on a hard-coded terminal speed if POSIX::Termios isn't
+     # available (such as on VMS).
+diff --git a/dist/PathTools/Cwd.pm b/dist/PathTools/Cwd.pm
+index f27a3a0..5711e2a 100644
+--- a/dist/PathTools/Cwd.pm
++++ b/dist/PathTools/Cwd.pm
+@@ -334,8 +334,6 @@ $METHOD_MAP{NT} = $METHOD_MAP{MSWin32};
+ # so everything works under taint mode.
+ my $pwd_cmd;
+ foreach my $try ('/bin/pwd',
+-		 '/usr/bin/pwd',
+-		 '/QOpenSys/bin/pwd', # OS/400 PASE.
+ 		) {
+ 
+     if( -x $try ) {
+@@ -806,7 +804,7 @@ sub _qnx_cwd {
+ 	local $ENV{PATH} = '';
+ 	local $ENV{CDPATH} = '';
+ 	local $ENV{ENV} = '';
+-    $ENV{'PWD'} = `/usr/bin/fullpath -t`;
++    $ENV{'PWD'} = `/bin/fullpath -t`;
+     chomp $ENV{'PWD'};
+     return $ENV{'PWD'};
+ }
+@@ -818,8 +816,8 @@ sub _qnx_abs_path {
+     my $path = @_ ? shift : '.';
+     local *REALPATH;
+ 
+-    defined( open(REALPATH, '-|') || exec '/usr/bin/fullpath', '-t', $path ) or
+-      die "Can't open /usr/bin/fullpath: $!";
++    defined( open(REALPATH, '-|') || exec '/bin/fullpath', '-t', $path ) or
++      die "Can't open /bin/fullpath: $!";
+     my $realpath = <REALPATH>;
+     close REALPATH;
+     chomp $realpath;
+diff --git a/dist/Term-Complete/lib/Term/Complete.pm b/dist/Term-Complete/lib/Term/Complete.pm
+index 601e495..5c8244c 100644
+--- a/dist/Term-Complete/lib/Term/Complete.pm
++++ b/dist/Term-Complete/lib/Term/Complete.pm
+@@ -73,7 +73,7 @@ CONFIG: {
+     $kill     = "\025";
+     $erase1 =   "\177";
+     $erase2 =   "\010";
+-    foreach my $s (qw(/bin/stty /usr/bin/stty)) {
++    foreach my $s (qw(/bin/stty)) {
+ 	if (-x $s) {
+ 	    $tty_raw_noecho = "$s raw -echo";
+ 	    $tty_restore    = "$s -raw echo";
+diff --git a/ext/DynaLoader/hints/linux.pl b/ext/DynaLoader/hints/linux.pl
+index f7196f8..e89982c 100644
+--- a/ext/DynaLoader/hints/linux.pl
++++ b/ext/DynaLoader/hints/linux.pl
+@@ -1,5 +1,5 @@
+ # XXX Configure test needed.
+ # Some Linux releases like to hide their <nlist.h>
+-$self->{CCFLAGS} = $Config{ccflags} . ' -I/usr/include/libelf'
+-	if -f "/usr/include/libelf/nlist.h";
++$self->{CCFLAGS} = $Config{ccflags} . ' -I/lib/include/libelf'
++	if -f "/lib/include/libelf/nlist.h";
+ 1;
+diff --git a/ext/Errno/Errno_pm.PL b/ext/Errno/Errno_pm.PL
+index 3fb1210..bd32c83 100644
+--- a/ext/Errno/Errno_pm.PL
++++ b/ext/Errno/Errno_pm.PL
+@@ -138,7 +138,7 @@ sub get_files {
+ 	# Some Linuxes have weird errno.hs which generate
+ 	# no #file or #line directives
+ 	my ($linux_errno_h) = grep { -e $_ } map { "$_/errno.h" }
+-	    "$sysroot/usr/include", "$sysroot/usr/local/include",
++	    "$sysroot/lib/include",
+ 	    split / / => $Config{locincpth} or
+ 		die "Cannot find errno.h";
+ 	$file{$linux_errno_h} = 1;
+diff --git a/ext/FileCache/lib/FileCache.pm b/ext/FileCache/lib/FileCache.pm
+index 149e881..59d1363 100644
+--- a/ext/FileCache/lib/FileCache.pm
++++ b/ext/FileCache/lib/FileCache.pm
+@@ -116,7 +116,7 @@ sub import {
+ 
+     # XXX This code is crazy.  Why is it a one element foreach loop?
+     # Why is it using $param both as a filename and filehandle?
+-    foreach my $param ( '/usr/include/sys/param.h' ){
++    foreach my $param ( '/lib/include/sys/param.h' ){
+       if (open($param, '<', $param)) {
+ 	local ($_, $.);
+ 	while (<$param>) {
+diff --git a/ext/Sys-Hostname/Hostname.pm b/ext/Sys-Hostname/Hostname.pm
+index 1d2e472..cd0fea8 100644
+--- a/ext/Sys-Hostname/Hostname.pm
++++ b/ext/Sys-Hostname/Hostname.pm
+@@ -67,7 +67,7 @@ sub hostname {
+   else {  # Unix
+     # is anyone going to make it here?
+ 
+-    local $ENV{PATH} = '/usr/bin:/bin:/usr/sbin:/sbin'; # Paranoia.
++    local $ENV{PATH} = '/bin'; # Paranoia.
+ 
+     # method 2 - syscall is preferred since it avoids tainting problems
+     # XXX: is it such a good idea to return hostname untainted?
+diff --git a/h2pl/getioctlsizes b/h2pl/getioctlsizes
+index 403fffa..41b88f3 100644
+--- a/h2pl/getioctlsizes
++++ b/h2pl/getioctlsizes
+@@ -1,6 +1,6 @@
+ #!/usr/bin/perl
+ 
+-open (IOCTLS,'/usr/include/sys/ioctl.h') || die "ioctl open failed";
++open (IOCTLS,'/lib/include/sys/ioctl.h') || die "ioctl open failed";
+ 
+ while (<IOCTLS>) {
+     if (/^\s*#\s*define\s+\w+\s+_IO(R|W|WR)\('?\w+'?,\s*\w+,\s*([^)]+)/) {
+diff --git a/lib/perl5db.pl b/lib/perl5db.pl
+index 707d04d..6193b36 100644
+--- a/lib/perl5db.pl
++++ b/lib/perl5db.pl
+@@ -7069,7 +7069,7 @@ sub macosx_get_fork_TTY
+         }
+     }
+     return unless defined($script);
+-    return unless open($pipe,'-|','/usr/bin/osascript','-e',$script);
++    return unless open($pipe,'-|','/bin/osascript','-e',$script);
+     $tty=readline($pipe);
+     close($pipe);
+     return unless defined($tty) && $tty =~ m(^/dev/);
+@@ -8434,8 +8434,8 @@ sub _calc_is_less {
+     elsif ($pager =~ /\bmore\b/)
+     {
+         # Nope, set to more. See what's out there.
+-        my @st_more = stat('/usr/bin/more');
+-        my @st_less = stat('/usr/bin/less');
++        my @st_more = stat('/bin/more');
++        my @st_less = stat('/bin/less');
+ 
+         # is it really less, pretending to be more?
+         return (
+diff --git a/lib/unicore/mktables b/lib/unicore/mktables
+index cde1922..33f4cbb 100644
+--- a/lib/unicore/mktables
++++ b/lib/unicore/mktables
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!/bin/perl -w
+ 
+ # !!!!!!!!!!!!!!       IF YOU MODIFY THIS FILE       !!!!!!!!!!!!!!!!!!!!!!!!!
+ # Any files created or read by this program should be listed in 'mktables.lst'
+diff --git a/utils/h2xs.PL b/utils/h2xs.PL
+index 4cb0943..b099548 100644
+--- a/utils/h2xs.PL
++++ b/utils/h2xs.PL
+@@ -789,7 +789,7 @@ if( @path_h ){
+     }
+     else {
+       @paths = (File::Spec->curdir(), $Config{usrinc},
+-		(split / +/, $Config{locincpth} // ""), '/usr/include');
++		(split / +/, $Config{locincpth} // ""), '/include');
+     }
+     foreach my $path_h (@path_h) {
+         $name ||= $path_h;
+@@ -1401,7 +1401,7 @@ END
+ if( @path_h ){
+     foreach my $path_h (@path_h_ini) {
+ 	my($h) = $path_h;
+-	$h =~ s#^/usr/include/##;
++	$h =~ s#^/include/##;
+ 	if ($^O eq 'VMS') { $h =~ s#.*vms\]#sys/# or $h =~ s#.*[:>\]]##; }
+         print XS qq{#include <$h>\n};
+     }
+@@ -1948,7 +1948,7 @@ EOC
+   print PL <<END;
+     LIBS              => ['$extralibs'], # e.g., '-lm'
+     DEFINE            => '$opt_F', # e.g., '-DHAVE_SOMETHING'
+-$Icomment    INC               => '$I', # e.g., '${Ihelp}-I/usr/include/other'
++$Icomment    INC               => '$I', # e.g., '${Ihelp}-I/lib/include/other'
+ END
+ 
+   my $C = grep {$_ ne "$modfname.c"}
+diff --git a/utils/perlbug.PL b/utils/perlbug.PL
+index 885785a..b212135 100644
+--- a/utils/perlbug.PL
++++ b/utils/perlbug.PL
+@@ -1149,7 +1149,7 @@ sub _send_message_mailsend {
+ 
+ sub _probe_for_sendmail {
+     my $sendmail = "";
+-    for (qw(/usr/lib/sendmail /usr/sbin/sendmail /usr/ucblib/sendmail)) {
++    for (qw(/bin/sendmail)) {
+         $sendmail = $_, last if -e $_;
+     }
+     if ( $^O eq 'os2' and $sendmail eq "" ) {

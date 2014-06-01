@@ -1,0 +1,5 @@
+name tmux
+version 1.6
+sources http://dfn.dl.sourceforge.net/project/tmux/tmux/tmux-$VERSION/tmux-$VERSION.tar.gz
+mode autotools
+requires libevent

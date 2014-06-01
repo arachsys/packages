@@ -1,0 +1,6 @@
+name rsync
+version 3.1.0
+mode autotools
+sources http://www.samba.org/ftp/rsync/src/rsync-$VERSION.tar.gz paths.patch
+
+config-extra --with-included-popt

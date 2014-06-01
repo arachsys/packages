@@ -1,0 +1,10 @@
+name tnftp
+version 20130505
+sources ftp://ftp.netbsd.org/pub/NetBSD/misc/tnftp/tnftp-$VERSION.tar.gz
+mode autotools
+
+config-extra --with-openssl=/lib
+
+post-install() {
+  mv $DST/bin/{tnftp,ftp}
+}

@@ -1,0 +1,19 @@
+name dovecot
+version 2.2.12
+sources http://dovecot.org/releases/${VERSION%.*}/dovecot-$VERSION.tar.gz \
+        paths.patch
+mode autotools
+enable rpaths
+requires berkeley-db
+
+config-extra --without-bsdauth --without-gssapi --without-ldap \
+             --without-libcap --without-libwrap --without-lucene \
+             --without-mysql --without-nss --without-pam  --without-pgsql \
+             --without-sqlite --without-solr --without-vpopmail \
+             --with-bzlib --with-moduledir='${prefix}/lib/dovecot/modules' \
+             --with-rundir=/run/dovecot --with-sql --with-zlib
+
+post-install() {
+  find $DST/lib/dovecot -name '*.a' -o -name decode2text.sh -delete
+  rm -f -r $DST/lib/{aclocal,include}
+}

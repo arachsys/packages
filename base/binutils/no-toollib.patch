@@ -1,0 +1,18 @@
+diff --git a/ld/genscripts.sh b/ld/genscripts.sh
+index 61981bd..f0b7f93 100755
+--- a/ld/genscripts.sh
++++ b/ld/genscripts.sh
+@@ -95,12 +95,7 @@ EMULATION_NAME=$3
+ TOOL_LIB=$4
+ CUSTOMIZER_SCRIPT=$5
+ 
+-# Can't use ${TOOL_LIB:-$target_alias} here due to an Ultrix shell bug.
+-if [ "x${TOOL_LIB}" = "x" ] ; then
+-  tool_lib=${exec_prefix}/${target_alias}/lib
+-else
+-  tool_lib=${exec_prefix}/${TOOL_LIB}/lib
+-fi
++tool_lib=${exec_prefix}/lib
+ 
+ if [ "x${CUSTOMIZER_SCRIPT}" = "x" ] ; then
+   CUSTOMIZER_SCRIPT=${EMULATION_NAME}

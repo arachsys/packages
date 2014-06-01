@@ -1,0 +1,21 @@
+name mosh
+version 1.2.4
+mode autotools
+
+prepare() {
+  unpack http://mosh.mit.edu/mosh-$VERSION.tar.gz
+  unpack -C protobuf \
+    https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.bz2
+}
+
+pre-config() {
+  cd protobuf
+  $SRC/protobuf/configure --disable-shared --with-pic
+  make all
+  cd -
+}
+
+config-extra ac_cv_path_PROTOC=$SRC/protobuf/src/protoc \
+             protobuf_CFLAGS=-I$SRC/protobuf/src \
+             protobuf_LIBS="-L$SRC/protobuf/src/.libs -lprotobuf" \
+             OPENSSL_CFLAGS=-I/lib/include OPENSSL_LIBS=-lcrypto

@@ -1,0 +1,14 @@
+name binutils
+version 2.24
+mode autotools
+sources http://ftp.gnu.org/gnu/binutils/binutils-$VERSION.tar.bz2 \
+        no-toollib.patch paths.patch pure64.patch
+
+config-extra --disable-werror --enable-shared \
+             --with-lib-path=/lib:/lib/shared:/lib/static
+compile-extra tooldir='${prefix}'
+install-extra tooldir='${prefix}'
+
+post-install() {
+  install include/libiberty.h $DST/lib/include/
+}

@@ -1,0 +1,4 @@
+name xz
+version 5.0.5
+mode autotools
+sources http://tukaani.org/xz/xz-$VERSION.tar.xz

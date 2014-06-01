@@ -1,0 +1,58 @@
+diff --git a/Lib/distutils/unixccompiler.py b/Lib/distutils/unixccompiler.py
+index c49ac9b..6e099f1 100644
+--- a/Lib/distutils/unixccompiler.py
++++ b/Lib/distutils/unixccompiler.py
+@@ -142,6 +142,16 @@ class UnixCCompiler(CCompiler):
+     if sys.platform == "cygwin":
+         exe_extension = ".exe"
+ 
++    def _fix_lib_args(self, libraries, library_dirs, runtime_library_dirs):
++        """Remove standard library path from rpath"""
++        libraries, library_dirs, runtime_library_dirs = \
++            CCompiler._fix_lib_args(self, libraries, library_dirs,
++                                    runtime_library_dirs)
++        libdir = sysconfig.get_config_var('LIBDIR')
++        if runtime_library_dirs and (libdir in runtime_library_dirs):
++            runtime_library_dirs.remove(libdir)
++        return libraries, library_dirs, runtime_library_dirs
++
+     def preprocess(self, source,
+                    output_file=None, macros=None, include_dirs=None,
+                    extra_preargs=None, extra_postargs=None):
+diff --git a/setup.py b/setup.py
+index f2bc364..10827f5 100644
+--- a/setup.py
++++ b/setup.py
+@@ -978,16 +978,9 @@ class PyBuildExt(build_ext):
+                 print "bsddb lib dir:", dblib_dir, " inc dir:", db_incdir
+             db_incs = [db_incdir]
+             dblibs = [dblib]
+-            # We add the runtime_library_dirs argument because the
+-            # BerkeleyDB lib we're linking against often isn't in the
+-            # system dynamic library search path.  This is usually
+-            # correct and most trouble free, but may cause problems in
+-            # some unusual system configurations (e.g. the directory
+-            # is on an NFS server that goes away).
+             exts.append(Extension('_bsddb', ['_bsddb.c'],
+                                   depends = ['bsddb.h'],
+                                   library_dirs=dblib_dir,
+-                                  runtime_library_dirs=dblib_dir,
+                                   include_dirs=db_incs,
+                                   libraries=dblibs))
+         else:
+@@ -1095,7 +1088,6 @@ class PyBuildExt(build_ext):
+                                   include_dirs=["Modules/_sqlite",
+                                                 sqlite_incdir],
+                                   library_dirs=sqlite_libdir,
+-                                  runtime_library_dirs=sqlite_libdir,
+                                   extra_link_args=sqlite_extra_link_args,
+                                   libraries=["sqlite3",]))
+         else:
+@@ -1196,7 +1188,6 @@ class PyBuildExt(build_ext):
+                         print "building dbm using bdb"
+                         dbmext = Extension('dbm', ['dbmmodule.c'],
+                                            library_dirs=dblib_dir,
+-                                           runtime_library_dirs=dblib_dir,
+                                            include_dirs=db_incs,
+                                            define_macros=[
+                                                ('HAVE_BERKDB_H', None),

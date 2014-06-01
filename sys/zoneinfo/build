@@ -1,0 +1,19 @@
+name zoneinfo
+version 2014c
+
+prepare() {
+  unpack -p 0 \
+    http://www.iana.org/time-zones/repository/releases/tzdata2014c.tar.gz
+}
+
+build() {
+  mkdir -p $DST/lib/zoneinfo/{posix,right}
+  for TZ in africa antarctica asia australasia etcetera europe \
+            northamerica pacificnew southamerica; do
+    zic -L /dev/null -d $DST/lib/zoneinfo/posix -y 'sh yearistype.sh' $TZ
+    zic -L leapseconds -d $DST/lib/zoneinfo/right -y 'sh yearistype.sh' $TZ
+    cp -a -l $DST/lib/zoneinfo/posix/* $DST/lib/zoneinfo/
+  done
+  cp zone.tab iso3166.tab $DST/lib/zoneinfo/
+  zic -d $DST/lib/zoneinfo -p America/New_York
+}

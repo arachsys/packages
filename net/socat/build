@@ -1,0 +1,8 @@
+name socat
+version 2.0.0-b7
+mode autotools
+sources http://www.dest-unreach.org/socat/download/socat-$VERSION.tar.bz2
+
+post-install() {
+  rm -f $DST/bin/{filan,procan}
+}

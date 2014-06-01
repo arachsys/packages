@@ -1,0 +1,9 @@
+name procps
+version 3.2.8
+sources http://procps.sourceforge.net/procps-$VERSION.tar.gz \
+        hz-error.patch make.patch paths.patch unicode.patch
+
+build() {
+  make install ldconfig=true DESTDIR=$DST SHARED=0 \
+    SKIP='$(bin)kill $(man1)kill.1 $(usr/bin)uptime $(man1)uptime.1'
+}

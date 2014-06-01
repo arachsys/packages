@@ -1,0 +1,8 @@
+name libevent
+version 2.0.21
+sources http://github.com/downloads/libevent/libevent/libevent-$VERSION-stable.tar.gz
+mode autotools
+
+post-install() {
+  mv $DST/bin/event_rpcgen{.py,}
+}

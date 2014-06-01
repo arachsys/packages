@@ -1,0 +1,12 @@
+name gnupg
+version 1.4.16
+sources ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-$VERSION.tar.bz2
+mode autotools
+
+post-install() {
+  cat <<EOF >$DST/lib/gnupg/options.skel
+charset utf-8
+keyserver hkp://pgp.mit.edu
+EOF
+  rm -f $DST/lib/gnupg/FAQ
+}

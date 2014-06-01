@@ -1,0 +1,74 @@
+diff --git a/OS/Makefile-Base b/OS/Makefile-Base
+index 2812945..974770d 100644
+--- a/OS/Makefile-Base
++++ b/OS/Makefile-Base
+@@ -102,7 +102,7 @@ config.h: Makefile buildconfig ../src/config.h.defaults $(EDITME)
+ # scripts, once the configuring stuff is done.
+ 
+ allexim: config.h $(EXIM_MONITOR) exicyclog exinext exiwhat \
+-        exigrep eximstats exipick exiqgrep exiqsumm \
++        exigrep eximlogs eximstats exipick exiqgrep exiqsumm \
+         transport-filter.pl convert4r3 convert4r4 \
+         exim_checkaccess \
+         exim_dbmbuild exim_dumpdb exim_fixdb exim_tidydb exim_lock \
+@@ -228,6 +228,17 @@ exigrep: Makefile ../src/exigrep.src
+ 	@chmod a+x exigrep
+ 	@echo ">>> exigrep script built"
+ 
++eximlogs: Makefile ../src/eximlogs.src
++	@rm -f eximlogs
++	@sed \
++	  -e "s?PERL_COMMAND?$(PERL_COMMAND)?" \
++	  -e "s?ZCAT_COMMAND?$(ZCAT_COMMAND)?" \
++          -e "s?COMPRESS_SUFFIX?$(COMPRESS_SUFFIX)?" \
++	  ../src/eximlogs.src > eximlogs-t
++	@mv eximlogs-t eximlogs
++	@chmod a+x eximlogs
++	@echo ">>> eximlogs script built"
++
+ eximstats: Makefile ../src/eximstats.src
+ 	@rm -f eximstats
+ 	@sed \
+diff --git a/scripts/exim_install b/scripts/exim_install
+index b9330ae..947989f 100755
+--- a/scripts/exim_install
++++ b/scripts/exim_install
+@@ -194,7 +194,7 @@ if [ $# -gt 0 ]; then
+ else
+   set exim${EXE} ${exim_monitor} exim_dumpdb${EXE} exim_fixdb${EXE} \
+       exim_tidydb${EXE} exinext exiwhat exim_dbmbuild${EXE} exicyclog \
+-      exigrep eximstats exipick exiqgrep exiqsumm exim_lock${EXE} \
++      exigrep eximlogs eximstats exipick exiqgrep exiqsumm exim_lock${EXE} \
+       exim_checkaccess
+ fi
+ 
+diff --git a/src/eximlogs.src b/src/eximlogs.src
+new file mode 100644
+index 0000000..3f7649d
+--- /dev/null
++++ b/src/eximlogs.src
+@@ -0,0 +1,24 @@
++#! PERL_COMMAND -w
++
++use strict;
++
++unless (@ARGV == 0 or (@ARGV == 1 and $ARGV[0] =~ /^\d+$/)) {
++  die "usage: $0 [DAYS]\n";
++}
++
++my $days = (@ARGV == 0 ? 1 : $ARGV[0]);
++my $time = time;
++
++while ($days-- > 0) {
++  my @date = localtime($time - $days*86400);
++  my ($year, $month, $day) = ($date[5] + 1900, $date[4] + 1, $date[3]);
++  my $logfile = sprintf "/var/log/mail/%04d-%02d-%02d", $year, $month, $day;
++  open LOGFILE, "< $logfile"
++    or open LOGFILE, "ZCAT_COMMAND ${logfile}.COMPRESS_SUFFIX 2>/dev/null |";
++  while (<LOGFILE>) {
++    my ($time, $prog, $msg) = split /\s+/, $_, 3;
++    next unless $prog =~ /exim(\[\d+\])?:/;
++    printf "%04d-%02d-%02d %s %s", $year, $month, $day, $time, $msg;
++  }
++  close LOGFILE;
++}

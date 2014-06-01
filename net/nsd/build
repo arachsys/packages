@@ -1,0 +1,9 @@
+name nsd
+version 4.0.3
+sources http://www.nlnetlabs.nl/downloads/nsd/nsd-$VERSION.tar.gz
+mode autotools
+
+config-extra --enable-root-server --with-dbfile=/var/lib/nsd/nsd.db \
+             --with-libevent=no --with-pidfile=/run/nsd.pid --with-ssl=/lib \
+             --with-user=dns --with-xfrdfile=/var/lib/nsd/xfrd.state \
+             --with-zonelistfile=/var/lib/nsd/zone.list

@@ -1,0 +1,25 @@
+name readline
+version 6.3.5
+mode autotools
+
+prepare() {
+  local COUNT FILE MAJOR MINOR PATCH
+  IFS=. read MAJOR MINOR PATCH <<< "$VERSION"
+
+  unpack http://ftp.gnu.org/gnu/readline/readline-$MAJOR.$MINOR.tar.gz
+
+  for (( COUNT = 1; COUNT <= PATCH; COUNT++ )); do
+    FILE=readline-$MAJOR.$MINOR-patches/readline$MAJOR$MINOR-$(printf %03d $COUNT)
+    apply -p 0 http://ftp.gnu.org/gnu/readline/$FILE \
+      readline-$MAJOR.$MINOR.$COUNT.patch
+  done
+
+  apply no-examples.patch
+}
+
+config-extra SHLIB_LIBS=-lncurses
+
+post-config() {
+  # In the absence of working configure support for --disable-rpath:
+  sed -e 's/ -Wl,-rpath,\$(libdir) / /' -i $SRC/shlib/Makefile
+}

@@ -1,0 +1,17 @@
+name git
+version 1.9.2
+sources https://www.kernel.org/pub/software/scm/git/git-$VERSION.tar.xz \
+        usage.patch
+requires expat
+enabled nls && requires gettext
+
+build() {
+  sed -e '/INSTALLSITEMAN3DIR =>/d' -i perl/Makefile.PL
+  make install DESTDIR=$DST prefix= gitexecdir=/lib/git \
+               gitwebdir=/lib/gitweb htmldir=/lib/doc/git \
+               infodir=/lib/info mandir=/lib/man \
+               template_dir=/lib/git/templates \
+               PERL_PATH=/bin/perl PYTHON_PATH=/bin/python \
+               $(enabled nls || echo NO_GETTEXT=yes) NO_TCLTK=yes
+  find $DST/lib/git/templates -name '*.sample' -delete
+}

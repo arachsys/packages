@@ -1,0 +1,4 @@
+name diffutils
+version 3.3
+mode autotools
+sources http://ftp.gnu.org/gnu/diffutils/diffutils-$VERSION.tar.xz

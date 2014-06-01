@@ -1,0 +1,318 @@
+diff --git a/src/chfn.c b/src/chfn.c
+index 4bd3ec9..24bd918 100644
+--- a/src/chfn.c
++++ b/src/chfn.c
+@@ -61,17 +61,17 @@
+  */
+ const char *Prog;
+ static char fullnm[BUFSIZ];
+-static char roomno[BUFSIZ];
+-static char workph[BUFSIZ];
+-static char homeph[BUFSIZ];
++static char orgnam[BUFSIZ];
++static char phone[BUFSIZ];
++static char email[BUFSIZ];
+ static char slop[BUFSIZ];
+ static bool amroot;
+ /* Flags */
+ static bool fflg = false;		/* -f - set full name                */
+-static bool rflg = false;		/* -r - set room number              */
+-static bool wflg = false;		/* -w - set work phone number        */
+-static bool hflg = false;		/* -h - set home phone number        */
+-static bool oflg = false;		/* -o - set other information        */
++static bool oflg = false;		/* -o - set organization name        */
++static bool tflg = false;		/* -t - set telephone number         */
++static bool mflg = false;		/* -m - set email address            */
++static bool sflg = false;		/* -s - set other information        */
+ static bool pw_locked = false;
+ 
+ /*
+@@ -120,12 +120,12 @@ static /*@noreturn@*/void usage (int status)
+ 	                  "Options:\n"),
+ 	                Prog);
+ 	(void) fputs (_("  -f, --full-name FULL_NAME     change user's full name\n"), usageout);
+-	(void) fputs (_("  -h, --home-phone HOME_PHONE   change user's home phone number\n"), usageout);
+-	(void) fputs (_("  -o, --other OTHER_INFO        change user's other GECOS information\n"), usageout);
+-	(void) fputs (_("  -r, --room ROOM_NUMBER        change user's room number\n"), usageout);
++	(void) fputs (_("  -h, --help                    display this help message and exit\n"), usageout);
++	(void) fputs (_("  -m, --email EMAIL_ADDRESS     change user's email address\n"), usageout);
++	(void) fputs (_("  -o, --organization ORG_NAME   change user's organization\n"), usageout);
++	(void) fputs (_("  -s, --other OTHER_INFO        change user's other GECOS information\n"), usageout);
++	(void) fputs (_("  -t, --telephone TELEPHONE     change user's telephone number\n"), usageout);
+ 	(void) fputs (_("  -R, --root CHROOT_DIR         directory to chroot into\n"), usageout);
+-	(void) fputs (_("  -u, --help                    display this help message and exit\n"), usageout);
+-	(void) fputs (_("  -w, --work-phone WORK_PHONE   change user's office phone number\n"), usageout);
+ 	(void) fputs ("\n", usageout);
+ 	exit (status);
+ }
+@@ -136,7 +136,7 @@ static /*@noreturn@*/void usage (int status)
+  *
+  *	root can change any field.
+  *
+- *	field should be one of 'f', 'r', 'w', 'h'
++ *	field should be one of 'f', 'o', 't', 'm'
+  *
+  *	Return true if the user can change the field and false otherwise.
+  */
+@@ -149,16 +149,16 @@ static bool may_change_field (int field)
+ 	 * by regular users, by using any combination of the following
+ 	 * letters:
+ 	 *  f - full name
+-	 *  r - room number
+-	 *  w - work phone
+-	 *  h - home phone
++	 *  o - organization name
++	 *  t - telephone number
++	 *  m - email address
+ 	 *
+-	 * This makes it possible to disallow changing the room number
++	 * This makes it possible to disallow changing selected contact
+ 	 * information, for example - this feature was suggested by Maciej
+ 	 * 'Tycoon' Majchrowski.
+ 	 *
+-	 * For backward compatibility, "yes" is equivalent to "rwh",
+-	 * "no" is equivalent to "frwh". Only root can change anything
++	 * For backward compatibility, "yes" is equivalent to "tm",
++	 * "no" is equivalent to "fotm". Only root can change anything
+ 	 * if the string is empty or not defined at all.
+ 	 */
+ 	if (amroot) {
+@@ -169,9 +169,9 @@ static bool may_change_field (int field)
+ 	if (NULL == cp) {
+ 		cp = "";
+ 	} else if (strcmp (cp, "yes") == 0) {
+-		cp = "rwh";
++		cp = "tm";
+ 	} else if (strcmp (cp, "no") == 0) {
+-		cp = "frwh";
++		cp = "fotm";
+ 	}
+ 
+ 	if (strchr (cp, field) != NULL) {
+@@ -197,22 +197,22 @@ static void new_fields (void)
+ 		printf (_("\t%s: %s\n"), _("Full Name"), fullnm);
+ 	}
+ 
+-	if (may_change_field ('r')) {
+-		change_field (roomno, sizeof roomno, _("Room Number"));
++	if (may_change_field ('o')) {
++		change_field (orgnam, sizeof orgnam, _("Organization"));
+ 	} else {
+-		printf (_("\t%s: %s\n"), _("Room Number"), fullnm);
++		printf (_("\t%s: %s\n"), _("Organization"), orgnam);
+ 	}
+ 
+-	if (may_change_field ('w')) {
+-		change_field (workph, sizeof workph, _("Work Phone"));
++	if (may_change_field ('t')) {
++		change_field (phone, sizeof phone, _("Telephone"));
+ 	} else {
+-		printf (_("\t%s: %s\n"), _("Work Phone"), fullnm);
++		printf (_("\t%s: %s\n"), _("Telephone"), phone);
+ 	}
+ 
+-	if (may_change_field ('h')) {
+-		change_field (homeph, sizeof homeph, _("Home Phone"));
++	if (may_change_field ('m')) {
++		change_field (email, sizeof email, _("Email Address"));
+ 	} else {
+-		printf (_("\t%s: %s\n"), _("Home Phone"), fullnm);
++		printf (_("\t%s: %s\n"), _("Email Address"), email);
+ 	}
+ 
+ 	if (amroot) {
+@@ -270,12 +270,12 @@ static void process_flags (int argc, char **argv)
+ 	int c;		/* flag currently being processed    */
+ 	static struct option long_options[] = {
+ 		{"full-name",  required_argument, NULL, 'f'},
+-		{"home-phone", required_argument, NULL, 'h'},
+-		{"other",      required_argument, NULL, 'o'},
+-		{"room",       required_argument, NULL, 'r'},
++		{"help",       no_argument,       NULL, 'h'},
++		{"email",      required_argument, NULL, 'm'},
++		{"organization", required_argument, NULL, 'o'},
++		{"other",      required_argument, NULL, 's'},
++		{"telephone",  required_argument, NULL, 't'},
+ 		{"root",       required_argument, NULL, 'R'},
+-		{"help",       no_argument,       NULL, 'u'},
+-		{"work-phone", required_argument, NULL, 'w'},
+ 		{NULL, 0, NULL, '\0'}
+ 	};
+ 
+@@ -286,7 +286,7 @@ static void process_flags (int argc, char **argv)
+ 	 * environment and must agree with the real UID. Also, the UID will
+ 	 * be checked for any commands which are restricted to root only.
+ 	 */
+-	while ((c = getopt_long (argc, argv, "f:h:o:r:R:uw:",
++	while ((c = getopt_long (argc, argv, "f:hm:o:s:t:R:",
+ 	                         long_options, NULL)) != -1) {
+ 		switch (c) {
+ 		case 'f':
+@@ -298,46 +298,46 @@ static void process_flags (int argc, char **argv)
+ 			fflg = true;
+ 			STRFCPY (fullnm, optarg);
+ 			break;
+-		case 'h':
+-			if (!may_change_field ('h')) {
++		case 'm':
++			if (!may_change_field ('m')) {
+ 				fprintf (stderr,
+ 				         _("%s: Permission denied.\n"), Prog);
+ 				exit (E_NOPERM);
+ 			}
+-			hflg = true;
+-			STRFCPY (homeph, optarg);
++			mflg = true;
++			STRFCPY (email, optarg);
+ 			break;
+-		case 'o':
++		case 's':
+ 			if (!amroot) {
+ 				fprintf (stderr,
+ 				         _("%s: Permission denied.\n"), Prog);
+ 				exit (E_NOPERM);
+ 			}
+-			oflg = true;
++			sflg = true;
+ 			STRFCPY (slop, optarg);
+ 			break;
+-		case 'r':
+-			if (!may_change_field ('r')) {
++		case 'o':
++			if (!may_change_field ('o')) {
+ 				fprintf (stderr,
+ 				         _("%s: Permission denied.\n"), Prog);
+ 				exit (E_NOPERM);
+ 			}
+-			rflg = true;
+-			STRFCPY (roomno, optarg);
++			oflg = true;
++			STRFCPY (orgnam, optarg);
+ 			break;
+ 		case 'R': /* no-op, handled in process_root_flag () */
+ 			break;
+-		case 'u':
++		case 'h':
+ 			usage (E_SUCCESS);
+ 			/*@notreached@*/break;
+-		case 'w':
+-			if (!may_change_field ('w')) {
++		case 't':
++			if (!may_change_field ('t')) {
+ 				fprintf (stderr,
+ 				         _("%s: Permission denied.\n"), Prog);
+ 				exit (E_NOPERM);
+ 			}
+-			wflg = true;
+-			STRFCPY (workph, optarg);
++			tflg = true;
++			STRFCPY (phone, optarg);
+ 			break;
+ 		default:
+ 			usage (E_USAGE);
+@@ -534,25 +534,25 @@ static void get_old_fields (const char *gecos)
+ 	cp = copy_field (old_gecos, fflg ? (char *) 0 : fullnm, slop);
+ 
+ 	/*
+-	 * Now get the room number. It is the next comma separated field,
++	 * Now get the organization name. It is the next comma separated field,
+ 	 * if there is indeed one.
+ 	 */
+ 	if (NULL != cp) {
+-		cp = copy_field (cp, rflg ? (char *) 0 : roomno, slop);
++		cp = copy_field (cp, oflg ? (char *) 0 : orgnam, slop);
+ 	}
+ 
+ 	/*
+-	 * Now get the work phone number. It is the third field.
++	 * Now get the telephone number. It is the third field.
+ 	 */
+ 	if (NULL != cp) {
+-		cp = copy_field (cp, wflg ? (char *) 0 : workph, slop);
++		cp = copy_field (cp, tflg ? (char *) 0 : phone, slop);
+ 	}
+ 
+ 	/*
+-	 * Now get the home phone number. It is the fourth field.
++	 * Now get the email address. It is the fourth field.
+ 	 */
+ 	if (NULL != cp) {
+-		cp = copy_field (cp, hflg ? (char *) 0 : homeph, slop);
++		cp = copy_field (cp, mflg ? (char *) 0 : email, slop);
+ 	}
+ 
+ 	/*
+@@ -582,22 +582,22 @@ static void check_fields (void)
+ 		fprintf (stderr, _("%s: invalid name: '%s'\n"), Prog, fullnm);
+ 		fail_exit (E_NOPERM);
+ 	}
+-	err = valid_field (roomno, ":,=\n");
++	err = valid_field (orgnam, ":,=\n");
+ 	if (err > 0) {
+-		fprintf (stderr, _("%s: room number with non-ASCII characters: '%s'\n"), Prog, roomno);
++		fprintf (stderr, _("%s: organization with non-ASCII characters: '%s'\n"), Prog, orgnam);
+ 	} else if (err < 0) {
+-		fprintf (stderr, _("%s: invalid room number: '%s'\n"),
+-		         Prog, roomno);
++		fprintf (stderr, _("%s: invalid organization name: '%s'\n"),
++		         Prog, orgnam);
+ 		fail_exit (E_NOPERM);
+ 	}
+-	if (valid_field (workph, ":,=\n") != 0) {
+-		fprintf (stderr, _("%s: invalid work phone: '%s'\n"),
+-		         Prog, workph);
++	if (valid_field (phone, ":,=\n") != 0) {
++		fprintf (stderr, _("%s: invalid telephone number: '%s'\n"),
++		         Prog, phone);
+ 		fail_exit (E_NOPERM);
+ 	}
+-	if (valid_field (homeph, ":,=\n") != 0) {
+-		fprintf (stderr, _("%s: invalid home phone: '%s'\n"),
+-		         Prog, homeph);
++	if (valid_field (email, ":,=\n") != 0) {
++		fprintf (stderr, _("%s: invalid email address: '%s'\n"),
++		         Prog, email);
+ 		fail_exit (E_NOPERM);
+ 	}
+ 	err = valid_field (slop, ":\n");
+@@ -620,10 +620,10 @@ static void check_fields (void)
+  *	The valid options are
+  *
+  *	-f	full name
+- *	-r	room number
+- *	-w	work phone number
+- *	-h	home phone number
+- *	-o	other information (*)
++ *	-o	organization name
++ *	-t	telephone number
++ *	-m	email address
++ *	-s	other information (*)
+  *
+  *	(*) requires root permission to execute.
+  */
+@@ -717,7 +717,7 @@ int main (int argc, char **argv)
+ 	 * If none of the fields were changed from the command line, let the
+ 	 * user interactively change them.
+ 	 */
+-	if (!fflg && !rflg && !wflg && !hflg && !oflg) {
++	if (!fflg && !oflg && !tflg && !mflg && !sflg) {
+ 		printf (_("Changing the user information for %s\n"), user);
+ 		new_fields ();
+ 	}
+@@ -731,13 +731,13 @@ int main (int argc, char **argv)
+ 	 * Build the new GECOS field by plastering all the pieces together,
+ 	 * if they will fit ...
+ 	 */
+-	if ((strlen (fullnm) + strlen (roomno) + strlen (workph) +
+-	     strlen (homeph) + strlen (slop)) > (unsigned int) 80) {
++	if ((strlen (fullnm) + strlen (orgnam) + strlen (phone) +
++	     strlen (email) + strlen (slop)) > BUFSIZ - 6) {
+ 		fprintf (stderr, _("%s: fields too long\n"), Prog);
+ 		fail_exit (E_NOPERM);
+ 	}
+ 	snprintf (new_gecos, sizeof new_gecos, "%s,%s,%s,%s%s%s",
+-	          fullnm, roomno, workph, homeph,
++	          fullnm, orgnam, phone, email,
+ 	          ('\0' != slop[0]) ? "," : "", slop);
+ 
+ 	/* Rewrite the user's gecos in the passwd file */

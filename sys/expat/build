@@ -1,0 +1,4 @@
+name expat
+version 2.1.0
+mode autotools
+sources http://downloads.sourceforge.net/expat/expat-$VERSION.tar.gz

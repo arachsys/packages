@@ -1,0 +1,13 @@
+diff --git a/libiberty/Makefile.in b/libiberty/Makefile.in
+index 5280bc1..743cf84 100644
+--- a/libiberty/Makefile.in
++++ b/libiberty/Makefile.in
+@@ -342,7 +342,7 @@ libiberty.html : $(srcdir)/libiberty.texi $(TEXISRC)
+ @MAINT@	echo stamp > stamp-functions
+ 
+ INSTALL_DEST = @INSTALL_DEST@
+-install: install_to_$(INSTALL_DEST) install-subdir
++install: install-subdir
+ install-strip: install
+ 
+ .PHONY: install install-strip

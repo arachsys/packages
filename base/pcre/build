@@ -1,0 +1,11 @@
+name pcre
+version 8.35
+mode autotools
+sources http://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$VERSION.tar.bz2 \
+        paths.patch
+
+config-extra --enable-utf8
+
+post-install() {
+  rm -f $DST/bin/{pcregrep,pcretest}
+}

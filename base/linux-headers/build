@@ -1,0 +1,8 @@
+name linux-headers
+version 3.14.2
+sources http://www.kernel.org/pub/linux/kernel/v3.x/linux-$VERSION.tar.xz
+
+build() {
+  make INSTALL_HDR_PATH=$DST/lib headers_install
+  find $DST -name '.*' -type f -delete
+}

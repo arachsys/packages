@@ -1,0 +1,4 @@
+name bc
+version 1.06
+mode autotools
+sources http://ftp.gnu.org/gnu/bc/bc-$VERSION.tar.gz

@@ -1,0 +1,19 @@
+name mutt
+version 1.5.23
+sources ftp://ftp.mutt.org/mutt/devel/mutt-$VERSION.tar.gz
+mode autotools
+requires berkeley-db
+requires libsasl
+
+config-extra --disable-external-dotlock --enable-hcache --enable-imap \
+             --enable-pop -enable-smtp --without-gdbm --with-bdb=bdb \
+             --with-docdir=/lib/doc/mutt --with-homespool=Maildir \
+             --with-regex --with-sasl --with-ssl SENDMAIL=/bin/sendmail
+
+pre-config() {
+  mkdir -p bdb && ln -f -s /lib/include /lib bdb/
+}
+
+post-install() {
+  rm -f $DST/bin/{flea,muttbug}
+}

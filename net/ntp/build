@@ -1,0 +1,9 @@
+name ntp
+version 4.2.6p5
+mode autotools
+sources http://archive.ntp.org/ntp4/ntp-${VERSION%.*}/ntp-$VERSION.tar.gz \
+        adjnano.patch paths.patch
+
+pre-config() {
+  touch $SRC/sntp/sntp-opts.{c,texi}
+}

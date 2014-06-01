@@ -1,0 +1,20 @@
+name ldns-tools
+version 1.6.17
+mode autotools
+
+prepare() {
+  unpack http://www.nlnetlabs.nl/downloads/ldns/ldns-$VERSION.tar.gz
+  fetch http://hg.tx97.net/ldns-host/raw-file/9aa60f18bd96/ldns-host.c
+  fetch http://hg.tx97.net/ldns-host/raw-file/9aa60f18bd96/ldns-host.1
+}
+
+build() {
+  $SRC/configure --disable-shared --with-drill --with-ssl=/lib
+  make setup-builddir drill
+  gcc -g -I. -L.libs -O2 -Wall ldns-host.c -lldns -lcrypto -o host
+
+  mkdir -p $DST/bin $DST/lib/man/man1
+  install -s -t $DST/bin drill/drill host
+  install -m 0644 -t $DST/lib/man/man1 drill/drill.1
+  sed -e 's/ldns-//gI' ldns-host.1 >$DST/lib/man/man1/host.1
+}

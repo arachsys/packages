@@ -1,0 +1,12 @@
+name berkeley-db
+version 6.0.30
+sources http://download.oracle.com/berkeley-db/db-$VERSION.tar.gz
+
+build() {
+  cd build_unix
+  ../dist/configure --prefix= --includedir='${prefix}/lib/include' \
+                    --datarootdir='${prefix}/lib' --enable-compat185 \
+                    --enable-cxx --enable-sql --enable-sql_compat
+  make docdir=/lib/doc/berkeley-db
+  make install DESTDIR=$DST docdir=/lib/doc/berkeley-db
+}

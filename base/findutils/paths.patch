@@ -1,0 +1,31 @@
+diff --git a/locate/updatedb.sh b/locate/updatedb.sh
+index 7fc374f..79ae6be 100644
+--- a/locate/updatedb.sh
++++ b/locate/updatedb.sh
+@@ -158,7 +158,7 @@ select_shell() {
+ : ${NETPATHS=}
+ 
+ # Directories to not put in the database, which would otherwise be.
+-: ${PRUNEPATHS="/tmp /usr/tmp /var/tmp /afs /amd /sfs /proc"}
++: ${PRUNEPATHS="/tmp /var/tmp /afs /amd /sfs /proc"}
+ 
+ # Trailing slashes result in regex items that are never matched, which 
+ # is not what the user will expect.   Therefore we now reject such 
+@@ -180,8 +180,6 @@ test -z "$PRUNEREGEX" &&
+ # Directory to hold intermediate files.
+ if test -d /var/tmp; then
+   : ${TMPDIR=/var/tmp}
+-elif test -d /usr/tmp; then
+-  : ${TMPDIR=/usr/tmp}
+ else
+   : ${TMPDIR=/tmp}
+ fi
+@@ -226,7 +224,7 @@ do
+ done
+ 
+ 
+-PATH=/bin:/usr/bin:${BINDIR}; export PATH
++PATH=/bin:${BINDIR}; export PATH
+ 
+ : ${PRUNEFS="nfs NFS proc afs smbfs autofs iso9660 ncpfs coda devpts ftpfs devfs mfs sysfs shfs"}
+ 

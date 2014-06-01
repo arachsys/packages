@@ -1,0 +1,26 @@
+diff --git a/dtach.1 b/dtach.1
+index 699925c..41de5ef 100644
+--- a/dtach.1
++++ b/dtach.1
+@@ -139,7 +139,7 @@ forces a WINCH signal to be sent to the program.
+ 
+ When creating a new session, the specified method is used as the default
+ redraw method for the session. If not specified, the
+-.I ctrl_l
++.I winch
+ method is used.
+ 
+ .TP
+diff --git a/master.c b/master.c
+index e0351bd..369abb1 100644
+--- a/master.c
++++ b/master.c
+@@ -518,7 +518,7 @@ master_main(char **argv, int waitattach)
+ 
+ 	/* Use a default redraw method if one hasn't been specified yet. */
+ 	if (redraw_method == REDRAW_UNSPEC)
+-		redraw_method = REDRAW_CTRL_L;
++		redraw_method = REDRAW_WINCH;
+ 
+ 	/* Create the unix domain socket. */
+ 	s = create_socket(sockname);

@@ -1,0 +1,12 @@
+name dtach
+version 0.8
+sources http://downloads.sourceforge.net/project/dtach/dtach/$VERSION/dtach-$VERSION.tar.gz \
+        read.patch winch.patch
+mode autotools
+
+install-reset dtach dtach.1
+
+post-install() {
+  install -D dtach $DST/bin/dtach
+  install -D dtach.1 $DST/lib/man/man1/dtach.1
+}

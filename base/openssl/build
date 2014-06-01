@@ -1,0 +1,12 @@
+name openssl
+version 1.0.1g
+sources http://www.openssl.org/source/openssl-$VERSION.tar.gz \
+        docsyntax.patch paths.patch
+
+build() {
+  $SRC/config --openssldir=/etc/ssl --prefix= --libdir=lib shared
+  make -j1 INSTALLTOP= DO_GNU_APP='LDFLAGS=$(CFLAGS)'
+  make -j1 INSTALL_PREFIX=$DST INSTALLTOP=/ install
+  mv $DST/include $DST/lib/include
+  sed -e 's:/include:/lib/include:g' -i $DST/lib/pkgconfig/*.pc
+}

@@ -1,0 +1,14 @@
+name bird
+version 1.4.3
+sources ftp://bird.network.cz/pub/bird/bird-$VERSION.tar.gz
+requires -b flex
+
+build() {
+  $SRC/configure --host=$CHOST --build=$CHOST --prefix= --bindir=/bin \
+                 --datarootdir=/lib --sbindir=/bin --disable-ipv6
+  make clean install DESTDIR=$DST localstatedir=
+
+  $SRC/configure --host=$CHOST --build=$CHOST --prefix= --bindir=/bin \
+                 --datarootdir=/lib --sbindir=/bin --enable-ipv6
+  make clean install DESTDIR=$DST localstatedir=
+}

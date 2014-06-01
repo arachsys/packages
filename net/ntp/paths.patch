@@ -1,0 +1,78 @@
+diff --git a/ntpd/refclock_acts.c b/ntpd/refclock_acts.c
+index be69ce6..68201db 100644
+--- a/ntpd/refclock_acts.c
++++ b/ntpd/refclock_acts.c
+@@ -131,7 +131,7 @@
+ #define	DEVICE		"/dev/acts%d" /* device name and unit */
+ #define	SPEED232	B9600	/* uart speed (9600 baud) */
+ #define	PRECISION	(-10)	/* precision assumed (about 1 ms) */
+-#define LOCKFILE	"/var/spool/locks/LCK..cua%d"
++#define LOCKFILE	"/run/lock/acts%d"
+ #define DESCRIPTION	"Automated Computer Time Service" /* WRU */
+ #define REFID		"NONE"	/* default reference ID */
+ #define MSGCNT		20	/* max message count */
+diff --git a/sntp/main.c b/sntp/main.c
+index 9ddb5bf..999b46b 100644
+--- a/sntp/main.c
++++ b/sntp/main.c
+@@ -86,7 +86,7 @@ sntp_main (
+ 	if (HAVE_OPT(KOD))
+ 		kod_init_kod_db(OPT_ARG(KOD));
+ 	else
+-		kod_init_kod_db("/var/db/ntp-kod");
++		kod_init_kod_db("/var/lib/ntp-kod");
+ 
+ 	if (HAVE_OPT(KEYFILE))
+ 		auth_init(OPT_ARG(KEYFILE), &keys);
+diff --git a/sntp/sntp-opts.def b/sntp/sntp-opts.def
+index 4a62541..3be60f0 100644
+--- a/sntp/sntp-opts.def
++++ b/sntp/sntp-opts.def
+@@ -65,7 +65,7 @@ flag = {
+     doc = <<-  _EndOfDoc_
+ 	Specifies the filename to be used to persist the history of KoD
+ 	responses received from servers.  The default is
+-	/var/db/ntp-kod.
++	/var/lib/ntp-kod.
+ 	_EndOfDoc_;
+ };
+ 
+diff --git a/sntp/sntp-opts.texi b/sntp/sntp-opts.texi
+index 6d6fc43..c250f61 100644
+--- a/sntp/sntp-opts.texi
++++ b/sntp/sntp-opts.texi
+@@ -219,7 +219,7 @@ For more information see ntp.keys(5).
+ This is the ``kod history filename'' option.
+ Specifies the filename to be used to persist the history of KoD
+ responses received from servers.  The default is
+-/var/db/ntp-kod.
++/var/lib/ntp-kod.
+ 
+ @node sntp logfile
+ @subsection logfile option (-l)
+diff --git a/sntp/sntp.1 b/sntp/sntp.1
+index 46fa639..3f36fe7 100644
+--- a/sntp/sntp.1
++++ b/sntp/sntp.1
+@@ -76,7 +76,7 @@ KoD history filename.
+ .sp
+ Specifies the filename to be used to persist the history of KoD
+ responses received from servers.  The default is
+-/var/db/ntp-kod.
++/var/lib/ntp-kod.
+ .TP
+ .BR \-p ", " \--syslog
+ Logging with syslog.
+diff --git a/sntp/sntp.html b/sntp/sntp.html
+index b043f40..f905141 100644
+--- a/sntp/sntp.html
++++ b/sntp/sntp.html
+@@ -331,7 +331,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="#sntp-Invocation">sntp Invocation</a>
+ This is the &ldquo;kod history filename&rdquo; option. 
+ Specifies the filename to be used to persist the history of KoD
+ responses received from servers.  The default is
+-/var/db/ntp-kod.
++/var/lib/ntp-kod.
+ 
+ <div class="node">
+ <p><hr>

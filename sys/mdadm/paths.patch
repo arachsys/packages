@@ -1,0 +1,27 @@
+diff --git a/Makefile b/Makefile
+index e8da3a5..447bbf4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -63,7 +63,7 @@ PKG_CONFIG ?= pkg-config
+ SYSCONFDIR = /etc
+ CONFFILE = $(SYSCONFDIR)/mdadm.conf
+ CONFFILE2 = $(SYSCONFDIR)/mdadm/mdadm.conf
+-MAILCMD =/usr/sbin/sendmail -t
++MAILCMD =/bin/sendmail -t
+ CONFFILEFLAGS = -DCONFFILE=\"$(CONFFILE)\" -DCONFFILE2=\"$(CONFFILE2)\"
+ # Both MAP_DIR and MDMON_DIR should be somewhere that persists across the
+ # pivotroot from early boot to late boot.
+@@ -101,10 +101,10 @@ endif
+ # LDFLAGS = -static
+ # STRIP = -s
+ 
+-INSTALL = /usr/bin/install
++INSTALL = /bin/install
+ DESTDIR =
+-BINDIR  = /sbin
+-MANDIR  = /usr/share/man
++BINDIR  = /bin
++MANDIR  = /lib/man
+ MAN4DIR = $(MANDIR)/man4
+ MAN5DIR = $(MANDIR)/man5
+ MAN8DIR = $(MANDIR)/man8

@@ -1,0 +1,10 @@
+name iputils-ping
+version s20121221
+sources http://www.skbuff.net/iputils/iputils-$VERSION.tar.bz2
+enable setuid
+
+build() {
+  make ping ping6 USE_CAP=no USE_GNUTLS=no
+  mkdir -p $DST/bin
+  install -m 4755 -o root -g root -s ping ping6 $DST/bin
+}

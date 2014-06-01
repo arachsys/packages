@@ -1,0 +1,50 @@
+name perl
+version 5.20.0
+sources http://www.cpan.org/src/5.0/perl-$VERSION.tar.gz \
+        errno.patch paths.patch system-zlib.patch
+enable rpaths
+
+build() {
+  LIBPERL=libperl.so.${VERSION%.*}
+
+  # Work around the inability of the Configure script to deal correctly
+  # with an empty prefix:
+  grep -q -r /PREFIX $SRC && die "Failed sanity check"
+  $SRC/Configure -des -Dprefix=/PREFIX \
+                 -Dman1dir=/PREFIX/lib/man/man1 \
+                 -Dsiteman1dir=/PREFIX/lib/man/man1 \
+                 -Dman3dir=/PREFIX/lib/man/man3 \
+                 -Dsiteman3dir=/PREFIX/lib/man/man3 \
+                 -Dprivlib=/PREFIX/lib/perl \
+                 -Dsitelib=/PREFIX/lib/perl/site \
+                 -Darchlib=/PREFIX/lib/perl \
+                 -Dsitearch=/PREFIX/lib/perl/site \
+                 -Dpager="/bin/less -isR" \
+                 -Dlibperl=$LIBPERL -Duseshrplib \
+                 -Dusethreads
+  grep -l -r /PREFIX $SRC | while read FILE; do
+    sed -i 's@/PREFIX@@g' $FILE
+  done
+  sed -e "s_^glibpth=.*_glibpth='/lib '_" \
+      -e "s_^locincpth=.*_locincpth=''_" \
+      -e "s_^loclibpth=.*_loclibpth=''_" \
+      -e "s_^sysman=.*_sysman='/lib/man/man1'_" \
+      -e "s_^usrinc=.*_usrinc='/lib/include'_" \
+      -e "s_^xlibpth=.*_xlibpth='/lib'_" \
+      -i $SRC/config.sh
+  make install DESTDIR=$DST
+
+  mkdir -p $DST/lib/shared
+  mv $DST/lib/perl/CORE/$LIBPERL $DST/lib/shared
+  ln -f -s $LIBPERL $DST/lib/shared/${LIBPERL%.so.*}.so
+  rm -f $DST/bin/perl$VERSION
+
+  enabled docs || rm -f -r $DST/lib/perl/pod
+
+  # Exorcise a particularly hideous hack from the installed scripts:
+  find $DST -type f -print | while read FILE; do
+    head -c 2 "$FILE" | grep -q '#!' || continue
+    head -n 1 "$FILE" | grep -q '^#![[:blank:]]*/bin/perl' || continue
+    sed -i "2,4 { /^#!/d; /^[[:blank:]]*eval 'exec /!b; N; d }" "$FILE"
+  done
+}

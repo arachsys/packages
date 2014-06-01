@@ -1,0 +1,7 @@
+name init
+version 1.0
+sources http://arachsys.github.io/downloads/init-$VERSION.tar.gz
+
+build() {
+  make install DESTDIR=$DST PREFIX=
+}

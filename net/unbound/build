@@ -1,0 +1,12 @@
+name unbound
+version 1.4.22
+sources http://unbound.net/downloads/unbound-$VERSION.tar.gz
+mode autotools
+
+config-extra --disable-rpath --disable-shared \
+             --with-conf-file=/etc/unbound.conf --with-libexpat=/lib \
+             --with-run-dir=/run/unbound --with-ssl=/lib -with-username=dns
+
+post-install() {
+  rm -f -r $DST/include $DST/lib
+}

@@ -1,0 +1,15 @@
+diff --git a/elf/Makefile b/elf/Makefile
+--- a/elf/Makefile
++++ b/elf/Makefile
+@@ -364,11 +364,7 @@
+ bash-ldd-rewrite = $(common-ldd-rewrite) -e 's%@BASH@%$(BASH)%g' \
+ 		   -e 's%@TEXTDOMAINDIR@%$(msgcatdir)%g'
+ 
+-ifneq ($(have-bash2),yes)
+-ldd-shell = sh
+-else
+ ldd-shell = bash
+-endif
+ 
+ ifeq ($(ldd-rewrite-script),no)
+ define gen-ldd

@@ -1,0 +1,13 @@
+name curl
+version 7.36.0
+mode autotools
+sources http://curl.haxx.se/download/curl-$VERSION.tar.bz2 \
+        manual.patch paths.patch
+
+config-extra --with-ca-bundle=/etc/ssl/cert.pem
+
+pre-config() {
+  unexpand $SRC/curl-config.in >$SRC/curl-config.in.tmp
+  mv -f $SRC/curl-config.in{.tmp,}
+  export PATH_SEPARATOR=:
+}

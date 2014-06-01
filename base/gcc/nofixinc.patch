@@ -1,0 +1,13 @@
+diff --git a/gcc/Makefile.in b/gcc/Makefile.in
+index 1dab9a5..02fc9d8 100644
+--- a/gcc/Makefile.in
++++ b/gcc/Makefile.in
+@@ -3949,7 +3949,7 @@ stmp-fixinc: gsyslimits.h macro_list fixinc_list \
+ 	      gcc_dir=`${PWD_COMMAND}` ; \
+ 	      export TARGET_MACHINE srcdir SHELL MACRO_LIST && \
+ 	      cd $(build_objdir)/fixincludes && \
+-	      $(SHELL) ./fixinc.sh "$${gcc_dir}/$${fix_dir}" \
++	      $(SHELL) -c true "$${gcc_dir}/$${fix_dir}" \
+ 	        $(SYSTEM_HEADER_DIR) $(OTHER_FIXINCLUDES_DIRS) ); \
+ 	    rm -f $${fix_dir}/syslimits.h; \
+ 	    if [ -f $${fix_dir}/limits.h ]; then \

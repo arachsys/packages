@@ -1,0 +1,13 @@
+diff --git a/ext/Errno/Errno_pm.PL b/ext/Errno/Errno_pm.PL
+index 439f254..147cf1a 100644
+--- a/ext/Errno/Errno_pm.PL
++++ b/ext/Errno/Errno_pm.PL
+@@ -112,6 +112,8 @@ sub default_cpp {
+ }
+ 
+ sub get_files {
++    return '/lib/include/errno.h';
++
+     my %file = ();
+     # VMS keeps its include files in system libraries (well, except for Gcc)
+     if ($^O eq 'VMS') {

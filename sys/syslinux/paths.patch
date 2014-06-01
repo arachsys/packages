@@ -1,0 +1,102 @@
+diff --git a/com32/gpllib/Makefile b/com32/gpllib/Makefile
+index 4b7b846..7f2479d 100644
+--- a/com32/gpllib/Makefile
++++ b/com32/gpllib/Makefile
+@@ -12,11 +12,11 @@ REQFLAGS += -I../gplinclude -I../gplinclude/zzjson
+ GPLDIRS := . disk dmi vpd acpi zzjson
+ LIBOBJS := $(foreach dir,$(GPLDIRS),$(patsubst %.c,%.o,$(wildcard $(dir)/*.c)))
+ 
+-BINDIR   = /usr/bin
+-LIBDIR   = /usr/lib
+-DATADIR  = /usr/share
++BINDIR   = /bin
++LIBDIR   = /lib
++DATADIR  = /lib
+ AUXDIR   = $(DATADIR)/syslinux
+-INCDIR   = /usr/include
++INCDIR   = /lib/include
+ COM32DIR = $(AUXDIR)/com32
+ 
+ all: libcom32gpl.a
+diff --git a/com32/lib/Makefile b/com32/lib/Makefile
+index 5ab1fac..06119dd 100644
+--- a/com32/lib/Makefile
++++ b/com32/lib/Makefile
+@@ -152,11 +152,11 @@ LIBCOREOBJS = 	\
+ 	libgcc/__muldi3.o libgcc/__udivmoddi4.o libgcc/__umoddi3.o	\
+ 	libgcc/__divdi3.o libgcc/__moddi3.o
+ 
+-BINDIR   = /usr/bin
+-LIBDIR   = /usr/lib
+-DATADIR  = /usr/share
++BINDIR   = /bin
++LIBDIR   = /lib
++DATADIR  = /lib
+ AUXDIR   = $(DATADIR)/syslinux
+-INCDIR   = /usr/include
++INCDIR   = /lib/include
+ COM32DIR = $(AUXDIR)/com32
+ 
+ all: libcom32.a libcomcore.a
+diff --git a/com32/libupload/Makefile b/com32/libupload/Makefile
+index 8305335..26b9293 100644
+--- a/com32/libupload/Makefile
++++ b/com32/libupload/Makefile
+@@ -8,11 +8,11 @@ REQFLAGS += -I./
+ SUBDIRS := . 
+ LIBOBJS := $(foreach dir,$(SUBDIRS),$(patsubst %.c,%.o,$(wildcard $(dir)/*.c)))
+ 
+-BINDIR   = /usr/bin
+-LIBDIR   = /usr/lib
+-DATADIR  = /usr/share
++BINDIR   = /bin
++LIBDIR   = /lib
++DATADIR  = /lib
+ AUXDIR   = $(DATADIR)/syslinux
+-INCDIR   = /usr/include
++INCDIR   = /lib/include
+ COM32DIR = $(AUXDIR)/com32
+ 
+ all: libcom32upload.a
+diff --git a/extlinux/main.c b/extlinux/main.c
+old mode 100644
+new mode 100755
+index dbf538a..04c1305
+--- a/extlinux/main.c
++++ b/extlinux/main.c
+@@ -1066,8 +1066,8 @@ static const char *get_devname(const char *path)
+ 	devname = find_device("/proc/mounts", st.st_dev);
+     }
+     if (!devname) {
+-	/* Didn't find it in /proc/mounts, try /etc/mtab */
+-        devname = find_device("/etc/mtab", st.st_dev);
++	/* Didn't find it in /proc/mounts, try /run/mtab */
++        devname = find_device("/run/mtab", st.st_dev);
+     }
+     if (!devname) {
+ 	devname = find_device_sysfs(st.st_dev);
+diff --git a/mk/syslinux.mk b/mk/syslinux.mk
+index 6d87187..4cf2a61 100644
+--- a/mk/syslinux.mk
++++ b/mk/syslinux.mk
+@@ -18,14 +18,14 @@
+ MAKEFLAGS += -r
+ MAKE      += -r
+ 
+-BINDIR   = /usr/bin
+-SBINDIR  = /sbin
+-LIBDIR   = /usr/lib
+-DATADIR  = /usr/share
++BINDIR   = /bin
++SBINDIR  = /bin
++LIBDIR   = /lib
++DATADIR  = /lib
+ AUXDIR   = $(DATADIR)/syslinux
+ DIAGDIR  = $(AUXDIR)/diag
+-MANDIR	 = /usr/man
+-INCDIR   = /usr/include
++MANDIR	 = /lib/man
++INCDIR   = /lib/include
+ TFTPBOOT = /tftpboot
+ COM32DIR = $(AUXDIR)/com32
+ 

@@ -1,0 +1,60 @@
+diff --git a/builtin/help.c b/builtin/help.c
+index 1fdefeb..c922715 100644
+--- a/builtin/help.c
++++ b/builtin/help.c
+@@ -28,7 +28,8 @@ enum help_format {
+ 	HELP_FORMAT_NONE,
+ 	HELP_FORMAT_MAN,
+ 	HELP_FORMAT_INFO,
+-	HELP_FORMAT_WEB
++	HELP_FORMAT_WEB,
++	HELP_FORMAT_USAGE
+ };
+ 
+ static const char *html_path;
+@@ -45,11 +46,13 @@ static struct option builtin_help_options[] = {
+ 			HELP_FORMAT_WEB),
+ 	OPT_SET_INT('i', "info", &help_format, N_("show info page"),
+ 			HELP_FORMAT_INFO),
++	OPT_SET_INT('u', "usage", &help_format, "show usage",
++			HELP_FORMAT_USAGE),
+ 	OPT_END(),
+ };
+ 
+ static const char * const builtin_help_usage[] = {
+-	N_("git help [--all] [--guides] [--man|--web|--info] [command]"),
++	N_("git help [--all] [--guides] [--man|--web|--info|--usage] [command]"),
+ 	NULL
+ };
+ 
+@@ -61,6 +64,8 @@ static enum help_format parse_help_format(const char *format)
+ 		return HELP_FORMAT_INFO;
+ 	if (!strcmp(format, "web") || !strcmp(format, "html"))
+ 		return HELP_FORMAT_WEB;
++	if (!strcmp(format, "usage"))
++		return HELP_FORMAT_USAGE;
+ 	die(_("unrecognized help format '%s'"), format);
+ }
+ 
+@@ -448,6 +453,11 @@ static void list_common_guides_help(void)
+ 	putchar('\n');
+ }
+ 
++static void show_usage(const char *git_cmd)
++{
++	execl_git_cmd(git_cmd, "-h", NULL);
++}
++
+ int cmd_help(int argc, const char **argv, const char *prefix)
+ {
+ 	int nongit;
+@@ -508,6 +518,9 @@ int cmd_help(int argc, const char **argv, const char *prefix)
+ 	case HELP_FORMAT_WEB:
+ 		show_html_page(argv[0]);
+ 		break;
++	case HELP_FORMAT_USAGE:
++		show_usage(argv[0]);
++		break;
+ 	}
+ 
+ 	return 0;

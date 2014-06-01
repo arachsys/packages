@@ -1,0 +1,101 @@
+From df1cc8fd0eb6cfc111d184069cab0be260df648a Thu Aug 16 20:25:31 2012
+Message-Id: <df1cc8fd0eb6cfc111d184069cab0be260df648a.1345148761.git.chris@arachsys.com>
+From: Chris Webb <chris@arachsys.com>
+Date: Thu, 16 Aug 2012 21:17:40 +0100
+Subject: [PATCH] Correct the bridge command name in help messages
+
+The bridge command used to be called br but was renamed bridge. Correct
+the outdated references to the br name in the help messages, together
+with a typo of '-help' for 'help'.
+
+Signed-off-by: Chris Webb <chris@arachsys.com>
+---
+ bridge/bridge.c  | 8 ++++----
+ bridge/fdb.c     | 4 ++--
+ bridge/monitor.c | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/bridge/bridge.c b/bridge/bridge.c
+index 9e5f69c..2b7c43f 100644
+--- a/bridge/bridge.c
++++ b/bridge/bridge.c
+@@ -25,7 +25,7 @@ static void usage(void) __attribute__((noreturn));
+ static void usage(void)
+ {
+ 	fprintf(stderr,
+-"Usage: br [ OPTIONS ] OBJECT { COMMAND | help }\n"
++"Usage: bridge [ OPTIONS ] OBJECT { COMMAND | help }\n"
+ "where  OBJECT := { fdb |  monitor }\n"
+ "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails]\n" );
+ 	exit(-1);
+@@ -56,7 +56,7 @@ static int do_cmd(const char *argv0, int argc, char **argv)
+ 			return c->func(argc-1, argv+1);
+ 	}
+ 
+-	fprintf(stderr, "Object \"%s\" is unknown, try \"br help\".\n", argv0);
++	fprintf(stderr, "Object \"%s\" is unknown, try \"bridge help\".\n", argv0);
+ 	return -1;
+ }
+ 
+@@ -77,7 +77,7 @@ main(int argc, char **argv)
+ 		if (matches(opt, "-help") == 0) {
+ 			usage();
+ 		} else if (matches(opt, "-Version") == 0) {
+-			printf("br utility, 0.0\n");
++			printf("bridge utility, 0.0\n");
+ 			exit(0);
+ 		} else if (matches(opt, "-stats") == 0 ||
+ 			   matches(opt, "-statistics") == 0) {
+@@ -87,7 +87,7 @@ main(int argc, char **argv)
+ 		} else if (matches(opt, "-timestamp") == 0) {
+ 			++timestamp;
+ 		} else {
+-			fprintf(stderr, "Option \"%s\" is unknown, try \"br -help\".\n", opt);
++			fprintf(stderr, "Option \"%s\" is unknown, try \"bridge help\".\n", opt);
+ 			exit(-1);
+ 		}
+ 		argc--;	argv++;
+diff --git a/bridge/fdb.c b/bridge/fdb.c
+index 04984f1..2bbdaa6 100644
+--- a/bridge/fdb.c
++++ b/bridge/fdb.c
+@@ -26,8 +26,8 @@ int filter_index;
+ 
+ static void usage(void)
+ {
+-	fprintf(stderr, "Usage: br fdb { add | del | replace } ADDR dev DEV\n");
+-	fprintf(stderr, "       br fdb {show} [ dev DEV ]\n");
++	fprintf(stderr, "Usage: bridge fdb { add | del | replace } ADDR dev DEV\n");
++	fprintf(stderr, "       bridge fdb {show} [ dev DEV ]\n");
+ 	exit(-1);
+ }
+ 
+diff --git a/bridge/monitor.c b/bridge/monitor.c
+index 37468e6..3790a84 100644
+--- a/bridge/monitor.c
++++ b/bridge/monitor.c
+@@ -1,5 +1,5 @@
+ /*
+- * brmonitor.c		"br monitor"
++ * brmonitor.c		"bridge monitor"
+  *
+  *		This program is free software; you can redistribute it and/or
+  *		modify it under the terms of the GNU General Public License
+@@ -31,7 +31,7 @@ int prefix_banner;
+ 
+ static void usage(void)
+ {
+-	fprintf(stderr, "Usage: br monitor\n");
++	fprintf(stderr, "Usage: bridge monitor\n");
+ 	exit(-1);
+ }
+ 
+@@ -103,7 +103,7 @@ int do_monitor(int argc, char **argv)
+ 		} else if (matches(*argv, "help") == 0) {
+ 			usage();
+ 		} else {
+-			fprintf(stderr, "Argument \"%s\" is unknown, try \"br monitor help\".\n", *argv);
++			fprintf(stderr, "Argument \"%s\" is unknown, try \"bridge monitor help\".\n", *argv);
+ 			exit(-1);
+ 		}
+ 		argc--;	argv++;

@@ -1,0 +1,9 @@
+name psmisc
+version 22.21
+mode autotools
+sources http://downloads.sourceforge.net/project/psmisc/psmisc/psmisc-$VERSION.tar.gz
+
+post-install() {
+  ln -f $DST/bin/killall $DST/bin/pidof
+  rm -f $DST/bin/pstree.x11
+}

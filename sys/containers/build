@@ -1,0 +1,10 @@
+name containers
+version 1.2
+sources https://arachsys.github.io/downloads/containers-$VERSION.tar.gz
+
+enable setuid
+
+build() {
+  make
+  make install DESTDIR=$DST
+}

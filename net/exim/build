@@ -1,0 +1,12 @@
+name exim
+version 4.82.1
+sources http://ftp.exim.org/pub/exim/exim4/exim-$VERSION.tar.bz2 \
+        config.patch eximlogs.patch paths.patch
+enable setuid
+
+build() {
+  sed -e 's/^\(EXIM_COMPILE_NUMBER\)=.*/\1=0/' -i src/version.sh
+  make install DESTDIR=$DST PREFIX=
+  mv -f $DST/bin/exim-$VERSION-* $DST/bin/exim
+  rm -f $DST/bin/exicyclog
+}

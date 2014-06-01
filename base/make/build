@@ -1,0 +1,4 @@
+name make
+version 4.0
+mode autotools
+sources http://ftp.gnu.org/gnu/make/make-$VERSION.tar.bz2 paths.patch

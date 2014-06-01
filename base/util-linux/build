@@ -1,0 +1,25 @@
+name util-linux
+version 2.24.2
+mode autotools
+sources http://ftp.kernel.org/pub/linux/utils/util-linux/v${VERSION%.*}/util-linux-$VERSION.tar.xz \
+        gpt-attr.patch paths.patch
+enable setuid setgid
+
+config-extra --disable-chfn-chsh --disable-login --disable-newgrp \
+             --disable-nologin --disable-rpath --disable-su --disable-vipw \
+             --enable-last --enable-line --enable-mesg --enable-shared \
+             --enable-write --enable-fs-paths-default=/bin
+
+post-config() {
+  find . -type f -name Makefile | while read FILE; do
+    sed -e 's:^\(usrsbin_execdir *=\).*:\1 /bin:' -i $FILE
+    sed -e 's:^\(usrlib_execdir *=\).*:\1 /lib:' -i $FILE
+    sed -e 's:^\(pkgconfigdir *=\).*:\1 /lib/pkgconfig:' -i $FILE
+  done
+  sed -e 's:/sbin/mount:/bin/mount:g' -i po/*.{gmo,po,pot}
+  sed -e 's:/etc/mtab:/run/mtab:g' -i po/*.{gmo,po,pot}
+}
+
+post-install() {
+  rm -f -r $DST/bin/chkdupexec $DST/lib/getopt
+}

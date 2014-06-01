@@ -1,0 +1,81 @@
+diff --git a/runtime/filetype.vim b/runtime/filetype.vim
+index 70c1fe1..2e1629e 100644
+--- a/runtime/filetype.vim
++++ b/runtime/filetype.vim
+@@ -123,7 +123,7 @@ au BufNewFile,BufRead *.am
+ 	\ if expand("<afile>") !~? 'Makefile.am\>' | setf elf | endif
+ 
+ " ALSA configuration
+-au BufNewFile,BufRead .asoundrc,*/usr/share/alsa/alsa.conf,*/etc/asound.conf setf alsaconf
++au BufNewFile,BufRead .asoundrc,*/lib/alsa/alsa.conf,*/etc/asound.conf setf alsaconf
+ 
+ " Arc Macro Language
+ au BufNewFile,BufRead *.aml			setf aml
+@@ -777,7 +777,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
+ " GPG
+ au BufNewFile,BufRead */.gnupg/options		setf gpg
+ au BufNewFile,BufRead */.gnupg/gpg.conf		setf gpg
+-au BufNewFile,BufRead */usr/*/gnupg/options.skel setf gpg
++au BufNewFile,BufRead */*/gnupg/options.skel setf gpg
+ 
+ " gnash(1) configuration files
+ au BufNewFile,BufRead gnashrc,.gnashrc,gnashpluginrc,.gnashpluginrc setf gnash
+@@ -2217,8 +2217,8 @@ au BufNewFile,BufRead *.uc			setf uc
+ au BufNewFile,BufRead */etc/updatedb.conf	setf updatedb
+ 
+ " Upstart (init(8)) config files
+-au BufNewFile,BufRead */usr/share/upstart/*.conf               setf upstart
+-au BufNewFile,BufRead */usr/share/upstart/*.override           setf upstart
++au BufNewFile,BufRead */lib/upstart/*.conf               setf upstart
++au BufNewFile,BufRead */lib/upstart/*.override           setf upstart
+ au BufNewFile,BufRead */etc/init/*.conf,*/etc/init/*.override  setf upstart
+ au BufNewFile,BufRead */.init/*.conf,*/.init/*.override        setf upstart
+ au BufNewFile,BufRead */.config/upstart/*.conf                 setf upstart
+diff --git a/runtime/ftplugin/man.vim b/runtime/ftplugin/man.vim
+index c6e1e9d..fc37985 100644
+--- a/runtime/ftplugin/man.vim
++++ b/runtime/ftplugin/man.vim
+@@ -89,7 +89,7 @@ func <SID>GetCmdArg(sect, page)
+ endfunc
+ 
+ func <SID>FindPage(sect, page)
+-  let where = system("/usr/bin/man ".s:man_find_arg.' '.s:GetCmdArg(a:sect, a:page))
++  let where = system("/bin/man ".s:man_find_arg.' '.s:GetCmdArg(a:sect, a:page))
+   if where !~ "^/"
+     if matchstr(where, " [^ ]*$") !~ "^ /"
+       return 0
+@@ -154,7 +154,7 @@ func <SID>GetPage(...)
+   setl ma nonu nornu nofen
+   silent exec "norm 1GdG"
+   let $MANWIDTH = winwidth(0)
+-  silent exec "r!/usr/bin/man ".s:GetCmdArg(sect, page)." | col -b"
++  silent exec "r!/bin/man ".s:GetCmdArg(sect, page)." | col -b"
+   " Remove blank lines from top and bottom.
+   while getline(1) =~ '^\s*$'
+     silent norm ggdd
+diff --git a/runtime/tools/shtags.pl b/runtime/tools/shtags.pl
+index 48dcdc7..79da8c5 100755
+--- a/runtime/tools/shtags.pl
++++ b/runtime/tools/shtags.pl
+@@ -30,7 +30,7 @@ sub version
+     #
+     # Version information
+     #
+-    @id = split( ', ', 'scripts/bin/shtags, /usr/local/, LOCAL_SCRIPTS, 1.1, 96/11/27, 19:46:06' );
++    @id = split( ', ', 'scripts/bin/shtags, /, LOCAL_SCRIPTS, 1.1, 96/11/27, 19:46:06' );
+     $id[0] =~ s,.*/,,;
+     print <<_EOVERS;
+ $id[0]:		$id[3]
+diff --git a/src/option.c b/src/option.c
+index bf65556..c6fece9 100644
+--- a/src/option.c
++++ b/src/option.c
+@@ -1964,7 +1964,7 @@ static struct vimoption
+ # if defined(__EMX__)
+ 			    (char_u *)".,/emx/include,,",
+ # else /* Unix, probably */
+-			    (char_u *)".,/usr/include,,",
++			    (char_u *)".,/lib/include,,",
+ # endif
+ #endif
+ 				(char_u *)0L} SCRIPTID_INIT},

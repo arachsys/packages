@@ -1,0 +1,4 @@
+name file
+version 5.18
+mode autotools
+sources ftp://ftp.astron.com/pub/file/file-$VERSION.tar.gz

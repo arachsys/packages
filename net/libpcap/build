@@ -1,0 +1,8 @@
+name libpcap
+version 1.5.3
+sources http://www.tcpdump.org/release/libpcap-$VERSION.tar.gz rpath.patch
+mode autotools
+requires -b bison
+requires -b flex
+
+config-extra --with-pcap=linux

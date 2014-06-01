@@ -1,0 +1,75 @@
+diff --git a/configure b/configure
+index 52f0e36..91a506f 100755
+--- a/configure
++++ b/configure
+@@ -10278,7 +10278,7 @@ fi
+ lvm_exec_prefix=$exec_prefix
+ test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$prefix
+ test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$ac_default_prefix
+-LVM_PATH="$lvm_exec_prefix/sbin/lvm"
++LVM_PATH="$lvm_exec_prefix/bin/lvm"
+ 
+ cat >>confdefs.h <<_ACEOF
+ #define LVM_PATH "$LVM_PATH"
+@@ -10287,7 +10287,7 @@ _ACEOF
+ 
+ if  test "$CLVMD" != none; then
+         clvmd_prefix=$ac_default_prefix
+-        CLVMD_PATH="$clvmd_prefix/sbin/clvmd"
++        CLVMD_PATH="$clvmd_prefix/bin/clvmd"
+         test "$prefix" != NONE && clvmd_prefix=$prefix
+ 
+ cat >>confdefs.h <<_ACEOF
+@@ -10319,7 +10319,7 @@ if test "$BUILD_DMEVENTD" = yes; then
+ if test "${with_dmeventd_path+set}" = set; then :
+   withval=$with_dmeventd_path; DMEVENTD_PATH=$withval
+ else
+-  DMEVENTD_PATH="$lvm_exec_prefix/sbin/dmeventd"
++  DMEVENTD_PATH="$lvm_exec_prefix/bin/dmeventd"
+ fi
+ 
+ 
+diff --git a/configure.in b/configure.in
+index 1c908f9..4f6f01d 100644
+--- a/configure.in
++++ b/configure.in
+@@ -1332,12 +1332,12 @@ fi
+ lvm_exec_prefix=$exec_prefix
+ test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$prefix
+ test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$ac_default_prefix
+-LVM_PATH="$lvm_exec_prefix/sbin/lvm"
++LVM_PATH="$lvm_exec_prefix/bin/lvm"
+ AC_DEFINE_UNQUOTED(LVM_PATH, ["$LVM_PATH"], [Path to lvm binary.])
+ 
+ if  test "$CLVMD" != none; then
+         clvmd_prefix=$ac_default_prefix
+-        CLVMD_PATH="$clvmd_prefix/sbin/clvmd"
++        CLVMD_PATH="$clvmd_prefix/bin/clvmd"
+         test "$prefix" != NONE && clvmd_prefix=$prefix
+ 	AC_DEFINE_UNQUOTED(CLVMD_PATH, ["$CLVMD_PATH"], [Path to clvmd binary.])
+ fi
+@@ -1357,9 +1357,9 @@ fi
+ if test "$BUILD_DMEVENTD" = yes; then
+ 	AC_ARG_WITH(dmeventd-path,
+ 		    AC_HELP_STRING([--with-dmeventd-path=PATH],
+-				   [dmeventd path [[EPREFIX/sbin/dmeventd]]]),
++				   [dmeventd path [[EPREFIX/bin/dmeventd]]]),
+ 		    DMEVENTD_PATH=$withval,
+-		    DMEVENTD_PATH="$lvm_exec_prefix/sbin/dmeventd")
++		    DMEVENTD_PATH="$lvm_exec_prefix/bin/dmeventd")
+ 	AC_DEFINE_UNQUOTED(DMEVENTD_PATH, ["$DMEVENTD_PATH"],
+ 			   [Path to dmeventd binary.])
+ fi
+diff --git a/scripts/fsadm.sh b/scripts/fsadm.sh
+index 4624a1c..d7bdfc0 100755
+--- a/scripts/fsadm.sh
++++ b/scripts/fsadm.sh
+@@ -32,7 +32,7 @@
+ TOOL=fsadm
+ 
+ _SAVEPATH=$PATH
+-PATH=/sbin:/usr/sbin:/bin:/usr/sbin:$PATH
++PATH=/bin:$PATH
+ 
+ # utilities
+ TUNE_EXT=tune2fs

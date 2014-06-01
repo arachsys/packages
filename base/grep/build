@@ -1,0 +1,6 @@
+name grep
+version 2.18
+mode autotools
+sources http://ftp.gnu.org/gnu/grep/grep-$VERSION.tar.xz
+
+config-extra --enable-perl-regexp --without-included-regex

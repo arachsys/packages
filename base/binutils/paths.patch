@@ -1,0 +1,50 @@
+diff --git a/libiberty/make-temp-file.c b/libiberty/make-temp-file.c
+index 7b74f81..74c9f84 100644
+--- a/libiberty/make-temp-file.c
++++ b/libiberty/make-temp-file.c
+@@ -82,8 +82,6 @@ try_dir (const char *dir, const char *base)
+ }
+ 
+ static const char tmp[] = { DIR_SEPARATOR, 't', 'm', 'p', 0 };
+-static const char usrtmp[] =
+-{ DIR_SEPARATOR, 'u', 's', 'r', DIR_SEPARATOR, 't', 'm', 'p', 0 };
+ static const char vartmp[] =
+ { DIR_SEPARATOR, 'v', 'a', 'r', DIR_SEPARATOR, 't', 'm', 'p', 0 };
+ 
+@@ -130,9 +128,8 @@ choose_tmpdir (void)
+ 	base = try_dir (P_tmpdir, base);
+ #endif
+ 
+-      /* Try /var/tmp, /usr/tmp, then /tmp.  */
++      /* Try /var/tmp then /tmp.  */
+       base = try_dir (vartmp, base);
+-      base = try_dir (usrtmp, base);
+       base = try_dir (tmp, base);
+       
+       /* If all else fails, use the current directory!  */
+diff --git a/libiberty/tmpnam.c b/libiberty/tmpnam.c
+index cc34333..a1e65ab 100644
+--- a/libiberty/tmpnam.c
++++ b/libiberty/tmpnam.c
+@@ -18,7 +18,7 @@ not be used in new projects.  Use @code{mkstemp} instead.
+ #define L_tmpnam 100
+ #endif
+ #ifndef P_tmpdir
+-#define P_tmpdir "/usr/tmp"
++#define P_tmpdir "/tmp"
+ #endif
+ 
+ static char tmpnam_buffer[L_tmpnam];
+diff --git a/libtool.m4 b/libtool.m4
+index 71bcee8..702093f 100644
+--- a/libtool.m4
++++ b/libtool.m4
+@@ -2442,7 +2442,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu)
+   need_version=no
+   library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major $libname${shared_ext}'
+   soname_spec='${libname}${release}${shared_ext}$major'
+-  finish_cmds='PATH="\$PATH:/sbin" ldconfig -n $libdir'
++  finish_cmds='ldconfig -n $libdir'
+   shlibpath_var=LD_LIBRARY_PATH
+   shlibpath_overrides_runpath=no
+ 

@@ -1,0 +1,10 @@
+name syslinux
+version 4.07
+sources http://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-$VERSION.tar.xz \
+        paths.patch
+
+build() {
+  make install INSTALLROOT=$DST
+  rm $DST/bin/isohybrid.pl
+}
+

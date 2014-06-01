@@ -1,0 +1,22 @@
+name gcc
+version 4.9.0
+mode autotools
+sources http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/gcc-$VERSION.tar.bz2 \
+        nofixinc.patch nolibiberty.patch paths.patch pure64.patch
+
+config-extra --disable-multilib --enable-__cxa_atexit --enable-clocale=gnu \
+             --enable-languages=c,c++ --enable-libstdcxx-time=yes \
+             --enable-linker-build-id --enable-lto --enable-objc-gc \
+             --enable-plugin --enable-shared --enable-threads=posix \
+             --without-included-gettext --without-local-prefix \
+             --with-gxx-include-dir='${prefix}/lib/include/c++/${gcc_version}' \
+             --with-native-system-header-dir=/lib/include \
+             --with-slibdir='${prefix}/lib/shared' --with-system-zlib
+
+post-install() {
+  rm -f $DST/bin/{$CHOST-*,gccbug}
+  ln -f -s gcc $DST/bin/cc
+  find $DST -name '*.py' -type f -delete
+  find $DST/lib -name '*.spec' -type f \
+    -exec mv -t $DST/lib/gcc/$CHOST/$VERSION/ {} +
+}

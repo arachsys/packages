@@ -1,0 +1,6 @@
+name mpc
+version 1.0.2
+mode autotools
+sources http://www.multiprecision.org/mpc/download/mpc-$VERSION.tar.gz
+
+config-extra --enable-shared

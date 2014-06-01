@@ -1,0 +1,387 @@
+diff --git a/Lib/aifc.py b/Lib/aifc.py
+index d8b7fab..3fc47bd 100644
+--- a/Lib/aifc.py
++++ b/Lib/aifc.py
+@@ -952,7 +952,7 @@ openfp = open # B/W compatibility
+ if __name__ == '__main__':
+     import sys
+     if not sys.argv[1:]:
+-        sys.argv.append('/usr/demos/data/audio/bach.aiff')
++        sys.argv.append('/lib/demos/data/audio/bach.aiff')
+     fn = sys.argv[1]
+     f = open(fn, 'r')
+     try:
+diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
+index b9f1c6c..5278201 100644
+--- a/Lib/distutils/command/install.py
++++ b/Lib/distutils/command/install.py
+@@ -41,23 +41,23 @@ else:
+ 
+ INSTALL_SCHEMES = {
+     'unix_prefix': {
+-        'purelib': '$base/lib/python$py_version_short/site-packages',
+-        'platlib': '$platbase/lib/python$py_version_short/site-packages',
+-        'headers': '$base/include/python$py_version_short/$dist_name',
++        'purelib': '$base/lib/python/site-packages',
++        'platlib': '$platbase/lib/python/site-packages',
++        'headers': '$base/lib/include/python/$dist_name',
+         'scripts': '$base/bin',
+         'data'   : '$base',
+         },
+     'unix_home': {
+         'purelib': '$base/lib/python',
+         'platlib': '$base/lib/python',
+-        'headers': '$base/include/python/$dist_name',
++        'headers': '$base/lib/include/python/$dist_name',
+         'scripts': '$base/bin',
+         'data'   : '$base',
+         },
+     'unix_user': {
+         'purelib': '$usersite',
+         'platlib': '$usersite',
+-        'headers': '$userbase/include/python$py_version_short/$dist_name',
++        'headers': '$userbase/lib/include/python/$dist_name',
+         'scripts': '$userbase/bin',
+         'data'   : '$userbase',
+         },
+@@ -65,7 +65,7 @@ INSTALL_SCHEMES = {
+     'nt_user': {
+         'purelib': '$usersite',
+         'platlib': '$usersite',
+-        'headers': '$userbase/Python$py_version_nodot/Include/$dist_name',
++        'headers': '$userbase/Python/Include/$dist_name',
+         'scripts': '$userbase/Scripts',
+         'data'   : '$userbase',
+         },
+@@ -79,7 +79,7 @@ INSTALL_SCHEMES = {
+     'os2_home': {
+         'purelib': '$usersite',
+         'platlib': '$usersite',
+-        'headers': '$userbase/include/python$py_version_short/$dist_name',
++        'headers': '$userbase/lib/include/python/$dist_name',
+         'scripts': '$userbase/bin',
+         'data'   : '$userbase',
+         },
+diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
+index 4aa9334..ff60d26 100644
+--- a/Lib/distutils/sysconfig.py
++++ b/Lib/distutils/sysconfig.py
+@@ -90,11 +90,11 @@ def get_python_inc(plat_specific=0, prefix=None):
+                 # Include is located in the srcdir
+                 inc_dir = os.path.join(srcdir, "Include")
+             return inc_dir
+-        return os.path.join(prefix, "include", "python" + get_python_version())
++        return os.path.join(prefix, "lib", "include", "python")
+     elif os.name == "nt":
+-        return os.path.join(prefix, "include")
++        return os.path.join(prefix, "lib", "include")
+     elif os.name == "os2":
+-        return os.path.join(prefix, "Include")
++        return os.path.join(prefix, "lib", "Include")
+     else:
+         raise DistutilsPlatformError(
+             "I don't know where Python installs its C header files "
+@@ -119,8 +119,7 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
+         prefix = plat_specific and EXEC_PREFIX or PREFIX
+ 
+     if os.name == "posix":
+-        libpython = os.path.join(prefix,
+-                                 "lib", "python" + get_python_version())
++        libpython = os.path.join(prefix, "lib", "python")
+         if standard_lib:
+             return libpython
+         else:
+diff --git a/Lib/distutils/tests/test_build_scripts.py b/Lib/distutils/tests/test_build_scripts.py
+index 4da93cc..7087ff7 100644
+--- a/Lib/distutils/tests/test_build_scripts.py
++++ b/Lib/distutils/tests/test_build_scripts.py
+@@ -55,12 +55,12 @@ class BuildScriptsTestCase(support.TempdirManager,
+         expected = []
+         expected.append("script1.py")
+         self.write_script(dir, "script1.py",
+-                          ("#! /usr/bin/env python2.3\n"
++                          ("#!/bin/env python\n"
+                            "# bogus script w/ Python sh-bang\n"
+                            "pass\n"))
+         expected.append("script2.py")
+         self.write_script(dir, "script2.py",
+-                          ("#!/usr/bin/python\n"
++                          ("#!/bin/python\n"
+                            "# bogus script w/ Python sh-bang\n"
+                            "pass\n"))
+         expected.append("shell.sh")
+diff --git a/Lib/distutils/tests/test_install_scripts.py b/Lib/distutils/tests/test_install_scripts.py
+index 4608545..84a734c 100644
+--- a/Lib/distutils/tests/test_install_scripts.py
++++ b/Lib/distutils/tests/test_install_scripts.py
+@@ -48,10 +48,10 @@ class InstallScriptsTestCase(support.TempdirManager,
+             finally:
+                 f.close()
+ 
+-        write_script("script1.py", ("#! /usr/bin/env python2.3\n"
++        write_script("script1.py", ("#!/bin/env python\n"
+                                     "# bogus script w/ Python sh-bang\n"
+                                     "pass\n"))
+-        write_script("script2.py", ("#!/usr/bin/python\n"
++        write_script("script2.py", ("#!/bin/python\n"
+                                     "# bogus script w/ Python sh-bang\n"
+                                     "pass\n"))
+         write_script("shell.sh", ("#!/bin/sh\n"
+diff --git a/Lib/idlelib/EditorWindow.py b/Lib/idlelib/EditorWindow.py
+index 07ca556..67d1348 100644
+--- a/Lib/idlelib/EditorWindow.py
++++ b/Lib/idlelib/EditorWindow.py
+@@ -129,7 +129,7 @@ class EditorWindow(object):
+                 if os.path.isdir('/var/www/html/python/'):  # "python2" rpm
+                     dochome = '/var/www/html/python/index.html'
+                 else:
+-                    basepath = '/usr/share/doc/'  # standard location
++                    basepath = '/lib/doc/'  # standard location
+                     dochome = os.path.join(basepath, pyver,
+                                            'Doc', 'index.html')
+             elif sys.platform[:3] == 'win':
+diff --git a/Lib/mailcap.py b/Lib/mailcap.py
+index b2ddacd..4b602ca 100644
+--- a/Lib/mailcap.py
++++ b/Lib/mailcap.py
+@@ -43,8 +43,7 @@ def listmailcapfiles():
+         else:
+             # Don't bother with getpwuid()
+             home = '.' # Last resort
+-        mailcaps = [home + '/.mailcap', '/etc/mailcap',
+-                '/usr/etc/mailcap', '/usr/local/etc/mailcap']
++        mailcaps = [home + '/.mailcap', '/etc/mailcap']
+     return mailcaps
+ 
+ 
+diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
+index 3dde4cd..17ccddc 100644
+--- a/Lib/mimetypes.py
++++ b/Lib/mimetypes.py
+@@ -39,14 +39,6 @@ __all__ = [
+ 
+ knownfiles = [
+     "/etc/mime.types",
+-    "/etc/httpd/mime.types",                    # Mac OS X
+-    "/etc/httpd/conf/mime.types",               # Apache
+-    "/etc/apache/mime.types",                   # Apache 1
+-    "/etc/apache2/mime.types",                  # Apache 2
+-    "/usr/local/etc/httpd/conf/mime.types",
+-    "/usr/local/lib/netscape/mime.types",
+-    "/usr/local/etc/httpd/conf/mime.types",     # Apache 1.2
+-    "/usr/local/etc/mime.types",                # Apache 1.3
+     ]
+ 
+ inited = False
+diff --git a/Lib/plat-linux2/regen b/Lib/plat-linux2/regen
+index c76950e..341929d 100755
+--- a/Lib/plat-linux2/regen
++++ b/Lib/plat-linux2/regen
+@@ -5,4 +5,4 @@ Linux*)	;;
+ 	exit 1;;
+ esac
+ set -v
+-h2py -i '(u_long)' /usr/include/sys/types.h /usr/include/netinet/in.h /usr/include/dlfcn.h
++h2py -i '(u_long)' /include/sys/types.h /include/netinet/in.h /include/dlfcn.h
+diff --git a/Lib/posixpath.py b/Lib/posixpath.py
+index d65dc75..ca9167a 100644
+--- a/Lib/posixpath.py
++++ b/Lib/posixpath.py
+@@ -39,7 +39,7 @@ pardir = '..'
+ extsep = '.'
+ sep = '/'
+ pathsep = ':'
+-defpath = ':/bin:/usr/bin'
++defpath = ':/bin'
+ altsep = None
+ devnull = '/dev/null'
+ 
+diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
+index aa69351..b11a276 100644
+--- a/Lib/sysconfig.py
++++ b/Lib/sysconfig.py
+@@ -7,12 +7,12 @@ from os.path import pardir, realpath
+ 
+ _INSTALL_SCHEMES = {
+     'posix_prefix': {
+-        'stdlib': '{base}/lib/python{py_version_short}',
+-        'platstdlib': '{platbase}/lib/python{py_version_short}',
+-        'purelib': '{base}/lib/python{py_version_short}/site-packages',
+-        'platlib': '{platbase}/lib/python{py_version_short}/site-packages',
+-        'include': '{base}/include/python{py_version_short}',
+-        'platinclude': '{platbase}/include/python{py_version_short}',
++        'stdlib': '{base}/lib/python',
++        'platstdlib': '{platbase}/lib/python',
++        'purelib': '{base}/lib/python/site-packages',
++        'platlib': '{platbase}/lib/python/site-packages',
++        'include': '{base}/lib/include/python',
++        'platinclude': '{platbase}/lib/include/python',
+         'scripts': '{base}/bin',
+         'data': '{base}',
+         },
+@@ -21,8 +21,8 @@ _INSTALL_SCHEMES = {
+         'platstdlib': '{base}/lib/python',
+         'purelib': '{base}/lib/python',
+         'platlib': '{base}/lib/python',
+-        'include': '{base}/include/python',
+-        'platinclude': '{base}/include/python',
++        'include': '{base}/lib/include/python',
++        'platinclude': '{base}/lib/include/python',
+         'scripts': '{base}/bin',
+         'data'   : '{base}',
+         },
+@@ -47,29 +47,29 @@ _INSTALL_SCHEMES = {
+         'data'   : '{base}',
+         },
+     'os2_home': {
+-        'stdlib': '{userbase}/lib/python{py_version_short}',
+-        'platstdlib': '{userbase}/lib/python{py_version_short}',
+-        'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
+-        'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
+-        'include': '{userbase}/include/python{py_version_short}',
++        'stdlib': '{userbase}/lib/python',
++        'platstdlib': '{userbase}/lib/python',
++        'purelib': '{userbase}/lib/python/site-packages',
++        'platlib': '{userbase}/lib/python/site-packages',
++        'include': '{userbase}/lib/include/python',
+         'scripts': '{userbase}/bin',
+         'data'   : '{userbase}',
+         },
+     'nt_user': {
+-        'stdlib': '{userbase}/Python{py_version_nodot}',
+-        'platstdlib': '{userbase}/Python{py_version_nodot}',
+-        'purelib': '{userbase}/Python{py_version_nodot}/site-packages',
+-        'platlib': '{userbase}/Python{py_version_nodot}/site-packages',
+-        'include': '{userbase}/Python{py_version_nodot}/Include',
++        'stdlib': '{userbase}/Python',
++        'platstdlib': '{userbase}/Python',
++        'purelib': '{userbase}/Python/site-packages',
++        'platlib': '{userbase}/Python/site-packages',
++        'include': '{userbase}/Python/Include',
+         'scripts': '{userbase}/Scripts',
+         'data'   : '{userbase}',
+         },
+     'posix_user': {
+-        'stdlib': '{userbase}/lib/python{py_version_short}',
+-        'platstdlib': '{userbase}/lib/python{py_version_short}',
+-        'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
+-        'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
+-        'include': '{userbase}/include/python{py_version_short}',
++        'stdlib': '{userbase}/lib/python',
++        'platstdlib': '{userbase}/lib/python',
++        'purelib': '{userbase}/lib/python/site-packages',
++        'platlib': '{userbase}/lib/python/site-packages',
++        'include': '{userbase}/lib/include/python',
+         'scripts': '{userbase}/bin',
+         'data'   : '{userbase}',
+         },
+@@ -78,7 +78,7 @@ _INSTALL_SCHEMES = {
+         'platstdlib': '{userbase}/lib/python',
+         'purelib': '{userbase}/lib/python/site-packages',
+         'platlib': '{userbase}/lib/python/site-packages',
+-        'include': '{userbase}/include',
++        'include': '{userbase}/lib/include',
+         'scripts': '{userbase}/bin',
+         'data'   : '{userbase}',
+         },
+diff --git a/Lib/uuid.py b/Lib/uuid.py
+index cb4e5f0..c843f94 100644
+--- a/Lib/uuid.py
++++ b/Lib/uuid.py
+@@ -293,7 +293,7 @@ class UUID(object):
+ 
+ def _find_mac(command, args, hw_identifiers, get_index):
+     import os
+-    for dir in ['', '/sbin/', '/usr/sbin']:
++    for dir in ['', '/bin/']:
+         executable = os.path.join(dir, command)
+         if not os.path.exists(executable):
+             continue
+diff --git a/Lib/whichdb.py b/Lib/whichdb.py
+index 9071430..ab7f457 100644
+--- a/Lib/whichdb.py
++++ b/Lib/whichdb.py
+@@ -1,4 +1,4 @@
+-# !/usr/bin/env python
++#!/usr/bin/env python
+ """Guess which db package to use to open a db file."""
+ 
+ import os
+diff --git a/Makefile.pre.in b/Makefile.pre.in
+index cf75650..5853b80 100644
+--- a/Makefile.pre.in
++++ b/Makefile.pre.in
+@@ -105,15 +105,15 @@ BINDIR=		@bindir@
+ LIBDIR=		@libdir@
+ MANDIR=		@mandir@
+ INCLUDEDIR=	@includedir@
+-CONFINCLUDEDIR=	$(exec_prefix)/include
++CONFINCLUDEDIR=	@includedir@
+ SCRIPTDIR=	$(prefix)/lib
+ 
+ # Detailed destination directories
+-BINLIBDEST=	$(LIBDIR)/python$(VERSION)
+-LIBDEST=	$(SCRIPTDIR)/python$(VERSION)
+-INCLUDEPY=	$(INCLUDEDIR)/python$(VERSION)
+-CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(VERSION)
+-LIBP=		$(LIBDIR)/python$(VERSION)
++BINLIBDEST=	$(LIBDIR)/python
++LIBDEST=	$(SCRIPTDIR)/python
++INCLUDEPY=	$(INCLUDEDIR)/python
++CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python
++LIBP=		$(LIBDIR)/python
+ 
+ # Symbols used for using shared libraries
+ SO=		@SO@
+@@ -790,7 +790,7 @@ testuniversal:	all platform
+ 		-find $(srcdir)/Lib -name '*.py[co]' -print | xargs rm -f
+ 		-$(TESTPYTHON) $(TESTPROG) -uall $(TESTOPTS)
+ 		$(TESTPYTHON) $(TESTPROG) -uall $(TESTOPTS)
+-		$(RUNSHARED) /usr/libexec/oah/translate ./$(BUILDPYTHON) -E -tt $(TESTPROG) -uall $(TESTOPTS)
++		$(RUNSHARED) /lib/oah/translate ./$(BUILDPYTHON) -E -tt $(TESTPROG) -uall $(TESTOPTS)
+ 
+ 
+ # Like testall, but with a single pass only
+diff --git a/Modules/getpath.c b/Modules/getpath.c
+index de96d47..9a88383 100644
+--- a/Modules/getpath.c
++++ b/Modules/getpath.c
+@@ -117,8 +117,8 @@
+ #endif
+ 
+ #ifndef PYTHONPATH
+-#define PYTHONPATH PREFIX "/lib/python" VERSION ":" \
+-              EXEC_PREFIX "/lib/python" VERSION "/lib-dynload"
++#define PYTHONPATH PREFIX "/lib/python:" \
++              EXEC_PREFIX "/lib/python/lib-dynload"
+ #endif
+ 
+ #ifndef LANDMARK
+@@ -129,7 +129,7 @@ static char prefix[MAXPATHLEN+1];
+ static char exec_prefix[MAXPATHLEN+1];
+ static char progpath[MAXPATHLEN+1];
+ static char *module_search_path = NULL;
+-static char lib_python[] = "lib/python" VERSION;
++static char lib_python[] = "lib/python";
+ 
+ static void
+ reduce(char *dir)
+diff --git a/setup.py b/setup.py
+index 40ad843..58b5c07 100644
+--- a/setup.py
++++ b/setup.py
+@@ -501,12 +501,11 @@ class PyBuildExt(build_ext):
+         lib_dirs = self.compiler.library_dirs[:]
+         if not cross_compiling:
+             for d in (
+-                '/usr/include',
++                '/lib/include',
+                 ):
+                 add_dir_to_list(inc_dirs, d)
+             for d in (
+-                '/lib64', '/usr/lib64',
+-                '/lib', '/usr/lib',
++                '/lib/shared', '/lib/static',
+                 ):
+                 add_dir_to_list(lib_dirs, d)
+         exts = []

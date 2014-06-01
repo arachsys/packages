@@ -1,0 +1,14 @@
+name netkit-telnet
+version 0.17.24+0.1-24
+sources http://ftp.debian.org/debian/pool/main/n/netkit-telnet-ssl/netkit-telnet-ssl_${VERSION%-*}.orig.tar.gz \
+        http://ftp.debian.org/debian/pool/main/n/netkit-telnet-ssl/netkit-telnet-ssl_$VERSION.diff.gz
+
+build() {
+  $SRC/configure --prefix=
+  sed -e 's:^CFLAGS=.*:\0 -I/lib/include/openssl:' \
+      -e 's:^CXXFLAGS=.*:\0 -I/lib/include/openssl:' \
+      -e 's:^SBINDIR=.*:SBINDIR=/bin:' -i MCONFIG
+  make -C libtelnet
+  make -C telnet
+  install -s -D telnet/telnet $DST/bin/telnet
+}

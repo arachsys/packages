@@ -1,0 +1,27 @@
+diff --git a/hgext/mq.py b/hgext/mq.py
+index 08788bc..ea4b1d8 100644
+--- a/hgext/mq.py
++++ b/hgext/mq.py
+@@ -738,11 +738,11 @@ class queue(object):
+             message = ph.message
+             if not message:
+                 # The commit message should not be translated
+-                message = "imported patch %s\n" % patchname
++                message = "Imported patch %s\n" % patchname
+             else:
+                 if list:
+                     # The commit message should not be translated
+-                    message.append("\nimported patch %s" % patchname)
++                    message.append("\nImported patch %s" % patchname)
+                 message = '\n'.join(message)
+ 
+             if ph.haspatch:
+@@ -850,7 +850,7 @@ class queue(object):
+                 raise util.Abort(msg % rev)
+ 
+             patch = self.applied[i].name
+-            for fmt in ('[mq]: %s', 'imported patch %s'):
++            for fmt in ('[mq]: %s', 'Imported patch %s'):
+                 if ctx.description() == fmt % patch:
+                     msg = _('patch %s finalized without changeset message\n')
+                     repo.ui.status(msg % patch)

@@ -1,0 +1,16 @@
+name openssh
+version 6.6p1
+mode autotools
+sources ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-$VERSION.tar.gz \
+        askpass.patch paths.patch
+enable setuid
+
+config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
+             --with-4in6 --with-default-path=/bin --with-pid-dir=/run \
+             --with-privsep-path=/run/sshd --with-xauth=/bin/xauth
+
+install-reset install-nokeys DESTDIR=$DST
+
+post-install() {
+  rm -f $DST/lib/Ssh.bin
+}

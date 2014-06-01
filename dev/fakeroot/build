@@ -1,0 +1,16 @@
+name fakeroot
+version 1.18.4
+mode autotools
+
+prepare() {
+  unpack http://ftp.debian.org/debian/pool/main/f/fakeroot/fakeroot_1.18.4.orig.tar.bz2 \
+         fakeroot-1.18.4.tar.bz2
+}
+
+post-install() {
+  sed -e 's:^\(PATHS=\).*:\1\${FAKEROOT_PREFIX}/lib/shared:' \
+      -i $DST/bin/fakeroot
+  if [[ -h $DST/lib/libfakeroot.so ]]; then
+    mv -f $(readlink -f $DST/lib/libfakeroot.so) $DST/lib/libfakeroot.so
+  fi
+}

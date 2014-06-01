@@ -1,0 +1,13 @@
+name bison
+version 3.0.2
+mode autotools
+sources http://ftp.gnu.org/gnu/bison/bison-$VERSION.tar.xz
+
+post-install() {
+  rm -f $DST/lib/bison/README
+  cat >$DST/bin/yacc <<'EOF'
+#!/bin/sh
+exec bison -y "$@"
+EOF
+  chmod 0755 $DST/bin/yacc
+}

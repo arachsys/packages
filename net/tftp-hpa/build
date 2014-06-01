@@ -1,0 +1,11 @@
+name tftp-hpa
+version 5.2
+sources http://www.kernel.org/pub/software/network/tftp/tftp-hpa/tftp-hpa-$VERSION.tar.xz
+mode autotools
+
+config-extra --without-tcpwrappers
+install-extra INSTALLROOT=$DST
+
+post-install() {
+  mv $DST/bin/{in.tftpd,tftpd}
+}

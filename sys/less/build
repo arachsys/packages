@@ -1,0 +1,4 @@
+name less
+version 458
+mode autotools
+sources http://www.greenwoodsoftware.com/less/less-$VERSION.tar.gz

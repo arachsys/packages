@@ -1,0 +1,6 @@
+name mpfr
+version 3.1.2
+mode autotools
+sources http://www.mpfr.org/mpfr-$VERSION/mpfr-$VERSION.tar.xz
+
+config-extra --enable-thread-safe

@@ -1,0 +1,6 @@
+name joe
+version 3.7
+sources http://downloads.sourceforge.net/joe-editor/joe-$VERSION.tar.gz
+mode autotools
+
+config-extra --sysconfdir='${prefix}/lib'

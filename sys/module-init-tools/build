@@ -1,0 +1,13 @@
+name module-init-tools
+version 3.15
+mode autotools
+sources http://www.kernel.org/pub/linux/utils/kernel/module-init-tools/module-init-tools-$VERSION.tar.xz
+enabled docs && requires -b docbook
+
+config-extra --disable-builddir --disable-static-utils \
+             --enable-zlib-dynamic --with-moddir=/boot/modules
+
+if ! enabled docs; then
+  compile-reset depmod insmod lsmod modinfo modprobe rmmod
+  install-reset install-exec DESTDIR=$DST
+fi

@@ -1,0 +1,13 @@
+name mercurial
+version 3.0
+mode python
+sources http://mercurial.selenic.com/release/mercurial-$VERSION.tar.gz \
+        mq-importmsg.patch
+requires python
+enabled nls && requires gettext
+
+post-install() {
+  if ! enabled nls; then
+    rm -f -r $DST/lib/python/dist-packages/mercurial/locale
+  fi
+}

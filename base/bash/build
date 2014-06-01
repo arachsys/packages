@@ -1,0 +1,25 @@
+name bash
+version 4.3.11
+mode autotools
+
+prepare() {
+  local COUNT FILE MAJOR MINOR PATCH
+  IFS=. read MAJOR MINOR PATCH <<< "$VERSION"
+
+  unpack http://ftp.gnu.org/gnu/bash/bash-$MAJOR.$MINOR.tar.gz
+
+  for (( COUNT = 1; COUNT <= PATCH; COUNT++ )); do
+    FILE=bash-$MAJOR.$MINOR-patches/bash$MAJOR$MINOR-$(printf %03d $COUNT)
+    apply -p 0 http://ftp.gnu.org/gnu/bash/$FILE \
+      bash-$MAJOR.$MINOR.$COUNT.patch
+  done
+
+  apply paths.patch
+}
+
+config-extra --with-installed-readline
+
+post-install() {
+  ln -f -s bash $DST/bin/sh
+  rm -f $DST/bin/bashbug
+}

@@ -1,0 +1,36 @@
+diff --git a/config-top.h b/config-top.h
+index 4f6373c..f20d3a1 100644
+--- a/config-top.h
++++ b/config-top.h
+@@ -59,14 +59,14 @@
+ /* The default value of the PATH variable. */
+ #ifndef DEFAULT_PATH_VALUE
+ #define DEFAULT_PATH_VALUE \
+-  "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:."
++  "/bin"
+ #endif
+ 
+ /* The value for PATH when invoking `command -p'.  This is only used when
+    the Posix.2 confstr () function, or CS_PATH define are not present. */
+ #ifndef STANDARD_UTILS_PATH
+ #define STANDARD_UTILS_PATH \
+-  "/bin:/usr/bin:/sbin:/usr/sbin:/etc:/usr/etc"
++  "/bin"
+ #endif
+ 
+ /* Default primary and secondary prompt strings. */
+diff --git a/lib/sh/tmpfile.c b/lib/sh/tmpfile.c
+index c06ad65..9d998cd 100644
+--- a/lib/sh/tmpfile.c
++++ b/lib/sh/tmpfile.c
+@@ -77,10 +77,6 @@ get_sys_tmpdir ()
+   if (file_iswdir (sys_tmpdir))
+     return sys_tmpdir;
+ 
+-  sys_tmpdir = "/usr/tmp";
+-  if (file_iswdir (sys_tmpdir))
+-    return sys_tmpdir;
+-
+   sys_tmpdir = DEFAULT_TMPDIR;
+ 
+   return sys_tmpdir;
