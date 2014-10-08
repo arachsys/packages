@@ -1,5 +1,5 @@
 name bash
-version 4.3.11
+version 4.3.30
 mode autotools
 
 prepare() {
