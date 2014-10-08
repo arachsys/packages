@@ -1,8 +1,9 @@
 name gcc
-version 4.9.0
+version 4.9.1
 mode autotools
 sources http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/gcc-$VERSION.tar.bz2 \
-        nofixinc.patch nolibiberty.patch paths.patch pure64.patch
+        nofixinc.patch nolibiberty.patch paths.patch pure64.patch \
+        sched-deps.patch
 
 config-extra --disable-multilib --enable-__cxa_atexit --enable-clocale=gnu \
              --enable-languages=c,c++ --enable-libstdcxx-time=yes \
