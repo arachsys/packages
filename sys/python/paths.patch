@@ -1,8 +1,8 @@
 diff --git a/Lib/aifc.py b/Lib/aifc.py
-index d8b7fab..3fc47bd 100644
+index c9a021e..5d76647 100644
 --- a/Lib/aifc.py
 +++ b/Lib/aifc.py
-@@ -952,7 +952,7 @@ openfp = open # B/W compatibility
+@@ -960,7 +960,7 @@ openfp = open # B/W compatibility
  if __name__ == '__main__':
      import sys
      if not sys.argv[1:]:
@@ -11,8 +11,39 @@ index d8b7fab..3fc47bd 100644
      fn = sys.argv[1]
      f = open(fn, 'r')
      try:
+diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
+index 1e882e3..04dabd8 100644
+--- a/Lib/ctypes/util.py
++++ b/Lib/ctypes/util.py
+@@ -85,7 +85,7 @@ if os.name == "posix" and sys.platform == "darwin":
+         return None
+ 
+ elif os.name == "posix":
+-    # Andreas Degert's find functions, using gcc, /sbin/ldconfig, objdump
++    # Andreas Degert's find functions, using gcc, /bin/ldconfig, objdump
+     import re, tempfile, errno
+ 
+     def _findLib_gcc(name):
+@@ -169,7 +169,7 @@ elif os.name == "posix":
+         def find_library(name):
+             ename = re.escape(name)
+             expr = r':-l%s\.\S+ => \S*/(lib%s\.\S+)' % (ename, ename)
+-            f = os.popen('/sbin/ldconfig -r 2>/dev/null')
++            f = os.popen('/bin/ldconfig -r 2>/dev/null')
+             try:
+                 data = f.read()
+             finally:
+@@ -228,7 +228,7 @@ elif os.name == "posix":
+ 
+             # XXX assuming GLIBC's ldconfig (with option -p)
+             expr = r'\s+(lib%s\.[^\s]+)\s+\(%s' % (re.escape(name), abi_type)
+-            f = os.popen('/sbin/ldconfig -p 2>/dev/null')
++            f = os.popen('/bin/ldconfig -p 2>/dev/null')
+             try:
+                 data = f.read()
+             finally:
 diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index b9f1c6c..5278201 100644
+index b9f1c6c..fccf45e 100644
 --- a/Lib/distutils/command/install.py
 +++ b/Lib/distutils/command/install.py
 @@ -41,23 +41,23 @@ else:
@@ -62,8 +93,19 @@ index b9f1c6c..5278201 100644
          'scripts': '$userbase/bin',
          'data'   : '$userbase',
          },
+@@ -433,8 +433,8 @@ class install (Command):
+                 if self.exec_prefix is None:
+                     self.exec_prefix = self.prefix
+ 
+-            self.install_base = self.prefix
+-            self.install_platbase = self.exec_prefix
++            self.install_base = self.prefix.rstrip(os.sep)
++            self.install_platbase = self.exec_prefix.rstrip(os.sep)
+             self.select_scheme("unix_prefix")
+ 
+     # finalize_unix ()
 diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
-index 4aa9334..ff60d26 100644
+index de7da1d..f5b4c35 100644
 --- a/Lib/distutils/sysconfig.py
 +++ b/Lib/distutils/sysconfig.py
 @@ -90,11 +90,11 @@ def get_python_inc(plat_specific=0, prefix=None):
@@ -92,7 +134,7 @@ index 4aa9334..ff60d26 100644
              return libpython
          else:
 diff --git a/Lib/distutils/tests/test_build_scripts.py b/Lib/distutils/tests/test_build_scripts.py
-index 4da93cc..7087ff7 100644
+index ad3c1a2..ef65d29 100644
 --- a/Lib/distutils/tests/test_build_scripts.py
 +++ b/Lib/distutils/tests/test_build_scripts.py
 @@ -55,12 +55,12 @@ class BuildScriptsTestCase(support.TempdirManager,
@@ -111,7 +153,7 @@ index 4da93cc..7087ff7 100644
                             "pass\n"))
          expected.append("shell.sh")
 diff --git a/Lib/distutils/tests/test_install_scripts.py b/Lib/distutils/tests/test_install_scripts.py
-index 4608545..84a734c 100644
+index 9c0ba6d..e8b7ec0 100644
 --- a/Lib/distutils/tests/test_install_scripts.py
 +++ b/Lib/distutils/tests/test_install_scripts.py
 @@ -48,10 +48,10 @@ class InstallScriptsTestCase(support.TempdirManager,
@@ -128,10 +170,10 @@ index 4608545..84a734c 100644
                                      "pass\n"))
          write_script("shell.sh", ("#!/bin/sh\n"
 diff --git a/Lib/idlelib/EditorWindow.py b/Lib/idlelib/EditorWindow.py
-index 07ca556..67d1348 100644
+index d34fc62..55e4077 100644
 --- a/Lib/idlelib/EditorWindow.py
 +++ b/Lib/idlelib/EditorWindow.py
-@@ -129,7 +129,7 @@ class EditorWindow(object):
+@@ -134,7 +134,7 @@ class EditorWindow(object):
                  if os.path.isdir('/var/www/html/python/'):  # "python2" rpm
                      dochome = '/var/www/html/python/index.html'
                  else:
@@ -141,7 +183,7 @@ index 07ca556..67d1348 100644
                                             'Doc', 'index.html')
              elif sys.platform[:3] == 'win':
 diff --git a/Lib/mailcap.py b/Lib/mailcap.py
-index b2ddacd..4b602ca 100644
+index 04077ba..49dcfbe 100644
 --- a/Lib/mailcap.py
 +++ b/Lib/mailcap.py
 @@ -43,8 +43,7 @@ def listmailcapfiles():
@@ -155,7 +197,7 @@ index b2ddacd..4b602ca 100644
  
  
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index 3dde4cd..17ccddc 100644
+index a39b543..033afcd 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -39,14 +39,6 @@ __all__ = [
@@ -184,10 +226,10 @@ index c76950e..341929d 100755
 -h2py -i '(u_long)' /usr/include/sys/types.h /usr/include/netinet/in.h /usr/include/dlfcn.h
 +h2py -i '(u_long)' /include/sys/types.h /include/netinet/in.h /include/dlfcn.h
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index d65dc75..ca9167a 100644
+index 6578481..5618593 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
-@@ -39,7 +39,7 @@ pardir = '..'
+@@ -32,7 +32,7 @@ pardir = '..'
  extsep = '.'
  sep = '/'
  pathsep = ':'
@@ -196,8 +238,21 @@ index d65dc75..ca9167a 100644
  altsep = None
  devnull = '/dev/null'
  
+diff --git a/Lib/site.py b/Lib/site.py
+index 4a09f3c..2698015 100644
+--- a/Lib/site.py
++++ b/Lib/site.py
+@@ -289,7 +289,7 @@ def getsitepackages():
+             sitepackages.append(os.path.join(prefix, "Lib", "site-packages"))
+         elif os.sep == '/':
+             sitepackages.append(os.path.join(prefix, "lib",
+-                                        "python" + sys.version[:3],
++                                        "python",
+                                         "site-packages"))
+             sitepackages.append(os.path.join(prefix, "lib", "site-python"))
+         else:
 diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index aa69351..b11a276 100644
+index 2a1da5a..f905768 100644
 --- a/Lib/sysconfig.py
 +++ b/Lib/sysconfig.py
 @@ -7,12 +7,12 @@ from os.path import pardir, realpath
@@ -285,18 +340,17 @@ index aa69351..b11a276 100644
          'data'   : '{userbase}',
          },
 diff --git a/Lib/uuid.py b/Lib/uuid.py
-index cb4e5f0..c843f94 100644
+index 0f0d8c1..2a51545 100644
 --- a/Lib/uuid.py
 +++ b/Lib/uuid.py
-@@ -293,7 +293,7 @@ class UUID(object):
- 
- def _find_mac(command, args, hw_identifiers, get_index):
+@@ -294,7 +294,6 @@ class UUID(object):
+ def _popen(command, args):
      import os
--    for dir in ['', '/sbin/', '/usr/sbin']:
-+    for dir in ['', '/bin/']:
+     path = os.environ.get("PATH", os.defpath).split(os.pathsep)
+-    path.extend(('/sbin', '/usr/sbin'))
+     for dir in path:
          executable = os.path.join(dir, command)
-         if not os.path.exists(executable):
-             continue
+         if (os.path.exists(executable) and
 diff --git a/Lib/whichdb.py b/Lib/whichdb.py
 index 9071430..ab7f457 100644
 --- a/Lib/whichdb.py
@@ -308,7 +362,7 @@ index 9071430..ab7f457 100644
  
  import os
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index cf75650..5853b80 100644
+index b3b2b36..c588fc9 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -105,15 +105,15 @@ BINDIR=		@bindir@
@@ -333,7 +387,7 @@ index cf75650..5853b80 100644
  
  # Symbols used for using shared libraries
  SO=		@SO@
-@@ -790,7 +790,7 @@ testuniversal:	all platform
+@@ -804,7 +804,7 @@ testuniversal:	all platform
  		-find $(srcdir)/Lib -name '*.py[co]' -print | xargs rm -f
  		-$(TESTPYTHON) $(TESTPROG) -uall $(TESTOPTS)
  		$(TESTPYTHON) $(TESTPROG) -uall $(TESTOPTS)
@@ -367,10 +421,10 @@ index de96d47..9a88383 100644
  static void
  reduce(char *dir)
 diff --git a/setup.py b/setup.py
-index 40ad843..58b5c07 100644
+index 6a6ad23..2711aa7 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -501,12 +501,11 @@ class PyBuildExt(build_ext):
+@@ -503,12 +503,11 @@ class PyBuildExt(build_ext):
          lib_dirs = self.compiler.library_dirs[:]
          if not cross_compiling:
              for d in (

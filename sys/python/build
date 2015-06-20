@@ -1,23 +1,35 @@
 name python
-version 2.7.6
+version 2.7.10
 mode autotools
-requires berkeley-db
 
 prepare() {
   unpack http://www.python.org/ftp/python/$VERSION/Python-$VERSION.tar.xz \
          python-$VERSION.tar.xz
   apply getpath.patch
+  apply nozip.patch
   apply paths.patch
   apply rpath.patch
+
+  rm -f Lib/ensurepip/_bundled/{pip-*,setuptools-*}
+  for WHL in py2.py3/p/pip/pip-7.1.0-py2.py3-none-any.whl \
+             3.4/s/setuptools/setuptools-18.0.1-py2.py3-none-any.whl; do
+    IFS=- read WHLN WHLV _ <<< "${WHL##*/}"
+    sed -e "s/^_${WHLN^^}_VERSION =.*/_${WHLN^^}_VERSION = \"$WHLV\"/" \
+        -i Lib/ensurepip/__init__.py
+    fetch https://pypi.python.org/packages/$WHL Lib/ensurepip/_bundled/
+  done
 }
 
-config-extra --enable-shared --with-fpectl --enable-ipv6
+config-extra --enable-shared --with-fpectl --enable-ipv6 --with-dbmliborder= \
+             --with-ensurepip=upgrade
 
 post-install() {
-  rm -f $DST/bin/smtpd.py $DST/bin/python{,${VERSION%%.*}}{,-config} \
+  rm $DST/bin/smtpd.py $DST/bin/python{,${VERSION%%.*}}{,-config} \
      $DST/lib/pkgconfig/python{,${VERSION%%.*}}.pc
+  rm -r $DST/lib/python/bsddb
   mv $DST/bin/python{${VERSION%.${VERSION##*.*.}},}
   mv $DST/bin/python{${VERSION%.${VERSION##*.*.}},}-config
+  rm $DST/bin/{easy_install-,pip}${VERSION%%.*}*
   mv $DST/lib/pkgconfig/python{-${VERSION%.${VERSION##*.*.}},}.pc
   mkdir -p $DST/lib/static
   mv $DST/lib/python/config/*.a $DST/lib/static/
