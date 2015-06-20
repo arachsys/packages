@@ -1,0 +1,8 @@
+name smartmontools
+version 6.2
+sources http://prdownloads.sourceforge.net/$NAME/$NAME-$VERSION.tar.gz
+mode autotools
+
+post-install() {
+  rm -f $DST/bin/update-* $DST/lib
+}
