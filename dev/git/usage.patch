@@ -1,5 +1,5 @@
 diff --git a/builtin/help.c b/builtin/help.c
-index 1fdefeb..c922715 100644
+index 3422e73..a13bd41 100644
 --- a/builtin/help.c
 +++ b/builtin/help.c
 @@ -28,7 +28,8 @@ enum help_format {
@@ -16,14 +16,14 @@ index 1fdefeb..c922715 100644
  			HELP_FORMAT_WEB),
  	OPT_SET_INT('i', "info", &help_format, N_("show info page"),
  			HELP_FORMAT_INFO),
-+	OPT_SET_INT('u', "usage", &help_format, "show usage",
++	OPT_SET_INT('u', "usage", &help_format, N_("show usage"),
 +			HELP_FORMAT_USAGE),
  	OPT_END(),
  };
  
  static const char * const builtin_help_usage[] = {
--	N_("git help [--all] [--guides] [--man|--web|--info] [command]"),
-+	N_("git help [--all] [--guides] [--man|--web|--info|--usage] [command]"),
+-	N_("git help [--all] [--guides] [--man | --web | --info] [<command>]"),
++	N_("git help [--all] [--guides] [--man | --web | --info | --usage] [<command>]"),
  	NULL
  };
  
@@ -36,7 +36,7 @@ index 1fdefeb..c922715 100644
  	die(_("unrecognized help format '%s'"), format);
  }
  
-@@ -448,6 +453,11 @@ static void list_common_guides_help(void)
+@@ -453,6 +458,11 @@ static void list_common_guides_help(void)
  	putchar('\n');
  }
  
@@ -48,7 +48,7 @@ index 1fdefeb..c922715 100644
  int cmd_help(int argc, const char **argv, const char *prefix)
  {
  	int nongit;
-@@ -508,6 +518,9 @@ int cmd_help(int argc, const char **argv, const char *prefix)
+@@ -514,6 +524,9 @@ int cmd_help(int argc, const char **argv, const char *prefix)
  	case HELP_FORMAT_WEB:
  		show_html_page(argv[0]);
  		break;

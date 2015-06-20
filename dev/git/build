@@ -1,5 +1,5 @@
 name git
-version 1.9.2
+version 2.4.4
 sources https://www.kernel.org/pub/software/scm/git/git-$VERSION.tar.xz \
         usage.patch
 requires expat
