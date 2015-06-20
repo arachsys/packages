@@ -1,5 +1,5 @@
 name qemu
-version 2.1.2
+version 2.3.0
 mode autotools
 
 config-reset --prefix= --datadir=/lib --docdir=/lib/doc \
@@ -19,6 +19,8 @@ fi
 
 prepare() {
   unpack http://wiki.qemu-project.org/download/qemu-$VERSION.tar.bz2
+  apply venom.patch
+
   unpack -C autoconf http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz
   unpack -C automake http://ftp.gnu.org/gnu/automake/automake-1.14.tar.xz
   unpack -C libtool http://ftp.gnu.org/gnu/libtool/libtool-2.4.2.tar.xz
