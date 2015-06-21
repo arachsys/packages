@@ -1,5 +1,5 @@
 name perl
-version 5.20.0
+version 5.22.0
 sources http://www.cpan.org/src/5.0/perl-$VERSION.tar.gz \
         errno.patch paths.patch system-zlib.patch
 enable rpaths

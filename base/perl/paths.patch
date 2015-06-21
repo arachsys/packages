@@ -1,8 +1,8 @@
 diff --git a/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm b/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm
-index 6ddd21d..42fb813 100644
+index 969019d..f4346de 100644
 --- a/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm
 +++ b/cpan/Pod-Perldoc/lib/Pod/Perldoc.pm
-@@ -1640,8 +1640,8 @@ sub pagers_guessing {
+@@ -1671,8 +1671,8 @@ sub pagers_guessing {
      }
  
      if ($self->is_cygwin) {
@@ -42,19 +42,19 @@ index 18ba7b2..f85071b 100644
      # Fall back on a hard-coded terminal speed if POSIX::Termios isn't
      # available (such as on VMS).
 diff --git a/dist/PathTools/Cwd.pm b/dist/PathTools/Cwd.pm
-index f27a3a0..5711e2a 100644
+index 49cc4c1..a4823d0 100644
 --- a/dist/PathTools/Cwd.pm
 +++ b/dist/PathTools/Cwd.pm
-@@ -334,8 +334,6 @@ $METHOD_MAP{NT} = $METHOD_MAP{MSWin32};
- # so everything works under taint mode.
+@@ -169,8 +169,6 @@ $METHOD_MAP{NT} = $METHOD_MAP{MSWin32};
  my $pwd_cmd;
- foreach my $try ('/bin/pwd',
--		 '/usr/bin/pwd',
--		 '/QOpenSys/bin/pwd', # OS/400 PASE.
- 		) {
- 
-     if( -x $try ) {
-@@ -806,7 +804,7 @@ sub _qnx_cwd {
+ if($^O ne 'MSWin32') {
+     foreach my $try ('/bin/pwd',
+-		     '/usr/bin/pwd',
+-		     '/QOpenSys/bin/pwd', # OS/400 PASE.
+ 		    ) {
+ 	if( -x $try ) {
+ 	    $pwd_cmd = $try;
+@@ -648,7 +646,7 @@ sub _qnx_cwd {
  	local $ENV{PATH} = '';
  	local $ENV{CDPATH} = '';
  	local $ENV{ENV} = '';
@@ -63,7 +63,7 @@ index f27a3a0..5711e2a 100644
      chomp $ENV{'PWD'};
      return $ENV{'PWD'};
  }
-@@ -818,8 +816,8 @@ sub _qnx_abs_path {
+@@ -660,8 +658,8 @@ sub _qnx_abs_path {
      my $path = @_ ? shift : '.';
      local *REALPATH;
  
@@ -75,7 +75,7 @@ index f27a3a0..5711e2a 100644
      close REALPATH;
      chomp $realpath;
 diff --git a/dist/Term-Complete/lib/Term/Complete.pm b/dist/Term-Complete/lib/Term/Complete.pm
-index 601e495..5c8244c 100644
+index 4d0e79e..a72bb9b 100644
 --- a/dist/Term-Complete/lib/Term/Complete.pm
 +++ b/dist/Term-Complete/lib/Term/Complete.pm
 @@ -73,7 +73,7 @@ CONFIG: {
@@ -100,10 +100,10 @@ index f7196f8..e89982c 100644
 +	if -f "/lib/include/libelf/nlist.h";
  1;
 diff --git a/ext/Errno/Errno_pm.PL b/ext/Errno/Errno_pm.PL
-index 3fb1210..bd32c83 100644
+index c6bfa06..57dc626 100644
 --- a/ext/Errno/Errno_pm.PL
 +++ b/ext/Errno/Errno_pm.PL
-@@ -138,7 +138,7 @@ sub get_files {
+@@ -126,7 +126,7 @@ sub get_files {
  	# Some Linuxes have weird errno.hs which generate
  	# no #file or #line directives
  	my ($linux_errno_h) = grep { -e $_ } map { "$_/errno.h" }
@@ -126,7 +126,7 @@ index 149e881..59d1363 100644
  	local ($_, $.);
  	while (<$param>) {
 diff --git a/ext/Sys-Hostname/Hostname.pm b/ext/Sys-Hostname/Hostname.pm
-index 1d2e472..cd0fea8 100644
+index 42e9293..c93a4f5 100644
 --- a/ext/Sys-Hostname/Hostname.pm
 +++ b/ext/Sys-Hostname/Hostname.pm
 @@ -67,7 +67,7 @@ sub hostname {
@@ -151,10 +151,10 @@ index 403fffa..41b88f3 100644
  while (<IOCTLS>) {
      if (/^\s*#\s*define\s+\w+\s+_IO(R|W|WR)\('?\w+'?,\s*\w+,\s*([^)]+)/) {
 diff --git a/lib/perl5db.pl b/lib/perl5db.pl
-index 707d04d..6193b36 100644
+index 7e7194e..197e7d4 100644
 --- a/lib/perl5db.pl
 +++ b/lib/perl5db.pl
-@@ -7069,7 +7069,7 @@ sub macosx_get_fork_TTY
+@@ -7084,7 +7084,7 @@ sub macosx_get_fork_TTY
          }
      }
      return unless defined($script);
@@ -163,7 +163,7 @@ index 707d04d..6193b36 100644
      $tty=readline($pipe);
      close($pipe);
      return unless defined($tty) && $tty =~ m(^/dev/);
-@@ -8434,8 +8434,8 @@ sub _calc_is_less {
+@@ -8490,8 +8490,8 @@ sub _calc_is_less {
      elsif ($pager =~ /\bmore\b/)
      {
          # Nope, set to more. See what's out there.
@@ -175,7 +175,7 @@ index 707d04d..6193b36 100644
          # is it really less, pretending to be more?
          return (
 diff --git a/lib/unicore/mktables b/lib/unicore/mktables
-index cde1922..33f4cbb 100644
+index a746b77..1668da7 100644
 --- a/lib/unicore/mktables
 +++ b/lib/unicore/mktables
 @@ -1,4 +1,4 @@
