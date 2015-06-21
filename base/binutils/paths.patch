@@ -36,10 +36,10 @@ index cc34333..a1e65ab 100644
  
  static char tmpnam_buffer[L_tmpnam];
 diff --git a/libtool.m4 b/libtool.m4
-index 71bcee8..702093f 100644
+index 797468f..95b19d9 100644
 --- a/libtool.m4
 +++ b/libtool.m4
-@@ -2442,7 +2442,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu)
+@@ -2455,7 +2455,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu)
    need_version=no
    library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major $libname${shared_ext}'
    soname_spec='${libname}${release}${shared_ext}$major'

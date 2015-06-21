@@ -1,5 +1,5 @@
 name binutils
-version 2.24
+version 2.25
 mode autotools
 sources http://ftp.gnu.org/gnu/binutils/binutils-$VERSION.tar.bz2 \
         no-toollib.patch paths.patch pure64.patch

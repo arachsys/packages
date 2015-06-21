@@ -1,28 +1,48 @@
 diff --git a/ld/emulparams/elf32_x86_64.sh b/ld/emulparams/elf32_x86_64.sh
-index d34297b..b5ffd34 100644
+index 11d17ad..efb65a1 100644
 --- a/ld/emulparams/elf32_x86_64.sh
 +++ b/ld/emulparams/elf32_x86_64.sh
-@@ -29,8 +29,8 @@ fi
- case "$target" in
-   x86_64*-linux*|i[3-7]86-*-linux-*)
-     case "$EMULATION_NAME" in
--      *32*) LIBPATH_SUFFIX=x32 ;;
--      *64*) LIBPATH_SUFFIX=64 ;;
-+      *32*) LIBPATH_SUFFIX= ;;
-+      *64*) LIBPATH_SUFFIX= ;;
-     esac
-     ;;
- esac
+@@ -23,19 +23,3 @@ if [ "x${host}" = "x${target}" ]; then
+       NATIVE=yes
+   esac
+ fi
+-
+-# Linux modifies the default library search path to first include
+-# a 32-bit specific directory.
+-case "$target" in
+-  x86_64*-linux*|i[3-7]86-*-linux-*)
+-    case "$EMULATION_NAME" in
+-      *32*)
+-        LIBPATH_SUFFIX=x32
+-	LIBPATH_SUFFIX_SKIP=64
+-	;;
+-      *64*)
+-        LIBPATH_SUFFIX=64
+-	;;
+-    esac
+-    ;;
+-esac
 diff --git a/ld/emulparams/elf_x86_64.sh b/ld/emulparams/elf_x86_64.sh
-index 4842257..a5ea0e4 100644
+index 1e83a74..52d3395 100644
 --- a/ld/emulparams/elf_x86_64.sh
 +++ b/ld/emulparams/elf_x86_64.sh
-@@ -29,7 +29,7 @@ fi
+@@ -26,19 +26,12 @@ if [ "x${host}" = "x${target}" ]; then
+   esac
+ fi
+ 
+-# Linux/Solaris modify the default library search path to first include
+-# a 64-bit specific directory.
  case "$target" in
    x86_64*-linux*|i[3-7]86-*-linux-*)
      case "$EMULATION_NAME" in
--      *64*) LIBPATH_SUFFIX=64 ;;
-+      *64*) LIBPATH_SUFFIX= ;;
+       *64*)
+-        LIBPATH_SUFFIX=64
+         BNDPLT=yes
+         ;;
      esac
      ;;
-   *-*-solaris2*)
+-  *-*-solaris2*)
+-    LIBPATH_SUFFIX=/amd64
+-    ELF_INTERPRETER_NAME=\"/lib/amd64/ld.so.1\"
+-  ;;
+ esac
