@@ -1,0 +1,4 @@
+name libressl
+version 2.2.0
+mode autotools
+sources http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$VERSION.tar.gz
