@@ -1,5 +1,5 @@
 name mercurial
-version 3.0
+version 3.4.1
 mode python
 sources http://mercurial.selenic.com/release/mercurial-$VERSION.tar.gz \
         mq-importmsg.patch
