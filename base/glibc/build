@@ -1,8 +1,8 @@
 name glibc
-version 2.19
+version 2.21
 enable rpaths setuid
 sources http://ftp.gnu.org/gnu/glibc/glibc-$VERSION.tar.xz \
-        ldd-bash.patch paths.patch pure64.patch
+        paths.patch pure64.patch
 
 build() {
   mkdir build && cd build
@@ -10,8 +10,8 @@ build() {
                  --datarootdir=/lib --includedir=/lib/include \
                  --libdir=/lib/shared --libexecdir=/lib --sbindir=/bin \
                  --without-cvs --without-gd --with-tls --disable-profile \
-                 --disable-nscd --enable-add-ons=libidn,nptl \
-                 --enable-kernel=3.0 --enable-obsolete-rpc \
+                 --disable-nscd --enable-add-ons=libidn \
+                 --enable-kernel=4.0 --enable-obsolete-rpc \
                  --enable-static-nss --enable-stackguard-randomization
 
   echo 'auditdir=${prefix}/lib/audit' >>configparms
