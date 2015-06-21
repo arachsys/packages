@@ -1,5 +1,5 @@
 name mpc
-version 1.0.2
+version 1.0.3
 mode autotools
 sources http://www.multiprecision.org/mpc/download/mpc-$VERSION.tar.gz
 
