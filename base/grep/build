@@ -1,5 +1,5 @@
 name grep
-version 2.18
+version 2.21
 mode autotools
 sources http://ftp.gnu.org/gnu/grep/grep-$VERSION.tar.xz
 
