@@ -1,8 +1,8 @@
 name util-linux
-version 2.24.2
+version 2.26.2
 mode autotools
 sources http://ftp.kernel.org/pub/linux/utils/util-linux/v${VERSION%.*}/util-linux-$VERSION.tar.xz \
-        gpt-attr.patch paths.patch
+        paths.patch
 enable setuid setgid
 
 config-extra --disable-chfn-chsh --disable-login --disable-newgrp \
