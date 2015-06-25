@@ -2,3 +2,5 @@ name flex
 version 2.5.39
 mode autotools
 sources http://downloads.sourceforge.net/project/flex/flex-$VERSION.tar.bz2
+
+config-extra --disable-shared
