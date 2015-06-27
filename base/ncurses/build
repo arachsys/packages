@@ -4,6 +4,7 @@ mode autotools
 
 prepare() {
   unpack http://ftp.gnu.org/gnu/ncurses/ncurses-$VERSION.tar.gz
+  apply gcc5.patch
   sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src
 }
 
