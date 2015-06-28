@@ -1,0 +1,15 @@
+name postgresql
+version 9.4.4
+mode autotools
+sources https://ftp.postgresql.org/pub/source/v$VERSION/postgresql-$VERSION.tar.bz2
+
+config-extra --with-openssl
+
+if enabled perl; then
+  config-extra --with-perl
+fi
+
+if enabled python; then
+  requires python
+  config-extra --with-python
+fi
