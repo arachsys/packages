@@ -36,6 +36,7 @@ build() {
 
   mkdir -p $DST/lib/shared
   mv $DST/lib/perl/CORE/$LIBPERL $DST/lib/shared
+  ln -f -s ../../shared/$LIBPERL $DST/lib/perl/CORE/$LIBPERL
   ln -f -s $LIBPERL $DST/lib/shared/${LIBPERL%.so.*}.so
   rm -f $DST/bin/perl$VERSION
 
