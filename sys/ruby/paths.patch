@@ -1,0 +1,159 @@
+diff --git a/configure b/configure
+index 55157af..e1215dc 100755
+--- a/configure
++++ b/configure
+@@ -23460,10 +23460,10 @@ case "$target_os" in #(
+      ;;
+ esac
+ 
+-rubylibdir='${rubylibprefix}/${ruby_version}'
+-rubyarchdir=${multiarch+'${rubyarchprefix}/${ruby_version}'}${multiarch-'${rubylibdir}/${arch}'}
++rubylibdir='${rubylibprefix}'
++rubyarchdir=${multiarch+'${rubyarchprefix}'}${multiarch-'${rubylibdir}'}
+ 
+-rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
++rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}'}
+ 
+ # Check whether --with-rubyarchprefix was given.
+ if test "${with_rubyarchprefix+set}" = set; then :
+@@ -23472,7 +23472,7 @@ fi
+ 
+ 
+ 
+-rubysitearchprefix=${multiarch+'${sitearchlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${sitearch}'}
++rubysitearchprefix=${multiarch+'${sitearchlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}'}
+ 
+ # Check whether --with-rubysitearchprefix was given.
+ if test "${with_rubysitearchprefix+set}" = set; then :
+@@ -23535,17 +23535,17 @@ fi
+ if test "${with_sitedir+set}" = set; then :
+   withval=$with_sitedir; sitedir=$withval
+ else
+-  sitedir='${rubylibprefix}/site_ruby'
++  sitedir='${rubylibprefix}'
+ fi
+ 
+-sitelibdir='${sitedir}/${ruby_version}'
++sitelibdir='${sitedir}'
+ 
+ 
+ # Check whether --with-sitearchdir was given.
+ if test "${with_sitearchdir+set}" = set; then :
+   withval=$with_sitearchdir; sitearchdir=$withval
+ else
+-  sitearchdir=${multiarch+'${rubysitearchprefix}/site_ruby/${ruby_version}'}${multiarch-'${sitelibdir}/${sitearch}'}
++  sitearchdir=${multiarch+'${rubysitearchprefix}'}${multiarch-'${sitelibdir}'}
+ fi
+ 
+ 
+@@ -23554,17 +23554,17 @@ fi
+ if test "${with_vendordir+set}" = set; then :
+   withval=$with_vendordir; vendordir=$withval
+ else
+-  vendordir='${rubylibprefix}/vendor_ruby'
++  vendordir='${rubylibprefix}'
+ fi
+ 
+-vendorlibdir='${vendordir}/${ruby_version}'
++vendorlibdir='${vendordir}'
+ 
+ 
+ # Check whether --with-vendorarchdir was given.
+ if test "${with_vendorarchdir+set}" = set; then :
+   withval=$with_vendorarchdir; vendorarchdir=$withval
+ else
+-  vendorarchdir=${multiarch+'${rubysitearchprefix}/vendor_ruby/${ruby_version}'}${multiarch-'${vendorlibdir}/${sitearch}'}
++  vendorarchdir=${multiarch+'${rubysitearchprefix}'}${multiarch-'${vendorlibdir}'}
+ fi
+ 
+ 
+@@ -23663,7 +23663,7 @@ fi
+ if test "${with_rubyhdrdir+set}" = set; then :
+   withval=$with_rubyhdrdir; rubyhdrdir=$withval
+ else
+-  rubyhdrdir='${includedir}/${RUBY_VERSION_NAME}'
++  rubyhdrdir='${includedir}'
+ fi
+ 
+ 
+@@ -23672,7 +23672,7 @@ fi
+ if test "${with_rubyarchhdrdir+set}" = set; then :
+   withval=$with_rubyarchhdrdir; rubyarchhdrdir=$withval
+ else
+-  rubyarchhdrdir=${multiarch+'${archincludedir}/${RUBY_VERSION_NAME}'}${multiarch-'${rubyhdrdir}/${arch}'}
++  rubyarchhdrdir=${multiarch+'${archincludedir}/${RUBY_BASE_NAME}'}${multiarch-'${rubyhdrdir}'}
+ fi
+ 
+ 
+@@ -23681,7 +23681,7 @@ fi
+ if test "${with_sitehdrdir+set}" = set; then :
+   withval=$with_sitehdrdir; sitehdrdir=$withval
+ else
+-  sitehdrdir='${rubyhdrdir}/site_ruby'
++  sitehdrdir='${rubyhdrdir}'
+ fi
+ 
+ 
+@@ -23690,7 +23690,7 @@ fi
+ if test "${with_sitearchhdrdir+set}" = set; then :
+   withval=$with_sitearchhdrdir; sitearchhdrdir=$withval
+ else
+-  sitearchhdrdir=${multiarch+'${sitearchincludedir}/${RUBY_VERSION_NAME}/site_ruby'}${multiarch-'${sitehdrdir}/${sitearch}'}
++  sitearchhdrdir=${multiarch+'${sitearchincludedir}/${RUBY_BASE_NAME}'}${multiarch-'${sitehdrdir}'}
+ fi
+ 
+ 
+@@ -23699,7 +23699,7 @@ fi
+ if test "${with_vendorhdrdir+set}" = set; then :
+   withval=$with_vendorhdrdir; vendorhdrdir=$withval
+ else
+-  vendorhdrdir='${rubyhdrdir}/vendor_ruby'
++  vendorhdrdir='${rubyhdrdir}'
+ fi
+ 
+ 
+@@ -23708,7 +23708,7 @@ fi
+ if test "${with_vendorarchhdrdir+set}" = set; then :
+   withval=$with_vendorarchhdrdir; vendorarchhdrdir=$withval
+ else
+-  vendorarchhdrdir=${multiarch+'${sitearchincludedir}/${RUBY_VERSION_NAME}/vendor_ruby'}${multiarch-'${vendorhdrdir}/${sitearch}'}
++  vendorarchhdrdir=${multiarch+'${sitearchincludedir}/${RUBY_BASE_NAME}'}${multiarch-'${vendorhdrdir}'}
+ fi
+ 
+ 
+diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
+index 55ca080..bbdd096 100644
+--- a/lib/rubygems/defaults.rb
++++ b/lib/rubygems/defaults.rb
+@@ -30,21 +30,18 @@ module Gem
+     path = if defined? RUBY_FRAMEWORK_VERSION then
+              [
+                File.dirname(RbConfig::CONFIG['sitedir']),
+-               'Gems',
+-               RbConfig::CONFIG['ruby_version']
++               'Gems'
+              ]
+            elsif RbConfig::CONFIG['rubylibprefix'] then
+              [
+               RbConfig::CONFIG['rubylibprefix'],
+-              'gems',
+-              RbConfig::CONFIG['ruby_version']
++              'gems'
+              ]
+            else
+              [
+                RbConfig::CONFIG['libdir'],
+                ruby_engine,
+                'gems',
+-               RbConfig::CONFIG['ruby_version']
+              ]
+            end
+ 
+@@ -74,7 +71,6 @@ module Gem
+ 
+   def self.user_dir
+     parts = [Gem.user_home, '.gem', ruby_engine]
+-    parts << RbConfig::CONFIG['ruby_version'] unless RbConfig::CONFIG['ruby_version'].empty?
+     File.join parts
+   end
+ 
