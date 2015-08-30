@@ -1,8 +1,17 @@
 diff --git a/configure b/configure
-index 52f0e36..91a506f 100755
+index 57bec69..6a42c8b 100755
 --- a/configure
 +++ b/configure
-@@ -10278,7 +10278,7 @@ fi
+@@ -1770,7 +1770,7 @@ Optional Packages:
+   --with-dmeventd-pidfile=PATH
+                           dmeventd pidfile [PID_DIR/dmeventd.pid]
+   --with-dmeventd-path=PATH
+-                          dmeventd path [EPREFIX/sbin/dmeventd]
++                          dmeventd path [EPREFIX/bin/dmeventd]
+   --with-default-system-dir=DIR
+                           default LVM system directory [/etc/lvm]
+   --with-default-profile-subdir=SUBDIR
+@@ -13863,7 +13863,7 @@ fi
  lvm_exec_prefix=$exec_prefix
  test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$prefix
  test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$ac_default_prefix
@@ -11,16 +20,16 @@ index 52f0e36..91a506f 100755
  
  cat >>confdefs.h <<_ACEOF
  #define LVM_PATH "$LVM_PATH"
-@@ -10287,7 +10287,7 @@ _ACEOF
- 
+@@ -13873,7 +13873,7 @@ _ACEOF
  if  test "$CLVMD" != none; then
-         clvmd_prefix=$ac_default_prefix
--        CLVMD_PATH="$clvmd_prefix/sbin/clvmd"
-+        CLVMD_PATH="$clvmd_prefix/bin/clvmd"
-         test "$prefix" != NONE && clvmd_prefix=$prefix
+ 	clvmd_prefix=$ac_default_prefix
+ 	test "$prefix" != NONE && clvmd_prefix=$prefix
+-	CLVMD_PATH="$clvmd_prefix/sbin/clvmd"
++	CLVMD_PATH="$clvmd_prefix/bin/clvmd"
  
  cat >>confdefs.h <<_ACEOF
-@@ -10319,7 +10319,7 @@ if test "$BUILD_DMEVENTD" = yes; then
+ #define CLVMD_PATH "$CLVMD_PATH"
+@@ -13904,7 +13904,7 @@ if test "$BUILD_DMEVENTD" = yes; then
  if test "${with_dmeventd_path+set}" = set; then :
    withval=$with_dmeventd_path; DMEVENTD_PATH=$withval
  else
@@ -30,10 +39,10 @@ index 52f0e36..91a506f 100755
  
  
 diff --git a/configure.in b/configure.in
-index 1c908f9..4f6f01d 100644
+index 2c89d8c..3993b9b 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -1332,12 +1332,12 @@ fi
+@@ -1785,13 +1785,13 @@ fi
  lvm_exec_prefix=$exec_prefix
  test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$prefix
  test "$lvm_exec_prefix" = NONE && lvm_exec_prefix=$ac_default_prefix
@@ -42,18 +51,19 @@ index 1c908f9..4f6f01d 100644
  AC_DEFINE_UNQUOTED(LVM_PATH, ["$LVM_PATH"], [Path to lvm binary.])
  
  if  test "$CLVMD" != none; then
-         clvmd_prefix=$ac_default_prefix
--        CLVMD_PATH="$clvmd_prefix/sbin/clvmd"
-+        CLVMD_PATH="$clvmd_prefix/bin/clvmd"
-         test "$prefix" != NONE && clvmd_prefix=$prefix
+ 	clvmd_prefix=$ac_default_prefix
+ 	test "$prefix" != NONE && clvmd_prefix=$prefix
+-	CLVMD_PATH="$clvmd_prefix/sbin/clvmd"
++	CLVMD_PATH="$clvmd_prefix/bin/clvmd"
  	AC_DEFINE_UNQUOTED(CLVMD_PATH, ["$CLVMD_PATH"], [Path to clvmd binary.])
  fi
-@@ -1357,9 +1357,9 @@ fi
+ 
+@@ -1810,9 +1810,9 @@ fi
  if test "$BUILD_DMEVENTD" = yes; then
  	AC_ARG_WITH(dmeventd-path,
  		    AC_HELP_STRING([--with-dmeventd-path=PATH],
--				   [dmeventd path [[EPREFIX/sbin/dmeventd]]]),
-+				   [dmeventd path [[EPREFIX/bin/dmeventd]]]),
+-				   [dmeventd path [EPREFIX/sbin/dmeventd]]),
++				   [dmeventd path [EPREFIX/bin/dmeventd]]),
  		    DMEVENTD_PATH=$withval,
 -		    DMEVENTD_PATH="$lvm_exec_prefix/sbin/dmeventd")
 +		    DMEVENTD_PATH="$lvm_exec_prefix/bin/dmeventd")
@@ -61,7 +71,7 @@ index 1c908f9..4f6f01d 100644
  			   [Path to dmeventd binary.])
  fi
 diff --git a/scripts/fsadm.sh b/scripts/fsadm.sh
-index 4624a1c..d7bdfc0 100755
+index f4ea796..2e807bc 100755
 --- a/scripts/fsadm.sh
 +++ b/scripts/fsadm.sh
 @@ -32,7 +32,7 @@

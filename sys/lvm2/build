@@ -1,5 +1,5 @@
 name lvm2
-version 2.02.106
+version 2.02.129
 mode autotools
 
 prepare() {
