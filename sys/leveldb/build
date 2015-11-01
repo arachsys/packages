@@ -1,0 +1,22 @@
+name leveldb
+version 1.18
+mode autotools
+
+prepare() {
+  unpack http://http.debian.net/debian/pool/main/l/leveldb/leveldb_1.18.orig.tar.gz leveldb-1.18.tar.gz
+  unpack -C snappy https://github.com/google/snappy/releases/download/1.1.3/snappy-1.1.3.tar.gz
+}
+
+build() {
+
+  cd $SRC/snappy
+  $SRC/snappy/configure --disable-shared --with-pic 
+  make all
+
+  cd $SRC
+  CXXFLAGS=-I$SRC/snappy LDFLAGS=-L$SRC/snappy/.libs make all
+  mkdir -p $DST/lib/{include,shared,static}
+  cp -r include/leveldb $DST/lib/include
+  cp -d libleveldb.so{,.*} $DST/lib/shared
+  cp -d libleveldb.a{,.*} $DST/lib/static
+}
