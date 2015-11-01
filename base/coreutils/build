@@ -1,7 +1,9 @@
 name coreutils
-version 8.23
+version 8.24
 mode autotools
 sources http://ftp.gnu.org/gnu/coreutils/coreutils-$VERSION.tar.xz uname.patch
+
+enabled docs && requires -b perl
 
 config-extra --disable-acl --enable-xattr --disable-libcap \
              --enable-install-program=arch,hostname \
