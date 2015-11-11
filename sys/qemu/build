@@ -1,6 +1,7 @@
 name qemu
-version 2.3.0
+version 2.4.1
 mode autotools
+requires perl
 
 config-reset --prefix= --datadir=/lib --docdir=/lib/doc \
   --libexecdir=/lib/qemu --mandir=/lib/man --disable-curses --disable-sdl \
@@ -19,18 +20,17 @@ fi
 
 prepare() {
   unpack http://wiki.qemu-project.org/download/qemu-$VERSION.tar.bz2
-  apply venom.patch
 
   unpack -C autoconf http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz
-  unpack -C automake http://ftp.gnu.org/gnu/automake/automake-1.14.tar.xz
-  unpack -C libtool http://ftp.gnu.org/gnu/libtool/libtool-2.4.2.tar.xz
+  unpack -C automake http://ftp.gnu.org/gnu/automake/automake-1.15.tar.xz
+  unpack -C libtool http://ftp.gnu.org/gnu/libtool/libtool-2.4.6.tar.xz
   if ! enabled glib; then
-    unpack -C libffi ftp://sourceware.org/pub/libffi/libffi-3.0.13.tar.gz
+    unpack -C libffi ftp://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz
     unpack -C glib \
-      http://ftp.gnome.org/pub/gnome/sources/glib/2.40/glib-2.40.0.tar.xz
+      http://ftp.gnome.org/pub/gnome/sources/glib/2.47/glib-2.47.1.tar.xz
     apply -C glib glib-paths.patch
     unpack -C pkg-config \
-      http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz
+      http://pkgconfig.freedesktop.org/releases/pkg-config-0.29.tar.gz
   fi
 }
 
