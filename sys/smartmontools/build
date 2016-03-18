@@ -4,5 +4,5 @@ sources http://prdownloads.sourceforge.net/$NAME/$NAME-$VERSION.tar.gz
 mode autotools
 
 post-install() {
-  rm -f $DST/bin/update-* $DST/lib
+  rm -f -r $DST/bin/update-* $DST/lib
 }
