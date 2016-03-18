@@ -1,9 +1,9 @@
 name iproute2
-version 3.14.0
+version 4.4.0
 sources http://kernel.org/pub/linux/utils/net/iproute2/iproute2-$VERSION.tar.xz \
         paths.patch
+requires -b bison
 requires -b flex
-requires iptables
 
 build() {
   PKG_CONFIG=/bin/false $SRC/configure

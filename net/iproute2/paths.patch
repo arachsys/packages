@@ -1,10 +1,10 @@
-diff --git a/ip/ipnetns.c b/ip/ipnetns.c
-index 1d8d3dc..b73ca51 100644
---- a/ip/ipnetns.c
-+++ b/ip/ipnetns.c
-@@ -18,7 +18,7 @@
- #include "utils.h"
- #include "ip_common.h"
+diff --git a/include/namespace.h b/include/namespace.h
+index 51324b2..3a2cc72 100644
+--- a/include/namespace.h
++++ b/include/namespace.h
+@@ -7,7 +7,7 @@
+ #include <sys/syscall.h>
+ #include <errno.h>
  
 -#define NETNS_RUN_DIR "/var/run/netns"
 +#define NETNS_RUN_DIR "/run/netns"
@@ -12,18 +12,58 @@ index 1d8d3dc..b73ca51 100644
  
  #ifndef CLONE_NEWNET
 diff --git a/man/man8/ip-netns.8 b/man/man8/ip-netns.8
-index 6aa6e93..796036c 100644
+index c9b0fbc..f4b699c 100644
 --- a/man/man8/ip-netns.8
 +++ b/man/man8/ip-netns.8
-@@ -39,9 +39,9 @@ A network namespace is logically another copy of the network stack,
- with its own routes, firewall rules, and network devices.
+@@ -53,9 +53,9 @@ By default a process inherits its network namespace from its parent. Initially a
+ the processes share the same default network namespace from the init process.
  
  By convention a named network namespace is an object at
 -.BR "/var/run/netns/" NAME
 +.BR "/run/netns/" NAME
- that can be opened.  The file descriptor resulting from opening
+ that can be opened. The file descriptor resulting from opening
 -.BR "/var/run/netns/" NAME
 +.BR "/run/netns/" NAME
- refers to the specified network namespace.  Holding that file
- descriptor open keeps the network namespace alive.  The file
+ refers to the specified network namespace. Holding that file
+ descriptor open keeps the network namespace alive. The file
  descriptor can be used with the
+@@ -81,18 +81,18 @@ their traditional location in /etc.
+ .TP
+ .B ip netns list - show all of the named network namespaces
+ .sp
+-This command displays all of the network namespaces in /var/run/netns
++This command displays all of the network namespaces in /run/netns
+ 
+ .TP
+ .B ip netns add NAME - create a new named network namespace
+ .sp
+-If NAME is available in /var/run/netns/ this command creates a new
++If NAME is available in /run/netns/ this command creates a new
+ network namespace and assigns NAME.
+ 
+ .TP
+ .B ip [-all] netns delete [ NAME ] - delete the name of a network namespace(s)
+ .sp
+-If NAME is present in /var/run/netns it is umounted and the mount
++If NAME is present in /run/netns it is umounted and the mount
+ point is removed. If this is the last user of the network namespace the
+ network namespace will be freed and all physical devices will be moved to the
+ default one, otherwise the network namespace persists until it has no more
+@@ -145,7 +145,7 @@ Once it is assigned, it's not possible to change it.
+ .TP
+ .B ip netns identify [PID] - Report network namespaces names for process
+ .sp
+-This command walks through /var/run/netns and finds all the network
++This command walks through /run/netns and finds all the network
+ namespace names for network namespace of the specified process, if PID is
+ not specified then the current process will be used.
+ 
+@@ -186,7 +186,7 @@ and prints a line for each event it sees.
+ .sp
+ Network namespace ids are used to identify a peer network namespace. This
+ command displays nsid of the current network namespace and provides the
+-corresponding iproute2 netns name (from /var/run/netns) if any.
++corresponding iproute2 netns name (from /run/netns) if any.
+ 
+ .SH EXAMPLES
+ .PP
