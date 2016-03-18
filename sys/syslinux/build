@@ -1,7 +1,8 @@
 name syslinux
-version 4.07
+version 6.03
 sources http://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-$VERSION.tar.xz \
         paths.patch
+requires perl
 
 build() {
   make install INSTALLROOT=$DST
