@@ -1,4 +1,4 @@
 name ethtool
-version 3.14
+version 4.5
 sources https://www.kernel.org/pub/software/network/ethtool/ethtool-$VERSION.tar.xz
 mode autotools
