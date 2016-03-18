@@ -1,5 +1,5 @@
 name gnupg
-version 1.4.16
+version 1.4.20
 sources ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-$VERSION.tar.bz2
 mode autotools
 
