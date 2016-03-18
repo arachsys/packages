@@ -1,5 +1,5 @@
 name dovecot
-version 2.2.12
+version 2.2.22
 sources http://dovecot.org/releases/${VERSION%.*}/dovecot-$VERSION.tar.gz \
         paths.patch
 mode autotools
