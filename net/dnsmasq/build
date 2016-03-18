@@ -1,5 +1,5 @@
 name dnsmasq
-version 2.70
+version 2.75
 sources http://www.thekelleys.org.uk/dnsmasq/dnsmasq-$VERSION.tar.gz
 
 build() {
