@@ -10,3 +10,7 @@ config-extra --disable-rpath --enable-shared --with-ruby-pc=ruby.pc \
 if ! enabled docs; then
   config-extra --disable-install-doc
 fi
+
+post-config() {
+  touch $SRC/prelude.c
+}
