@@ -1,8 +1,10 @@
 name exim
-version 4.82.1
+version 4.86
 sources http://ftp.exim.org/pub/exim/exim4/exim-$VERSION.tar.bz2 \
         config.patch eximlogs.patch paths.patch
 enable setuid
+requires berkeley-db
+requires perl
 
 build() {
   sed -e 's/^\(EXIM_COMPILE_NUMBER\)=.*/\1=0/' -i src/version.sh

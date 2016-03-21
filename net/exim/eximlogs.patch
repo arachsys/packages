@@ -1,17 +1,17 @@
 diff --git a/OS/Makefile-Base b/OS/Makefile-Base
-index 2812945..974770d 100644
+index 1d5a5f6..70f6891 100644
 --- a/OS/Makefile-Base
 +++ b/OS/Makefile-Base
-@@ -102,7 +102,7 @@ config.h: Makefile buildconfig ../src/config.h.defaults $(EDITME)
- # scripts, once the configuring stuff is done.
+@@ -101,7 +101,7 @@ config.h: Makefile buildconfig ../src/config.h.defaults $(EDITME)
  
- allexim: config.h $(EXIM_MONITOR) exicyclog exinext exiwhat \
+ 
+ utils: $(EXIM_MONITOR) exicyclog exinext exiwhat \
 -        exigrep eximstats exipick exiqgrep exiqsumm \
 +        exigrep eximlogs eximstats exipick exiqgrep exiqsumm \
          transport-filter.pl convert4r3 convert4r4 \
          exim_checkaccess \
-         exim_dbmbuild exim_dumpdb exim_fixdb exim_tidydb exim_lock \
-@@ -228,6 +228,17 @@ exigrep: Makefile ../src/exigrep.src
+         exim_dbmbuild exim_dumpdb exim_fixdb exim_tidydb exim_lock
+@@ -225,6 +225,17 @@ exigrep: Makefile ../src/exigrep.src
  	@chmod a+x exigrep
  	@echo ">>> exigrep script built"
  
