@@ -1,9 +1,11 @@
 name gdb
-version 7.7
+version 7.11
 mode autotools
-sources http://ftp.gnu.org/gnu/gdb/gdb-$VERSION.tar.bz2
+sources http://ftp.gnu.org/gnu/gdb/gdb-$VERSION.tar.xz
 
 config-extra --disable-install-lib{bfd,iberty,opcodes} --disable-werror
+compile-extra MAKEINFO=true
+install-extra MAKEINFO=true
 
 post-install() {
   find $DST -name libiberty.a -type f -delete
