@@ -1,5 +1,5 @@
 name gcc
-version 5.1.0
+version 6.1.0
 mode autotools
 sources http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/gcc-$VERSION.tar.bz2 \
         nofixinc.patch nolibiberty.patch paths.patch pure64.patch
@@ -19,4 +19,6 @@ post-install() {
   find $DST -name '*.py' -type f -delete
   find $DST/lib -name '*.spec' -type f \
     -exec mv -t $DST/lib/gcc/$CHOST/$VERSION/ {} +
+  mkdir -p $DST/lib/bfd-plugins
+  ln -f -s ../gcc/$CHOST/$VERSION/liblto_plugin.so $DST/lib/bfd-plugins/
 }

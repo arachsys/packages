@@ -1,8 +1,8 @@
 diff --git a/gcc/config/i386/linux64.h b/gcc/config/i386/linux64.h
-index b793e08..46ef01b 100644
+index 73d22e3..27d29ac 100644
 --- a/gcc/config/i386/linux64.h
 +++ b/gcc/config/i386/linux64.h
-@@ -28,5 +28,5 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+@@ -28,8 +28,8 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
  #define GNU_USER_LINK_EMULATIONX32 "elf32_x86_64"
  
  #define GLIBC_DYNAMIC_LINKER32 "/lib/ld-linux.so.2"
@@ -10,8 +10,11 @@ index b793e08..46ef01b 100644
 -#define GLIBC_DYNAMIC_LINKERX32 "/libx32/ld-linux-x32.so.2"
 +#define GLIBC_DYNAMIC_LINKER64 "/lib/ld-linux-x86-64.so.2"
 +#define GLIBC_DYNAMIC_LINKERX32 "/lib/ld-linux-x32.so.2"
+ 
+ #undef MUSL_DYNAMIC_LINKER32
+ #define MUSL_DYNAMIC_LINKER32 "/lib/ld-musl-i386.so.1"
 diff --git a/gcc/config/i386/t-linux64 b/gcc/config/i386/t-linux64
-index bcea0c6..ca8e36a 100644
+index c0cc8a3..28d85c9 100644
 --- a/gcc/config/i386/t-linux64
 +++ b/gcc/config/i386/t-linux64
 @@ -33,6 +33,3 @@
