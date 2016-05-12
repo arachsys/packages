@@ -1,0 +1,32 @@
+name btrfs-progs
+version 4.5.3
+mode autotools
+
+prepare() {
+  unpack https://www.kernel.org/pub/linux/kernel/people/kdave/$NAME/$NAME-v$VERSION.tar.gz
+  unpack -C lzo http://www.oberhumer.com/opensource/lzo/download/lzo-2.09.tar.gz
+  unpack -C pkg-config http://pkgconfig.freedesktop.org/releases/pkg-config-0.29.1.tar.gz
+  apply -C pkg-config gcc6.patch
+}
+
+pre-config() {
+  mkdir -p $SRC/tools/bin
+  export PATH=$SRC/tools/bin:$PATH
+
+  cd $SRC/pkg-config
+  $SRC/pkg-config/configure --prefix=$SRC/tools --datarootdir='${prefix}/lib' \
+                            --with-internal-glib --with-pc-path=/lib/pkgconfig
+  make install
+
+  cd $SRC/lzo
+  $SRC/lzo/configure --disable-shared
+  make
+  cd $SRC
+}
+
+config-extra CFLAGS=-I$SRC/lzo/include LDFLAGS=-L$SRC/lzo/src/.libs
+enabled docs || config-extra --disable-documentation
+
+post-install() {
+  rm -r $DST/lib/{include,*.so,*.so.*,*.a}
+}
