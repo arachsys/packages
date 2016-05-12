@@ -1,8 +1,8 @@
 name glibc
-version 2.21
+version 2.23
 enable rpaths setuid
 sources http://ftp.gnu.org/gnu/glibc/glibc-$VERSION.tar.xz \
-        paths.patch pure64.patch
+        paths.patch pure64.patch upstream.patch
 
 build() {
   mkdir build && cd build
@@ -15,6 +15,7 @@ build() {
                  --enable-static-nss --enable-stackguard-randomization
 
   echo 'auditdir=${prefix}/lib/audit' >>configparms
+  echo 'complocaledir=${prefix}/lib/locale' >>configparms
   echo 'gconvdir=${prefix}/lib/gconv' >>configparms
   echo 'localedir=${prefix}/lib/locale' >>configparms
   echo 'rootsbindir=${prefix}/bin' >>configparms
@@ -27,7 +28,7 @@ build() {
       -i $DST/bin/{catchsegv,xtrace}
   sed -e 's:shared/\([^ ]*\.a\):static/\1:g' \
       -e 's:shared/\(ld-linux.*\.so\):\1:g' \
-      -i $DST/lib/shared/lib{c,pthread}.so
+      -i $DST/lib/shared/lib{c,m,pthread}.so
   mv $DST/lib/shared/lib{SegFault,segfault}.so
   rm -f $DST/lib/shared/libBrokenLocale*
   for LDSO in $DST/lib/shared/ld-linux*.so*; do
