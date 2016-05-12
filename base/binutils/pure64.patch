@@ -1,8 +1,8 @@
 diff --git a/ld/emulparams/elf32_x86_64.sh b/ld/emulparams/elf32_x86_64.sh
-index 11d17ad..efb65a1 100644
+index 0a03548..c15328a 100644
 --- a/ld/emulparams/elf32_x86_64.sh
 +++ b/ld/emulparams/elf32_x86_64.sh
-@@ -23,19 +23,3 @@ if [ "x${host}" = "x${target}" ]; then
+@@ -25,19 +25,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -23,26 +23,36 @@ index 11d17ad..efb65a1 100644
 -    ;;
 -esac
 diff --git a/ld/emulparams/elf_x86_64.sh b/ld/emulparams/elf_x86_64.sh
-index 1e83a74..52d3395 100644
+index 5d31da1..75ea293 100644
 --- a/ld/emulparams/elf_x86_64.sh
 +++ b/ld/emulparams/elf_x86_64.sh
-@@ -26,19 +26,12 @@ if [ "x${host}" = "x${target}" ]; then
+@@ -30,29 +30,3 @@ if [ "x${host}" = "x${target}" ]; then
+       NATIVE=yes
    esac
  fi
- 
+-
 -# Linux/Solaris modify the default library search path to first include
 -# a 64-bit specific directory.
- case "$target" in
-   x86_64*-linux*|i[3-7]86-*-linux-*)
-     case "$EMULATION_NAME" in
-       *64*)
+-case "$target" in
+-  x86_64*-linux*|i[3-7]86-*-linux-*)
+-    case "$EMULATION_NAME" in
+-      *64*)
 -        LIBPATH_SUFFIX=64
-         BNDPLT=yes
-         ;;
-     esac
-     ;;
+-	PARSE_AND_LIST_OPTIONS_BNDPLT='
+-  fprintf (file, _("\
+-  -z bndplt                   Always generate BND prefix in PLT entries\n"));
+-'
+-	PARSE_AND_LIST_ARGS_CASE_Z_BNDPLT='
+-      else if (strcmp (optarg, "bndplt") == 0)
+-	link_info.bndplt = TRUE;
+-'
+-	PARSE_AND_LIST_OPTIONS="$PARSE_AND_LIST_OPTIONS $PARSE_AND_LIST_OPTIONS_BNDPLT"
+-	PARSE_AND_LIST_ARGS_CASE_Z="$PARSE_AND_LIST_ARGS_CASE_Z $PARSE_AND_LIST_ARGS_CASE_Z_BNDPLT"
+-        ;;
+-    esac
+-    ;;
 -  *-*-solaris2*)
 -    LIBPATH_SUFFIX=/amd64
 -    ELF_INTERPRETER_NAME=\"/lib/amd64/ld.so.1\"
 -  ;;
- esac
+-esac

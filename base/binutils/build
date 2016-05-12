@@ -1,8 +1,8 @@
 name binutils
-version 2.25
+version 2.26
 mode autotools
 sources http://ftp.gnu.org/gnu/binutils/binutils-$VERSION.tar.bz2 \
-        no-toollib.patch paths.patch pure64.patch
+        no-toollib.patch paths.patch pure64.patch upstream.patch
 
 config-extra --disable-werror --enable-shared \
              --with-lib-path=/lib:/lib/shared:/lib/static
