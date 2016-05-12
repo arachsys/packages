@@ -1,5 +1,5 @@
 name linux-headers
-version 4.0.5
+version 4.5.4
 sources http://www.kernel.org/pub/linux/kernel/v${VERSION%%.*}.x/linux-$VERSION.tar.xz
 
 build() {
