@@ -1,7 +1,7 @@
 name gmp
-version 6.0.0
+version 6.1.0
 mode autotools
-sources http://ftp.gnu.org/gnu/gmp/gmp-${VERSION}a.tar.xz
+sources http://ftp.gnu.org/gnu/gmp/gmp-${VERSION}.tar.xz
 
 config-extra --enable-cxx
 install-extra includeexecdir='${prefix}/lib/include'
