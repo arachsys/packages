@@ -1,14 +1,15 @@
 name util-linux
-version 2.26.2
+version 2.28
 mode autotools
-sources http://ftp.kernel.org/pub/linux/utils/util-linux/v${VERSION%.*}/util-linux-$VERSION.tar.xz \
+sources http://ftp.kernel.org/pub/linux/utils/util-linux/v$VERSION/util-linux-$VERSION.tar.xz \
         paths.patch
 enable setuid setgid
 
 config-extra --disable-chfn-chsh --disable-login --disable-newgrp \
              --disable-nologin --disable-rpath --disable-su --disable-vipw \
              --enable-last --enable-line --enable-mesg --enable-shared \
-             --enable-write --enable-fs-paths-default=/bin
+             --enable-write --enable-fs-paths-default=/bin \
+             ADJTIME_PATH=/var/lib/hwclock/adjtime
 
 post-config() {
   find . -type f -name Makefile | while read FILE; do

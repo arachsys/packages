@@ -1,5 +1,5 @@
 diff --git a/bash-completion/mkfs b/bash-completion/mkfs
-index 4edc6f0..36adf27 100644
+index a278747..14c4bae 100644
 --- a/bash-completion/mkfs
 +++ b/bash-completion/mkfs
 @@ -6,7 +6,7 @@ _mkfs_module()
@@ -38,57 +38,40 @@ index 449cbe0..c885601 100644
  			done
  			COMPREPLY=( $(compgen -W "$TERM_LIST" -- $cur) )
 diff --git a/disk-utils/fsck.8 b/disk-utils/fsck.8
-index c60eef2..1714ebc 100644
+index df7d095..d35a66d 100644
 --- a/disk-utils/fsck.8
 +++ b/disk-utils/fsck.8
-@@ -81,7 +81,7 @@ In actuality,
- is simply a front-end for the various filesystem checkers
+@@ -23,7 +23,7 @@ is used to check and optionally repair one or more Linux filesystems.
+ can be a device name (e.g.
+ .IR /dev/hdc1 ", " /dev/sdb2 ),
+ a mount point (e.g.
+-.IR / ", " /usr ", " /home ),
++.IR / ", " /var ", " /home ),
+ or an ext2 label or UUID specifier (e.g.
+ UUID=8868abf6-88c5-4a83-98b8-bfc24057f7bd or LABEL=root).
+ Normally, the
+@@ -84,7 +84,7 @@ is simply a front-end for the various filesystem checkers
  (\fBfsck\fR.\fIfstype\fR) available under Linux.  The
- filesystem-specific checker is searched for in
--.I /sbin
-+.I /bin
- first, then in
- .I /etc/fs
- and
-@@ -418,9 +418,9 @@ The
- .B PATH
- environment variable is used to find filesystem checkers.  A set of
- system directories are searched first:
--.BR /sbin ,
--.BR /sbin/fs.d ,
--.BR /sbin/fs ,
-+.BR /bin ,
-+.BR /bin/fs.d ,
-+.BR /bin/fs ,
- .BR /etc/fs ,
- and
- .BR /etc .
-diff --git a/disk-utils/mkfs.8 b/disk-utils/mkfs.8
-index 9a5cdc0..0d91539 100644
---- a/disk-utils/mkfs.8
-+++ b/disk-utils/mkfs.8
-@@ -31,16 +31,16 @@ is simply a front-end for the various filesystem builders
- available under Linux.
- The filesystem-specific builder is searched for in a number
- of directories, like perhaps
--.IR /sbin ,
--.IR /sbin/fs ,
--.IR /sbin/fs.d ,
-+.IR /bin ,
-+.IR /bin/fs ,
-+.IR /bin/fs.d ,
- .IR /etc/fs ,
- .I /etc
- (the precise list is defined at compile time but at least
- contains
--.I /sbin
-+.I /bin
- and
--.IR /sbin/fs ),
-+.IR /bin/fs ),
- and finally in the directories
- listed in the PATH environment variable.
- Please see the filesystem-specific builder manual pages for
+ filesystem-specific checker is searched for in the
+ PATH environment variable. If the PATH is undefined then
+-fallback to "/sbin".
++fallback to "/bin".
+ .PP
+ Please see the filesystem-specific checker manual pages for
+ further details.
+diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
+index 05cfbc4..e431da5 100644
+--- a/disk-utils/fsck.c
++++ b/disk-utils/fsck.c
+@@ -154,7 +154,7 @@ static int kill_sent;
+ static char *fstype;
+ static struct fsck_instance *instance_list;
+ 
+-#define FSCK_DEFAULT_PATH "/sbin"
++#define FSCK_DEFAULT_PATH "/bin"
+ static char *fsck_path;
+ 
+ 
 diff --git a/include/nls.h b/include/nls.h
 index 3eabfe6..76791d9 100644
 --- a/include/nls.h
@@ -103,30 +86,38 @@ index 3eabfe6..76791d9 100644
  
  #ifdef HAVE_LOCALE_H
 diff --git a/include/pathnames.h b/include/pathnames.h
-index 9d2c22b..c98610d 100644
+index de6a13c..cd575e9 100644
 --- a/include/pathnames.h
 +++ b/include/pathnames.h
-@@ -18,15 +18,12 @@
+@@ -18,24 +18,11 @@
  #define PATH_DELETED_SUFFIX	"\\040(deleted)"
  #define PATH_DELETED_SUFFIX_SZ	(sizeof(PATH_DELETED_SUFFIX) - 1)
  
 -/* DEFPATHs from <paths.h> don't include /usr/local */
 -#undef _PATH_DEFPATH
--#define	_PATH_DEFPATH	        "/usr/local/bin:/bin:/usr/bin"
+-
+-#ifdef USE_USRDIR_PATHS_ONLY
+-# define _PATH_DEFPATH	        "/usr/local/bin:/usr/bin"
+-#else
+-# define _PATH_DEFPATH	        "/usr/local/bin:/bin:/usr/bin"
+-#endif
 -
 -#undef _PATH_DEFPATH_ROOT
--#define	_PATH_DEFPATH_ROOT	"/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+-
+-#ifdef USE_USRDIR_PATHS_ONLY
+-# define _PATH_DEFPATH_ROOT	"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+-#else
+-# define _PATH_DEFPATH_ROOT	"/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
 +#ifndef _PATH_DEFPATH_ROOT
-+# define _PATH_DEFPATH_ROOT _PATH_DEFPATH
-+#endif
++# define _PATH_DEFPATH_ROOT	"/bin"
+ #endif
  
- #define _PATH_SECURETTY		"/etc/securetty"
 -#define _PATH_WTMPLOCK		"/etc/wtmplock"
 +#define _PATH_WTMPLOCK		"/var/log/wtmp.lock"
  
  #define	_PATH_HUSHLOGIN		".hushlogin"
  #define	_PATH_HUSHLOGINS	"/etc/hushlogins"
-@@ -34,17 +31,17 @@
+@@ -43,14 +30,14 @@
  #define _PATH_NOLOGIN_TXT	"/etc/nologin.txt"
  
  #ifndef _PATH_MAILDIR
@@ -139,16 +130,12 @@ index 9d2c22b..c98610d 100644
 +#define	_PATH_VAR_NOLOGIN	"/run/nologin"
  
  #define _PATH_LOGIN		"/bin/login"
- #define _PATH_INITTAB		"/etc/inittab"
- #define _PATH_RC		"/etc/rc"
--#define _PATH_REBOOT		"/sbin/reboot"
 -#define _PATH_SHUTDOWN		"/sbin/shutdown"
-+#define _PATH_REBOOT		"/bin/reboot"
 +#define _PATH_SHUTDOWN		"/bin/shutdown"
- #define _PATH_SINGLE		"/etc/singleboot"
- #define _PATH_SHUTDOWN_CONF	"/etc/shutdown.conf"
  
-@@ -70,15 +67,15 @@
+ #define _PATH_TERMCOLORS_DIRNAME "terminal-colors.d"
+ #define _PATH_TERMCOLORS_DIR	"/etc/" _PATH_TERMCOLORS_DIRNAME
+@@ -71,15 +58,15 @@
  /* used in term-utils/agetty.c */
  #define _PATH_ISSUE		"/etc/issue"
  #define _PATH_OS_RELEASE_ETC	"/etc/os-release"
@@ -166,17 +153,8 @@ index 9d2c22b..c98610d 100644
 +#define _PATH_WORDS_ALT         "/lib/dict/web2"
  
  /* mount paths */
- #define _PATH_UMOUNT		"/bin/umount"
-@@ -114,7 +111,7 @@
- # ifdef MOUNTED					/* deprecated */
- #  define _PATH_MOUNTED		MOUNTED
- # else
--#  define _PATH_MOUNTED		"/etc/mtab"
-+#  define _PATH_MOUNTED		"/run/mtab"
- # endif
- #endif
- 
-@@ -157,10 +154,10 @@
+ #define _PATH_FILESYSTEMS	"/etc/filesystems"
+@@ -149,10 +136,10 @@
  #ifdef CONFIG_ADJTIME_PATH
  # define _PATH_ADJTIME		CONFIG_ADJTIME_PATH
  #else
@@ -272,145 +250,6 @@ index 6232394..246cbdf 100644
  	"\n" \
  	"This is similar to:\n" \
  	"\n" \
-diff --git a/libmount/src/context.c b/libmount/src/context.c
-index 8d19dc2..0a26529 100644
---- a/libmount/src/context.c
-+++ b/libmount/src/context.c
-@@ -482,7 +482,7 @@ int mnt_context_is_rdonly_umount(struct libmnt_context *cxt)
-  * @cxt: mount context
-  * @disable: TRUE or FALSE
-  *
-- * Enable/disable /sbin/[u]mount.* helpers (see mount(8) man page, option -i).
-+ * Enable/disable /bin/[u]mount.* helpers (see mount(8) man page, option -i).
-  *
-  * Returns: 0 on success, negative number in case of error.
-  */
-diff --git a/libmount/src/context_umount.c b/libmount/src/context_umount.c
-index 2a39a6f..05d5131 100644
---- a/libmount/src/context_umount.c
-+++ b/libmount/src/context_umount.c
-@@ -229,7 +229,7 @@ static int lookup_umount_fs(struct libmnt_context *cxt)
- 	 * mountinfo about all mountpoints although we look for only one entry.
- 	 *
- 	 * All we need is fstype and to check if there is no userspace mount
--	 * options for the target (e.g. helper=udisks to call /sbin/umount.udisks).
-+	 * options for the target (e.g. helper=udisks to call /bin/umount.udisks).
- 	 *
- 	 * So, let's use statfs() if possible (it's bad idea for --lazy/--force
- 	 * umounts as target is probably unreachable NFS, also for --detach-loop
-@@ -389,7 +389,7 @@ static int evaluate_permissions(struct libmnt_context *cxt)
- 		if (rc)
- 			return rc;
- 		if (cxt->helper)
--			return 0;	/* we'll call /sbin/umount.<uhelper> */
-+			return 0;	/* we'll call /bin/umount.<uhelper> */
- 	}
- 
- 	/*
-@@ -799,7 +799,7 @@ int mnt_context_prepare_umount(struct libmnt_context *cxt)
-  * mnt_context_do_umount:
-  * @cxt: mount context
-  *
-- * Umount filesystem by umount(2) or fork()+exec(/sbin/umount.type).
-+ * Umount filesystem by umount(2) or fork()+exec(/bin/umount.type).
-  * Unnecessary for mnt_context_umount().
-  *
-  * See also mnt_context_disable_helpers().
-@@ -884,7 +884,7 @@ int mnt_context_finalize_umount(struct libmnt_context *cxt)
-  * mnt_context_umount:
-  * @cxt: umount context
-  *
-- * High-level, umounts filesystem by umount(2) or fork()+exec(/sbin/umount.type).
-+ * High-level, umounts filesystem by umount(2) or fork()+exec(/bin/umount.type).
-  *
-  * This is similar to:
-  *
-diff --git a/libmount/src/libmount.h b/libmount/src/libmount.h
-index 833c65e..481dfba 100644
---- a/libmount/src/libmount.h
-+++ b/libmount/src/libmount.h
-@@ -44,7 +44,7 @@ struct libmnt_cache;
- /**
-  * libmnt_lock:
-  *
-- * Stores information about the locked file (e.g. /etc/mtab)
-+ * Stores information about the locked file (e.g. /run/mtab)
-  */
- struct libmnt_lock;
- 
-@@ -95,7 +95,7 @@ struct libmnt_table;
- /**
-  * libmnt_update
-  *
-- * /etc/mtab or utab update description
-+ * /run/mtab or utab update description
-  */
- struct libmnt_update;
- 
-diff --git a/libmount/src/libmount.h.in b/libmount/src/libmount.h.in
-index 2338cc6..cfbd9a3 100644
---- a/libmount/src/libmount.h.in
-+++ b/libmount/src/libmount.h.in
-@@ -44,7 +44,7 @@ struct libmnt_cache;
- /**
-  * libmnt_lock:
-  *
-- * Stores information about the locked file (e.g. /etc/mtab)
-+ * Stores information about the locked file (e.g. /run/mtab)
-  */
- struct libmnt_lock;
- 
-@@ -95,7 +95,7 @@ struct libmnt_table;
- /**
-  * libmnt_update
-  *
-- * /etc/mtab or utab update description
-+ * /run/mtab or utab update description
-  */
- struct libmnt_update;
- 
-diff --git a/libmount/src/lock.c b/libmount/src/lock.c
-index 0d94329..a384faa 100644
---- a/libmount/src/lock.c
-+++ b/libmount/src/lock.c
-@@ -330,7 +330,7 @@ static int mnt_wait_mtab_lock(struct libmnt_lock *ml, struct flock *fl, time_t m
-  * backwardly compatible code.
-  *
-  * Don't forget that this code has to be compatible with 3rd party mounts
-- * (/sbin/mount.foo) and has to work with NFS.
-+ * (/bin/mount.foo) and has to work with NFS.
-  * -- kzak@redhat.com [May-2009]
-  */
- 
-diff --git a/libmount/src/mountP.h b/libmount/src/mountP.h
-index d28eb9c..210e06e 100644
---- a/libmount/src/mountP.h
-+++ b/libmount/src/mountP.h
-@@ -306,7 +306,7 @@ struct libmnt_context
- 
- 	int	flags;		/* private context flags */
- 
--	char	*helper;	/* name of the used /sbin/[u]mount.<type> helper */
-+	char	*helper;	/* name of the used /bin/[u]mount.<type> helper */
- 	int	helper_status;	/* helper wait(2) status */
- 	int	helper_exec_status; /* 1: not called yet, 0: success, <0: -errno */
- 
-diff --git a/libmount/src/optmap.c b/libmount/src/optmap.c
-index 3ad7727..6ca2292 100644
---- a/libmount/src/optmap.c
-+++ b/libmount/src/optmap.c
-@@ -168,9 +168,9 @@ static const struct libmnt_optmap userspace_opts_map[] =
- 
-    { "nofail",  MNT_MS_NOFAIL, MNT_NOMTAB },               /* Do not fail if ENOENT on dev */
- 
--   { "uhelper=", MNT_MS_UHELPER },			   /* /sbin/umount.<helper> */
-+   { "uhelper=", MNT_MS_UHELPER },			   /* /bin/umount.<helper> */
- 
--   { "helper=", MNT_MS_HELPER },			   /* /sbin/mount.<helper> */
-+   { "helper=", MNT_MS_HELPER },			   /* /bin/mount.<helper> */
- 
-    { NULL, 0, 0 }
- };
 diff --git a/libuuid/src/uuidd.h b/libuuid/src/uuidd.h
 index 2f70968..6a9b8f6 100644
 --- a/libuuid/src/uuidd.h
@@ -425,7 +264,7 @@ index 2f70968..6a9b8f6 100644
  #define UUIDD_OP_GETPID			0
  #define UUIDD_OP_GET_MAXOP		1
 diff --git a/login-utils/login.1 b/login-utils/login.1
-index b3f3d3f..ee97952 100644
+index b3f3d3f..8fdf0d2 100644
 --- a/login-utils/login.1
 +++ b/login-utils/login.1
 @@ -53,10 +53,8 @@ and
@@ -437,7 +276,7 @@ index b3f3d3f..ee97952 100644
 -.I /usr\:/local\:/sbin:\:/usr\:/local\:/bin:\:/sbin:\:/bin:\:/usr\:/sbin:\:/usr\:/bin
 -for root, if not otherwise configured.
 +.I /bin
-+for all users.
++if not otherwise configured.
  .P
  The environment variable
  .B $TERM
@@ -450,7 +289,7 @@ index b3f3d3f..ee97952 100644
  .RE
  .PP
  .B ENV_ROOTPATH
-@@ -268,17 +266,17 @@ a regular user logs in.  The default value is
+@@ -268,14 +266,14 @@ a regular user logs in.  The default value is
  .RS 4
  If set, it will be used to define the PATH environment variable when
  the superuser logs in.  The default value is
@@ -467,16 +306,12 @@ index b3f3d3f..ee97952 100644
 +.I /var/mail/*
  .I /etc/motd
  .I /etc/passwd
--.I /etc/nologin
-+.I /run/nologin
- .I /etc/pam.d/login
- .I /etc/pam.d/remote
- .I /etc/hushlogins
+ .I /etc/nologin
 diff --git a/login-utils/runuser.1 b/login-utils/runuser.1
-index 0672cd6..e0b3c2e 100644
+index 2f88f81..7ad181a 100644
 --- a/login-utils/runuser.1
 +++ b/login-utils/runuser.1
-@@ -159,7 +159,7 @@ for
+@@ -160,7 +160,7 @@ for
  .RS 4
  Defines the PATH environment variable for a regular user.  The
  default value is
@@ -485,7 +320,7 @@ index 0672cd6..e0b3c2e 100644
  .RE
  .PP
  .B ENV_ROOTPATH
-@@ -169,7 +169,7 @@ default value is
+@@ -170,7 +170,7 @@ default value is
  (string)
  .RS 4
  Defines the PATH environment variable for root. The default value is
@@ -495,10 +330,10 @@ index 0672cd6..e0b3c2e 100644
  .PP
  .B ALWAYS_SET_PATH
 diff --git a/login-utils/su.1 b/login-utils/su.1
-index f5fecf1..89804b5 100644
+index 5e529ce..247830f 100644
 --- a/login-utils/su.1
 +++ b/login-utils/su.1
-@@ -165,7 +165,7 @@ a non-negative integer.
+@@ -166,7 +166,7 @@ a non-negative integer.
  .RS 4
  Defines the PATH environment variable for a regular user.  The
  default value is
@@ -507,7 +342,7 @@ index f5fecf1..89804b5 100644
  .RE
  .PP
  .B ENV_ROOTPATH
-@@ -175,7 +175,7 @@ default value is
+@@ -176,7 +176,7 @@ default value is
  (string)
  .RS 4
  Defines the PATH environment variable for root.  The default value is
@@ -517,10 +352,10 @@ index f5fecf1..89804b5 100644
  .PP
  .B ALWAYS_SET_PATH
 diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 51bc582..08a9ff6 100644
+index 601d38c..2b5e1bc 100644
 --- a/login-utils/sulogin.c
 +++ b/login-utils/sulogin.c
-@@ -87,7 +87,7 @@ static volatile sig_atomic_t sigchild;
+@@ -98,7 +98,7 @@ static int locked_account_password(const char *passwd)
   */
  static int plymouth_command(const char* arg)
  {
@@ -529,49 +364,24 @@ index 51bc582..08a9ff6 100644
  	static int has_plymouth = 1;
  	pid_t pid;
  
-diff --git a/misc-utils/findmnt.8 b/misc-utils/findmnt.8
-index 31c614a..52b19cb 100644
---- a/misc-utils/findmnt.8
-+++ b/misc-utils/findmnt.8
-@@ -21,7 +21,7 @@ will list all mounted filesytems or search for a filesystem.  The
- .B findmnt
- command is able to search in
- .IR /etc/fstab ,
--.IR /etc/mtab
-+.IR /run/mtab
- or
- .IR /proc/self/mountinfo .
- If
-@@ -98,7 +98,7 @@ source file (the option \fB\-F\fP) is specified.
- .TP
- .BR \-m , " \-\-mtab"
- Search in
--.IR /etc/mtab .
-+.IR /run/mtab .
- The output is in the list format (see \fB\-\-list\fP).
- .TP
- .BR \-N , " \-\-task \fItid\fP"
 diff --git a/misc-utils/getopt.1 b/misc-utils/getopt.1
-index da7207f..7f78b15 100644
+index da7207f..df071f8 100644
 --- a/misc-utils/getopt.1
 +++ b/misc-utils/getopt.1
-@@ -415,11 +415,9 @@ if it is called with
- .SH EXAMPLES
+@@ -416,9 +416,9 @@ if it is called with
  Example scripts for (ba)sh and (t)csh are provided with the
  .BR getopt (1)
--distribution, and are optionally installed in
+ distribution, and are optionally installed in
 -.BR /usr/share/getopt/
--or
++.BR /lib/getopt/
+ or
 -.BR /usr/share/doc/
--in the util-linux subdirectory.
-+distribution, and are optionally installed in the
-+.BR /lib/doc/getopt/
-+directory.
++.BR /lib/doc/
+ in the util-linux subdirectory.
  .SH ENVIRONMENT
  .IP POSIXLY_CORRECT
- This environment variable is examined by the
 diff --git a/misc-utils/kill.1 b/misc-utils/kill.1
-index 0d430ef..3dc2474 100644
+index 2d8c883..b180559 100644
 --- a/misc-utils/kill.1
 +++ b/misc-utils/kill.1
 @@ -78,7 +78,7 @@ The signal to send.  It may be given as a name or a number.
@@ -584,7 +394,7 @@ index 0d430ef..3dc2474 100644
  \fB\-L\fR, \fB\-\-table\fR
  Similar to \fB\-l\fR, but it will print signal names and their corresponding
 diff --git a/misc-utils/look.1 b/misc-utils/look.1
-index e96a431..c5cfb4e 100644
+index 4de5f0e..6c709bc 100644
 --- a/misc-utils/look.1
 +++ b/misc-utils/look.1
 @@ -59,7 +59,7 @@ is invoked with).
@@ -596,7 +406,7 @@ index e96a431..c5cfb4e 100644
  is used, only alphanumeric characters are compared and the case of
  alphabetic characters is ignored.
  .SH OPTIONS
-@@ -98,9 +98,9 @@ look -t: root:foobar /tmp/look.dict
+@@ -102,9 +102,9 @@ look -t: root:foobar /tmp/look.dict
  .nf
  .RE
  .SH FILES
@@ -624,7 +434,7 @@ index 26273e5..84304a2 100644
  UUIDD_GROUP=uuidd
  UUIDD_DIR=@localstatedir@/uuidd
 diff --git a/misc-utils/whereis.1 b/misc-utils/whereis.1
-index 6cdec70..46ff025 100644
+index 6cdec70..ec65de2 100644
 --- a/misc-utils/whereis.1
 +++ b/misc-utils/whereis.1
 @@ -72,11 +72,11 @@ The options \fB\-B\fP, \fB\-M\fP and \fB\-S\fP reset search paths for the
@@ -646,7 +456,7 @@ index 6cdec70..46ff025 100644
  .SH EXAMPLE
  To find all files in
 -.B /usr/\:bin
-+.B /bin
++.B /\:bin
  which are not documented
  in
 -.B /usr/\:man/\:man1
@@ -664,10 +474,10 @@ index 6cdec70..46ff025 100644
  By default
  .B whereis
 diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 9fc5ee7..4e5d066 100644
+index 697d666..1321736 100644
 --- a/misc-utils/whereis.c
 +++ b/misc-utils/whereis.c
-@@ -94,77 +94,20 @@ struct wh_dirlist {
+@@ -94,77 +94,19 @@ struct wh_dirlist {
  };
  
  static const char *bindirs[] = {
@@ -677,7 +487,7 @@ index 9fc5ee7..4e5d066 100644
 -	"/usr/lib64",
  	"/bin",
 -	"/sbin",
- 	"/etc",
+-	"/etc",
 -	"/usr/etc",
  	"/lib",
 -	"/lib64",
@@ -748,37 +558,144 @@ index 9fc5ee7..4e5d066 100644
  	NULL
  };
  
-diff --git a/sys-utils/eject.1 b/sys-utils/eject.1
-index edc6a2a..588adb7 100644
---- a/sys-utils/eject.1
-+++ b/sys-utils/eject.1
-@@ -73,7 +73,7 @@ The option tells eject to not try to unmount at all.
- With this option the selected device is displayed but no action is performed.
- .TP
- .BR \-p , " \-\-proc"
--This option allows you to use /proc/mounts instead /etc/mtab.  It also passes the
-+This option allows you to use /proc/mounts instead /run/mtab.  It also passes the
- \fB\-n\fR option to \fBumount\fR(8).
- .TP
- .BR \-q , " \-\-tape"
-diff --git a/sys-utils/eject.c b/sys-utils/eject.c
-index 4f7d6e6..a1d3274 100644
---- a/sys-utils/eject.c
-+++ b/sys-utils/eject.c
-@@ -146,7 +146,7 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
- 		" -m, --no-unmount            do not unmount device even if it is mounted\n"
- 		" -M, --no-partitions-unmount do not unmount another partitions\n"
- 		" -n, --noop                  don't eject, just show device found\n"
--		" -p, --proc                  use /proc/mounts instead of /etc/mtab\n"
-+		" -p, --proc                  use /proc/mounts instead of /run/mtab\n"
- 		" -q, --tape                  eject tape\n"
- 		" -r, --cdrom                 eject CD-ROM\n"
- 		" -s, --scsi                  eject SCSI device\n"
 diff --git a/sys-utils/hwclock.8 b/sys-utils/hwclock.8
-index f559e88..c42d8dc 100644
+index 187f0e1..005b69f 100644
 --- a/sys-utils/hwclock.8
 +++ b/sys-utils/hwclock.8
-@@ -1008,7 +1008,7 @@ known to have issues.
+@@ -73,7 +73,7 @@ Predict what the Hardware Clock will read in the future based upon the
+ time given by the
+ .B \-\-date
+ option and the information in
+-.IR /etc/adjtime .
++.IR /var/lib/hwclock/adjtime .
+ This is useful, for example, to account for drift when setting a
+ Hardware Clock wakeup (aka alarm). See
+ .BR \%rtcwake (8).
+@@ -102,7 +102,7 @@ The
+ .B \-\-get
+ function also applies drift correction to the time read, based upon the
+ information in
+-.IR /etc/adjtime .
++.IR /var/lib/hwclock/adjtime .
+ Do not use this function if the Hardware Clock is being modified by
+ anything other than the current operating system's
+ .B \%hwclock
+@@ -122,7 +122,7 @@ from it must be shifted to the UTC timescale before using it to set the System
+ Clock.  The
+ .B \%\-\-hctosys
+ function does this based upon the information in the
+-.I /etc/adjtime
++.I /var/lib/hwclock/adjtime
+ file or the command line arguments
+ .BR \%\-\-localtime " and " \-\-utc .
+ Note: no daylight saving adjustment is made.  See the discussion below, under
+@@ -161,13 +161,13 @@ something has changed the Hardware Clock, like NTP's \%'11\ minute\ mode', then
+ will set the time incorrectly by including drift compensation.
+ .sp
+ Drift compensation can be inhibited by setting the drift factor in
+-.I /etc/adjtime
++.I /var/lib/hwclock/adjtime
+ to zero.  This setting will be persistent as long as the
+ .BR \%\-\-update\-drift " option is not used with " \%\-\-systohc
+ at shutdown (or anywhere else).  Another way to inhibit this is by using the
+ .BR \%\-\-noadjfile " option when calling the " \%\-\-hctosys
+ function.  A third method is to delete the
+-.IR /etc/adjtime " file."
++.IR /var/lib/hwclock/adjtime " file."
+ .B Hwclock
+ will then default to using the UTC timescale for the Hardware Clock.  If
+ the Hardware Clock is ticking local time it will need to be defined in
+@@ -193,7 +193,7 @@ the Hardware Clock while its Linux instance is not running.
+ Set the Hardware Clock to the time given by the
+ .BR \-\-date
+ option, and update the timestamps in
+-.IR /etc/adjtime .
++.IR /var/lib/hwclock/adjtime .
+ With the
+ .B --update-drift
+ option (re)calculate the drift factor.
+@@ -231,7 +231,7 @@ changed then a reboot would be required to inform the kernel.
+ .TP
+ .BR \-w , \ \-\-systohc
+ Set the Hardware Clock from the System Clock, and update the timestamps in
+-.IR /etc/adjtime .
++.IR /var/lib/hwclock/adjtime .
+ When the
+ .B --update-drift
+ option is given, then also (re)calculate the drift factor.
+@@ -248,7 +248,7 @@ Display help text and exit.
+ .
+ .TP
+ .BI \-\-adjfile= filename
+-.RI "Override the default " /etc/adjtime " file path."
++.RI "Override the default " /var/lib/hwclock/adjtime " file path."
+ .
+ .TP
+ .B \-\-badyear
+@@ -379,7 +379,7 @@ If you specify neither
+ then the one last given with a set function
+ .RB ( \-\-set ", " \%\-\-systohc ", or " \%\-\-adjust ),
+ as recorded in
+-.IR /etc/adjtime ,
++.IR /var/lib/hwclock/adjtime ,
+ will be used.  If the adjtime file doesn't exist, the default is UTC.
+ .sp
+ Note: daylight saving time changes may be inconsistent when the
+@@ -389,7 +389,7 @@ Hardware Clock is kept in local time.  See the discussion below, under
+ .TP
+ .B \-\-noadjfile
+ Disable the facilities provided by
+-.IR /etc/adjtime .
++.IR /var/lib/hwclock/adjtime .
+ .B \%hwclock
+ will not read nor write to that file with this option.  Either
+ .BR \-\-utc " or " \%\-\-localtime
+@@ -405,7 +405,7 @@ in learning about the internal operations of hwclock.
+ .TP
+ .B \-\-update\-drift
+ Update the Hardware Clock's drift factor in
+-.IR /etc/adjtime .
++.IR /var/lib/hwclock/adjtime .
+ It is used with
+ .BR \-\-set " or " \%\-\-systohc ,
+ otherwise it is ignored.
+@@ -436,7 +436,7 @@ abnormally hot the drift factor calculation would be out of range.
+ .RB "Having " \%hwclock
+ calculate the drift factor is a good starting point, but for optimal
+ results it will likely need to be adjusted by directly editing the
+-.I /etc/adjtime
++.I /var/lib/hwclock/adjtime
+ file.  For most configurations once a machine's optimal drift factor is
+ crafted it should not need to be changed.  Therefore, the old behavior to
+ automatically (re)calculate drift was changed and now requires this
+@@ -633,7 +633,7 @@ Hardware Clock.
+ .PP
+ It works like this:
+ .BR \%hwclock " keeps a file,"
+-.IR /etc/adjtime ,
++.IR /var/lib/hwclock/adjtime ,
+ that keeps some historical information.  This is called the adjtime file.
+ .PP
+ Suppose you start with no adjtime file.  You issue a
+@@ -668,7 +668,7 @@ the systematic drift rate is (re)calculated by comparing the fully drift
+ corrected current Hardware Clock time with the new set time, from that
+ it derives the 24 hour drift rate based on the last calibrated timestamp
+ from the adjtime file.  This updated drift factor is then saved in
+-.IR /etc/adjtime .
++.IR /var/lib/hwclock/adjtime .
+ .PP
+ A small amount of error creeps in when
+ the Hardware Clock is set, so
+@@ -899,7 +899,7 @@ then the System Clock must be set correctly (step 6a) just before doing so.
+ .RB "Having " hwclock
+ calculate the drift factor is a good starting point, but for optimal
+ results it will likely need to be adjusted by directly editing the
+-.I /etc/adjtime
++.I /var/lib/hwclock/adjtime
+ file.  Continue to test and refine the drift factor until the Hardware
+ Clock is corrected properly at startup.  To check this, first make sure
+ that the System Time is correct before shutdown and then use
+@@ -958,7 +958,7 @@ known to have issues.
  .PP
  To configure a system to use a particular database all of the files
  located in its directory must be copied to the root of
@@ -787,7 +704,7 @@ index f559e88..c42d8dc 100644
  Files are never used directly from the posix or 'right' subdirectories, e.g.,
  .RI \%TZ=' right/Europe/Dublin '.
  This habit was becoming so common that the upstream zoneinfo project
-@@ -1016,11 +1016,11 @@ restructured the system's file tree by moving the posix and 'right'
+@@ -966,11 +966,11 @@ restructured the system's file tree by moving the posix and 'right'
  subdirectories out of the zoneinfo directory and into sibling directories:
  .PP
  .in +2
@@ -802,7 +719,7 @@ index f559e88..c42d8dc 100644
  .PP
  Unfortunately, some Linux distributions are changing it back to the old
  tree structure in their packages. So the problem of system
-@@ -1031,7 +1031,7 @@ when an application such as a World Clock needs the South_Pole timezone
+@@ -981,7 +981,7 @@ when an application such as a World Clock needs the South_Pole timezone
  file; or an email MTA, or
  .B hwclock
  needs the UTC timezone file; they fetch it from the root of
@@ -811,85 +728,82 @@ index f559e88..c42d8dc 100644
  , because that is what they are supposed to do. Those files exclude leap
  seconds, but the System Clock now includes them, causing an incorrect
  time conversion.
-diff --git a/sys-utils/hwclock.c b/sys-utils/hwclock.c
-index c9d422d..458cb33 100644
---- a/sys-utils/hwclock.c
-+++ b/sys-utils/hwclock.c
-@@ -799,7 +799,7 @@ static int interpret_date_string(const char *date_opt, time_t * const time_p)
-  * Set the System Clock to time 'newtime'.
-  *
-  * Also set the kernel time zone value to the value indicated by the TZ
-- * environment variable and/or /usr/lib/zoneinfo/, interpreted as tzset()
-+ * environment variable and/or /lib/zoneinfo/, interpreted as tzset()
-  * would interpret them.
-  *
-  * If this is the first call of settimeofday since boot, then this also sets
-@@ -883,7 +883,7 @@ set_system_clock(const bool hclock_valid, const struct timeval newtime,
-  * and the timezone unless universal is TRUE.
-  *
-  * Also set the kernel time zone value to the value indicated by the TZ
-- * environment variable and/or /usr/lib/zoneinfo/, interpreted as tzset()
-+ * environment variable and/or /lib/zoneinfo/, interpreted as tzset()
-  * would interpret them.
-  *
-  * If 'testing' is true, don't actually update anything -- just say we would
-@@ -1991,7 +1991,7 @@ void __attribute__((__noreturn__)) hwaudit_exit(int status)
-  * 98.06.20 BJH Version 2.3.
-  *
-  * Make --hctosys set the kernel timezone from TZ environment variable
-- * and/or /usr/lib/zoneinfo. From Klaus Ripke (klaus@ripke.com).
-+ * and/or /lib/zoneinfo. From Klaus Ripke (klaus@ripke.com).
-  *
-  * 98.03.05 BJH. Version 2.2.
-  *
+@@ -1003,13 +1003,13 @@ If this variable is set its value takes precedence over the system
+ configured timezone database directory path.
+ .SH FILES
+ .TP
+-.I /etc/adjtime
++.I /var/lib/hwclock/adjtime
+ The configuration and state file for hwclock.
+ .TP
+ .I /etc/localtime
+ The system timezone file.
+ .TP
+-.I /usr/share/zoneinfo/
++.I /lib/zoneinfo/
+ The system timezone database directory.
+ .PP
+ Device files
+diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
+index eddb864..0647030 100644
+--- a/sys-utils/hwclock.8.in
++++ b/sys-utils/hwclock.8.in
+@@ -958,7 +958,7 @@ known to have issues.
+ .PP
+ To configure a system to use a particular database all of the files
+ located in its directory must be copied to the root of
+-.IR \%/usr/share/zoneinfo .
++.IR \%/lib/zoneinfo .
+ Files are never used directly from the posix or 'right' subdirectories, e.g.,
+ .RI \%TZ=' right/Europe/Dublin '.
+ This habit was becoming so common that the upstream zoneinfo project
+@@ -966,11 +966,11 @@ restructured the system's file tree by moving the posix and 'right'
+ subdirectories out of the zoneinfo directory and into sibling directories:
+ .PP
+ .in +2
+-.I /usr/share/zoneinfo
++.I /lib/zoneinfo
+ .br
+-.I /usr/share/zoneinfo\-posix
++.I /lib/zoneinfo\-posix
+ .br
+-.I /usr/share/zoneinfo\-leaps
++.I /lib/zoneinfo\-leaps
+ .PP
+ Unfortunately, some Linux distributions are changing it back to the old
+ tree structure in their packages. So the problem of system
+@@ -981,7 +981,7 @@ when an application such as a World Clock needs the South_Pole timezone
+ file; or an email MTA, or
+ .B hwclock
+ needs the UTC timezone file; they fetch it from the root of
+-.I \%/usr/share/zoneinfo
++.I \%/lib/zoneinfo
+ , because that is what they are supposed to do. Those files exclude leap
+ seconds, but the System Clock now includes them, causing an incorrect
+ time conversion.
+@@ -1009,7 +1009,7 @@ The configuration and state file for hwclock.
+ .I /etc/localtime
+ The system timezone file.
+ .TP
+-.I /usr/share/zoneinfo/
++.I /lib/zoneinfo/
+ The system timezone database directory.
+ .PP
+ Device files
 diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index a4ff749..94d2f6e 100644
+index 3197c8e..7904382 100644
 --- a/sys-utils/mount.8
 +++ b/sys-utils/mount.8
-@@ -182,7 +182,7 @@ is less fortunate: the error message `none busy' from
- can be confusing.)
- .RE
- 
--.B The /etc/fstab, /etc/mtab and /proc/mounts files.
-+.B The /etc/fstab, /run/mtab and /proc/mounts files.
- .RS
- The file
- .I /etc/fstab
-@@ -226,7 +226,7 @@ The programs
- and
- .B umount
- traditionally maintained a list of currently mounted filesystems in the file
--.IR /etc/mtab .
-+.IR /run/mtab .
- This real mtab file is still supported, but on current Linux systems it is
- better to make it a symlink to
- .I /proc/mounts
-@@ -378,11 +378,11 @@ changed by a separate remount command, for example:
- .I newdir
- .RE
- 
--Note that the behavior of the remount operation depends on the /etc/mtab file.
--The first command stores the 'bind' flag in the /etc/mtab file and the second
-+Note that the behavior of the remount operation depends on the /run/mtab file.
-+The first command stores the 'bind' flag in the /run/mtab file and the second
- command reads the flag from the file.  If you have a system without the
--/etc/mtab file or if you explicitly define source and target for the remount
--command (then \fBmount\fR(8) does not read /etc/mtab), then you have to use
-+/run/mtab file or if you explicitly define source and target for the remount
-+command (then \fBmount\fR(8) does not read /run/mtab), then you have to use
- the bind flag (or option) for the remount command too.  For example:
- 
- .RS
-@@ -525,7 +525,7 @@ argument, and finally applying a
+@@ -499,7 +499,7 @@ argument, and finally applying a
  option, when present.
  
  The command \fBmount\fR does not pass all command-line options to the
 -\fB/sbin/mount.\fIsuffix\fR mount helpers.  The interface between \fBmount\fR
 +\fB/bin/mount.\fIsuffix\fR mount helpers.  The interface between \fBmount\fR
- and the mount helpers is described below in the section EXTERNAL HELPERS.
+ and the mount helpers is described below in the section \fBEXTERNAL HELPERS\fR.
  .sp
  Command-line options available for the
-@@ -554,7 +554,7 @@ helpers which call \fBmount -i\fR.  It is strongly recommended to not use this
+@@ -528,7 +528,7 @@ helpers which call \fBmount -i\fR.  It is strongly recommended to not use this
  command-line option for normal mount operations.
  .sp
  Note that \fBmount\fR(8) does not pass this option to the
@@ -898,24 +812,20 @@ index a4ff749..94d2f6e 100644
  .TP
  .BR \-F , " \-\-fork"
  (Used in conjunction with
-@@ -565,9 +565,9 @@ in parallel.
+@@ -539,9 +539,9 @@ in parallel.
  This has the advantage that it is faster; also NFS timeouts go in
  parallel.  A disadvantage is that the mounts are done in undefined order.
  Thus, you cannot use this option if you want to mount both
 -.I /usr
-+.I /foo
++.I /var
  and
 -.IR /usr/spool .
-+.IR /foo/bar .
++.IR /var/spool .
  .IP "\fB\-f, \-\-fake\fP"
  Causes everything to be done except for the actual system call; if it's not
  obvious, this ``fakes'' mounting the filesystem.  This option is useful in
-@@ -577,10 +577,10 @@ flag to determine what the
- .B mount
- command is trying to do.  It can also be used to add entries for devices
- that were mounted earlier with the \fB\-n\fR option.  The \fB\-f\fR option
--checks for an existing record in /etc/mtab and fails when the record already
-+checks for an existing record in /run/mtab and fails when the record already
+@@ -554,7 +554,7 @@ that were mounted earlier with the \fB\-n\fR option.  The \fB\-f\fR option
+ checks for an existing record in /etc/mtab and fails when the record already
  exists (with a regular non-fake mount, this check is done by the kernel).
  .IP "\fB\-i, \-\-internal\-only\fP"
 -Don't call the \fB/sbin/mount.\fIfilesystem\fR helper even if it exists.
@@ -923,16 +833,7 @@ index a4ff749..94d2f6e 100644
  .TP
  .BR \-L , " \-\-label " \fIlabel
  Mount the partition that has the specified
-@@ -601,7 +601,7 @@ Move a subtree to some other place.  See above.
- .TP
- .BR \-n , " \-\-no\-mtab"
- Mount without writing in
--.IR /etc/mtab .
-+.IR /run/mtab .
- This is necessary for example when
- .I /etc
- is on a read-only filesystem.
-@@ -707,7 +707,7 @@ or chroot scripts where additional configuration is specified beyond standard
+@@ -683,7 +683,7 @@ or chroot scripts where additional configuration is specified beyond standard
  system configuration.
  .sp
  Note that \fBmount\fR(8) does not pass the option \fB\-\-fstab\fP to the
@@ -941,7 +842,7 @@ index a4ff749..94d2f6e 100644
  invisible for the helpers.  This is no problem for normal mounts, but user
  (non-root) mounts always require fstab to verify the user's rights.
  .TP
-@@ -804,13 +804,13 @@ For a few types however (like nfs, nfs4, cifs, smbfs, ncpfs) an ad hoc code is
+@@ -780,13 +780,13 @@ For a few types however (like nfs, nfs4, cifs, smbfs, ncpfs) an ad hoc code is
  necessary.  The nfs, nfs4, cifs, smbfs, and ncpfs filesystems
  have a separate mount program.  In order to make it possible to
  treat all types in a uniform way, \fBmount\fR will execute the program
@@ -957,43 +858,25 @@ index a4ff749..94d2f6e 100644
  may have to be a shell script that sets up the desired call.
  .RE
  .TP
-@@ -1186,7 +1186,7 @@ Set the owner and group of the files in the filesystem (default: uid=gid=0).
+@@ -1168,7 +1168,7 @@ Set the owner and group of the files in the filesystem (default: uid=gid=0).
  Set the permission mask for ADFS 'owner' permissions and 'other' permissions,
  respectively (default: 0700 and 0077, respectively).
  See also
 -.IR /usr/src/linux/Documentation/filesystems/adfs.txt .
 +.IR /lib/src/linux/Documentation/filesystems/adfs.txt .
- .SH "Mount options for affs"
- .TP
- \fBuid=\fP\,\fIvalue\fP and \fBgid=\fP\,\fIvalue\fP
-@@ -3099,7 +3099,7 @@ meaning that any loop device allocated by
- will be freed by
- .B umount
- independently of
--.IR /etc/mtab .
-+.IR /run/mtab .
  
- You can also free a loop device by hand, using
- .BR "losetup \-d " or " umount \-d" .
-@@ -3126,7 +3126,7 @@ bug
- user interrupt
+ .SS "Mount options for affs"
  .TP
- .B 16
--problems writing or locking /etc/mtab
-+problems writing or locking /run/mtab
- .TP
- .B 32
- mount failure
-@@ -3142,7 +3142,7 @@ failed, some succeeded).
+@@ -2969,7 +2969,7 @@ failed, some succeeded).
  The syntax of external mount helpers is:
- 
- .RS
+ .sp
+ .in +4
 -.BI /sbin/mount. suffix
 +.BI /bin/mount. suffix
  .I spec dir
  .RB [ \-sfnv ]
  .RB [ \-o
-@@ -3154,7 +3154,7 @@ The syntax of external mount helpers is:
+@@ -2981,7 +2981,7 @@ The syntax of external mount helpers is:
  where the \fIsuffix\fR is the filesystem type and the \fB\-sfnvo\fR options have
  the same meaning as the normal mount options.  The \fB\-t\fR option is used for
  filesystems with subtypes support (for example
@@ -1002,46 +885,11 @@ index a4ff749..94d2f6e 100644
  
  The command \fBmount\fR does not pass the mount options
  .BR unbindable ,
-@@ -3181,13 +3181,13 @@ comma-separated list as argument to the \fB\-o\fR option.
- .I /etc/fstab
- filesystem table
- .TP
--.I /etc/mtab
-+.I /run/mtab
- table of mounted filesystems
- .TP
--.I /etc/mtab\s+3~\s0
-+.I /run/mtab\s+3~\s0
- lock file
- .TP
--.I /etc/mtab.tmp
-+.I /run/mtab.tmp
- temporary file
- .TP
- .I /etc/filesystems
-@@ -3244,7 +3244,7 @@ for the
- .IR fatfs ).
- .PP
- It is possible that files
--.I /etc/mtab
-+.I /run/mtab
- and
- .I /proc/mounts
- don't match on systems with regular mtab file. The first file is based only on
 diff --git a/sys-utils/mount.c b/sys-utils/mount.c
-index c650efe..527ec3e 100644
+index 9c4729e..09b9929 100644
 --- a/sys-utils/mount.c
 +++ b/sys-utils/mount.c
-@@ -373,7 +373,7 @@ static int mk_exit_code(struct libmnt_context *cxt, int rc)
- try_readonly:
- 	if (mnt_context_helper_executed(cxt)) {
- 		/*
--		 * /sbin/mount.<type> called, return status
-+		 * /bin/mount.<type> called, return status
- 		 */
- 		if (rc == -MNT_ERR_APPLYFLAGS)
- 			warnx(_("WARNING: failed to apply propagation flags"));
-@@ -556,7 +556,7 @@ try_readonly:
+@@ -555,7 +555,7 @@ try_readonly:
  		if (mnt_fs_is_netfs(mnt_context_get_fs(cxt)))
  			fprintf(stderr, _(
  				"       (for several filesystems (e.g. nfs, cifs) you might\n"
@@ -1050,15 +898,6 @@ index c650efe..527ec3e 100644
  
  		fprintf(stderr, _("\n"
  				"       In some cases useful info is found in syslog - try\n"
-@@ -735,7 +735,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	" -h, --help              display this help text and exit\n"
- 	" -i, --internal-only     don't call the mount.<type> helpers\n"
- 	" -l, --show-labels       lists all mounts with LABELs\n"
--	" -n, --no-mtab           don't write to /etc/mtab\n"));
-+	" -n, --no-mtab           don't write to /run/mtab\n"));
- 	fprintf(out, _(
- 	" -o, --options <list>    comma-separated list of mount options\n"
- 	" -O, --test-opts <list>  limit the set of filesystems (use with -a)\n"
 diff --git a/sys-utils/pivot_root.8 b/sys-utils/pivot_root.8
 index 525eb43..72d9700 100644
 --- a/sys-utils/pivot_root.8
@@ -1097,10 +936,10 @@ index c01e3ca..95b2ef4 100644
  .SH AVAILABILITY
  The readprofile command is part of the util-linux package and is
 diff --git a/sys-utils/rtcwake.8 b/sys-utils/rtcwake.8
-index c677586..0da3c7b 100644
+index afb309a..a9432a1 100644
 --- a/sys-utils/rtcwake.8
 +++ b/sys-utils/rtcwake.8
-@@ -89,7 +89,7 @@ management.  This state operates similarly to Suspend-to-RAM, but includes a
+@@ -108,7 +108,7 @@ management.  This state operates similarly to Suspend-to-RAM, but includes a
  final step of writing memory contents to disk.
  .TP
  .B off
@@ -1109,39 +948,28 @@ index c677586..0da3c7b 100644
  Not officially supported by ACPI, but it usually works.
  .TP
  .B no
-@@ -156,4 +156,4 @@ There is NO WARRANTY, to the extent permitted by law.
- The rtcwake command is part of the util-linux package and is available from the
- .UR ftp://\:ftp.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
- Linux Kernel Archive
--.UE .
-\ No newline at end of file
-+.UE .
-diff --git a/sys-utils/swapon.8 b/sys-utils/swapon.8
-index e571a5f..eda36a0 100644
---- a/sys-utils/swapon.8
-+++ b/sys-utils/swapon.8
-@@ -108,7 +108,7 @@ may also be used to skip non-existing device.
- 
+@@ -156,7 +156,7 @@ Some PC systems can't currently exit sleep states such as \fBmem\fP
+ using only the kernel code accessed by this driver.
+ They need help from userspace code to make the framebuffer work again.
+ .SH FILES
+-.I /etc/adjtime
++.I /var/lib/hwclock/adjtime
+ .SH HISTORY
+ The program was posted several times on LKML and other lists
+ before appearing in kernel commit message for Linux 2.6 in the GIT
+diff --git a/sys-utils/rtcwake.8.in b/sys-utils/rtcwake.8.in
+index d8acd0a..0143cd6 100644
+--- a/sys-utils/rtcwake.8.in
++++ b/sys-utils/rtcwake.8.in
+@@ -108,7 +108,7 @@ management.  This state operates similarly to Suspend-to-RAM, but includes a
+ final step of writing memory contents to disk.
  .TP
- .BR \-f , " \-\-fixpgsz"
--Reinitialize (exec /sbin/mkswap) the swap space if its page size does not
-+Reinitialize (exec /bin/mkswap) the swap space if its page size does not
- match that of the current running kernel.
- .BR mkswap (2)
- initializes the whole device and does not check for bad blocks.
-diff --git a/sys-utils/swapon.c b/sys-utils/swapon.c
-index 645a01d..0a039df 100644
---- a/sys-utils/swapon.c
-+++ b/sys-utils/swapon.c
-@@ -28,7 +28,7 @@
- #include "swapprober.h"
- #include "swapon-common.h"
- 
--#define PATH_MKSWAP	"/sbin/mkswap"
-+#define PATH_MKSWAP	"/bin/mkswap"
- 
- #ifdef HAVE_SYS_SWAP_H
- # include <sys/swap.h>
+ .B off
+-ACPI state S5 (Poweroff).  This is done by calling '/sbin/shutdown'.
++ACPI state S5 (Poweroff).  This is done by calling '/bin/shutdown'.
+ Not officially supported by ACPI, but it usually works.
+ .TP
+ .B no
 diff --git a/sys-utils/tunelp.8 b/sys-utils/tunelp.8
 index a69d88a..520b0a9 100644
 --- a/sys-utils/tunelp.8
@@ -1156,27 +984,10 @@ index a69d88a..520b0a9 100644
  .TP
  \fB\-t\fR, \fB\-\-time\fR \fImilliseconds\fR
 diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
-index 887d0ee..f060e8f 100644
+index 2155f2b..d304df3 100644
 --- a/sys-utils/umount.8
 +++ b/sys-utils/umount.8
-@@ -60,7 +60,7 @@ files.  A lazy unmount avoids this problem.
- .TP
- .BR \-a , " \-\-all"
- All of the filesystems described in
--.I /etc/mtab
-+.I /run/mtab
- are unmounted, except the \fIproc\fR filesystem.
- .TP
- .BR \-A , " \-\-all\-targets"
-@@ -68,14 +68,14 @@ Unmount all mountpoints in the current namespace for the specified filesystem.
- The filesystem can be specified by one of the mountpoints or the device name (or
- UUID, etc.).  When this option is used together with \fB\-\-recursive\fR, then
- all nested mounts within the filesystem are recursively unmounted.
--This option is only supported on systems where /etc/mtab is a symlink
-+This option is only supported on systems where /run/mtab is a symlink
- to /proc/mounts.
- .TP
- .BR \-c , " \-\-no\-canonicalize"
+@@ -75,7 +75,7 @@ to /proc/mounts.
  Do not canonicalize paths.  For more details about this option see the
  .BR mount (8)
  man page.  Note that \fBumount\fR does not pass this option to the
@@ -1185,17 +996,8 @@ index 887d0ee..f060e8f 100644
  helpers.
  .TP
  .BR \-d , " \-\-detach\-loop"
-@@ -85,7 +85,7 @@ device.
- .B \-\-fake
- Causes everything to be done except for the actual system call; this 'fakes'
- unmounting the filesystem.  It can be used to remove entries from
--.I /etc/mtab
-+.I /run/mtab
- that were unmounted earlier with the
- .B \-n
- option.
-@@ -95,7 +95,7 @@ Force an unmount (in case of an unreachable NFS system).  (Requires kernel
- 2.1.116 or later.)
+@@ -100,7 +100,7 @@ It's strongly recommended to use absolute paths without symlinks to avoid
+ unwanted readlink and stat syscalls on unreachable NFS in umount.
  .TP
  .BR \-i , " \-\-internal\-only"
 -Do not call the \fB/sbin/umount.\fIfilesystem\fR helper even if it exists.
@@ -1203,32 +1005,7 @@ index 887d0ee..f060e8f 100644
  By default such a helper program is called if it exists.
  .TP
  .BR \-l , " \-\-lazy"
-@@ -105,7 +105,7 @@ anymore.  (Requires kernel 2.4.11 or later.)
- .TP
- .BR \-n , " \-\-no\-mtab"
- Unmount without writing in
--.IR /etc/mtab .
-+.IR /run/mtab .
- .TP
- .BR \-O , " \-\-test\-opts " \fIoption\fR...
- Unmount only the filesystems that have the specified option set in
-@@ -147,7 +147,7 @@ The
- .B umount
- command will free the loop device associated with a mount when
- it finds the option \fBloop=...\fR in
--.IR /etc/mtab ,
-+.IR /run/mtab ,
- or when the \fB\-d\fR option was given.  Any still associated loop devices
- can be freed by using \fBlosetup -d\fR; see
- .BR losetup (8).
-@@ -172,16 +172,16 @@ have subtype support.  For example:
- .RE
- .PP
- A \fBuhelper=\fIsomething\fR marker (unprivileged helper) can appear in
--the \fI/etc/mtab\fR file when ordinary users need to be able to unmount
-+the \fI/run/mtab\fR file when ordinary users need to be able to unmount
- a mountpoint that is not defined in \fI/etc/fstab\fR
- (for example for a device that was mounted by \fBudisks\fR(1)).
+@@ -183,7 +183,7 @@ a mountpoint that is not defined in \fI/etc/fstab\fR
  .PP
  A \fBhelper=\fItype\fR marker in the mtab file will redirect
  all unmount requests
@@ -1236,35 +1013,9 @@ index 887d0ee..f060e8f 100644
 +to the \fB/bin/umount.\fItype\fR helper independently of UID.
  .SH FILES
  .TP
--.B /etc/mtab
-+.B /run/mtab
- table of mounted filesystems
- .TP
- .B /etc/fstab
-diff --git a/sys-utils/umount.c b/sys-utils/umount.c
-index 464c4c8..e442653 100644
---- a/sys-utils/umount.c
-+++ b/sys-utils/umount.c
-@@ -90,7 +90,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
- 	fputs(_("     --fake              dry run; skip the umount(2) syscall\n"), out);
- 	fputs(_(" -f, --force             force unmount (in case of an unreachable NFS system)\n"), out);
- 	fputs(_(" -i, --internal-only     don't call the umount.<type> helpers\n"), out);
--	fputs(_(" -n, --no-mtab           don't write to /etc/mtab\n"), out);
-+	fputs(_(" -n, --no-mtab           don't write to /run/mtab\n"), out);
- 	fputs(_(" -l, --lazy              detach the filesystem now, clean up things later\n"), out);
- 	fputs(_(" -O, --test-opts <list>  limit the set of filesystems (use with -a)\n"), out);
- 	fputs(_(" -R, --recursive         recursively unmount a target with all its children\n"), out);
-@@ -186,7 +186,7 @@ static int mk_exit_code(struct libmnt_context *cxt, int rc)
- 
- 	if (mnt_context_helper_executed(cxt))
- 		/*
--		 * /sbin/umount.<type> called, return status
-+		 * /bin/umount.<type> called, return status
- 		 */
- 		return mnt_context_get_helper_status(cxt);
- 
+ .B /etc/mtab
 diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
-index 66f1a03..3828ce0 100644
+index 446f389..4995173 100644
 --- a/term-utils/agetty.8
 +++ b/term-utils/agetty.8
 @@ -272,7 +272,7 @@ for the other fields.  See \fIinittab(5)\fP for more details.
@@ -1301,16 +1052,23 @@ index 66f1a03..3828ce0 100644
  .RE
  
  .SH SECURITY NOTICE
-@@ -339,7 +339,7 @@ See also \\S escape code.
+@@ -348,7 +348,7 @@ See also the \\S escape code.
  .TP
  S or S{VARIABLE}
- Insert the VARIABLE data from \fI/etc/os-release\fP, if the file does not exist
--then fallback to \fI/usr/lib/os-release\fP.  If the VARIABLE argument is not
-+then fallback to \fI/lib/os-release\fP.  If the VARIABLE argument is not
- specified then use PRETTY_NAME from the file or the system name (see \\s).
+ Insert the VARIABLE data from \fI/etc/os-release\fP.  If this file does not exist
+-then fall back to \fI/usr/lib/os-release\fP.  If the VARIABLE argument is not
++then fall back to \fI/lib/os-release\fP.  If the VARIABLE argument is not
+ specified, then use PRETTY_NAME from the file or the system name (see \\s).
  This escape code allows to keep \fI/etc/issue\fP distribution and release
  independent.  Note that \\S{ANSI_COLOR} is converted to the real terminal
-@@ -402,7 +402,7 @@ the system status file.
+@@ -405,13 +405,13 @@ This is thingol.orcan.dk (Linux i386 1.1.9) 18:29:30
+ .SH FILES
+ .na
+ .TP
+-.B /var/run/utmp
++.B /run/utmp
+ the system status file.
+ .TP
  .B /etc/issue
  printed before the login prompt.
  .TP
@@ -1320,23 +1078,23 @@ index 66f1a03..3828ce0 100644
  .TP
  .B /dev/console
 diff --git a/term-utils/agetty.c b/term-utils/agetty.c
-index 122959f..7f915d7 100644
+index 6d610c6..7d58a0c 100644
 --- a/term-utils/agetty.c
 +++ b/term-utils/agetty.c
-@@ -2491,7 +2491,7 @@ err:
-  */
- static int plymouth_command(const char* arg)
- {
--	const char *cmd = "/usr/bin/plymouth";
-+	const char *cmd = "/bin/plymouth";
- 	static int has_plymouth = 1;
- 	pid_t pid;
+@@ -138,7 +138,7 @@ static int inotify_fd = AGETTY_RELOAD_FDNONE;
+ static int netlink_fd = AGETTY_RELOAD_FDNONE;
+ #endif
  
+-#define AGETTY_PLYMOUTH		"/usr/bin/plymouth"
++#define AGETTY_PLYMOUTH		"/bin/plymouth"
+ #define AGETTY_PLYMOUTH_FDFILE	"/dev/null"
+ 
+ /*
 diff --git a/text-utils/more.c b/text-utils/more.c
-index 4602cba..3435f12 100644
+index 0a5f494..2631349 100644
 --- a/text-utils/more.c
 +++ b/text-utils/more.c
-@@ -1394,7 +1394,7 @@ int command(char *filename, register FILE *f)
+@@ -1305,7 +1305,7 @@ int command(char *filename, register FILE *f)
  				 "/<regular expression>   Search for kth occurrence of regular expression [1]\n"
  				 "n                       Search for kth occurrence of last r.e [1]\n"
  				 "!<cmd> or :!<cmd>       Execute <cmd> in a subshell\n"
