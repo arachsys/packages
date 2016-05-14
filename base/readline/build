@@ -17,7 +17,7 @@ prepare() {
   apply no-examples.patch
 }
 
-config-extra SHLIB_LIBS=-lncurses
+compile-extra SHLIB_LIBS=-lncurses
 
 post-config() {
   # In the absence of working configure support for --disable-rpath:
