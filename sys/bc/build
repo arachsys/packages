@@ -1,6 +1,10 @@
 name bc
-version 1.06
+version 1.06.95
 mode autotools
-sources http://ftp.gnu.org/gnu/bc/bc-$VERSION.tar.gz
+sources http://alpha.gnu.org/gnu/bc/bc-$VERSION.tar.bz2 leak.patch
+requires -b flex
+enabled docs && requires -b texinfo
 
-requires flex
+pre-config() {
+  enabled docs || sed -e '/^SUBDIRS =/s/ doc//' -i Makefile.{am,in}
+}
