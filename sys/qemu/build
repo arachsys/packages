@@ -1,11 +1,11 @@
 name qemu
-version 2.4.1
+version 2.6.0
 mode autotools
 requires perl
 
 config-reset --prefix= --datadir=/lib --docdir=/lib/doc \
-  --libexecdir=/lib/qemu --mandir=/lib/man --disable-curses --disable-sdl \
-  --disable-slirp --disable-vnc-{sasl,tls} --audio-drv-list= \
+  --libexecdir=/lib/qemu --mandir=/lib/man --disable-curses --disable-gnutls \
+  --disable-sdl --disable-slirp --disable-vnc-sasl --audio-drv-list= \
   --target-list="$(feature targets || echo $(uname -m)-softmmu)"
 
 if enabled glib; then
@@ -15,7 +15,7 @@ fi
 
 if enabled gnutls; then
   requires gnutls
-  config-extra --enable-vnc-tls --enable-vnc-ws
+  config-extra --enable-gnutls
 fi
 
 prepare() {
@@ -28,9 +28,11 @@ prepare() {
     unpack -C libffi ftp://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz
     unpack -C glib \
       http://ftp.gnome.org/pub/gnome/sources/glib/2.47/glib-2.47.1.tar.xz
+    apply -C glib gcc6.patch
     apply -C glib glib-paths.patch
     unpack -C pkg-config \
       http://pkgconfig.freedesktop.org/releases/pkg-config-0.29.tar.gz
+    apply -C pkg-config/glib gcc6.patch
   fi
 }
 
