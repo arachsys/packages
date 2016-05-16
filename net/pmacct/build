@@ -1,8 +1,10 @@
 name pmacct
-version 1.5.0rc3
+version 1.5.3
 sources http://www.pmacct.net/pmacct-$VERSION.tar.gz
 mode autotools
 requires libpcap
 
-config-extra --enable-ipv6 --enable-plabel --enable-ulog \
+config-extra --bindir=/bin --datadir=/lib --enable-ipv6 --enable-plabel \
+             --includedir=/lib/include --infodir=/lib/info --libdir=/lib \
+             --libexecdir=/lib --mandir=/lib/man --sbindir=/bin \
              --with-pcap-includes=/lib/include
