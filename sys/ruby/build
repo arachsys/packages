@@ -1,5 +1,5 @@
 name ruby
-version 2.2.2
+version 2.3.1
 mode autotools
 sources http://cache.ruby-lang.org/pub/ruby/${VERSION%.*}/ruby-$VERSION.tar.gz \
         paths.patch
