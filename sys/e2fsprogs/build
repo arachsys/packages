@@ -1,5 +1,5 @@
 name e2fsprogs
-version 1.42.9
+version 1.42.13
 mode autotools
 sources http://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v$VERSION/e2fsprogs-$VERSION.tar.xz \
         paths.patch
