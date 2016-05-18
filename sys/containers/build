@@ -1,5 +1,5 @@
 name containers
-version 1.2
+version 1.5
 sources https://arachsys.github.io/downloads/containers-$VERSION.tar.gz
 
 enable setuid
