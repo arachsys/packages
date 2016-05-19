@@ -1,0 +1,238 @@
+From b2f49b105d23c833d733bf7dfb99cb98e4cae383 Mon Sep 17 00:00:00 2001
+From: Craig Small <csmall@enc.com.au>
+Date: Mon, 26 Oct 2015 11:18:52 +1100
+Subject: [PATCH] Closes: #9 ps: Remove Unix98 output limitations
+
+ps previously followed the Unix98 standard when it comes to
+user-defined output, sometimes. This meant you could have
+user output format with a header that included commas and
+equals signs. It was dependent on if ps thought you wanted
+sysv or bsd format and THAT was dependent on things in previous
+options.
+
+It was very confusing to a user because
+ ps p $$ -o pid=,comm=
+gave you a two-column output but
+ ps -p $$ -o pid=,comm=
+would give you a one column output with the header ",comm="
+
+The -p versus p means (to ps) you want sysv or bsd parsing.
+Unix98 standard or not, this is plainly just silly.
+
+The commit removes any of the quirks Unix98 has with user defined
+output.  If you really wanted a ps header with commas in the output,
+today isn't your day.
+
+Signed-off-by: Craig Small <csmall@enc.com.au>
+---
+ ps/common.h     |  2 +-
+ ps/global.c     | 17 +++++------------
+ ps/parser.c     | 22 +++-------------------
+ ps/sortformat.c | 11 +----------
+ 4 files changed, 10 insertions(+), 42 deletions(-)
+
+diff --git a/ps/common.h b/ps/common.h
+index 6903bf7..fc4d3a8 100644
+--- a/ps/common.h
++++ b/ps/common.h
+@@ -322,7 +322,7 @@ extern char *myname;
+ 
+ /* sortformat.c */
+ extern int defer_sf_option(const char *arg, int source);
+-extern const char *process_sf_options(int localbroken);
++extern const char *process_sf_options();
+ extern void reset_sortformat(void);
+ 
+ /* select.c */
+diff --git a/ps/global.c b/ps/global.c
+index 91ca742..7ab7774 100644
+--- a/ps/global.c
++++ b/ps/global.c
+@@ -285,14 +285,7 @@ static const char *set_personality(void){
+     return NULL;
+ 
+   case_default: /* use defaults for ps, ignoring other environment variables */
+-    return NULL;
+-
+   case_unknown: /* defaults, but also check inferior environment variables */
+-    if(
+-      getenv("UNIX95")     /* Irix */
+-      || getenv("POSIXLY_CORRECT")  /* most gnu stuff */
+-      || (getenv("POSIX2") && !strcmp(getenv("POSIX2"), "on")) /* Unixware 7 */
+-    ) personality = PER_BROKEN_o;
+     return NULL;
+ 
+   case_aix:
+@@ -334,8 +327,9 @@ static const char *set_personality(void){
+   case_irix:
+   case_sgi:
+     s = getenv("_XPG");
+-    if(s && s[0]>'0' && s[0]<='9') personality = PER_BROKEN_o;
+-    else personality = PER_IRIX_l;
++    if(s && s[0]>'0' && s[0]<='9')
++        return NULL;
++    personality = PER_IRIX_l;
+     return NULL;
+ 
+   case_os390:  /* IBM's OS/390 OpenEdition on the S/390 mainframe */
+@@ -346,13 +340,13 @@ static const char *set_personality(void){
+ 
+   case_hp:
+   case_hpux:
+-    personality = PER_BROKEN_o | PER_HPUX_x;
++    personality = PER_HPUX_x;
+     return NULL;
+ 
+   case_svr4:
+   case_sysv:
+   case_sco:
+-    personality = PER_BROKEN_o | PER_SVR4_x;
++    personality = PER_SVR4_x;
+     return NULL;
+ 
+   case_posix:
+@@ -360,7 +354,6 @@ static const char *set_personality(void){
+   case_unix95:
+   case_unix98:
+   case_unix:
+-    personality = PER_BROKEN_o;
+     return NULL;
+ }
+ 
+diff --git a/ps/parser.c b/ps/parser.c
+index 568d51e..8d533b3 100644
+--- a/ps/parser.c
++++ b/ps/parser.c
+@@ -51,7 +51,6 @@ static int ps_argc;    /* global argc */
+ static char **ps_argv; /* global argv */
+ static int thisarg;    /* index into ps_argv */
+ static char *flagptr;  /* current location in ps_argv[thisarg] */
+-static int not_pure_unix = 0;  /* set by BSD and GNU options */
+ static int force_bsd = 0;  /* set when normal parsing fails */
+ 
+ #define exclusive(x) if((ps_argc != 2) || strcmp(ps_argv[1],x)) \
+@@ -71,7 +70,6 @@ static void display_ps_version(void)
+  */
+ static const char *get_opt_arg(void){
+   if(*(flagptr+1)){     /* argument is part of ps_argv[thisarg] */
+-    not_pure_unix = 1;
+     return flagptr+1;
+   }
+   if(thisarg+2 > ps_argc) return NULL;   /* there is nothing left */
+@@ -233,18 +231,6 @@ static const char *parse_sysv_option(void){
+ 
+   flagptr = ps_argv[thisarg];
+   while(*++flagptr){
+-    // Find any excuse to ignore stupid Unix98 misfeatures.
+-    //
+-    // This list of options is ONLY for those defined by the
+-    // "IEEE Std 1003.1, 2004 Edition", "ISO/IEC 9945:2003",
+-    // or "Version 2 of the Single Unix Specification".
+-    //
+-    // It may be time to re-think the existence of this list.
+-    // In the meantime, please do not add to it. The list is
+-    // intended to ONLY contain flags defined by the POSIX and UNIX
+-    // standards published by The Open Group, IEEE, and ISO.
+-    if(!strchr("aAdefgGlnoptuU", *flagptr)) not_pure_unix = 1;  // dude, -Z ain't in POSIX
+-
+     switch(*flagptr){
+     case 'A':
+       trace("-A selects all processes\n");
+@@ -415,7 +401,7 @@ static const char *parse_sysv_option(void){
+       trace("-o user-defined format\n");
+       arg=get_opt_arg();
+       if(!arg) return _("format specification must follow -o");
+-      not_pure_unix |= defer_sf_option(arg, SF_U_o);
++      defer_sf_option(arg, SF_U_o);
+       return NULL; /* can't have any more options */
+     case 'p': /* end */
+       trace("-p select by PID\n");
+@@ -1121,7 +1107,6 @@ static const char *parse_all_options(void){
+   trace("parse_all_options calling arg_type for \"%s\"\n", ps_argv[thisarg]);
+     at = arg_type(ps_argv[thisarg]);
+     trace("ps_argv[thisarg] is %s\n", ps_argv[thisarg]);
+-    if(at != ARG_SYSV) not_pure_unix = 1;
+     switch(at){
+     case ARG_GNU:
+       err = parse_gnu_option();
+@@ -1212,7 +1197,7 @@ int arg_parse(int argc, char *argv[]){
+   if(err) goto try_bsd;
+   err = thread_option_check();
+   if(err) goto try_bsd;
+-  err = process_sf_options(!not_pure_unix);
++  err = process_sf_options();
+   if(err) goto try_bsd;
+   err = select_bits_setup();
+   if(err) goto try_bsd;
+@@ -1231,7 +1216,6 @@ try_bsd:
+   ps_argv = argv;
+   thisarg = 0;
+   /* no need to reset flagptr */
+-  not_pure_unix=1;
+   force_bsd=1;
+   prefer_bsd_defaults=1;
+   if(!( (PER_OLD_m|PER_BSD_m) & personality )) /* if default m setting... */
+@@ -1242,7 +1226,7 @@ try_bsd:
+   if(err2) goto total_failure;
+   err2 = thread_option_check();
+   if(err2) goto total_failure;
+-  err2 = process_sf_options(!not_pure_unix);
++  err2 = process_sf_options();
+   if(err2) goto total_failure;
+   err2 = select_bits_setup();
+   if(err2) goto total_failure;
+diff --git a/ps/sortformat.c b/ps/sortformat.c
+index eeec7e9..5ffc25b 100644
+--- a/ps/sortformat.c
++++ b/ps/sortformat.c
+@@ -31,7 +31,6 @@
+ #include "common.h"
+ 
+ static sf_node *sf_list = NULL;         /* deferred sorting and formatting */
+-static int broken;                      /* use gross Unix98 parsing? */
+ static int have_gnu_sort = 0;           /* if true, "O" must be format */
+ static int already_parsed_sort = 0;     /* redundantly set in & out of fn */
+ static int already_parsed_format = 0;
+@@ -205,7 +204,6 @@ double_percent:
+ /***************************************************************
+  * Used to parse option O lists. Option O is shared between
+  * sorting and formatting. Users may expect one or the other.
+- * The "broken" flag enables a really bad Unix98 misfeature.
+  * Put each completed format_node onto the list starting at ->f_cooked
+  */
+ static const char *format_parse(sf_node *sfn){
+@@ -235,9 +233,6 @@ static const char *format_parse(sf_node *sfn){
+       }
+       need_item=1;
+       break;
+-    case '=':
+-      if(broken) goto out;
+-      /* fall through */
+     default:
+       if(need_item) items++;
+       need_item=0;
+@@ -499,7 +494,6 @@ static const char *short_sort_parse(sf_node *sfn){
+ /*
+  * Used to parse option O lists. Option O is shared between
+  * sorting and formatting. Users may expect one or the other.
+- * The "broken" flag enables a really bad Unix98 misfeature.
+  * Recursion is to preserve original order.
+  */
+ static const char *parse_O_option(sf_node *sfn){
+@@ -750,12 +744,9 @@ static const char *generate_sysv_list(void){
+  * sorting and formatting. Users may expect one or the other.
+  * The "broken" flag enables a really bad Unix98 misfeature.
+  */
+-const char *process_sf_options(int localbroken){
++const char *process_sf_options(void){
+   sf_node *sf_walk;
+ 
+-  if(personality & PER_BROKEN_o) localbroken = 1;
+-  if(personality & PER_GOOD_o)   localbroken = 0;
+-  broken = localbroken;
+   if(sf_list){
+     const char *err;
+     err = parse_O_option(sf_list);
+--
+libgit2 0.24.0
+
