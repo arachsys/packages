@@ -1,5 +1,9 @@
 name mtr
-version 0.85
+version 0.86
 mode autotools
-sources ftp://ftp.bitwizard.nl/mtr/mtr-$VERSION.tar.gz
 enable setuid
+
+prepare() {
+  unpack ftp://ftp.bitwizard.nl/mtr/mtr-$VERSION.tar.gz
+  touch -c configure config.h.in
+}
