@@ -1,14 +1,9 @@
 name shadow
-version 4.1.5.1
+version 4.2.1
 mode autotools
+sources http://pkg-shadow.alioth.debian.org/releases/shadow-$VERSION.tar.xz \
+        chfn.patch paths.patch
 enable setuid setgid
-
-prepare() {
-  unpack http://cdn.debian.net/debian/pool/main/s/shadow/shadow_$VERSION.orig.tar.gz \
-         shadow-$VERSION.tar.gz
-  apply chfn.patch
-  apply paths.patch
-}
 
 config-extra --without-audit
 
