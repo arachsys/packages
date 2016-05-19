@@ -1,6 +1,6 @@
 name mutt
-version 1.5.23
-sources ftp://ftp.mutt.org/mutt/devel/mutt-$VERSION.tar.gz
+version 1.6.1
+sources http://ftp.mutt.org/pub/mutt/mutt-$VERSION.tar.gz
 mode autotools
 requires berkeley-db
 requires libsasl
