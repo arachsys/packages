@@ -1,5 +1,5 @@
 name coreutils
-version 8.24
+version 8.25
 mode autotools
 sources http://ftp.gnu.org/gnu/coreutils/coreutils-$VERSION.tar.xz uname.patch
 
@@ -7,5 +7,5 @@ enabled docs && requires -b perl
 
 config-extra --disable-acl --enable-xattr --disable-libcap \
              --enable-install-program=arch,hostname \
-             --enable-no-install-program=kill \
+             --enable-no-install-program=kill,uptime \
              FORCE_UNSAFE_CONFIGURE=1
