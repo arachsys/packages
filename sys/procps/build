@@ -8,7 +8,7 @@ prepare() {
   apply watch.patch
 }
 
-config-extra --disable-{kill,pidof,shared} --enable-watch8bit
+config-extra --disable-{kill,modern-top,pidof,shared} --enable-watch8bit
 
 post-install() {
   rm -f -r $DST/lib/{include,libprocps.a,pkgconfig}
