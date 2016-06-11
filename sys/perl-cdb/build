@@ -1,0 +1,11 @@
+name perl-cdb
+version 0.98
+sources http://www.cpan.org/authors/id/T/TO/TODDR/CDB_File-$VERSION.tar.gz
+requires perl
+
+build() {
+  perl Makefile.PL
+  make install DESTDIR=$DST
+  rm $DST/lib/perl/{perllocal.pod,site/bun-x.pl}
+  find $DST -name .packlist -delete
+}
