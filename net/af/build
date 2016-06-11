@@ -1,0 +1,20 @@
+name af
+version 0.98
+requires lua
+requires perl
+requires perl-cdb
+requires perl-mailtools
+
+prepare() {
+  unpack -C af http://arachsys.github.io/downloads/af-$VERSION.tar.gz
+  unpack -C osbf-lua \
+    http://files.luaforge.net/releases/osbf-lua/osbf-lua/OSBF-Lua2.0.4/osbf-lua-2.0.4.tar.gz
+  apply -C osbf-lua osbf-lua.patch
+}
+
+build() {
+  make -C osbf-lua
+  mkdir -p $DST/{bin,lib/lua}
+  install -s osbf-lua/libosbf.so.2.0.4 $DST/lib/lua/osbf.so
+  install -t $DST/bin af/*
+}

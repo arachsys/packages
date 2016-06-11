@@ -1,0 +1,43 @@
+diff --git a/losbflib.c b/losbflib.c
+index a72c944..8f1037d 100644
+--- a/losbflib.c
++++ b/losbflib.c
+@@ -170,7 +170,7 @@ lua_osbf_createdb (lua_State * L)
+   luaL_checktype (L, 1, LUA_TTABLE);
+ 
+   /* get the number of classes to create */
+-  num_classes = luaL_getn (L, 1);
++  num_classes = lua_rawlen (L, 1);
+ 
+   /* get number of buckets */
+   buckets = luaL_checknumber (L, 2);
+@@ -214,7 +214,7 @@ lua_osbf_removedb (lua_State * L)
+   luaL_checktype (L, 1, LUA_TTABLE);
+ 
+   /* get the number of classes to remove */
+-  num_classes = luaL_getn (L, 1);
++  num_classes = lua_rawlen (L, 1);
+   removed = 0;
+   lua_pushnil (L);		/* first key */
+   while (lua_next (L, 1) != 0)
+@@ -743,7 +743,7 @@ dir_gc (lua_State * L)
+ 
+ /**********************************************************/
+ 
+-static const struct luaL_reg osbf[] = {
++static const struct luaL_Reg osbf[] = {
+   {"create_db", lua_osbf_createdb},
+   {"remove_db", lua_osbf_removedb},
+   {"config", lua_osbf_config},
+@@ -774,7 +774,10 @@ luaopen_osbf (lua_State * L)
+   lua_pushcfunction (L, dir_gc);
+   lua_settable (L, -3);
+ 
+-  luaL_register (L, "osbf", osbf);
++  lua_newtable (L);
++  luaL_setfuncs (L, osbf, 0);
++  lua_pushvalue (L, -1);
++  lua_setglobal (L, "osbf");
+   set_info (L);
+   return 1;
+ }
