@@ -1,0 +1,14 @@
+diff --git a/src/change_dir.c b/src/change_dir.c
+index e16a11e..b40e3bf 100644
+--- a/src/change_dir.c
++++ b/src/change_dir.c
+@@ -29,6 +29,9 @@ change_dir(stralloc *sa, const char *opt, int flag_dot_as_home)
+ 	if (!flag_dot_as_home && -1==chdir(home)) 
+ 		xbailout(111,errno,"failed to chdir to ",home,0,0);
+ 
++	if (getuid() == 0 && !opt)
++		opt = "/var/lib/uschedule";
++
+ 	if (opt) {
+ 		if (opt[0]=='/') {
+ 			if (!stralloc_copys(&absprefix,opt)) oom();

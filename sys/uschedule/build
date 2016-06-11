@@ -1,0 +1,15 @@
+name uschedule
+version 0.7.1
+
+prepare() {
+  unpack -p 3 http://www.ohse.de/uwe/uschedule/uschedule-$VERSION.tar.gz
+  apply paths.patch
+}
+
+build() {
+  make
+  mkdir -p $DST/bin
+  install -s -t $DST/bin command/*
+  install -t $DST/bin $PKG/uscheduleinit
+  rm -f $DST/bin/uscheduleconf
+}
