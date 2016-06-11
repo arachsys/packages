@@ -1,0 +1,15 @@
+name lua
+version 5.3.2
+
+prepare() {
+  unpack http://www.lua.org/ftp/lua-$VERSION.tar.gz
+  cp $PKG/luaconf.h src/luaconf.h
+}
+
+build() {
+  make linux
+  make install INSTALL_TOP=$DST INSTALL_BIN=$DST/bin \
+    INSTALL_INC=$DST/lib/include INSTALL_LIB=$DST/lib \
+    INSTALL_MAN=$DST/lib/man/man1 INSTALL_LMOD=$DST/lib/lua \
+    INSTALL_CMOD=$DST/lib/lua
+}
