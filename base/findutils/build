@@ -1,7 +1,8 @@
 name findutils
-version 4.4.2
+version 4.6.0
 mode autotools
-sources http://ftp.gnu.org/gnu/findutils/findutils-$VERSION.tar.gz paths.patch
+sources http://ftp.gnu.org/gnu/findutils/findutils-$VERSION.tar.gz \
+        paths.patch upstream.patch
 
 config-extra --libexecdir='${prefix}/lib/findutils' \
              --localstatedir=/var/lib/misc

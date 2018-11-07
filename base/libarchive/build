@@ -1,5 +1,5 @@
 name libarchive
-version 3.2.0
+version 3.3.3
 mode autotools
 sources http://www.libarchive.org/downloads/libarchive-$VERSION.tar.gz
 

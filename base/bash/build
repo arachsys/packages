@@ -1,5 +1,5 @@
 name bash
-version 4.3.39
+version 4.4.23
 mode autotools
 
 prepare() {
@@ -21,5 +21,5 @@ config-extra --with-installed-readline
 
 post-install() {
   ln -f -s bash $DST/bin/sh
-  rm -f $DST/bin/bashbug
+  rm -f $DST/bin/bashbug $DST/lib/bash/Makefile.inc
 }

@@ -1,8 +1,8 @@
 name glibc
-version 2.23
+version 2.28
 enable rpaths setuid
 sources http://ftp.gnu.org/gnu/glibc/glibc-$VERSION.tar.xz \
-        paths.patch pure64.patch upstream.patch
+        paths.patch pure64.patch
 
 build() {
   mkdir build && cd build

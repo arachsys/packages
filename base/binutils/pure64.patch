@@ -1,8 +1,8 @@
 diff --git a/ld/emulparams/elf32_x86_64.sh b/ld/emulparams/elf32_x86_64.sh
-index 0a03548..c15328a 100644
+index 9ce6533b..e554ae2f 100644
 --- a/ld/emulparams/elf32_x86_64.sh
 +++ b/ld/emulparams/elf32_x86_64.sh
-@@ -25,19 +25,3 @@ if [ "x${host}" = "x${target}" ]; then
+@@ -33,19 +33,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -13,20 +13,20 @@ index 0a03548..c15328a 100644
 -  x86_64*-linux*|i[3-7]86-*-linux-*)
 -    case "$EMULATION_NAME" in
 -      *32*)
--        LIBPATH_SUFFIX=x32
+-	LIBPATH_SUFFIX=x32
 -	LIBPATH_SUFFIX_SKIP=64
 -	;;
 -      *64*)
--        LIBPATH_SUFFIX=64
+-	LIBPATH_SUFFIX=64
 -	;;
 -    esac
 -    ;;
 -esac
 diff --git a/ld/emulparams/elf_x86_64.sh b/ld/emulparams/elf_x86_64.sh
-index 5d31da1..75ea293 100644
+index d8c6e548..4cc2d164 100644
 --- a/ld/emulparams/elf_x86_64.sh
 +++ b/ld/emulparams/elf_x86_64.sh
-@@ -30,29 +30,3 @@ if [ "x${host}" = "x${target}" ]; then
+@@ -33,29 +33,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -37,7 +37,7 @@ index 5d31da1..75ea293 100644
 -  x86_64*-linux*|i[3-7]86-*-linux-*)
 -    case "$EMULATION_NAME" in
 -      *64*)
--        LIBPATH_SUFFIX=64
+-	LIBPATH_SUFFIX=64
 -	PARSE_AND_LIST_OPTIONS_BNDPLT='
 -  fprintf (file, _("\
 -  -z bndplt                   Always generate BND prefix in PLT entries\n"));
@@ -48,7 +48,7 @@ index 5d31da1..75ea293 100644
 -'
 -	PARSE_AND_LIST_OPTIONS="$PARSE_AND_LIST_OPTIONS $PARSE_AND_LIST_OPTIONS_BNDPLT"
 -	PARSE_AND_LIST_ARGS_CASE_Z="$PARSE_AND_LIST_ARGS_CASE_Z $PARSE_AND_LIST_ARGS_CASE_Z_BNDPLT"
--        ;;
+-	;;
 -    esac
 -    ;;
 -  *-*-solaris2*)

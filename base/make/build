@@ -1,4 +1,5 @@
 name make
-version 4.1
+version 4.2.1
 mode autotools
-sources http://ftp.gnu.org/gnu/make/make-$VERSION.tar.bz2 paths.patch
+sources http://ftp.gnu.org/gnu/make/make-$VERSION.tar.bz2 \
+        paths.patch glibc.patch

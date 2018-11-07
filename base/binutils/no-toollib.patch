@@ -1,8 +1,8 @@
 diff --git a/ld/genscripts.sh b/ld/genscripts.sh
-index 499607a..35377b5 100755
+index 370b2226..6893790c 100755
 --- a/ld/genscripts.sh
 +++ b/ld/genscripts.sh
-@@ -189,29 +189,6 @@ append_to_lib_path()
+@@ -189,31 +189,6 @@ append_to_lib_path()
    fi
  }
  
@@ -20,10 +20,12 @@ index 499607a..35377b5 100755
 -    # because 64bit libraries may be in both places, depending on
 -    # cross-development setup method (e.g.: /usr/s390x-linux/lib64
 -    # vs. /usr/s390-linux/lib64)
--    case "${NATIVE}:${LIBPATH_SUFFIX}:${TOOL_LIB}" in
--      :* | *::* | *:*:*${LIBPATH_SUFFIX}) ;;
--      *) libs="${exec_prefix}/${target_alias}/lib${LIBPATH_SUFFIX}" ;;
--    esac
+-    for libpath_suffix in ${LIBPATH_SUFFIX}; do
+-      case "${NATIVE}:${libpath_suffix}:${TOOL_LIB}" in
+-	:* | *::* | *:*:*${libpath_suffix}) ;;
+-	*) libs="${exec_prefix}/${target_alias}/lib${libpath_suffix}" ;;
+-      esac
+-    done
 -    libs="${exec_prefix}/${TOOL_LIB}/lib ${libs}"
 -  fi
 -  append_to_lib_path ${libs}

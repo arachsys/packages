@@ -1,5 +1,5 @@
 name readline
-version 6.3.8
+version 7.0.5
 mode autotools
 
 prepare() {

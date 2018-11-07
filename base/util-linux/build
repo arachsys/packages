@@ -1,9 +1,15 @@
 name util-linux
-version 2.28
+version 2.32.1
 mode autotools
-sources http://ftp.kernel.org/pub/linux/utils/util-linux/v$VERSION/util-linux-$VERSION.tar.xz \
-        paths.patch
 enable setuid setgid
+
+prepare() {
+  local MAJOR MINOR PATCH BASE
+  IFS=. read MAJOR MINOR PATCH <<< "$VERSION"
+  BASE=http://www.kernel.org/pub/linux/utils/util-linux/v$MAJOR.$MINOR
+  unpack $BASE/util-linux-$VERSION.tar.xz
+  apply paths.patch
+}
 
 config-extra --disable-chfn-chsh --disable-login --disable-newgrp \
              --disable-nologin --disable-rpath --disable-su --disable-vipw \
@@ -22,5 +28,5 @@ post-config() {
 }
 
 post-install() {
-  rm -f -r $DST/bin/chkdupexec $DST/lib/getopt
+  rm -f -r $DST/bin/chkdupexec $DST/lib/getopt $DST/lib/pkgconfig
 }

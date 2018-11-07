@@ -1,5 +1,5 @@
 name gmp
-version 6.1.0
+version 6.1.2
 mode autotools
 sources http://ftp.gnu.org/gnu/gmp/gmp-${VERSION}.tar.xz
 

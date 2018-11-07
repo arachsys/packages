@@ -1,5 +1,5 @@
 diff --git a/elf/sprof.c b/elf/sprof.c
-index 60f310f..ae4235f 100644
+index ebd39cb..f56413c 100644
 --- a/elf/sprof.c
 +++ b/elf/sprof.c
 @@ -619,7 +619,7 @@ load_shobj (const char *name)
@@ -12,19 +12,18 @@ index 60f310f..ae4235f 100644
  				       + (cp - realname)
  				       + strlen (debuginfo_fname));
 diff --git a/login/Makefile b/login/Makefile
-index 430c6d9..c2281ed 100644
+index 8b31991..aad39ee 100644
 --- a/login/Makefile
 +++ b/login/Makefile
-@@ -28,7 +28,7 @@ routines := getlogin getlogin_r setlogin getlogin_r_chk \
+@@ -30,14 +30,14 @@ routines := getlogin getlogin_r setlogin getlogin_r_chk \
  	    utmp_file utmpname updwtmp getpt grantpt unlockpt ptsname \
  	    ptsname_r_chk
  
--CFLAGS-grantpt.c = -DLIBEXECDIR='"$(libexecdir)"'
-+CFLAGS-grantpt.c = -DLIBEXECDIR='"$(bindir)"'
+-CFLAGS-grantpt.c += -DLIBEXECDIR='"$(libexecdir)"'
++CFLAGS-grantpt.c += -DLIBEXECDIR='"$(bindir)"'
  
  others = utmpdump
  
-@@ -37,7 +37,7 @@ include ../Makeconfig
  ifeq (yes,$(build-pt-chown))
  others += pt_chown
  others-pie = pt_chown
@@ -33,7 +32,7 @@ index 430c6d9..c2281ed 100644
  endif
  
  subdir-dirs = programs
-@@ -71,6 +71,6 @@ LDFLAGS-pt_chown = -Wl,-z,now
+@@ -68,6 +68,6 @@ LDFLAGS-pt_chown = -Wl,-z,now
  endif
  
  # pt_chown needs to be setuid root.
@@ -42,10 +41,10 @@ index 430c6d9..c2281ed 100644
  	$(make-target-directory)
  	-$(INSTALL_PROGRAM) -m 4755 -o root $< $@
 diff --git a/nis/nis_call.c b/nis/nis_call.c
-index b97f8a1..08f639a 100644
+index 196a9a3..e80e6b0 100644
 --- a/nis/nis_call.c
 +++ b/nis/nis_call.c
-@@ -591,7 +591,7 @@ nis_server_cache_search (const_nis_name name, int search_parent,
+@@ -592,7 +592,7 @@ nis_server_cache_search (const_nis_name name, int search_parent,
    struct stat64 st;
  
    int saved_errno = errno;
@@ -55,10 +54,10 @@ index b97f8a1..08f639a 100644
    __set_errno (saved_errno);
  
 diff --git a/nis/nis_file.c b/nis/nis_file.c
-index 0034ab9..e6f0d31 100644
+index cc31822..46947ed 100644
 --- a/nis/nis_file.c
 +++ b/nis/nis_file.c
-@@ -72,7 +72,7 @@ write_nis_obj (const char *name, const void *obj, iofct_t writefct)
+@@ -73,7 +73,7 @@ write_nis_obj (const char *name, const void *obj, iofct_t writefct)
  }
  
  
@@ -68,10 +67,10 @@ index 0034ab9..e6f0d31 100644
  directory_obj *
  readColdStartFile (void)
 diff --git a/nis/ypclnt.c b/nis/ypclnt.c
-index 7469d3b..d63f63c 100644
+index 11a17db..ac03fe4 100644
 --- a/nis/ypclnt.c
 +++ b/nis/ypclnt.c
-@@ -32,7 +32,7 @@
+@@ -33,7 +33,7 @@
  
  /* This should only be defined on systems with a BSD compatible ypbind */
  #ifndef BINDINGDIR
@@ -81,10 +80,10 @@ index 7469d3b..d63f63c 100644
  
  struct dom_binding
 diff --git a/nscd/nscd-client.h b/nscd/nscd-client.h
-index 360852b..7d98620 100644
+index 624effa..c0c5f80 100644
 --- a/nscd/nscd-client.h
 +++ b/nscd/nscd-client.h
-@@ -34,10 +34,10 @@
+@@ -36,10 +36,10 @@
  #define NSCD_VERSION 2
  
  /* Path of the file where the PID of the running system is stored.  */
@@ -98,10 +97,10 @@ index 360852b..7d98620 100644
  /* Path for the configuration file.  */
  #define _PATH_NSCDCONF	 "/etc/nscd.conf"
 diff --git a/nscd/nscd.h b/nscd/nscd.h
-index cbd402a..384525d 100644
+index 4533578..d86fb5d 100644
 --- a/nscd/nscd.h
 +++ b/nscd/nscd.h
-@@ -112,14 +112,14 @@ struct database_dyn
+@@ -161,14 +161,14 @@ struct database_dyn
  
  
  /* Paths of the file for the persistent storage.  */
@@ -123,7 +122,7 @@ index cbd402a..384525d 100644
  /* Maximum alignment requirement we will encounter.  */
  #define BLOCK_ALIGN_LOG 3
 diff --git a/nss/db-Makefile b/nss/db-Makefile
-index 26b277d..2cd8cb1 100644
+index 10a0014..2efe83b 100644
 --- a/nss/db-Makefile
 +++ b/nss/db-Makefile
 @@ -22,7 +22,7 @@ DATABASES = $(wildcard /etc/passwd /etc/group /etc/ethers /etc/protocols \
@@ -136,10 +135,10 @@ index 26b277d..2cd8cb1 100644
  AWK = awk
  MAKEDB = makedb --quiet
 diff --git a/sunrpc/key_call.c b/sunrpc/key_call.c
-index e0a076b..29f06a9 100644
+index 9b8f981..c764585 100644
 --- a/sunrpc/key_call.c
 +++ b/sunrpc/key_call.c
-@@ -453,7 +453,7 @@ getkeyserv_handle (int vers)
+@@ -449,7 +449,7 @@ getkeyserv_handle (int vers)
  
    if ((kcp->client == (CLIENT *) NULL))
      /* Use the AF_UNIX transport */
@@ -149,11 +148,11 @@ index e0a076b..29f06a9 100644
    if (kcp->client == (CLIENT *) NULL)
      return (CLIENT *) NULL;
 diff --git a/sysdeps/generic/ldconfig.h b/sysdeps/generic/ldconfig.h
-index d96089d..7eec7a9 100644
+index 59e20dc..b734796 100644
 --- a/sysdeps/generic/ldconfig.h
 +++ b/sysdeps/generic/ldconfig.h
-@@ -41,7 +41,7 @@
- #define FLAG_ARM_LIBSF		0x0b00
+@@ -46,7 +46,7 @@
+ #define FLAG_RISCV_FLOAT_ABI_DOUBLE	0x1000
  
  /* Name of auxiliary cache.  */
 -#define _PATH_LDCONFIG_AUX_CACHE "/var/cache/ldconfig/aux-cache"

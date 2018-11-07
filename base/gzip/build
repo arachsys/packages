@@ -1,4 +1,4 @@
 name gzip
-version 1.6
+version 1.9
 mode autotools
-sources http://ftp.gnu.org/gnu/gzip/gzip-$VERSION.tar.xz
+sources http://ftp.gnu.org/gnu/gzip/gzip-$VERSION.tar.xz glibc.patch

@@ -1,5 +1,5 @@
 name gawk
-version 4.1.3
+version 4.2.1
 mode autotools
 sources http://ftp.gnu.org/gnu/gawk/gawk-$VERSION.tar.xz
 

@@ -1,7 +1,7 @@
 name gcc
-version 6.1.0
+version 8.2.0
 mode autotools
-sources http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/gcc-$VERSION.tar.bz2 \
+sources http://ftp.gnu.org/gnu/gcc/gcc-$VERSION/gcc-$VERSION.tar.xz \
         nofixinc.patch nolibiberty.patch paths.patch pure64.patch
 
 config-extra --disable-multilib --enable-__cxa_atexit --enable-clocale=gnu \

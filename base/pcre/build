@@ -1,8 +1,7 @@
 name pcre
-version 8.38
+version 8.42
 mode autotools
-sources http://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$VERSION.tar.bz2 \
-        cve-2016-1283.patch cve-2016-3191.patch paths.patch
+sources http://ftp.pcre.org/pub/pcre/pcre-$VERSION.tar.bz2 paths.patch
 
 config-extra --enable-utf8
 
