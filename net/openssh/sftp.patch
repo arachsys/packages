@@ -1,0 +1,16 @@
+diff --git a/sftp.c b/sftp.c
+index 261d220..3eb7e59 100644
+--- a/sftp.c
++++ b/sftp.c
+@@ -2076,8 +2076,10 @@
+ 		signal(SIGINT, SIG_IGN);
+ 
+ 		if (el == NULL) {
+-			if (interactive)
++			if (interactive) {
+ 				printf("sftp> ");
++				fflush(stdout);
++			}
+ 			if (fgets(cmd, sizeof(cmd), infile) == NULL) {
+ 				if (interactive)
+ 					printf("\n");

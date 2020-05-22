@@ -1,0 +1,121 @@
+diff --git a/debugfs/util.c b/debugfs/util.c
+index aafbc56..bd488a1 100644
+--- a/debugfs/util.c
++++ b/debugfs/util.c
+@@ -61,7 +61,7 @@ void reset_getopt(void)
+ }
+ 
+ static const char *pager_search_list[] = { "pager", "more", "less", 0 };
+-static const char *pager_dir_list[] = { "/usr/bin", "/bin", 0 };
++static const char *pager_dir_list[] = { "/bin", 0 };
+ 
+ static const char *find_pager(char *buf)
+ {
+diff --git a/e2fsck/unix.c b/e2fsck/unix.c
+index 6f94644..7c4c0aa 100644
+--- a/e2fsck/unix.c
++++ b/e2fsck/unix.c
+@@ -584,7 +584,7 @@ static int e2fsck_update_progress(e2fsck_t ctx, int pass,
+ 	return 0;
+ }
+ 
+-#define PATH_SET "PATH=/sbin"
++#define PATH_SET "PATH=/bin"
+ 
+ /*
+  * Make sure 0,1,2 file descriptors are open, so that we don't open
+diff --git a/ext2ed/init.c b/ext2ed/init.c
+index 7d9b526..44cc454 100644
+--- a/ext2ed/init.c
++++ b/ext2ed/init.c
+@@ -613,7 +613,7 @@ void check_mounted (char *name)
+ 
+ 	mounted=0;
+ 
+-	if ( (fp=fopen ("/etc/mtab","rt"))==NULL) {
++	if ( (fp=fopen ("/run/mtab","rt"))==NULL) {
+ 		wprintw (command_win,"Error - Failed to open /etc/mtab. Assuming filesystem is mounted.\n");
+ 		refresh_command_win ();mounted=1;return;
+ 	};
+diff --git a/lib/blkid/blkidP.h b/lib/blkid/blkidP.h
+index e0f11a0..bd7014b 100644
+--- a/lib/blkid/blkidP.h
++++ b/lib/blkid/blkidP.h
+@@ -104,7 +104,7 @@ struct blkid_struct_cache
+ extern char *blkid_strdup(const char *s);
+ extern char *blkid_strndup(const char *s, const int length);
+ 
+-#define BLKID_CACHE_FILE "/etc/blkid.tab"
++#define BLKID_CACHE_FILE "/run/blkid.tab"
+ 
+ #define BLKID_ERR_IO	 5
+ #define BLKID_ERR_PROC	 9
+diff --git a/lib/uuid/uuidd.h b/lib/uuid/uuidd.h
+index c71f4b7..0a1d0d0 100644
+--- a/lib/uuid/uuidd.h
++++ b/lib/uuid/uuidd.h
+@@ -35,10 +35,10 @@
+ #ifndef _UUID_UUIDD_H
+ #define _UUID_UUIDD_H
+ 
+-#define UUIDD_DIR		"/var/lib/libuuid"
++#define UUIDD_DIR		"/run/libuuid"
+ #define UUIDD_SOCKET_PATH	UUIDD_DIR "/request"
+ #define UUIDD_PIDFILE_PATH	UUIDD_DIR "/uuidd.pid"
+-#define UUIDD_PATH		"/usr/sbin/uuidd"
++#define UUIDD_PATH		"/bin/uuidd"
+ 
+ #define UUIDD_OP_GETPID			0
+ #define UUIDD_OP_GET_MAXOP		1
+diff --git a/misc/blkid.c b/misc/blkid.c
+index a4a8db0..96b35d9 100644
+--- a/misc/blkid.c
++++ b/misc/blkid.c
+@@ -53,7 +53,7 @@ static void usage(int error)
+ 	fprintf(out,
+ 		"usage:\t%s [-c <file>] [-ghlLv] [-o format] "
+ 		"[-s <tag>] [-t <token>]\n    [-w <file>] [dev ...]\n"
+-		"\t-c\tcache file (default: /etc/blkid.tab, /dev/null = none)\n"
++		"\t-c\tcache file (default: /run/blkid.tab, /dev/null = none)\n"
+ 		"\t-h\tprint this usage message and exit\n"
+ 		"\t-g\tgarbage collect the blkid cache\n"
+ 		"\t-s\tshow specified tag(s) (default show all tags)\n"
+diff --git a/misc/fsck.c b/misc/fsck.c
+index 826aaeb..c7544ae 100644
+--- a/misc/fsck.c
++++ b/misc/fsck.c
+@@ -120,7 +120,7 @@ static char *progname;
+ static char *fstype = NULL;
+ static struct fs_info *filesys_info = NULL, *filesys_last = NULL;
+ static struct fsck_instance *instance_list;
+-static const char *fsck_prefix_path = "/sbin:/sbin/fs.d:/sbin/fs:/etc/fs:/etc";
++static const char *fsck_prefix_path = "/bin";
+ static char *fsck_path = 0;
+ static blkid_cache cache = NULL;
+ 
+diff --git a/misc/ismounted.c b/misc/ismounted.c
+index 6aa0e04..9bfd8b3 100644
+--- a/misc/ismounted.c
++++ b/misc/ismounted.c
+@@ -197,7 +197,7 @@ int is_mounted(const char *file)
+ 	if (mount_flags)
+ 		return 1;
+ #endif /* __linux__ */
+-	retval = check_mntent_file("/etc/mtab", file, &mount_flags);
++	retval = check_mntent_file("/run/mtab", file, &mount_flags);
+ 	if (retval)
+ 		return 0;
+ 	return (mount_flags);
+diff --git a/misc/mke2fs.c b/misc/mke2fs.c
+index 2e8ba60..2aa2843 100644
+--- a/misc/mke2fs.c
++++ b/misc/mke2fs.c
+@@ -650,7 +650,7 @@ static int set_os(struct ext2_super_block *sb, char *os)
+ 	return 1;
+ }
+ 
+-#define PATH_SET "PATH=/sbin"
++#define PATH_SET "PATH=/bin"
+ 
+ static void parse_extended_opts(struct ext2_super_block *param,
+ 				const char *opts)

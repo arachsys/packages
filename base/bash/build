@@ -1,0 +1,19 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/bash/bash-5.0.tar.gz
+  set https://ftp.gnu.org/gnu/bash/bash-5.0-patches/bash50-{001..017}
+  while [[ $# -gt 0 ]]; do
+    apply -p 0 bash-5.0.${1##*-*(0)}.patch $1
+    shift
+  done
+  apply paths.patch
+  tree 8e58ec7b1dcd7947d42a0d31914fecfddaca09a8dcf2468c50764db7039a3c2e
+}
+
+config-extra --without-bash-malloc --with-installed-readline
+
+post-install() {
+  ln -f -s bash $DST/bin/sh
+  rm -f $DST/bin/bashbug $DST/lib/bash/Makefile.inc
+}

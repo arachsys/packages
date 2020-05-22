@@ -1,0 +1,23 @@
+enable unstripped
+require go
+
+prepare() {
+  unpack https://dl.google.com/go/go1.14.3.src.tar.gz
+  apply fmt.patch
+  apply paths.patch
+  tree f58d67968e6e88172ffdbb37c5fb036f6c728a80acb9457d71a28c677704709f
+}
+
+build() {
+  GO_LDSO=/lib/ld.so GOCACHE=$SRC/pkg/obj/go-build GOROOT_FINAL=/lib/go \
+    bash -c 'cd src && source make.bash --no-banner'
+
+  mkdir -p $DST/{bin,lib/go}
+  cp -d -R bin pkg src $DST/lib/go
+  ln -s ../lib/go/bin/{go,gofmt} $DST/bin/
+
+  rm -f -r $DST/lib/go/{pkg/obj,pkg/bootstrap,pkg/tool/*/api}
+  rm -f -r $DST/lib/go/src/**/{*_test.go,*.bat,*.rc,testdata/}
+  strip --strip-unneeded $DST/lib/go/{bin/*,pkg/tool/*/*}
+  chmod a+x $DST/lib/go/**/*.{bash,sh}
+}

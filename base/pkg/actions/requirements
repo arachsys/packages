@@ -1,0 +1,7 @@
+if [[ $# -lt 1 ]]; then
+  die "$(< $LIBRARY/help)"
+else
+  require() { echo "$*"; }
+  setup "$@"
+  source "$PKG/build"
+fi

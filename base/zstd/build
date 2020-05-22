@@ -1,0 +1,10 @@
+prepare() {
+  unpack https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-1.4.4.tar.gz
+  tree 5eb24d2be6af4b76ef6b04b070b2ffbc28ebf09f024eca0a6e3b51ca3c28ff3a
+}
+
+build() {
+  make install DESTDIR=$DST PREFIX= INCLUDEDIR=/lib/include \
+    LIBDIR=/lib MAN1DIR=/lib/man/man1
+  rm -f $DST/bin/zstd{grep,less} $DST/lib/man/man1/zstd{grep,less}.1
+}

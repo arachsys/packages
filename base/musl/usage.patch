@@ -1,0 +1,21 @@
+diff --git a/ldso/dynlink.c b/ldso/dynlink.c
+index afec985..fa1ad04 100644
+--- a/ldso/dynlink.c
++++ b/ldso/dynlink.c
+@@ -1779,12 +1779,10 @@ void __dls3(size_t *sp, size_t *auxv)
+ 		}
+ 		argv[-1] = (void *)(argc - (argv-argv_orig));
+ 		if (!argv[0]) {
+-			dprintf(2, "musl libc (" LDSO_ARCH ")\n"
+-				"Version %s\n"
+-				"Dynamic Program Loader\n"
+-				"Usage: %s [options] [--] pathname%s\n",
+-				__libc_version, ldname,
+-				ldd_mode ? "" : " [args]");
++			dprintf(2, "Dynamic loader for musl %s (%s)\n"
++				"Usage: %s [OPTION]... [--] PROGRAM%s\n",
++				__libc_version, LDSO_ARCH, ldname,
++				ldd_mode ? "" : " [ARG]...");
+ 			_exit(1);
+ 		}
+ 		fd = open(argv[0], O_RDONLY);

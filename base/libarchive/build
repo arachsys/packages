@@ -1,0 +1,14 @@
+mode autotools
+
+prepare() {
+  unpack https://www.libarchive.org/downloads/libarchive-3.4.2.tar.xz
+  tree 18969f52fa8ad14cca227018ddc4ee5ab6b5f3221a0044dcd26d49ab26e80a9a
+}
+
+config-extra --disable-acl --enable-bsd{cat,cpio,tar}=dynamic \
+  --enable-xattr --without-{expat,xml2} --with-{bz2lib,lzma,zlib,zstd}
+
+post-install() {
+  mv $DST/bin/{bsdcpio,cpio}
+  mv $DST/bin/{bsdtar,tar}
+}

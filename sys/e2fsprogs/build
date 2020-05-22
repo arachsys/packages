@@ -1,0 +1,27 @@
+mode autotools
+
+prepare() {
+  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.45.6/e2fsprogs-1.45.6.tar.xz
+  apply paths.patch
+  tree dfee78972264dfcfddeb70598ea265130d8a42ec256102760160d4ba37a47efc
+}
+
+config-extra --libexecdir='${prefix}/bin' --disable-libblkid \
+  --disable-elf-shlibs --disable-fsck --disable-libuuid --disable-uuidd \
+  PKG_CONFIG=/bin/true LDFLAGS="-lblkid -luuid"
+
+if enabled shared; then
+  config-extra --enable-elf-shlibs
+fi
+
+post-config() {
+  sed -e '/^E2SCRUB_DIR *=/s/^/#/' -i Makefile
+}
+
+post-install() {
+  make install-libs DESTDIR=$DST
+  rm -f $DST/lib/e2initrd_helper
+  if ! enabled shared; then
+    rm -f -r $DST/bin/{compile_et,mk_cmds} $DST/lib/{et,include,ss,*.a}
+  fi
+}

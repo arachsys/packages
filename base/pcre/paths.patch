@@ -1,0 +1,21 @@
+diff --git a/pcre-config.in b/pcre-config.in
+index 595e5d1..c269cac 100644
+--- a/pcre-config.in
++++ b/pcre-config.in
+@@ -70,14 +70,14 @@ while test $# -gt 0; do
+       echo @PACKAGE_VERSION@
+       ;;
+     --cflags)
+-      if test @includedir@ != /usr/include ; then
++      if test @includedir@ != /lib/include ; then
+         includes=-I@includedir@
+       fi
+       echo $includes @PCRE_STATIC_CFLAG@
+       ;;
+     --cflags-posix)
+       if test @enable_pcre8@ = yes ; then
+-        if test @includedir@ != /usr/include ; then
++        if test @includedir@ != /lib/include ; then
+           includes=-I@includedir@
+         fi
+         echo $includes @PCRE_STATIC_CFLAG@

@@ -1,0 +1,14 @@
+mode autotools
+require bison
+require flex
+
+prepare() {
+  unpack https://www.tcpdump.org/release/libpcap-1.9.1.tar.gz
+  tree adf531bdac94b7c235ac0ca5176db047a93621bf31f9ea9395e81e1fed991f2d
+}
+
+config-extra --with-pcap=linux
+
+post-install() {
+  rm -f $DST/bin/pcap-config
+}

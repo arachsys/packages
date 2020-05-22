@@ -1,0 +1,148 @@
+diff --git a/README.asciidoc b/README.asciidoc
+index 20be763..a3a4c3b 100644
+--- a/README.asciidoc
++++ b/README.asciidoc
+@@ -283,7 +283,7 @@ Configuration
+ 
+ There are two directories containing Kakoune's scripts:
+ 
+-* `runtime`: located in `../share/kak/` relative to the `kak` binary
++* `runtime`: located in `../lib/kak/` relative to the `kak` binary
+   contains the system scripts, installed with Kakoune.
+ * `userconf`: located in `$XDG_CONFIG_HOME/kak/`, which will fallback
+   to `$HOME/.config/kak/` if `$XDG_CONFIG_HOME` is not set, containing
+@@ -690,27 +690,27 @@ Kakrc
+ ~~~~~
+ 
+ If not launched with the `-n` switch, Kakoune will source the
+-`../share/kak/kakrc` file relative to the `kak` binary, which
++`../lib/kak/kakrc` file relative to the `kak` binary, which
+ will source additional files:
+ 
+ If the `$XDG_CONFIG_HOME/kak/autoload` directory exists, load every
+ `*.kak` files in it, and load recursively any subdirectory.
+ 
+ If it does not exist, falls back to the site wide autoload directory
+-in `../share/kak/autoload/`.
++in `../lib/kak/autoload/`.
+ 
+ After that, if it exists, source the `$XDG_CONFIG_HOME/kak/kakrc` file
+ which should be used for user configuration.
+ 
+ In order to continue autoloading site-wide files with a local autoload
+-directory, just add a symbolic link to `../share/kak/autoload/` into
++directory, just add a symbolic link to `../lib/kak/autoload/` into
+ your local autoload directory.
+ 
+ Color Schemes
+ ~~~~~~~~~~~~~
+ 
+ Kakoune ships with some color schemes that are installed to
+-`../share/kak/colors/`. If `$XDG_CONFIG_HOME/kak/colors/` is present
++`../lib/kak/colors/`. If `$XDG_CONFIG_HOME/kak/colors/` is present
+ the builtin command `colorscheme` will offer completion for those
+ color schemes. If a scheme is duplicated in userspace, it will take
+ precedence.
+diff --git a/doc/kak.1 b/doc/kak.1
+index 1aac6e8..03d3a9b 100644
+--- a/doc/kak.1
++++ b/doc/kak.1
+@@ -169,7 +169,7 @@ Path to the user session sockets, defaults to \fI$TMPDIR/kakoune\fR if unset.
+ 
+ In the paths documented below, \fI<rtdir>\fR refers to the runtime directory,
+ whose value is determined in relation to the path to the \fBkak\fR binary:
+-\fI<rtdir>\fR = \fI<path_to_kak_binary>/../share/kak\fR.
++\fI<rtdir>\fR = \fI<path_to_kak_binary>/../lib/kak\fR.
+ 
+ If not started with the \fB\-n\fR switch, Kakoune will first load
+ \fI<rtdir>/kakrc\fR, which will in turn load the following additional files:
+diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
+index 453fde4..0a6a1bb 100644
+--- a/doc/pages/options.asciidoc
++++ b/doc/pages/options.asciidoc
+@@ -205,7 +205,7 @@ are exclusively available to built-in options.
+     actions should hook on this option changing for activation/deactivation
+ 
+ *path* `str-list`::
+-    _default_ ./ %/ /usr/include +
++    _default_ ./ %/ /lib/include +
+     directories to search for *gf* command and filenames completion
+     `%/` represents the current buffer directory
+ 
+diff --git a/rc/tools/man.kak b/rc/tools/man.kak
+index f1f515b..c349158 100644
+--- a/rc/tools/man.kak
++++ b/rc/tools/man.kak
+@@ -55,7 +55,7 @@ define-command -hidden -params 2..3 man-impl %{ evaluate-commands %sh{
+ 
+ define-command -params ..1 \
+   -shell-script-candidates %{
+-      find /usr/share/man/ -name '*.[1-8]*' | sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),'
++      find /lib/man/ -name '*.[1-8]*' | sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),'
+   } \
+   -docstring %{man [<page>]: manpage viewer wrapper
+ If no argument is passed to the command, the selection will be used as page
+diff --git a/src/Makefile b/src/Makefile
+index df42392..4ad0222 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -55,9 +55,9 @@ PREFIX ?= /usr/local
+ DESTDIR ?= # root dir
+ 
+ bindir := $(DESTDIR)$(PREFIX)/bin
+-sharedir := $(DESTDIR)$(PREFIX)/share/kak
+-docdir := $(DESTDIR)$(PREFIX)/share/doc/kak
+-mandir := $(DESTDIR)$(PREFIX)/share/man/man1
++sharedir := $(DESTDIR)$(PREFIX)/lib/kak
++docdir := $(DESTDIR)$(PREFIX)/lib/doc/kak
++mandir := $(DESTDIR)$(PREFIX)/lib/man/man1
+ 
+ os := $(shell uname)
+ 
+@@ -72,6 +72,9 @@ else ifeq ($(os),FreeBSD)
+     LDFLAGS += -L/usr/local/lib
+ else ifeq ($(os),Haiku)
+     LIBS += -lncursesw -lnetwork -lbe
++else ifeq ($(os),Linux)
++    LIBS += -lncursesw
++    LDFLAGS += -rdynamic
+ else ifeq ($(os),OpenBSD)
+     LIBS += -lncursesw
+     CPPFLAGS += -D'KAK_BIN_PATH="$(bindir)/kak"' -I/usr/local/include
+diff --git a/src/main.cc b/src/main.cc
+index dabbb7b..879fad4 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -139,12 +139,12 @@ inline void write_stderr(StringView str) { try { write(STDERR_FILENO, str); } ca
+ String runtime_directory()
+ {
+     char relpath[PATH_MAX+1];
+-    format_to(relpath, "{}../share/kak", split_path(get_kak_binary_path()).first);
++    format_to(relpath, "{}../lib/kak", split_path(get_kak_binary_path()).first);
+     struct stat st;
+     if (stat(relpath, &st) == 0 and S_ISDIR(st.st_mode))
+         return real_path(relpath);
+ 
+-    return "/usr/share/kak";
++    return "/lib/kak";
+ }
+ 
+ String config_directory()
+@@ -478,7 +478,7 @@ void register_options()
+                       Regex{});
+     reg.declare_option("filetype", "buffer filetype", ""_str);
+     reg.declare_option("path", "path to consider when trying to find a file",
+-                   Vector<String, MemoryDomain::Options>({ "./", "%/", "/usr/include" }));
++                   Vector<String, MemoryDomain::Options>({ "./", "%/", "/lib/include" }));
+     reg.declare_option("completers", "insert mode completers to execute.",
+                        InsertCompleterDescList({
+                            InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
+@@ -1207,7 +1207,7 @@ asm(R"(
+ .byte 4
+ .ascii "kakoune-inline-gdb.py\n"
+ .ascii "import os.path\n"
+-.ascii "sys.path.insert(0, os.path.dirname(gdb.current_objfile().filename) + '/../share/kak/gdb/')\n"
++.ascii "sys.path.insert(0, os.path.dirname(gdb.current_objfile().filename) + '/../lib/kak/gdb/')\n"
+ .ascii "import gdb.printing\n"
+ .ascii "import kakoune\n"
+ .ascii "gdb.printing.register_pretty_printer(gdb.current_objfile(), kakoune.build_pretty_printer())\n\0"

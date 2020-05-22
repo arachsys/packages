@@ -1,0 +1,10 @@
+prepare() {
+  unpack kakoune-2020.01.16.tar.gz \
+    https://github.com/mawww/kakoune/archive/v2020.01.16.tar.gz
+  apply paths.patch
+  tree ab9967789e974c76f474bc97e34b48d6a37d89f7acfd41f5c68253b168365708
+}
+
+build() {
+  make install DESTDIR=$DST PREFIX=
+}

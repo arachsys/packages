@@ -1,0 +1,10 @@
+prepare() {
+  unpack https://github.com/gavinhoward/bc/releases/download/2.7.2/bc-2.7.2.tar.xz
+}
+
+build() {
+  PREFIX= DATAROOTDIR=/lib MANDIR=/lib/man CC="gcc -std=c99" $SRC/configure \
+    --opt=3 --disable-generated-tests --disable-nls
+  make
+  make install DESTDIR=$DST
+}

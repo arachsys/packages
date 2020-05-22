@@ -1,0 +1,15 @@
+require bison
+require flex
+
+prepare() {
+  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.6.0.tar.xz
+  apply paths.patch
+  tree 353216dc556b8821c6de86b1e1f896cb3ec53cb99f2b433bf48187d882e7d040
+}
+
+build() {
+  PKG_CONFIG=/bin/false $SRC/configure
+  make install DESTDIR=$DST PREFIX= DATADIR=/lib HDRDIR=/lib/include \
+    LIBDIR=/lib SBINDIR=/bin {DBM,KERNEL}_INCLUDE=/lib/include
+  rm -f -r $DST/bin/{ifcfg,routef,routel,rtpr} $DST/lib/bash-completion
+}

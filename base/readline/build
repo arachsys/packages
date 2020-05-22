@@ -1,0 +1,19 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/readline/readline-8.0.tar.gz
+  set https://ftp.gnu.org/gnu/readline/readline-8.0-patches/readline80-{001..004}
+  while [[ $# -gt 0 ]]; do
+    apply -p 0 readline-8.0.${1##*-*(0)}.patch $1
+    shift
+  done
+  tree d6ae93914bf0ec631174ae20c1d45e13656fd6717bd87fa58fb70707a1359c21
+}
+
+config-extra --disable-install-examples
+compile-extra SHLIB_LIBS=-lncurses
+
+post-config() {
+  # In the absence of working configure support for --disable-rpath:
+  sed -e 's/ -Wl,-rpath,\$(libdir) / /' -i $SRC/shlib/Makefile
+}

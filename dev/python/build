@@ -1,0 +1,31 @@
+mode autotools
+
+prepare() {
+  unpack python-3.8.2.tar.xz \
+    https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz
+  apply compileall.patch
+  apply getpath.patch
+  apply fakepkg.patch
+  apply musl.patch
+  apply paths.patch
+  tree da014929124244a5f91f9c269a4daeb8af1561bdd408e100d8e346aee5d6543c
+}
+
+config-extra --enable-{ipv6,optimizations,shared} --without-ensurepip \
+  --with-{computed-gotos,dbmliborder=,lto} PKG_CONFIG=$SRC/fake-pkg-config \
+  CFLAGS="$CFLAGS -fno-semantic-interposition" \
+  LDFLAGS="$LDFLAGS -fno-semantic-interposition"
+
+post-install() {
+  # Make at least some attempt to prune and tidy the absurd bundled junk:
+  rm -f -r $DST/lib/python*/{,*/}{test,tests}/ \
+    $DST/lib/python*/{__phello__.foo.py,dbm,ensurepip,idlelib,sqlite3} \
+    $DST/lib/python*/{turtle*,tkinter,__pycache__/turtle.*,LICENSE.txt} \
+    $DST/bin/{2to3,idle*,pydoc3,python3,python*-config}
+  mv $DST/bin/2to3-3.8 $DST/bin/2to3
+  mv $DST/bin/pydoc3.8 $DST/bin/pydoc
+  mv $DST/bin/python3.8 $DST/bin/python3
+  ln $DST/bin/python3 $DST/bin/python
+  sed -e '1s_^#!.*_#!/bin/python3_' -i $DST/bin/2to3 -i $DST/bin/pydoc \
+    -i $DST/lib/python*/config-3*/python-config.py
+}

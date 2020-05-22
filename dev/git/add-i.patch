@@ -1,0 +1,18 @@
+diff --git a/builtin/add.c b/builtin/add.c
+index 18a0881..836d389 100644
+--- a/builtin/add.c
++++ b/builtin/add.c
+@@ -189,12 +189,7 @@ int run_add_interactive(const char *revision, const char *patch_mode,
+ {
+ 	int status, i;
+ 	struct argv_array argv = ARGV_ARRAY_INIT;
+-	int use_builtin_add_i =
+-		git_env_bool("GIT_TEST_ADD_I_USE_BUILTIN", -1);
+-
+-	if (use_builtin_add_i < 0)
+-		git_config_get_bool("add.interactive.usebuiltin",
+-				    &use_builtin_add_i);
++	int use_builtin_add_i = 1;
+ 
+ 	if (use_builtin_add_i == 1) {
+ 		enum add_p_mode mode;

@@ -1,0 +1,21 @@
+enabled nls && require gettext
+enabled perl && require perl
+
+prepare() {
+  unpack https://www.kernel.org/pub/software/scm/git/git-2.26.2.tar.xz
+  apply add-i.patch
+  apply filter-branch.patch
+  apply usage.patch
+  tree 13fdc152bd1a54bf096d5a9aa545cc172301c9cdbd70905da626b0c49f6723bb
+}
+
+build() {
+  make install DESTDIR=$DST prefix= gitexecdir=/lib/git \
+    gitwebdir=/lib/gitweb htmldir=/lib/doc/git infodir=/lib/info \
+    mandir=/lib/man template_dir=/lib/git/templates \
+    CURL_LDFLAGS=-lcurl NO_{EXPAT,PYTHON,REGEX,TCLTK}=1 \
+    $(enabled nls || echo NO_GETTEXT=1) $(enabled perl || echo NO_PERL=1)
+  grep -l -r -F -Z 'fatal: git was built without support for' $DST \
+    | xargs -0 rm --
+  find $DST/lib/git/templates -name '*.sample' -delete
+}

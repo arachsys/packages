@@ -1,0 +1,10 @@
+prepare() {
+  unpack init-20200517-24642be7.tar.gz \
+    https://github.com/arachsys/init/archive/24642be7566a1a1a7fc516709b46278b8df98d53.tar.gz
+  tree 177110485c02d3f3eec8c1ff8e80d23dc8b7f5570f56e675ec747366d426e6c8
+}
+
+build() {
+  make install DESTDIR=$DST PREFIX=
+  cp $SRC/examples/bin/* $DST/bin/
+}

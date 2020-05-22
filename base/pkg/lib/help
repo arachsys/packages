@@ -1,0 +1,49 @@
+Usage: pkg ACTION [ARG]...
+
+pkg apply [-d DIR] [-p STRIP] PATCH
+  Apply a patch from a remote URL or local file.
+
+pkg build [-d] [-s SRC] PKG DST [FEATURE]...
+  In the directory DST, which must be empty, build an image for package PKG
+  with the specified FEATURE options. All the base packages plus any build
+  requirements should already be installed on the host. An empty directory
+  or pre-prepared tree of source code for building can be provided with the
+  -s option. Use -d to enable debug mode, which leaves the build tree in
+  place for inspection whether or not the build succeeds.
+
+pkg hashtree [DIR [EXCLUDE]...]
+  Generate a hash of the source code in directory DIR, skipping paths which
+  match any EXCLUDE pattern. When DIR is unspecified, the current directory
+  is used. File contents, executability and path names are hashed, together
+  with symlinks and directories, but timestamps, ownerships and permissions
+  do not affect the result. Out-of-tree symlinks, pipes, sockets and device
+  nodes are forbidden as a security risk and will result in an error.
+
+pkg make [-d] PKG [FEATURE]...
+  Build an image for package PKG in the configured image directory $IMGDIR,
+  constructing and using a temporary build chroot consisting of the base
+  packages plus any additional build requirements PKG declares. Images for
+  all the build requirements and base packages must already exist in the
+  image directory. Any existing image for PKG is replaced on successful
+  completion; otherwise it is untouched. Use -d to enable debug mode, which
+  leaves the build chroot in place for inspection whether or not the build
+  succeeds, and does not install the new image in $IMGDIR.
+
+pkg prepare PKG SRC [FEATURE]...
+  In the directory SRC, which must be empty, unpack and patch the source
+  code for package PKG with the specified FEATURE options. Preparation will
+  stop at the first error, leaving the partial source tree for debugging.
+
+pkg requirements PACKAGE [FEATURE]...
+  List the build requirements for PACKAGE with specified FEATURE options.
+
+pkg root [PACKAGE]...
+  Start a login shell in a temporary chroot constructed from the images in
+  $IMGDIR, containing the base packages plus the specified additions. The
+  temporary root filesystem is deleted when the shell exits.
+
+pkg unpack [-d DIR] [-p STRIP] PATCH
+  Unpack a source tree tar file from a remote URL or local file.
+
+Set the package source tree location with environment variable PKGDIR, the
+image directory with IMGDIR and the download cache directory with CACHEDIR.

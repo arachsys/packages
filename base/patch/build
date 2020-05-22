@@ -1,0 +1,6 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/patch/patch-2.7.6.tar.xz
+  tree a7976150e27880bc0184e17d460c3f93f12f564a5715fd1fa9cf6dcb82c27277
+}

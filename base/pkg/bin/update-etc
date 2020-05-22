@@ -1,0 +1,37 @@
+#!/bin/bash -e
+
+echo "Updating /etc/protocols" 
+curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/protocols \
+  | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
+  > /etc/protocols.tmp
+if grep -q -F 'tcp 6 TCP' /etc/protocols.tmp; then
+  mv /etc/protocols.tmp /etc/protocols
+else
+  echo "Updated /etc/protocols failed sanity check" >&2
+  rm /etc/protocols.tmp
+  exit 1
+fi
+
+
+echo "Updating /etc/services"
+curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/services \
+  | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
+  > /etc/services.tmp
+if grep -q -F 'ssh 22/tcp' /etc/services.tmp; then
+  mv /etc/services.tmp /etc/services
+else
+  echo "Updated /etc/services failed sanity check" >&2
+  rm /etc/services.tmp
+  exit 1
+fi
+
+echo "Updating /etc/ssl/cert.pem"
+mkdir -p /etc/ssl && curl -s -L https://curl.haxx.se/ca/cacert.pem \
+  | sed -n '/^[^#]/,$p' >/etc/ssl/cert.tmp
+if grep -q -F 'BEGIN CERTIFICATE' /etc/ssl/cert.tmp; then
+  mv /etc/ssl/cert.tmp /etc/ssl/cert.pem
+else
+  echo "Updated /etc/ssl/cert.pem failed sanity check" >&2
+  rm /etc/ssl/cert.tmp
+  exit 1
+fi

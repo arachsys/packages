@@ -1,0 +1,11 @@
+prepare() {
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.6.9.tar.xz
+  tree 69d586aa8ca135c408fdc7935af3fbea2569c832873fa5335d6288fe9a593148
+}
+
+build() {
+  make headers
+  find usr/include -type f -name '*.h' -exec cp -t $DST --parents {} +
+  find usr/include -type l -exec cp -d -t $DST --parents {} +
+  mv $DST/usr $DST/lib
+}

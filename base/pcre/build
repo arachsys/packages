@@ -1,0 +1,13 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.bz2
+  apply paths.patch
+  tree bb1ab757d099c96b68b2536d8a65141f8307b14a0bafa7c366ccad4ca0fc20f1
+}
+
+config-extra --enable-utf8
+
+post-install() {
+  rm -f -r $DST/bin
+}

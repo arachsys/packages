@@ -1,0 +1,19 @@
+mode autotools
+enable setuid
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/screen/screen-4.8.0.tar.gz
+  tree ffe486abec27ee1e614c439ead1e470cb7991d3fd844ba3b8fd901edf69c6258
+}
+
+config-extra CFLAGS=-DNONETHACK --enable-{colors256,locale,rxvt_osc,telnet}
+
+post-config() {
+  sed -e 's/^#define UTMPOK.*/#undef UTMPOK/' \
+      -e 's/^#define GETUTENT.*/#undef GETUTENT/' \
+      -i config.h
+}
+
+post-install() {
+  mv -f $DST/bin/screen{-*,}
+}

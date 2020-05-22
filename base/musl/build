@@ -1,0 +1,25 @@
+prepare() {
+  unpack https://musl.libc.org/releases/musl-1.2.0.tar.gz
+  apply paths.patch
+  apply usage.patch
+  tree afcb79361f8d01b85fd33b222858a4d78686b4ca46f9d15f346e09f676a331d8
+}
+
+build() {
+  $SRC/configure --host=$CHOST --build=$CHOST --prefix= \
+                 --includedir='$(prefix)/lib/include' \
+                 --libdir='$(prefix)/lib/shared' \
+                 --syslibdir='$(prefix)/lib' \
+                 --disable-wrapper
+  mkdir -p $DST/bin $DST/lib
+  make install DESTDIR=$DST
+
+  for UTIL in getconf getent iconv; do
+    gcc -I$DST/lib/include -L$DST/lib/shared -Os \
+      $PKG/$UTIL.c -o $DST/bin/$UTIL
+  done
+
+  rm -f $DST/lib/ld-*.so.*
+  ln -s shared/libc.so $DST/lib/ld.so
+  ln -s ../lib/shared/libc.so $DST/bin/ldd
+}

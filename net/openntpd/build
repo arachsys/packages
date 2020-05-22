@@ -1,0 +1,11 @@
+mode autotools
+require bison
+
+prepare() {
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.2p3.tar.gz
+  apply common.patch
+  apply paths.patch
+  tree ff2c16297afa1356d5b658771b6f3487ce556d0b6a96205b209b3453eeb7db97
+}
+
+config-extra --enable-https-constraint --with-privsep-{path=/run/empty,user=ntp}

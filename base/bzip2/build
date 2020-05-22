@@ -1,0 +1,14 @@
+prepare() {
+  unpack https://fossies.org/linux/misc/bzip2-1.0.8.tar.gz
+  apply makefile.patch
+  apply scripts.patch
+  tree efd3f2120ae749c578d733a542aad3b46a11f7d1d571ab9c2f77e2bfe77cc001
+}
+
+build() {
+  make PREFIX=
+  make install PREFIX=$DST
+  mv $DST{,/lib}/include
+  rm -f $DST/bin/bz{diff,egrep,fgrep,grep,less,more} \
+    $DST/lib/man/man1/bz{diff,egrep,fgrep,grep,less,more}.1
+}

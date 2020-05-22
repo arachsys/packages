@@ -1,0 +1,33 @@
+setup -
+
+mkdir -p "$IMGDIR"
+ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
+trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+
+mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,sys}
+mkdir -m 1777 -p "$ROOT"/{run/shm,var/tmp}
+cp -p -L -R /etc/{passwd,group,ssl,resolv.conf} "$ROOT/etc/"
+ln -s var/tmp "$ROOT/tmp"
+
+for REQUIRED in "$PKGDIR"/base/* "$@"; do
+  if [[ -d "$IMGDIR/${REQUIRED##*/}" ]]; then
+    cp -a -l -T "$IMGDIR/${REQUIRED##*/}" "$ROOT"
+  else
+    die "Image for package ${REQUIRED##*/} not found in $IMGDIR"
+  fi
+done
+
+( trap 'umount -l "$ROOT"' EXIT
+
+  mount -B --make-slave "$ROOT" "$ROOT"
+  mount -B --make-slave "$ROOT/run" "$ROOT/run"
+  mount -B --make-slave "$ROOT/var/tmp" "$ROOT/var/tmp"
+
+  mount -R --make-rslave /dev "$ROOT/dev"
+  mount -R --make-rslave /proc "$ROOT/proc"
+  mount -R --make-rslave /sys "$ROOT/sys"
+
+  mount -B -o remount,ro "$ROOT"
+
+  chroot $ROOT env -i HOME=/ PATH=/bin TERM="$TERM" bash -l
+)

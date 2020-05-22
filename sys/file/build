@@ -1,0 +1,6 @@
+mode autotools
+
+prepare() {
+  unpack http://ftp.astron.com/pub/file/file-5.38.tar.gz
+  tree 2fc5d3ec40aee92bd199010e6d50b038b769ffc8e10720fa4df7afdef0dbb261
+}

@@ -1,0 +1,29 @@
+diff --git a/src/cmd/internal/dwarf/dwarf.go b/src/cmd/internal/dwarf/dwarf.go
+index 56b44a1..4a78528 100644
+--- a/src/cmd/internal/dwarf/dwarf.go
++++ b/src/cmd/internal/dwarf/dwarf.go
+@@ -1634,9 +1634,9 @@ func IsDWARFEnabledOnAIXLd(extld string) (bool, error) {
+ 		}
+ 	}
+ 	// gcc -Wl,-V output should be:
+-	//   /usr/bin/ld: LD X.X.X(date)
++	//   /bin/ld: LD X.X.X(date)
+ 	//   ...
+-	out = bytes.TrimPrefix(out, []byte("/usr/bin/ld: LD "))
++	out = bytes.TrimPrefix(out, []byte("/bin/ld: LD "))
+ 	vers := string(bytes.Split(out, []byte("("))[0])
+ 	subvers := strings.Split(vers, ".")
+ 	if len(subvers) != 3 {
+diff --git a/src/net/http/cgi/host.go b/src/net/http/cgi/host.go
+index 58e9f71..4d9cde1 100644
+--- a/src/net/http/cgi/host.go
++++ b/src/net/http/cgi/host.go
+@@ -173,7 +173,7 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+ 
+ 	envPath := os.Getenv("PATH")
+ 	if envPath == "" {
+-		envPath = "/bin:/usr/bin:/usr/ucb:/usr/bsd:/usr/local/bin"
++		envPath = "/bin"
+ 	}
+ 	env = append(env, "PATH="+envPath)
+ 

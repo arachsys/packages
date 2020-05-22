@@ -1,0 +1,98 @@
+diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
+index 70a7903..90dea29 100644
+--- a/Lib/ctypes/util.py
++++ b/Lib/ctypes/util.py
+@@ -254,62 +254,38 @@ elif os.name == "posix":
+ 
+     else:
+ 
+-        def _findSoname_ldconfig(name):
+-            import struct
+-            if struct.calcsize('l') == 4:
+-                machine = os.uname().machine + '-32'
+-            else:
+-                machine = os.uname().machine + '-64'
+-            mach_map = {
+-                'x86_64-64': 'libc6,x86-64',
+-                'ppc64-64': 'libc6,64bit',
+-                'sparc64-64': 'libc6,64bit',
+-                's390x-64': 'libc6,64bit',
+-                'ia64-64': 'libc6,IA-64',
+-                }
+-            abi_type = mach_map.get(machine, 'libc6')
+-
+-            # XXX assuming GLIBC's ldconfig (with option -p)
+-            regex = r'\s+(lib%s\.[^\s]+)\s+\(%s'
+-            regex = os.fsencode(regex % (re.escape(name), abi_type))
+-            try:
+-                with subprocess.Popen(['/sbin/ldconfig', '-p'],
+-                                      stdin=subprocess.DEVNULL,
+-                                      stderr=subprocess.DEVNULL,
+-                                      stdout=subprocess.PIPE,
+-                                      env={'LC_ALL': 'C', 'LANG': 'C'}) as p:
+-                    res = re.search(regex, p.stdout.read())
+-                    if res:
+-                        return os.fsdecode(res.group(1))
+-            except OSError:
+-                pass
+-
+-        def _findLib_ld(name):
+-            # See issue #9998 for why this is needed
+-            expr = r'[^\(\)\s]*lib%s\.[^\(\)\s]*' % re.escape(name)
+-            cmd = ['ld', '-t']
+-            libpath = os.environ.get('LD_LIBRARY_PATH')
+-            if libpath:
+-                for d in libpath.split(':'):
+-                    cmd.extend(['-L', d])
+-            cmd.extend(['-o', os.devnull, '-l%s' % name])
+-            result = None
+-            try:
+-                p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+-                                     stderr=subprocess.PIPE,
+-                                     universal_newlines=True)
+-                out, _ = p.communicate()
+-                res = re.search(expr, os.fsdecode(out))
+-                if res:
+-                    result = res.group(0)
+-            except Exception as e:
+-                pass  # result will be None
+-            return result
+-
+         def find_library(name):
+-            # See issue #9998
+-            return _findSoname_ldconfig(name) or \
+-                   _get_soname(_findLib_gcc(name) or _findLib_ld(name))
++            from glob import glob
++
++            def is_elf(filepath):
++                try:
++                    with open(filepath, 'rb') as fh:
++                        return fh.read(4) == b'\x7fELF'
++                except:
++                    return False
++
++            if os.path.isabs(name):
++                return name
++
++            if name in ['m', 'crypt', 'pthread']:
++                name = 'c'
++            elif name in ['libm.so', 'libcrypt.so', 'libpthread.so']:
++                name = 'libc.so'
++
++            paths = ['/lib/shared', '/lib']
++            if 'LD_LIBRARY_PATH' in os.environ:
++                paths = os.environ['LD_LIBRARY_PATH'].split(':') + paths
++
++            for d in paths:
++                f = os.path.join(d, name)
++                if is_elf(f):
++                    return os.path.basename(f)
++
++                prefix = os.path.join(d, 'lib' + name)
++                for suffix in ['.so', '.so.*']:
++                    for f in glob('{0}{1}'.format(prefix, suffix)):
++                        if is_elf(f):
++                            return os.path.basename(f)
+ 
+ ################################################################
+ # test code

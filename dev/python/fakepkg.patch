@@ -1,0 +1,17 @@
+diff --git a/fake-pkg-config b/fake-pkg-config
+new file mode 100755
+index 0000000..e4cb968
+--- /dev/null
++++ b/fake-pkg-config
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++if [ "$1" = "openssl" ]; then
++  if [ "$2" = "--libs" ] || [ "$2" = "--libs-only-l" ]; then
++    echo "-lssl -lcrypto"
++  fi
++elif [ "$1" = "--atleast-pkgconfig-version" ]; then
++  exit 0
++else
++  exit 1
++fi

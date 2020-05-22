@@ -1,0 +1,41 @@
+prepare() {
+  unpack http://www.cpan.org/src/5.0/perl-5.30.2.tar.gz
+  tree 4446890078a9307d8e6102804327e4b1971ce299bd3b47196f5de4ed4bdd3a7c
+}
+
+build() {
+  $SRC/Configure -des -Dusethreads -Dprefix=/PREFIX \
+                 -Dman1dir=/PREFIX/lib/man/man1 \
+                 -Dsiteman1dir=/PREFIX/lib/man/man1 \
+                 -Dman3dir=/PREFIX/lib/man/man3 \
+                 -Dsiteman3dir=/PREFIX/lib/man/man3 \
+                 -Dprivlib=/PREFIX/lib/perl \
+                 -Dsitelib=/PREFIX/lib/perl/site \
+                 -Darchlib=/PREFIX/lib/perl \
+                 -Dsitearch=/PREFIX/lib/perl/site \
+                 -Dpager="/bin/less -isR"
+  sed -e 's:/PREFIX::g' -i Makefile Policy.sh config.{h,sh} makefile{,.old}
+  sed -e "s:^glibpth=.*:glibpth='':" \
+      -e "s:^locincpth=.*:locincpth='':" \
+      -e "s:^loclibpth=.*:loclibpth='':" \
+      -e "s:^sysman=.*:sysman='/lib/man/man1':" \
+      -e "s:^usrinc=.*:usrinc='/lib/include':" \
+      -e "s:^xlibpth=.*:xlibpth='':" \
+      -i config.sh
+
+  BUILD_BZIP2=0 BUILD_ZLIB=0 make install DESTDIR=$DST
+
+  # Eliminate a particularly hideous hack from the installed scripts:
+  find $DST -type f -print0 | while read -d '' -r FILE; do
+    head -c 2 "$FILE" | grep -q '#!' || continue
+    head -n 1 "$FILE" | grep -q '^#![[:blank:]]*/bin/perl' || continue
+    sed -i "2,4 { /^#!/d; /^[[:blank:]]*eval 'exec /!b; N; d }" "$FILE"
+  done
+
+  # Prune the installed files into the perl-base package:
+  set -- "$DST"
+  for PATTERN in $(sed 's/#.*//' $PKG/whitelist); do
+    set -- "$@" -path "$DST/$PATTERN" -prune -or
+  done
+  find "$@" -type f -exec rm {} +
+}

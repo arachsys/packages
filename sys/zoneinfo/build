@@ -1,0 +1,14 @@
+prepare() {
+  unpack https://data.iana.org/time-zones/releases/tzdb-2020a.tar.lz
+  tree 18d79866abeb2592a848b014a0ac6833415b8a9881ec8d9dfd5732ed42f0e8b7
+}
+
+build() {
+  make TZDIR=/lib/zoneinfo
+  LEAPSECONDS=$(if enabled leapseconds; then echo "-L leapseconds"; fi)
+  for TZ in africa antarctica asia australasia etcetera europe \
+            northamerica southamerica; do
+    $SRC/zic -d $DST/lib/zoneinfo $LEAPSECONDS $TZ
+  done
+  $SRC/zic -d $DST/lib/zoneinfo -p America/New_York
+}

@@ -1,0 +1,10 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/gawk/gawk-5.1.0.tar.xz
+  tree 4289098040b76a86b8fb236e923464d9fd5cd341c38c769edc8264665e66431e
+}
+
+post-install() {
+  rm -f $DST/bin/{pgawk,gawk}-*
+}

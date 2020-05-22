@@ -1,0 +1,15 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/bison/bison-3.5.4.tar.xz
+  tree 5c70bf34330048e116022b48e654bb402b70539a1b8df4ae963530d595024043
+}
+
+post-install() {
+  find $DST -name 'README*' -type f -delete
+  cat >$DST/bin/yacc <<'EOF'
+#!/bin/sh
+exec bison -y "$@"
+EOF
+  chmod 0755 $DST/bin/yacc
+}

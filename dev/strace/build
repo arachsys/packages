@@ -1,0 +1,12 @@
+mode autotools
+
+prepare() {
+  unpack https://strace.io/files/5.6/strace-5.6.tar.xz
+  tree fba5a1b17709b3b5a9684722d858ddfad722db9d1a6aba6b7eb66028190020e5
+}
+
+config-extra --disable-mpers
+
+post-install() {
+  rm -f $DST/bin/strace-{graph,log-merge}
+}

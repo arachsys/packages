@@ -1,0 +1,65 @@
+diff --git a/include/sys/types.h b/include/sys/types.h
+index 86821c7..5492e20 100644
+--- a/include/sys/types.h
++++ b/include/sys/types.h
+@@ -22,6 +22,10 @@
+ # define __bounded__(x, y, z)
+ #endif
+ 
++#if !defined(HAVE_ATTRIBUTE__PACKED) && !defined(__packed)
++# define __packed	__attribute__((__packed__))
++#endif
++
+ /*
+  * Define BSD-style unsigned bits types for systems that do not have them.
+  */
+diff --git a/src/ntp.c b/src/ntp.c
+index f7a6ede..6d5f9e0 100644
+--- a/src/ntp.c
++++ b/src/ntp.c
+@@ -42,7 +42,7 @@
+ 
+ volatile sig_atomic_t	 ntp_quit = 0;
+ struct imsgbuf		*ibuf_main;
+-struct imsgbuf		*ibuf_dns;
++static struct imsgbuf	*ibuf_dns;
+ struct ntpd_conf	*conf;
+ struct ctl_conns	 ctl_conns;
+ u_int			 peer_cnt;
+diff --git a/src/ntp_dns.c b/src/ntp_dns.c
+index c194324..b6e844c 100644
+--- a/src/ntp_dns.c
++++ b/src/ntp_dns.c
+@@ -33,7 +33,7 @@
+ #include "ntpd.h"
+ 
+ volatile sig_atomic_t	 quit_dns = 0;
+-struct imsgbuf		*ibuf_dns;
++static struct imsgbuf	*ibuf_dns;
+ 
+ void	sighdlr_dns(int);
+ int	dns_dispatch_imsg(void);
+diff --git a/src/parse.c b/src/parse.c
+index 264e69e..61e854c 100644
+--- a/src/parse.c
++++ b/src/parse.c
+@@ -101,7 +101,6 @@ int		 lgetc(int);
+ int		 lungetc(int);
+ int		 findeol(void);
+ 
+-struct ntpd_conf		*conf;
+ struct sockaddr_in		 query_addr4;
+ struct sockaddr_in6		 query_addr6;
+ 
+diff --git a/src/parse.y b/src/parse.y
+index eb7e9b9..af71b6f 100644
+--- a/src/parse.y
++++ b/src/parse.y
+@@ -57,7 +57,6 @@ int		 lgetc(int);
+ int		 lungetc(int);
+ int		 findeol(void);
+ 
+-struct ntpd_conf		*conf;
+ struct sockaddr_in		 query_addr4;
+ struct sockaddr_in6		 query_addr6;
+ 

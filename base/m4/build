@@ -1,0 +1,7 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/m4/m4-1.4.18.tar.xz
+  apply gnulib.patch
+  tree f1553e9668013d92559496f248f9bcc8308a9267900d717b82c18601e73c2f36
+}

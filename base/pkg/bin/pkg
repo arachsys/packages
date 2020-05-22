@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e -o pipefail
+shopt -s dotglob extglob globstar nullglob
+unset LANG LC_{ALL,COLLATE,CTYPE,MESSAGES,MONETARY,NUMERIC,TIME}
+
+if [[ ! -d ${0%/*}/../lib/pkg ]]; then
+  echo "Failed to identify library path" >&2
+  exit 1
+fi
+
+LIBRARY=$(cd -- "${0%/*}/../lib/pkg" && echo $PWD)
+source "$LIBRARY/shared"
+
+ACTION=$LIBRARY/actions/$1
+if [[ -f $ACTION ]]; then
+  shift && source "$ACTION"
+else
+  warn "$(< $LIBRARY/help)"
+  [[ $1 == ?(help) ]]
+fi

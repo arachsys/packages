@@ -1,0 +1,35 @@
+diff --git a/bzdiff b/bzdiff
+--- a/bzdiff
++++ b/bzdiff
+@@ -12,7 +12,6 @@
+ # necessary) and fed to cmp or diff.  The exit status from cmp
+ # or diff is preserved.
+ 
+-PATH="/usr/bin:/bin:$PATH"; export PATH
+ prog=`echo $0 | sed 's|.*/||'`
+ case "$prog" in
+   *cmp) comp=${CMP-cmp}   ;;
+diff --git a/bzgrep b/bzgrep
+--- a/bzgrep
++++ b/bzgrep
+@@ -6,8 +6,6 @@
+ ## zgrep -- a wrapper around a grep program that decompresses files as needed
+ ## Adapted from a version sent by Charles Levert <charles@comm.polymtl.ca>
+ 
+-PATH="/usr/bin:$PATH"; export PATH
+-
+ prog=`echo $0 | sed 's|.*/||'`
+ case "$prog" in
+ 	*egrep)	grep=${EGREP-egrep}	;;
+diff --git a/bzmore b/bzmore
+--- a/bzmore
++++ b/bzmore
+@@ -3,8 +3,6 @@
+ # Bzmore wrapped for bzip2, 
+ # adapted from zmore by Philippe Troin <phil@fifi.org> for Debian GNU/Linux.
+ 
+-PATH="/usr/bin:$PATH"; export PATH
+-
+ prog=`echo $0 | sed 's|.*/||'`
+ case "$prog" in
+ 	*less)	more=less	;;

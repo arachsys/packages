@@ -1,0 +1,28 @@
+mode autotools
+enable setuid setgid
+
+prepare() {
+  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.35/util-linux-2.35.1.tar.xz
+  apply logger.patch
+  apply paths.patch
+  tree 43d763467e38dedc171340b70cf6ae8f2b11dd757a7633478a7f33a49e0d4df4
+}
+
+config-extra --disable-{chfn-chsh,cramfs,last,lastb,login,lslogins,mesg} \
+  --disable-{minix,newgrp,nologin,rpath,su,utmpdump,vipw,wall} --enable-line \
+  --enable-shared --enable-fs-paths-default=/bin ADJTIME_PATH=/var/lib/adjtime
+
+post-config() {
+  find . -type f -name Makefile | while read FILE; do
+    sed -e 's:^\(usrsbin_execdir *=\).*:\1 /bin:' -i $FILE
+    sed -e 's:^\(usrlib_execdir *=\).*:\1 /lib:' -i $FILE
+    sed -e 's:^\(pkgconfigdir *=\).*:\1 /lib/pkgconfig:' -i $FILE
+  done
+  sed -e 's:/sbin:/bin:g' -i po/*.{gmo,po,pot}
+  sed -e 's:/etc/mtab:/run/mtab:g' -i po/*.{gmo,po,pot}
+  sed -e 's:/etc/adjtime:/var/lib/adjtime:g' -i po/*.{gmo,po,pot}
+}
+
+post-install() {
+  rm -f -r $DST/bin/chkdupexec $DST/lib/{getopt,bash-completion}
+}

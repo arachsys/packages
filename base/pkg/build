@@ -1,0 +1,9 @@
+prepare() { :; }
+
+build() {
+  mkdir -p $DST/{bin,lib}
+  cp -d -R $PKG/bin $DST/
+  cp -d -R $PKG/lib $DST/lib/pkg
+  cp -d -R $PKG/actions $DST/lib/pkg/actions
+  cp -d -R $PKG/modes $DST/lib/pkg/modes
+}

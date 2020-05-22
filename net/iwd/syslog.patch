@@ -1,0 +1,36 @@
+diff --git a/ell/log.c b/ell/log.c
+index e6e6545..46e8091 100644
+--- a/ell/log.c
++++ b/ell/log.c
+@@ -31,6 +31,7 @@
+ #include <stdarg.h>
+ #include <string.h>
+ #include <fnmatch.h>
++#include <syslog.h>
+ #include <sys/socket.h>
+ #include <sys/un.h>
+ 
+@@ -171,6 +172,9 @@ static void log_syslog(int priority, const char *file, const char *line,
+ 	if (str_len < 0)
+ 		return;
+ 
++	if (LOG_FAC(priority) == LOG_KERN)
++		priority = LOG_DAEMON + LOG_PRI(priority);
++
+ 	hdr_len = snprintf(hdr, sizeof(hdr), "<%i>%s[%lu]: ", priority,
+ 					log_ident, (unsigned long) log_pid);
+ 
+diff --git a/src/main.c b/src/main.c
+index b804ff3..4127e5f 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -446,7 +446,8 @@ int main(int argc, char *argv[])
+ 		return EXIT_FAILURE;
+ 	}
+ 
+-	l_log_set_stderr();
++	l_log_set_ident("iwd");
++	l_log_set_syslog();
+ 
+ 	if (check_crypto() < 0)
+ 		return EXIT_FAILURE;

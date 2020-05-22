@@ -1,0 +1,13 @@
+diff --git a/src/login.c b/src/login.c
+index 00508cd..98a81b7 100644
+--- a/src/login.c
++++ b/src/login.c
+@@ -1162,7 +1162,7 @@ int main (int argc, char **argv)
+ #endif				/* WITH_AUDIT */
+ 
+ #ifndef USE_PAM			/* pam_lastlog handles this */
+-	if (   getdef_bool ("LASTLOG_ENAB")
++	if (   (!getdef_str ("LASTLOG_ENAB") || getdef_bool ("LASTLOG_ENAB"))
+ 	    && pwd->pw_uid <= (uid_t) getdef_ulong ("LASTLOG_UID_MAX", 0xFFFFFFFFUL)) {
+ 		/* give last login and log this one */
+ 		dolastlog (&ll, pwd, tty, hostname);

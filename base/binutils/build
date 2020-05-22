@@ -1,0 +1,24 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/binutils/binutils-2.34.tar.xz
+  apply no-toollib.patch
+  apply paths.patch
+  apply pure64.patch
+  tree f5773d718ea0012645c4e26fdf548477da33b18a5a18ef360492658e0ccbd2cd
+}
+
+config-extra --disable-werror --enable-shared \
+  --with-lib-path=/lib:/lib/shared:/lib/static
+compile-extra tooldir='${prefix}'
+install-extra tooldir='${prefix}'
+
+post-config() {
+  # Packaging error in 2.34 unconditionally requires texinfo
+  sed -e '/^MAKEINFO/s/=.*/= true/' -i Makefile
+}
+
+post-install() {
+  install include/libiberty.h $DST/lib/include/
+  rm -f $DST/bin/ld.bfd
+}

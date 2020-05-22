@@ -1,0 +1,49 @@
+diff --git a/src/cmd/gofmt/doc.go b/src/cmd/gofmt/doc.go
+index e340665..5cd3c6d 100644
+--- a/src/cmd/gofmt/doc.go
++++ b/src/cmd/gofmt/doc.go
+@@ -22,6 +22,8 @@ The flags are:
+ 		to standard output.
+ 	-e
+ 		Print all (including spurious) errors.
++	-i width
++		Indent with spaces instead of tabs.
+ 	-l
+ 		Do not print reformatted sources to standard output.
+ 		If a file's formatting is different from gofmt's, print its name
+diff --git a/src/cmd/gofmt/gofmt.go b/src/cmd/gofmt/gofmt.go
+index 9e472b2..c4f84ee 100644
+--- a/src/cmd/gofmt/gofmt.go
++++ b/src/cmd/gofmt/gofmt.go
+@@ -32,17 +32,15 @@ var (
+ 	simplifyAST = flag.Bool("s", false, "simplify code")
+ 	doDiff      = flag.Bool("d", false, "display diffs instead of rewriting files")
+ 	allErrors   = flag.Bool("e", false, "report all errors (not just the first 10 on different lines)")
++	indent      = flag.Int("i", 0, "indent with spaces instead of tabs")
+ 
+ 	// debugging
+ 	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to this file")
+ )
+ 
+-const (
++var (
+ 	tabWidth    = 8
+ 	printerMode = printer.UseSpaces | printer.TabIndent
+-)
+-
+-var (
+ 	fileSet    = token.NewFileSet() // per process FileSet
+ 	exitCode   = 0
+ 	rewrite    func(*ast.File) *ast.File
+@@ -186,6 +184,11 @@ func gofmtMain() {
+ 	flag.Usage = usage
+ 	flag.Parse()
+ 
++	if *indent > 0 {
++		tabWidth = *indent
++		printerMode = printer.UseSpaces
++	}
++
+ 	if *cpuprofile != "" {
+ 		f, err := os.Create(*cpuprofile)
+ 		if err != nil {

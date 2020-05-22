@@ -1,0 +1,42 @@
+diff --git a/libmisc/obscure.c b/libmisc/obscure.c
+index 15da760..b6894b3 100644
+--- a/libmisc/obscure.c
++++ b/libmisc/obscure.c
+@@ -251,6 +251,9 @@ static /*@observer@*//*@null@*/const char *obscure_msg (
+ 	}
+ 
+ 	result = getdef_str ("ENCRYPT_METHOD");
++	if (NULL == result) {
++		result = "BCRYPT";
++	}
+ 	if (NULL == result) {
+ 	/* The traditional crypt() truncates passwords to 8 chars.  It is
+ 	   possible to circumvent the above checks by choosing an easy
+diff --git a/libmisc/salt.c b/libmisc/salt.c
+index e1a7ac8..7f182a9 100644
+--- a/libmisc/salt.c
++++ b/libmisc/salt.c
+@@ -321,6 +321,9 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
+ 		method = meth;
+ 	else {
+ 		method = getdef_str ("ENCRYPT_METHOD");
++		if (NULL == method) {
++			method = "BCRYPT";
++		}
+ 		if (NULL == method) {
+ 			method = getdef_bool ("MD5_CRYPT_ENAB") ? "MD5" : "DES";
+ 		}
+diff --git a/src/passwd.c b/src/passwd.c
+index 13619b1..37c4d8f 100644
+--- a/src/passwd.c
++++ b/src/passwd.c
+@@ -270,6 +270,9 @@ static int new_password (const struct passwd *pw)
+ 	 * for initial login passwords.
+ 	 */
+ 	method = getdef_str ("ENCRYPT_METHOD");
++	if (NULL == method) {
++		method = "BCRYPT";
++	}
+ 	if (NULL == method) {
+ 		if (!getdef_bool ("MD5_CRYPT_ENAB")) {
+ 			pass_max_len = getdef_num ("PASS_MAX_LEN", 8);

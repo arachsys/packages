@@ -1,0 +1,65 @@
+diff --git a/lib/nscd.c b/lib/nscd.c
+index 7adb58f..46382d2 100644
+--- a/lib/nscd.c
++++ b/lib/nscd.c
+@@ -19,7 +19,7 @@
+ int nscd_flush_cache (const char *service)
+ {
+ 	int status, code;
+-	const char *cmd = "/usr/sbin/nscd";
++	const char *cmd = "/bin/nscd";
+ 	const char *spawnedArgs[] = {"nscd", "-i", service, NULL};
+ 	const char *spawnedEnv[] = {NULL};
+ 
+diff --git a/libmisc/setupenv.c b/libmisc/setupenv.c
+index 666b1c7..f4b1fe9 100644
+--- a/libmisc/setupenv.c
++++ b/libmisc/setupenv.c
+@@ -265,7 +265,7 @@ void setup_env (struct passwd *info)
+ 
+ 	if (NULL == cp) {
+ 		/* not specified, use a minimal default */
+-		addenv ((info->pw_uid == 0) ? "PATH=/sbin:/bin:/usr/sbin:/usr/bin" : "PATH=/bin:/usr/bin", NULL);
++		addenv ("PATH=/bin", NULL);
+ 	} else if (strchr (cp, '=')) {
+ 		/* specified as name=value (PATH=...) */
+ 		addenv (cp, NULL);
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 88cae99..6e0bc92 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -3,7 +3,7 @@ EXTRA_DIST = \
+ 	.indent.pro
+ 
+ ubindir = ${prefix}/bin
+-usbindir = ${prefix}/sbin
++usbindir = ${prefix}/bin
+ suidperms = 4755
+ sgidperms = 2755
+ 
+diff --git a/src/Makefile.in b/src/Makefile.in
+index 3b5387b..805b67d 100644
+--- a/src/Makefile.in
++++ b/src/Makefile.in
+@@ -415,7 +415,7 @@ EXTRA_DIST = \
+ 	.indent.pro
+ 
+ ubindir = ${prefix}/bin
+-usbindir = ${prefix}/sbin
++usbindir = ${prefix}/bin
+ suidperms = 4755
+ sgidperms = 2755
+ INCLUDES = \
+diff --git a/src/su.c b/src/su.c
+index d604faa..101103e 100644
+--- a/src/su.c
++++ b/src/su.c
+@@ -881,7 +881,7 @@ static void set_environment (struct passwd *pw)
+ 
+ 	cp = getdef_str ((pw->pw_uid == 0) ? "ENV_SUPATH" : "ENV_PATH");
+ 	if (NULL == cp) {
+-		addenv ((pw->pw_uid == 0) ? "PATH=/sbin:/bin:/usr/sbin:/usr/bin" : "PATH=/bin:/usr/bin", NULL);
++		addenv ("PATH=/bin", NULL);
+ 	} else if (strchr (cp, '=') != NULL) {
+ 		addenv (cp, NULL);
+ 	} else {

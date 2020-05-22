@@ -1,0 +1,16 @@
+mode autotools
+
+prepare() {
+  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-27.tar.xz
+  tree c130d955cad65538a5e4b1c377495f369a7ad22ee7999aa1dcf2e07feda9fea7
+}
+
+config-extra --with-{xz,zlib} liblzma_CFLAGS=-I/lib/include \
+  liblzma_LIBS=-llzma zlib_CFLAGS=-I/lib/include zlib_LIBS=-lz
+
+post-install() {
+  for NAME in depmod insmod lsmod modinfo modprobe rmmod; do
+    ln $DST/bin/kmod $DST/bin/$NAME
+  done
+  rm -f -r $DST/lib/{bash-completion,include,libkmod.*}
+}

@@ -1,0 +1,10 @@
+mode autotools
+
+prepare() {
+  unpack https://download.samba.org/pub/rsync/rsync-3.1.3.tar.gz
+  apply mkproto.patch
+  apply paths.patch
+  tree ea0df6677e4dd2ad5eaba607d9ad388293050ac873a2f68684090b17e91b92f1
+}
+
+config-extra --with-included-popt

@@ -1,0 +1,86 @@
+diff --git a/include/paths.h b/include/paths.h
+index 67de6b3..760ba6b 100644
+--- a/include/paths.h
++++ b/include/paths.h
+@@ -1,8 +1,8 @@
+ #ifndef _PATHS_H
+ #define _PATHS_H
+ 
+-#define	_PATH_DEFPATH "/usr/local/bin:/bin:/usr/bin"
+-#define	_PATH_STDPATH "/bin:/usr/bin:/sbin:/usr/sbin"
++#define	_PATH_DEFPATH "/bin"
++#define	_PATH_STDPATH "/bin"
+ 
+ #define	_PATH_BSHELL	"/bin/sh"
+ #define	_PATH_CONSOLE	"/dev/console"
+@@ -10,22 +10,22 @@
+ #define	_PATH_KLOG	"/proc/kmsg"
+ #define	_PATH_LASTLOG	"/var/log/lastlog"
+ #define	_PATH_MAILDIR	"/var/mail"
+-#define	_PATH_MAN	"/usr/share/man"
++#define	_PATH_MAN	"/lib/man"
+ #define	_PATH_MNTTAB	"/etc/fstab"
+-#define	_PATH_MOUNTED	"/etc/mtab"
+-#define	_PATH_NOLOGIN	"/etc/nologin"
+-#define	_PATH_SENDMAIL	"/usr/sbin/sendmail"
++#define	_PATH_MOUNTED	"/run/mtab"
++#define	_PATH_NOLOGIN	"/run/nologin"
++#define	_PATH_SENDMAIL	"/bin/sendmail"
+ #define	_PATH_SHADOW	"/etc/shadow"
+ #define	_PATH_SHELLS	"/etc/shells"
+ #define	_PATH_TTY	"/dev/tty"
+-#define _PATH_UTMP	"/dev/null/utmp"
+-#define	_PATH_VI	"/usr/bin/vi"
+-#define _PATH_WTMP	"/dev/null/wtmp"
++#define _PATH_UTMP	"/dev/null"
++#define	_PATH_VI	"/bin/vi"
++#define _PATH_WTMP	"/dev/null"
+ 
+ #define	_PATH_DEV	"/dev/"
+ #define	_PATH_TMP	"/tmp/"
+-#define	_PATH_VARDB	"/var/lib/misc/"
+-#define	_PATH_VARRUN	"/var/run/"
++#define	_PATH_VARDB	"/var/lib/"
++#define	_PATH_VARRUN	"/run/"
+ #define	_PATH_VARTMP	"/var/tmp/"
+ 
+ #endif
+diff --git a/ldso/dynlink.c b/ldso/dynlink.c
+index fa1ad04..5e92b90 100644
+--- a/ldso/dynlink.c
++++ b/ldso/dynlink.c
+@@ -1074,7 +1074,7 @@ static struct dso *load_library(const char *name, struct dso *needed_by)
+ 					sys_path = "";
+ 				}
+ 			}
+-			if (!sys_path) sys_path = "/lib:/usr/local/lib:/usr/lib";
++			if (!sys_path) sys_path = "/lib/shared";
+ 			fd = path_open(name, sys_path, buf, sizeof buf);
+ 		}
+ 		pathname = buf;
+diff --git a/src/mman/shm_open.c b/src/mman/shm_open.c
+index 79784bd..ea9e9ee 100644
+--- a/src/mman/shm_open.c
++++ b/src/mman/shm_open.c
+@@ -19,7 +19,7 @@ char *__shm_mapname(const char *name, char *buf)
+ 		errno = ENAMETOOLONG;
+ 		return 0;
+ 	}
+-	memcpy(buf, "/dev/shm/", 9);
++	memcpy(buf, "/run/shm/", 9);
+ 	memcpy(buf+9, name, p-name+1);
+ 	return buf;
+ }
+diff --git a/src/thread/sem_open.c b/src/thread/sem_open.c
+index de8555c..966b25f 100644
+--- a/src/thread/sem_open.c
++++ b/src/thread/sem_open.c
+@@ -108,7 +108,7 @@ sem_t *sem_open(const char *name, int flags, ...)
+ 		/* Create a temp file with the new semaphore contents
+ 		 * and attempt to atomically link it as the new name */
+ 		clock_gettime(CLOCK_REALTIME, &ts);
+-		snprintf(tmp, sizeof(tmp), "/dev/shm/tmp-%d", (int)ts.tv_nsec);
++		snprintf(tmp, sizeof(tmp), "/run/shm/tmp-%d", (int)ts.tv_nsec);
+ 		fd = open(tmp, O_CREAT|O_EXCL|FLAGS, mode);
+ 		if (fd < 0) {
+ 			if (errno == EEXIST) continue;

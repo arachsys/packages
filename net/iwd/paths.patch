@@ -1,0 +1,130 @@
+diff --git a/configure b/configure
+index c515838..cdcab2b 100755
+--- a/configure
++++ b/configure
+@@ -12894,7 +12894,7 @@ _ACEOF
+ 
+ 
+ cat >>confdefs.h <<_ACEOF
+-#define DAEMON_CONFIGDIR "/etc/iwd"
++#define DAEMON_CONFIGDIR "/etc"
+ _ACEOF
+ 
+ 
+diff --git a/configure.ac b/configure.ac
+index e93d369..2486bce 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -121,7 +121,7 @@ AC_SUBST([wired_storagedir], [${wired_storagedir}])
+ 
+ AC_DEFINE_UNQUOTED(DAEMON_STORAGEDIR, "${daemon_storagedir}",
+ 			[Directory for Wireless daemon storage files])
+-AC_DEFINE_UNQUOTED(DAEMON_CONFIGDIR, "/etc/iwd",
++AC_DEFINE_UNQUOTED(DAEMON_CONFIGDIR, "/etc",
+ 			[Directory for Wireless daemon configuration])
+ 
+ AC_DEFINE_UNQUOTED(WIRED_STORAGEDIR, "${wired_storagedir}",
+diff --git a/ell/hwdb.c b/ell/hwdb.c
+index 65276a6..e287046 100644
+--- a/ell/hwdb.c
++++ b/ell/hwdb.c
+@@ -163,9 +163,7 @@ LIB_EXPORT struct l_hwdb *l_hwdb_new_default(void)
+ {
+ 	struct l_hwdb *db = NULL;
+ 	size_t i;
+-	const char * const paths[] = {"/etc/udev/hwdb.bin",
+-					"/usr/lib/udev/hwdb.bin",
+-					"/lib/udev/hwdb.bin"};
++	const char * const paths[] = {"/etc/hwdb.bin", "/lib/hwdb.bin"};
+ 
+ 	for (i = 0; !db && i < L_ARRAY_SIZE(paths); i++)
+ 		db = l_hwdb_new(paths[i]);
+diff --git a/src/iwd.config.5 b/src/iwd.config.5
+index 5ea7843..909b87c 100644
+--- a/src/iwd.config.5
++++ b/src/iwd.config.5
+@@ -32,15 +32,15 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+ ..
+ .SH SYNOPSIS
+ .sp
+-Configuration file \fBmain.conf\fP
++Configuration file \fBiwd.conf\fP
+ .SH DESCRIPTION
+ .sp
+-The \fImain.conf\fP configuration file configures the system\-wide settings for
++The \fIiwd.conf\fP configuration file configures the system\-wide settings for
+ \fBiwd\fP\&.  This file lives in the configuration directory specified by the
+ environment variable \fI$CONFIGURATION_DIRECTORY\fP, which is normally provided
+ by \fBsystemd\fP\&.  In the absence of such an environment variable it defaults
+-to \fI/etc/iwd\fP\&.  If no \fImain.conf\fP is present, then default values are
+-chosen.  The presence of \fImain.conf\fP is not required.
++to \fI/etc\fP\&.  If no \fIiwd.conf\fP is present, then default values are
++chosen.  The presence of \fIiwd.conf\fP is not required.
+ .SH FILE FORMAT
+ .sp
+ See \fIiwd.network\fP for details on the file format.
+diff --git a/src/iwd.config.rst b/src/iwd.config.rst
+index 9677409..9041cce 100644
+--- a/src/iwd.config.rst
++++ b/src/iwd.config.rst
+@@ -20,17 +20,17 @@ Configuration file for wireless daemon
+ SYNOPSIS
+ ========
+ 
+-Configuration file **main.conf**
++Configuration file **iwd.conf**
+ 
+ DESCRIPTION
+ ===========
+ 
+-The *main.conf* configuration file configures the system-wide settings for
++The *iwd.conf* configuration file configures the system-wide settings for
+ **iwd**.  This file lives in the configuration directory specified by the
+ environment variable *$CONFIGURATION_DIRECTORY*, which is normally provided
+ by **systemd**.  In the absence of such an environment variable it defaults
+-to */etc/iwd*.  If no *main.conf* is present, then default values are
+-chosen.  The presence of *main.conf* is not required.
++to */etc*.  If no *iwd.conf* is present, then default values are
++chosen.  The presence of *iwd.conf* is not required.
+ 
+ FILE FORMAT
+ ===========
+diff --git a/src/iwd.rst b/src/iwd.rst
+index c719fbc..ef8d2b4 100644
+--- a/src/iwd.rst
++++ b/src/iwd.rst
+@@ -48,7 +48,7 @@ ENVIRONMENT
+ for details.
+ 
+ *$CONFIGURATION_DIRECTORY* is used for daemon configuration settings.  Only
+-the file **main.conf** is currently read from this directory.  See *iwd.config*
++the file **iwd.conf** is currently read from this directory.  See *iwd.config*
+ for details.
+ 
+ See *iwd.debug* for further environment variables for debugging.
+diff --git a/src/main.c b/src/main.c
+index ddafbac..b804ff3 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
+ 
+ 	for (i = 0; config_dirs[i]; i++) {
+ 		L_AUTO_FREE_VAR(char *, path) =
+-			l_strdup_printf("%s/%s", config_dirs[i], "main.conf");
++			l_strdup_printf("%s/%s", config_dirs[i], "iwd.conf");
+ 
+ 		if (!l_settings_load_from_file(iwd_config, path))
+ 			continue;
+diff --git a/src/resolve.c b/src/resolve.c
+index ae159fc..f98b45b 100644
+--- a/src/resolve.c
++++ b/src/resolve.c
+@@ -377,7 +377,7 @@ static void resolve_resolvconf_remove(uint32_t ifindex, void *data)
+ 
+ static void *resolve_resolvconf_init(void)
+ {
+-	static const char *default_path = "/sbin:/usr/sbin";
++	static const char *default_path = "/bin";
+ 	bool *ready;
+ 	const char *path;
+ 

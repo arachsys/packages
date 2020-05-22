@@ -1,0 +1,13 @@
+diff --git a/rsync.h b/rsync.h
+index f66d149..f946a9e 100644
+--- a/rsync.h
++++ b/rsync.h
+@@ -29,7 +29,7 @@
+ /* RSYNCD_SYSCONF is now set in config.h */
+ #define RSYNCD_USERCONF "rsyncd.conf"
+ 
+-#define DEFAULT_LOCK_FILE "/var/run/rsyncd.lock"
++#define DEFAULT_LOCK_FILE "/run/lock/rsyncd"
+ #define URL_PREFIX "rsync://"
+ 
+ #define SYMLINK_PREFIX "/rsyncd-munged/"  /* This MUST have a trailing slash! */

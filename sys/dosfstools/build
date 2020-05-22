@@ -1,0 +1,13 @@
+mode autotools
+
+prepare() {
+  unpack https://github.com/dosfstools/dosfstools/releases/download/v4.1/dosfstools-4.1.tar.xz
+  tree e39a46b081fde8bd74b2c8c0d12f5ac31fd01b1b8f6248ac1313a623dd1a81fd
+}
+
+post-install() {
+  ln -s fsck.fat $DST/bin/fsck.msdos
+  ln -s fsck.fat $DST/bin/fsck.vfat
+  ln -s mkfs.fat $DST/bin/mkfs.msdos
+  ln -s mkfs.fat $DST/bin/mkfs.vfat
+}

@@ -1,0 +1,22 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/ncurses/ncurses-6.2.tar.gz
+  sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src
+  tree 156fbdfe8acc7e61faf6514a5486794c7116ad27eecf55f392f02af61af0270c
+}
+
+config-extra --disable-{rpath-hack,termcap} --enable-{const,widec} \
+  --without-{ada,debug,tests} --with-shared
+
+post-install() {
+  for LIB in ncurses form panel menu; do
+    echo "INPUT(-l${LIB}w)" >$DST/lib/lib${LIB}.so
+    ln -f -s lib${LIB}w.a $DST/lib/lib${LIB}.a
+  done
+  echo "INPUT(-lncursesw)" >$DST/lib/libcurses.so
+  echo "INPUT(-lncursesw)" >$DST/lib/libcursesw.so
+  ln -f -s libncurses++w.a $DST/lib/libncurses++.a
+  ln -f -s libncursesw.a $DST/lib/libcurses.a
+  rm -f $DST/bin/ncurses*-config
+}

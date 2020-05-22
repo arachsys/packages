@@ -1,0 +1,16 @@
+enable setuid
+
+prepare() {
+  unpack iputils-s20190709.tar.gz \
+    https://github.com/iputils/iputils/archive/s20190709.tar.gz
+  tree 1f98b2b142cf642c89488f0807957839564dc7eb86cd27bdab4ef86720d58e88
+}
+
+build() {
+  echo '#define PACKAGE_NAME "iputils"' >config.h
+  sed 's/@VCS_TAG@/s20190709/' git-version.h.meson >>config.h
+  gcc -Os -Wall -D_GNU_SOURCE -include config.h iputils_common.c \
+    ping_common.c ping6_common.c ping.c -lm -lresolv -o ping
+  mkdir -p $DST/bin
+  install -m 4755 -o root -g root -s ping $DST/bin
+}

@@ -1,0 +1,6 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/sed/sed-4.8.tar.xz
+  tree 103dfc5b835e7c50033673bafac8b994e18c2fcb0f2c46ca50c8d1819e91c4c2
+}

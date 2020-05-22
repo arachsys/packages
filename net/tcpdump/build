@@ -1,0 +1,11 @@
+mode autotools
+require libpcap
+
+prepare() {
+  unpack https://www.tcpdump.org/release/tcpdump-4.9.3.tar.gz
+  tree 7fbcde281cc0614532a9061332e79aa60c12bb42919e76e21fd353afb10e9398
+}
+
+post-install() {
+  rm -f $DST/bin/tcpdump.*
+}

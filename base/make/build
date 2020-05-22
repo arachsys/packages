@@ -1,0 +1,7 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/make/make-4.3.tar.gz
+  apply paths.patch
+  tree a5666e9dfbdc1e7cbf638921a419c3538f57f2c805832b985dc8ad60be75683f
+}

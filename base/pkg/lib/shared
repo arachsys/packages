@@ -1,0 +1,303 @@
+declare -A FEATURES=()
+
+apply() {
+  local DIR OPTARG OPTIND OPTION STRIP=1
+
+  while getopts :d:p: OPTION; do
+    case $OPTION in
+      d)
+        if ! mkdir -p -- "$OPTARG" 2>/dev/null; then
+          die "Failed to create directory $OPTARG"
+        fi
+        DIR=$OPTARG
+        ;;
+      p)
+        if [[ $OPTARG != @(0|[1-9]*([0-9])) ]]; then
+          die "Invalid prefix length to strip"
+        fi
+        STRIP=$OPTARG
+        ;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [[ $# -eq 1 ]] && [[ -f $PKG/$1 ]]; then
+    set -- "$PKG/$1"
+  fi
+
+  if ! fetch "$@" | bsdcat | patch -d "${DIR:-.}" -p $STRIP -s -t -N \
+                               --merge --no-backup-if-mismatch; then
+    die "Failed to apply ${1##*/}"
+  fi
+}
+
+build() {
+  die "Package neither declares mode nor defines build()"
+}
+
+die() {
+  if [[ $# -gt 0 ]]; then
+    echo "$*" >&2
+  fi
+  exit 1
+}
+
+disable() {
+  while [[ $# -gt 0 ]]; do
+    unset "FEATURES[$1]"
+    shift
+  done
+}
+
+enable() {
+  while [[ $# -gt 0 ]]; do
+    if [[ $1 == *=* ]]; then
+      if [[ ${FEATURES[${1%%=*}]} != ?(${1#*=}) ]]; then
+        die "Conflicting type requirements for feature ${1%%=*}"
+      fi
+      FEATURES[${1%%=*}]=${1#*=}
+    elif [[ -z ${FEATURES[$1]+defined} ]]; then
+      FEATURES[$1]=
+    fi
+    shift
+  done
+}
+
+enabled() {
+  while [[ $# -gt 0 ]]; do
+    if [[ -z ${FEATURES[${1%%=*}]+defined} ]]; then
+      return 1
+    elif [[ $1 == *=* ]] && [[ ${FEATURES[${1%%=*}]} != ${1#*=} ]]; then
+      return 1
+    fi
+    shift
+  done
+}
+
+feature() {
+  if [[ -z ${FEATURES[$1]+defined} ]]; then
+    return 1
+  elif [[ -n ${FEATURES[$1]} ]]; then
+    echo "${FEATURES[$1]}"
+  fi
+}
+
+fetch() {
+  if [[ $# -lt 2 ]]; then
+    set -- "${1##*/}" "$1"
+  fi
+
+  if [[ -f $2 ]]; then
+    cat "$2"
+  elif [[ $2 == /* ]]; then
+    die "$1 not found"
+  elif [[ -d $CACHEDIR && -n $1 ]]; then
+    if [[ ! -f $CACHEDIR/$1 ]]; then
+      echo "Downloading $1 from $2:" >&2
+      if ! curl -f -o "$CACHEDIR/$1.part" -C - -L -# "$2"; then
+        die "Failed to fetch $2"
+      fi
+      mv "$CACHEDIR/$1.part" "$CACHEDIR/$1"
+    fi
+    cat "$CACHEDIR/$1"
+  elif ! curl -f -L -# "$2"; then
+    die "Failed to fetch $2"
+  fi
+}
+
+hashtree() {
+  set -- . -mindepth 1 "$@"
+  local ARG; for (( ARG = 4; ARG <= $#; ARG += 4)); do
+    set -- "${@:1:ARG - 1}" -path "./${!ARG}" -prune -or "${@:ARG + 1}"
+  done
+
+  find "$@" -type d -or -type l -or -type f -not -perm /ug+s -or \
+    -printf "Illegal node $PWD/%P\\n" -exec false {} + >&2
+
+  if find "$@" -type l -exec realpath -m -z --relative-to="$1" {} + \
+       | grep -q -z '^\.\./'; then
+    die "Illegal symlink $PWD/%P"
+  fi
+
+  { find "$@" -type d -printf "%P\0" | LC_ALL=C sort -z
+    printf '\0'
+    find "$@" -type l -printf "%P\0%l\0" | LC_ALL=C sort -z
+    printf '\0'
+    find "$@" -type f -executable -printf "%P\0" | LC_ALL=C sort -z \
+      | xargs -0 b2sum -l 256 -z | cut -b 1-65,67- -z
+    printf '\0'
+    find "$@" -type f -not -executable -printf "%P\0" | LC_ALL=C sort -z \
+      | xargs -0 b2sum -l 256 -z | cut -b 1-65,67- -z
+    printf '\0'
+  } | b2sum -l 256 | cut -b 1-64
+}
+
+maybe() {
+  [[ ${@:$#} == "--" ]] || "$@"
+}
+
+mode() {
+  if [[ -f $LIBRARY/modes/$1 ]]; then
+    source "$LIBRARY/modes/$1"
+  else
+    die "Unrecognised build mode: $1"
+  fi
+}
+
+prepare() {
+  die "Package does not define prepare()"
+}
+
+require() { :; }
+
+setup() {
+  set -o allexport
+  unset CFLAGS LDFLAGS
+  CHOST=$(gcc -dumpmachine)
+  MAKEFLAGS=-j$((1 + $(nproc)))
+  CACHEDIR=${CACHEDIR:-$HOME/cache}
+  IMGDIR=${IMGDIR:-$HOME/img}
+  PKGDIR=${PKGDIR:-$HOME/pkg}
+  set +o allexport
+
+  if [[ $1 == ?(.|..)/* ]]; then
+    if [[ -f $1/build ]]; then
+      PKG=$1
+    else
+      die "Package $1 not found"
+    fi
+  elif [[ $1 == ?(-) ]]; then
+    PKG=-
+  else
+    PKG=("$PKGDIR"/**/"$1/build")
+    if [[ ${#PKG[@]} -lt 1 ]]; then
+      die "Package $1 not found"
+    elif [[ ${#PKG[@]} -gt 1 ]]; then
+      die "Ambiguous package $1 found in ${PKG[*]}"
+    else
+      PKG=${PKG%/build}
+    fi
+  fi
+
+  while shift && [[ $# -gt 0 ]]; do
+    if [[ $1 == no-* ]]; then
+      disable "${1#no-}"
+    else
+      enable "$1"
+    fi
+  done
+}
+
+tidy() {
+  rm -f -r etc run var lib/pkgconfig
+  if ! enabled docs; then
+    rm -f -r lib/{doc,info,man}
+  fi
+
+  find . -type d -exec chown -f 0:0 {} + -exec chmod -f u=rwx,go=rx {} +
+  find . -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
+    -exec chmod -f u=rwX,go=rX {} +
+
+  if [[ -d lib ]]; then
+    find lib -name '*.la' -type f -delete
+    find lib -type f \( -name '*.so' -or -name '*.so.*' \) \
+      -exec chmod -f u=rw,go=r {} +
+  fi
+
+  mkdir -p lib/{shared,static}
+  maybe mv -t lib/static -- lib{,/shared}/*.[ao]
+  maybe mv -t lib/shared -- lib{,/static}/!(ld*).so?(.*)
+  maybe chmod -f a+x -- lib/ld*.so?(.*)
+
+  { find . -type f -print0 | while read -d '' -r FILE; do
+      if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
+        # ELF executable or shared object
+        if ! enabled rpaths && readelf -d "$FILE" | grep -q ' (RPATH) '; then
+          echo "$FILE has been incorrectly compiled with an RPATH"
+        fi
+        if ! enabled unstripped; then
+          strip --strip-unneeded "$FILE"
+        fi
+      elif [[ $(hexdump -e '/1 "%02x"' -n 2 -v "$FILE") == 2321 ]]; then
+        # Script with '#!' magic
+        sed -e '1s:^#! *//*:#!/:' \
+            -e '1s:^#!/usr/local/:#!/:' \
+            -e '1s:^#!/usr/:#!/:' \
+            -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
+            -i "$FILE"
+      else
+        chmod u=rw,go=r "$FILE"
+      fi
+
+      if [[ -u $FILE ]] && ! enabled setuid; then
+        echo "$FILE has been installed setuid"
+      elif [[ -g $FILE ]] && ! enabled setgid; then
+        echo "$FILE has been installed setgid"
+      fi
+    done
+
+    find . -lname '/*' -printf '%P is an absolute symlink\n' \
+      -or -xtype l -printf '%P is a dangling symlink\n' \
+      -or -not -xtype d -not -xtype f -printf '%P is a special file\n'
+
+    find . -mindepth 1 -type d \( -path ./lib -prune -or -path ./bin \) \
+      -or -path './bin/*' -xtype f -executable \
+      -or -printf 'Invalid content: %M %n %P\n'
+  } | [[ -z $(tee /dev/stderr) ]]
+
+  find . -depth -type d -empty -delete -or -exec touch -r . {} +
+}
+
+tree() {
+  hashtree "${@:2}" | while read HASH; do
+    if [[ $# -eq 0 ]]; then
+      caller | while read LINE FILE; do
+        sed -e "$LINE s/^\\([[:blank:]]*tree\\)[[:blank:]]*\$/\\1 $HASH/" \
+            -i "$FILE"
+        warn "Updated source tree hash at $FILE:$LINE"
+      done
+    elif [[ $1 != $HASH ]]; then
+      caller | while read LINE FILE; do
+        die "Source tree hash mismatch at $FILE:$LINE"
+      done
+    fi
+  done
+}
+
+unpack() {
+  local DIR OPTARG OPTIND OPTION STRIP=1
+  while getopts :d:p: OPTION; do
+    case $OPTION in
+      d)
+        if ! mkdir -p -- "$OPTARG" 2>/dev/null; then
+          die "Failed to create directory $OPTARG"
+        fi
+        DIR=$OPTARG
+        ;;
+      p)
+        if [[ $OPTARG != @(0|[1-9]*([0-9])) ]]; then
+          die "Invalid prefix length to strip"
+        fi
+        STRIP=$OPTARG
+        ;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [[ $# -eq 1 ]] && [[ -f $PKG/$1 ]]; then
+    set -- "$PKG/$1"
+  fi
+
+  if fetch "$@" | tar -x -f - -C "${DIR:-.}" --no-same-owner \
+                    --no-same-permissions --strip-components=$STRIP; then
+    chmod -R u=rwX,go=rX "${DIR:-.}"
+  else
+    die "Failed to unpack ${1##*/}"
+  fi
+}
+
+warn() {
+  if [[ $# -gt 0 ]]; then
+    echo "$*" >&2
+  fi
+}

@@ -1,0 +1,18 @@
+prepare() {
+  unpack https://curl.haxx.se/download/curl-7.70.0.tar.xz
+  apply paths.patch
+  tree a5e79f38a2ee2f04db53bb26f71895256d4bb43ffb6c0b5a88f6b1ff9ce2a2e2
+}
+
+mode autotools
+config-extra --with-ca-bundle=/etc/ssl/cert.pem
+
+pre-config() {
+  unexpand $SRC/curl-config.in >$SRC/curl-config.in.tmp
+  mv -f $SRC/curl-config.in{.tmp,}
+  export PATH_SEPARATOR=:
+}
+
+post-install() {
+  rm -f $DST/bin/curl-config
+}

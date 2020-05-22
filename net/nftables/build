@@ -1,0 +1,34 @@
+mode autotools
+require bison
+require flex
+
+prepare() {
+  local NFP=https://www.netfilter.org/projects
+  unpack $NFP/nftables/files/nftables-0.9.4.tar.bz2
+  unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.4.tar.bz2
+  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.1.6.tar.bz2
+  tree 02ef836480acc161a0d15b59478dac29b9be793a316e8b322452151f84143185
+}
+
+pre-config() {
+  cd libmnl
+  $PWD/configure --prefix=$SRC/libs --disable-shared
+  make install
+  cd $SRC
+
+  cd libnftnl
+  $PWD/configure --prefix=$SRC/libs --disable-shared \
+    LIBMNL_CFLAGS=-I$SRC/libs/include LIBMNL_LIBS="-L$SRC/libs/lib -lmnl"
+  make install
+  cd $SRC
+}
+
+config-extra --disable-{debug,man-doc,python,shared} --with-mini-gmp
+config-extra LIBMNL_CFLAGS=-I$SRC/libs/include
+config-extra LIBMNL_LIBS="-L$SRC/libs/lib -lmnl"
+config-extra LIBNFTNL_CFLAGS=-I$SRC/libs/include
+config-extra LIBNFTNL_LIBS="-L$SRC/libs/lib -lnftnl"
+
+post-install() {
+  rm -f -r $DST/lib/{include,lib*.a,lib*.la}
+}

@@ -1,0 +1,24 @@
+diff --git a/Modules/getpath.c b/Modules/getpath.c
+index b727f66..56b067e 100644
+--- a/Modules/getpath.c
++++ b/Modules/getpath.c
+@@ -161,10 +161,16 @@ static void
+ reduce(wchar_t *dir)
+ {
+     size_t i = wcslen(dir);
+-    while (i > 0 && dir[i] != SEP) {
+-        --i;
++    if (i > 1) {
++        while (i > 0 && dir[--i] != SEP);
++        if (i == 0 && dir[0] == SEP)
++            dir[1] = '\0';
++        else
++            dir[i] = '\0';
++    }
++    else if (i == 1) {
++      dir[0] = '\0';
+     }
+-    dir[i] = '\0';
+ }
+ 
+ 

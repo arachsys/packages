@@ -1,0 +1,156 @@
+declare -A -g CONFIGARGS=()
+declare -A -g DEFAULTARGS=(
+  [--build]="--build=$CHOST"
+  [--host]="--host=$CHOST"
+  [--prefix]='--prefix='
+  [--bindir]='--bindir=${prefix}/bin'
+  [--datadir]='--datadir=${prefix}/lib'
+  [--datarootdir]='--datarootdir=${prefix}/lib'
+  [--docdir]='--docdir=${prefix}/lib/doc'
+  [--includedir]='--includedir=${prefix}/lib/include'
+  [--infodir]='--infodir=${prefix}/lib/info'
+  [--libdir]='--libdir=${prefix}/lib'
+  [--libexecdir]='--libexecdir=${prefix}/lib'
+  [--localedir]='--localedir=${prefix}/lib/locale'
+  [--localstatedir]='--localstatedir=/var'
+  [--mandir]='--mandir=${prefix}/lib/man'
+  [--runstatedir]='--runstatedir=/run'
+  [--sbindir]='--sbindir=${prefix}/bin'
+  [--sharedstatedir]='--sharedstatedir=/var'
+  [--sysconfdir]='--sysconfdir=/etc'
+)
+declare -A -g COMPILEARGS=()
+declare -A -g INSTALLARGS=( [install]='install' [DESTDIR]="DESTDIR=$DST" )
+
+if NLS=$(feature nls); then
+  if [[ $NLS == ?(all) ]]; then
+    CONFIGARGS[--enable-nls]='--enable-nls'
+  else
+    CONFIGARGS[--enable-nls]="--enable-nls=$NLS"
+  fi
+else
+  CONFIGARGS[--disable-nls]='--disable-nls'
+fi
+
+config-extra() {
+  while [[ $# -gt 0 ]]; do
+    if [[ $1 == --@(dis|en)able-* ]]; then
+      config-remove "${1/#--en/--dis}" "${1/#--dis/--en}"
+    elif [[ $1 == --with?(out)-* ]]; then
+      config-remove "${1/#--without/--with}" "${1/#--with-/--without-}"
+    else
+      config-remove "$1"
+    fi
+    CONFIGARGS[${1%%=*}]=$1
+    shift
+  done
+}
+
+config-remove() {
+  while [[ $# -gt 0 ]]; do
+    unset "CONFIGARGS[${1%%=*}]"
+    unset "DEFAULTARGS[${1%%=*}]"
+    shift
+  done
+}
+
+config-reset() {
+  CONFIGARGS=()
+  DEFAULTARGS=()
+  config-extra "$@"
+}
+
+compile-extra() {
+  while [[ $# -gt 0 ]]; do
+    COMPILEARGS[${1%%=*}]=$1
+    shift
+  done
+}
+
+compile-remove() {
+  while [[ $# -gt 0 ]]; do
+    unset "COMPILEARGS[${1%%=*}]"
+    shift
+  done
+}
+
+compile-reset() {
+  COMPILEARGS=()
+  compile-extra "$@"
+}
+
+install-extra() {
+  while [[ $# -gt 0 ]]; do
+    INSTALLARGS[${1%%=*}]=$1
+    shift
+  done
+}
+
+install-remove() {
+  while [[ $# -gt 0 ]]; do
+    unset "INSTALLARGS[${1%%=*}]"
+    shift
+  done
+}
+
+install-reset() {
+  INSTALLARGS=()
+  install-extra "$@"
+}
+
+filter-defaults() {
+  local ARG HELP
+
+  if HELP=$("$SRC/configure" --help 2>&1); then
+    for ARG in "${!DEFAULTARGS[@]}"; do
+      if [[ $HELP == *[[:space:],]$ARG?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --disable-* ]]; then
+        if [[ $HELP == *[[:space:],]${ARG/dis/en}?([[:space:]=,]*) ]]; then
+          continue
+        fi
+      elif [[ $ARG == --enable-* ]]; then
+        if [[ $HELP == *[[:space:],]${ARG/en/dis}?([[:space:]=,]*) ]]; then
+          continue
+        fi
+      elif [[ $ARG == --without-* ]]; then
+        if [[ $HELP == *[[:space:],]${ARG/out/}?([[:space:]=,]*) ]]; then
+          continue
+        fi
+      elif [[ $ARG == --with-* ]]; then
+        if [[ $HELP == *[[:space:],]${ARG/h/hout}?([[:space:]=,]*) ]]; then
+          continue
+        fi
+      fi
+      unset "DEFAULTARGS[$ARG]"
+    done
+  fi
+
+  for ARG in "${!DEFAULTARGS[@]}"; do
+    CONFIGARGS[$ARG]=${DEFAULTARGS[$ARG]}
+  done
+}
+
+build() {
+  pre-config
+  filter-defaults
+  "$SRC/configure" "${CONFIGARGS[@]}"
+  post-config
+
+  pre-compile
+  make "${COMPILEARGS[@]}"
+  post-compile
+
+  pre-install
+  make "${INSTALLARGS[@]}"
+  post-install
+}
+
+pre-config() { :; }
+post-config() { :; }
+
+pre-compile() { :; }
+post-compile() { :; }
+
+pre-install() { :; }
+post-install() { :; }

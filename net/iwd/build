@@ -1,0 +1,17 @@
+mode autotools
+
+prepare() {
+  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.7.tar.xz
+  apply dbus.patch
+  apply paths.patch
+  apply resolve.patch
+  apply syslog.patch
+  tree 7e2ed364ce4c9179b343e8ecbe807cd6a2b6b8e242ed509992936476a9a67808
+}
+
+config-extra --disable-dbus
+
+post-install() {
+  mv $DST/{lib,bin}/iwd
+  cp $PKG/resolvconf $DST/bin/
+}

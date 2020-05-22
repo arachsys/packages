@@ -1,0 +1,21 @@
+mode autotools
+enable setuid
+
+prepare() {
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.2p1.tar.gz
+  apply askpass.patch
+  apply dnssegv.patch
+  apply sftp.patch
+  tree 3553d1ac07197fcac3cd10cfad7210a99df1a5c86a91852425baefc0e2400f4a
+}
+
+config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
+  --disable-{u,w}tmp{,x} --with-lastlog=/var/log/lastlog --with-4in6 \
+  --with-default-path=/bin --with-pid-dir=/run \
+  --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth
+
+install-reset install-nokeys DESTDIR=$DST
+
+post-install() {
+  chmod u+rw,go+r $DST/lib/openssh/*
+}

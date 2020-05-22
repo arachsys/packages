@@ -1,0 +1,18 @@
+#!/bin/sh -e
+ 
+RESOLVCONF=/run/resolv.conf
+RESOLVDIR=/run/resolv.dir
+
+mkdir -p "$RESOLVDIR"
+
+if [ $# -eq 2 ] && [ "$1" = "-a" ]; then
+  cat >"$RESOLVDIR/$2"
+elif [ $# -eq 2 ] && [ "$1" = "-d" ]; then
+  rm -f "$RESOLVDIR/$2"
+elif [ $# -ne 1 ] || [ "$1" != "-u" ]; then
+  echo "Usage: ${0##*/} -a IFACE.PROG | -d IFACE.PROG | -u" >&2
+  exit 64
+fi
+
+find "$RESOLVDIR" -type f -exec cat {} + >"${RESOLVCONF}.tmp"
+mv -f "${RESOLVCONF}.tmp" "$RESOLVCONF"

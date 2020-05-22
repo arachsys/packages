@@ -1,0 +1,40 @@
+mode autotools
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/gcc/gcc-10.1.0/gcc-10.1.0.tar.xz
+  unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.2.0.tar.xz
+  unpack -d isl http://isl.gforge.inria.fr/isl-0.21.tar.xz
+  unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
+  unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.0.2.tar.xz
+
+  apply execinfo.patch
+  apply paths.patch
+  apply pure64.patch
+  apply rpath.patch
+
+  tree 4d3b4ab16a05bfae0610c293113e4dd86251f751c38f84aeda1781ebba3ad762
+}
+
+config-extra --disable-libsanitizer --disable-libunwind-exceptions \
+  --disable-multilib --disable-symvers --disable-target-libiberty \
+  --enable-__cxa_atexit --enable-clocale=gnu --enable-default-pie \
+  --enable-default-ssp --enable-languages=c,c++,lto \
+  --enable-libstdcxx-time=yes --enable-linker-build-id --enable-plugins \
+  --enable-shared --enable-threads=posix --enable-vtable-verify \
+  --without-included-gettext --without-local-prefix \
+  --with-gxx-include-dir='${prefix}/lib/include/c++/${gcc_version}' \
+  --with-isl --with-linker-hash-style=gnu \
+  --with-native-system-header-dir=/lib/include \
+  --with-slibdir='${prefix}/lib/shared' --with-system-zlib
+
+post-install() {
+  local TARGET=$(cd $DST/lib/gcc && echo *)
+  local VERSION=$(cd $DST/lib/gcc/$TARGET && echo *)
+  rm -f $DST/bin/{$TARGET-*,gccbug}
+  ln -f -s gcc $DST/bin/cc
+  find $DST -name '*.py' -type f -delete
+  find $DST/lib -name '*.spec' -type f \
+    -exec mv -t $DST/lib/gcc/$TARGET/$VERSION/ {} +
+  mkdir -p $DST/lib/bfd-plugins
+  ln -f -s ../gcc/$TARGET/$VERSION/liblto_plugin.so $DST/lib/bfd-plugins/
+}

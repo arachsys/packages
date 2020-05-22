@@ -1,0 +1,32 @@
+mode autotools
+enable setuid setgid
+
+prepare() {
+  unpack https://github.com/shadow-maint/shadow/releases/download/4.8.1/shadow-4.8.1.tar.xz
+  apply bcrypt.patch
+  apply chfn.patch
+  apply lastlog.patch
+  apply paths.patch
+  tree 1e8263112032d6ee5bb1a64cd10e9113aa6c27237aa78fa0a64f2a6134ae44d1
+}
+
+config-extra --without-audit --with-bcrypt --without-libpam
+
+if enabled pam; then
+  require pam
+  config-extra --with-libpam
+fi
+
+post-config() {
+  sed -e 's:^\(#define FAILLOG_FILE\).*:\1 "/var/log/faillog":' \
+      -e 's:^\(#define LASTLOG_FILE\).*:\1 "/var/log/lastlog":' \
+      -e 's:^\(#define _UTMP_FILE\).*:\1 "/dev/null":' \
+      -e 's:^\(#define _WTMP_FILE\).*:\1 "/dev/null":' \
+      -i config.h
+}
+
+post-install() {
+  chgrp shadow $DST/bin/{chage,expiry}
+  chmod u-s,g+s $DST/bin/{chage,expiry}
+  rm -f $DST/bin/{groups,logoutd} $DST/lib/man/man{1/groups.1,8/logoutd.8}
+}

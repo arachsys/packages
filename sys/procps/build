@@ -1,0 +1,12 @@
+mode autotools
+
+prepare() {
+  unpack https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-3.3.16.tar.xz
+  tree f92b2dc2fa4aa2b0e9112931f3db3112a0a5e5c7be94505220bf7d5fca66f166
+}
+
+config-extra --disable-{kill,modern-top,shared} --enable-watch8bit
+
+post-install() {
+  rm -f -r $DST/bin/w $DST/lib/{include,libprocps.a,man/man1/w.1,pkgconfig}
+}

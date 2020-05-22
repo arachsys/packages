@@ -1,0 +1,52 @@
+unset SRC
+while getopts :ds: OPTION; do
+  case $OPTION in
+    d)
+      DEBUG=1
+      ;;
+    s)
+      if [[ -d $OPTARG ]]; then
+        SRC=$(cd -- "$OPTARG" && echo $PWD)
+      else
+        die "Prepared build tree $OPTARG not found"
+      fi
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+if [[ $# -lt 2 ]]; then
+  die "$(< $LIBRARY/help)"
+fi
+
+setup "$1" "${@:3}"
+
+if mkdir -p -- "$2" 2>/dev/null; then
+  DST=$(cd -- "$2" && echo $PWD)
+else
+  die "Failed to create directory $2"
+fi
+
+if ( cd "$DST" && set -- * && [[ $# -gt 0 ]] ); then
+  die "Cannot build image in $DST: directory is not empty"
+elif [[ -n $DEBUG ]]; then
+  trap 'echo "Incomplete image left in $DST" >&2' ERR
+else
+  trap '[[ -n $DST ]] && find "$DST" -depth -mindepth 1 -delete' ERR
+fi
+
+if [[ -z $SRC ]]; then
+  SRC=$(mktemp -d --tmpdir src-XXXXXX)
+  if [[ -n $DEBUG ]]; then
+    trap 'echo "Failed build tree left in $SRC" >&2' EXIT
+  else
+    trap '[[ -n $SRC ]] && find "$SRC" -depth -delete' EXIT
+  fi
+fi
+
+if ( cd "$SRC" && set -- * && [[ $# -eq 0 ]] ); then
+  ( source "$PKG/build" && cd "$SRC" && prepare )
+fi
+
+( source "$PKG/build" && cd "$SRC" && build 2>&1 )
+( source "$PKG/build" && cd "$DST" && tidy )
