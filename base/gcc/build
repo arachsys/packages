@@ -1,6 +1,7 @@
 mode autotools
 
 prepare() {
+  unpack https://ftp.gnu.org/gnu/binutils/binutils-2.34.tar.xz
   unpack https://ftp.gnu.org/gnu/gcc/gcc-10.1.0/gcc-10.1.0.tar.xz
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.2.0.tar.xz
   unpack -d isl http://isl.gforge.inria.fr/isl-0.21.tar.xz
@@ -8,33 +9,50 @@ prepare() {
   unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.0.2.tar.xz
 
   apply execinfo.patch
+  apply no-toollib.patch
   apply paths.patch
   apply pure64.patch
   apply rpath.patch
 
-  tree 4d3b4ab16a05bfae0610c293113e4dd86251f751c38f84aeda1781ebba3ad762
+  tree d03b3ade854ca3fdca21ce162d62017c237b1a1d5065071c7cf6986577efc63d
 }
 
-config-extra --disable-libsanitizer --disable-libunwind-exceptions \
-  --disable-multilib --disable-symvers --disable-target-libiberty \
-  --enable-__cxa_atexit --enable-clocale=gnu --enable-default-pie \
-  --enable-default-ssp --enable-languages=c,c++,lto \
-  --enable-libstdcxx-time=yes --enable-linker-build-id --enable-plugins \
-  --enable-shared --enable-threads=posix --enable-vtable-verify \
-  --without-included-gettext --without-local-prefix \
+config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
+  --disable-libstdc++-pch --disable-multilib --disable-symvers \
+  --disable-werror --enable-__cxa_atexit --enable-clocale=gnu \
+  --enable-default-{pie,ssp} --enable-deterministic-archives \
+  --enable-languages=c,c++,lto --enable-linker-build-id --enable-plugins \
+  --enable-shared --enable-threads=posix --without-local-prefix \
   --with-gxx-include-dir='${prefix}/lib/include/c++/${gcc_version}' \
-  --with-isl --with-linker-hash-style=gnu \
-  --with-native-system-header-dir=/lib/include \
-  --with-slibdir='${prefix}/lib/shared' --with-system-zlib
+  --with-isl --with-lib-path=/lib:/lib/shared:/lib/static \
+  --with-linker-hash-style=gnu --with-native-system-header-dir=/lib/include \
+  --with-slibdir='${prefix}/lib/shared' --with-system-zlib \
+  libat_cv_have_ifunc=no
+
+if enabled bootstrap; then
+  config-extra --enable-bootstrap
+fi
+
+if enabled gold; then
+  config-extra --enable-gold
+fi
+
+compile-extra tooldir='${prefix}'
+install-extra tooldir='${prefix}'
+
+post-config() {
+  # Packaging error in binutils 2.34 unconditionally requires texinfo
+  sed -e '/^MAKEINFO/s/=.*/= true/' -i Makefile
+}
 
 post-install() {
   local TARGET=$(cd $DST/lib/gcc && echo *)
   local VERSION=$(cd $DST/lib/gcc/$TARGET && echo *)
-  rm -f $DST/bin/{$TARGET-*,gccbug}
-  ln -f -s gcc $DST/bin/cc
-  find $DST -name '*.py' -type f -delete
-  find $DST/lib -name '*.spec' -type f \
-    -exec mv -t $DST/lib/gcc/$TARGET/$VERSION/ {} +
+  make -C host-$TARGET/libctf install DESTDIR=$DST
+  cp include/libiberty.h $DST/lib/include/
   mkdir -p $DST/lib/bfd-plugins
-  ln -f -s ../gcc/$TARGET/$VERSION/liblto_plugin.so $DST/lib/bfd-plugins/
+  ln -s ../gcc/$TARGET/$VERSION/liblto_plugin.so $DST/lib/bfd-plugins/
+  mv $DST/lib/**/*.spec $DST/lib/gcc/$TARGET/$VERSION/
+  rm -f $DST/bin/{$TARGET-*,ld.bfd,gccbug} $DST/**/*.py
+  ln -s gcc $DST/bin/cc
 }
