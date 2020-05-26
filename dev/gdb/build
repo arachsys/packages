@@ -1,0 +1,13 @@
+mode autotools
+require python
+enable vpath
+
+prepare() {
+  unpack https://ftp.gnu.org/gnu/gdb/gdb-9.2.tar.xz
+  apply signals.patch
+  tree 66e7d799b94599758ab6535ca9d6aae66dec91b95e1eca47fbdbf2a61f5916ca
+}
+
+config-extra --disable-install-lib{bfd,iberty,opcodes} --disable-werror
+compile-extra MAKEINFO=true
+install-extra MAKEINFO=true

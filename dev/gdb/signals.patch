@@ -1,0 +1,18 @@
+git --diff a/gdb/gdbsupport/signals.c b/gdb/gdbsupport/signals.c
+index b364d15..9539c61 100644
+--- a/gdb/gdbsupport/signals.c
++++ b/gdb/gdbsupport/signals.c
+@@ -31,6 +31,13 @@
+    _available_ realtime signal, not the lowest supported; glibc takes
+    several for its own use.  */
+
++#ifndef __SIGRTMIN
++# define __SIGRTMIN 32
++#endif
++#ifndef __SIGRTMAX
++# define __SIGRTMAX _NSIG
++#endif
++
+ #ifndef REALTIME_LO
+ # if defined(__SIGRTMIN)
+ #  define REALTIME_LO __SIGRTMIN
