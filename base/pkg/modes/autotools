@@ -132,6 +132,10 @@ filter-defaults() {
 }
 
 build() {
+  if enabled vpath; then
+    cd $(mktemp -d "$SRC/build-XXXXXX")
+  fi
+
   pre-config
   filter-defaults
   "$SRC/configure" "${CONFIGARGS[@]}"
