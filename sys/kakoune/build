@@ -1,8 +1,9 @@
 prepare() {
   unpack kakoune-2020.01.16.tar.gz \
     https://github.com/mawww/kakoune/archive/v2020.01.16.tar.gz
+  apply escape.patch
   apply paths.patch
-  tree ab9967789e974c76f474bc97e34b48d6a37d89f7acfd41f5c68253b168365708
+  tree c7641e0ce0285bbc64546880775343264fbc47df8577eeadc12a66ea98f7f406
 }
 
 build() {

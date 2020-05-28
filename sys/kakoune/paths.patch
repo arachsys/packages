@@ -109,6 +109,27 @@ index df42392..4ad0222 100644
  else ifeq ($(os),OpenBSD)
      LIBS += -lncursesw
      CPPFLAGS += -D'KAK_BIN_PATH="$(bindir)/kak"' -I/usr/local/include
+diff --git a/src/assert.cc b/src/assert.cc
+index 91abba8..604abef 100644
+--- a/src/assert.cc
++++ b/src/assert.cc
+@@ -27,16 +27,7 @@ private:
+ 
+ bool notify_fatal_error(StringView msg)
+ {
+-#if defined(__CYGWIN__)
+-    return MessageBox(NULL, msg.zstr(), "Kakoune: fatal error",
+-                      MB_OKCANCEL | MB_ICONERROR) == IDOK;
+-#elif defined(__linux__)
+-    auto cmd = format("xmessage -buttons 'quit:0,ignore:1' '{}'", msg);
+-    int status = system(cmd.c_str());
+-    return (WIFEXITED(status)) ? (WEXITSTATUS(status)) == 1 : false;
+-#else
+     return false;
+-#endif
+ }
+ 
+ void on_assert_failed(const char* message)
 diff --git a/src/main.cc b/src/main.cc
 index dabbb7b..879fad4 100644
 --- a/src/main.cc
