@@ -9,8 +9,8 @@ prepare() {
 }
 
 config-extra --disable-{chfn-chsh,cramfs,last,lastb,login,lslogins,mesg} \
-  --disable-{minix,newgrp,nologin,rpath,su,utmpdump,vipw,wall} --enable-line \
-  --enable-shared --enable-fs-paths-default=/bin ADJTIME_PATH=/var/lib/adjtime
+  --disable-{minix,newgrp,nologin,{pivot,switch}_root,su,utmpdump,vipw,wall} \
+  --enable-{line,shared,fs-paths-default=/bin} ADJTIME_PATH=/var/lib/adjtime
 
 post-config() {
   find . -type f -name Makefile | while read FILE; do
