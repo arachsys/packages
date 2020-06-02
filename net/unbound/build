@@ -1,0 +1,14 @@
+mode autotools
+require expat
+
+prepare() {
+  unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.10.1.tar.gz
+  tree ccb4589266d289836830570392a984fe73078c0812d0fa7e813df020d03cbc2f
+}
+
+config-extra --disable-{rpath,shared} --with-conf-file=/etc/unbound.conf \
+  --with-{libexpat,ssl}=/lib --with-run-dir=/run/unbound --with-username=dns
+
+post-install() {
+  rm -f -r $DST/include $DST/lib
+}
