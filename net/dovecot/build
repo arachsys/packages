@@ -1,0 +1,17 @@
+mode autotools
+enable rpaths
+
+prepare() {
+  unpack https://dovecot.org/releases/2.3/dovecot-2.3.10.1.tar.gz
+  apply paths.patch
+  tree 3304153bcd9b3e4a696c4ed726e3c477429a55e05f81f495ddb1c57516acba18
+}
+
+config-extra --with-moduledir=/lib/dovecot/modules --with-rundir=/run/dovecot
+compile-extra pkglibdir=/lib/dovecot/shared
+install-extra pkglibdir=/lib/dovecot/shared
+
+post-install() {
+  rm -f $DST/bin/dovecot-sysreport $DST/lib/dovecot/**/{*.a,decode2test.sh}
+  rm -f -r $DST/lib/{aclocal,include}
+}
