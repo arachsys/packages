@@ -1,0 +1,31 @@
+mode autotools
+
+require bison
+require libevent
+
+enable setuid
+enable setgid
+
+prepare() {
+  unpack https://www.opensmtpd.org/archives/opensmtpd-6.7.1p1.tar.gz
+  unpack -d fts musl-fts-1.2.7.tar.gz \
+    https://github.com/pullmoll/musl-fts/archive/v1.2.7.tar.gz
+  apply paths.patch
+  tree 704a8e723e798e5eb07f7658ec8b3643b77ed1110e42c0aeadbc6859bb0a3a5a
+}
+
+pre-config() {
+  echo '#define HAVE_DECL_MAX 1' >fts/config.h
+  gcc -Ifts -O2 -Wall -c fts/fts.c -o fts/fts.o
+  ar rcs fts/libfts.a fts/fts.o
+}
+
+config-extra --with-{group-queue,user-queue,user-smtpd}=smtp \
+  --with-libs=-lfts --with-path-{pidfile,socket}=/run \
+  --with-path-{empty=/run/empty,mbox=/var/mail,queue=/var/lib/smtpd} \
+  CFLAGS=-I$SRC/fts LDFLAGS=-L$SRC/fts
+
+post-install() {
+  chmod u+w $DST/{bin,lib/opensmtpd}/*
+  ln -s smtpctl $DST/bin/sendmail
+}

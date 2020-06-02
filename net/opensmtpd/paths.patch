@@ -1,0 +1,13 @@
+diff --git a/openbsd-compat/paths_h/paths.h b/openbsd-compat/paths_h/paths.h
+index 6b66a9c..0f5fbcb 100644
+--- a/openbsd-compat/paths_h/paths.h
++++ b/openbsd-compat/paths_h/paths.h
+@@ -2,7 +2,7 @@
+ #define PATHS_H
+ 
+ #ifndef _PATH_DEFPATH
+-#define _PATH_DEFPATH "/bin:/usr/bin"
++#define _PATH_DEFPATH "/bin"
+ #endif
+ 
+ #endif
