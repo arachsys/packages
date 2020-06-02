@@ -1,0 +1,6 @@
+mode autotools
+
+prepare() {
+  unpack https://github.com/libexpat/libexpat/releases/download/R_2_2_9/expat-2.2.9.tar.xz
+  tree 5d0d412cd6b7000d5243eeebf30507e675008359f311b3498faa2e8a9d444d62
+}
