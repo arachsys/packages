@@ -23,7 +23,8 @@ fi
 
 mkdir -m 0755 -p "$ROOT"/{bin,cache,dst,dev,etc,lib,pkg,proc,src,sys}
 mkdir -m 1777 -p "$ROOT"/{run/shm,var/tmp}
-cp -p -L -R /etc/{passwd,group,ssl,resolv.conf} "$ROOT/etc/"
+cp -L -R /etc/{protocols,resolv.conf,services,ssl} "$ROOT/etc/"
+cp $LIBRARY/skel/{passwd,group} "$ROOT/etc/"
 ln -s var/tmp "$ROOT/tmp"
 
 for REQUIRED in "$PKGDIR"/base/* \

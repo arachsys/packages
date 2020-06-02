@@ -6,4 +6,5 @@ build() {
   cp -d -R $PKG/lib $DST/lib/pkg
   cp -d -R $PKG/actions $DST/lib/pkg/actions
   cp -d -R $PKG/modes $DST/lib/pkg/modes
+  cp -d -R $PKG/skel $DST/lib/pkg/skel
 }

@@ -189,7 +189,7 @@ setup() {
 }
 
 tidy() {
-  rm -f -r etc run var lib/pkgconfig
+  rm -f -r etc run tmp var lib/pkgconfig
   if ! enabled docs; then
     rm -f -r lib/{doc,info,man}
   fi

@@ -1,0 +1,9 @@
+root:x:0:
+daemon:x:1:
+ssh:x:2:
+ntp:x:3:
+smtp:x:4:
+utmp:x:100:
+tty:x:101:
+shadow:x:102:
+nogroup:x:65534:
