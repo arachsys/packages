@@ -1,0 +1,15 @@
+mode autotools
+
+prepare() {
+  unpack libevent-2.1.11.tar.gz \
+    https://github.com/libevent/libevent/releases/download/release-2.1.11-stable/libevent-2.1.11-stable.tar.gz
+  tree cddbd34d5e749adb293be4847073952a680fa414a1ea449ce6d8046529efb194
+}
+
+pre-config() {
+  sed -e '/GENERIC_LDFLAGS =/s/\$(RELEASE) //p' -i Makefile.{am,in}
+}
+
+post-install() {
+  rm -f $DST/bin/event_rpcgen.py
+}
