@@ -1,0 +1,16 @@
+prepare() {
+  unpack https://www.nlnetlabs.nl/downloads/ldns/ldns-1.7.1.tar.gz
+  fetch https://raw.githubusercontent.com/freebsd/freebsd/d999889ee922b31e8c404b857f1151952a443bc8/contrib/ldns-host/ldns-host.c >ldns-host.c
+  fetch https://raw.githubusercontent.com/freebsd/freebsd/d999889ee922b31e8c404b857f1151952a443bc8/contrib/ldns-host/ldns-host.1 >ldns-host.1
+  tree 76ff6a70f72c9891eb616bb02e6e838863f2cbd2d2b6d51caf98cba147ba5131
+}
+
+build() {
+  $SRC/configure --disable-{dane-ta-usage,shared} --with-{drill,ssl=/lib}
+  make setup-builddir drill
+  gcc -g -I. -L.libs -Os -Wall ldns-host.c -lldns -lcrypto -o host
+
+  install -s -t $DST/bin -D drill/drill host
+  install -m 0644 -t $DST/lib/man/man1 -D drill/drill.1
+  sed -e 's/ldns-//gI' ldns-host.1 >$DST/lib/man/man1/host.1
+}
