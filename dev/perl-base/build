@@ -1,6 +1,6 @@
 prepare() {
-  unpack http://www.cpan.org/src/5.0/perl-5.30.2.tar.gz
-  tree 4446890078a9307d8e6102804327e4b1971ce299bd3b47196f5de4ed4bdd3a7c
+  unpack http://www.cpan.org/src/5.0/perl-5.32.0.tar.xz
+  tree 06fbe45588c6fea79477b869c7978c1e6f3af761ce9609b4ae9a82cad9645404
 }
 
 build() {
