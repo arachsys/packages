@@ -1,7 +1,6 @@
 prepare() {
-  unpack init-20200530-4da3b54.tar.gz \
-    https://github.com/arachsys/init/archive/4da3b54e6caf7013a7b9134af2c383acdd69e7ed.tar.gz
-  tree 42ff70b564d3f9991e2b43d828e47bcf0e505cc7401aa171326ce20d46d38c03
+  unpack https://github.com/arachsys/init/archive/init-2.0.tar.gz
+  tree 24ef4a623a91ec93f85b12de512cbbbb6cc05eea0aa405bbc2b5e3b185f3c473
 }
 
 build() {
