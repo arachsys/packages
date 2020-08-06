@@ -2,11 +2,11 @@ mode autotools
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/binutils/binutils-2.34.tar.xz
-  unpack https://ftp.gnu.org/gnu/gcc/gcc-10.1.0/gcc-10.1.0.tar.xz
+  unpack https://ftp.gnu.org/gnu/gcc/gcc-10.2.0/gcc-10.2.0.tar.xz
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.2.0.tar.xz
-  unpack -d isl http://isl.gforge.inria.fr/isl-0.21.tar.xz
+  unpack -d isl http://isl.gforge.inria.fr/isl-0.22.1.tar.xz
   unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.1.0.tar.gz
-  unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.0.2.tar.xz
+  unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.1.0.tar.xz
 
   apply execinfo.patch
   apply no-toollib.patch
@@ -14,7 +14,7 @@ prepare() {
   apply pure64.patch
   apply rpath.patch
 
-  tree d03b3ade854ca3fdca21ce162d62017c237b1a1d5065071c7cf6986577efc63d
+  tree c5827a5b39aa784218e0a86d92c79d5c9df72d624ea0aacdedfa51fbbbc43e4d
 }
 
 config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
