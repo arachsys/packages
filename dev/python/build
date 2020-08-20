@@ -1,14 +1,13 @@
 mode autotools
 
 prepare() {
-  unpack python-3.8.2.tar.xz \
-    https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz
-  apply compileall.patch
+  unpack python-3.8.5.tar.xz \
+    https://www.python.org/ftp/python/3.8.5/Python-3.8.5.tar.xz
   apply getpath.patch
   apply fakepkg.patch
   apply musl.patch
   apply paths.patch
-  tree da014929124244a5f91f9c269a4daeb8af1561bdd408e100d8e346aee5d6543c
+  tree cee28302d812cac780776993cb3dde5da1254cd67ca622522d82ebf59a570906
 }
 
 config-extra --enable-{ipv6,optimizations,shared} --without-ensurepip \
