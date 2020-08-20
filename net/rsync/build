@@ -1,10 +1,13 @@
 mode autotools
 
 prepare() {
-  unpack https://download.samba.org/pub/rsync/rsync-3.1.3.tar.gz
-  apply mkproto.patch
+  unpack https://download.samba.org/pub/rsync/rsync-3.2.3.tar.gz
   apply paths.patch
-  tree ea0df6677e4dd2ad5eaba607d9ad388293050ac873a2f68684090b17e91b92f1
+  tree 9609210e692a5c07b6460171a7bb9fe225cd81d0df4d6504cde58c1a134cea92
 }
 
-config-extra --with-included-popt
+config-extra --disable-lz4 --disable-xxhash --with-included-popt
+
+post-install() {
+  rm -f $DST/{bin/rsync-ssl,lib/man/man1/rsync-ssl.1}
+}
