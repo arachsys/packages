@@ -12,10 +12,10 @@ index e340665..5cd3c6d 100644
  		Do not print reformatted sources to standard output.
  		If a file's formatting is different from gofmt's, print its name
 diff --git a/src/cmd/gofmt/gofmt.go b/src/cmd/gofmt/gofmt.go
-index 9e472b2..c4f84ee 100644
+index 8c56af7..022141f 100644
 --- a/src/cmd/gofmt/gofmt.go
 +++ b/src/cmd/gofmt/gofmt.go
-@@ -32,17 +32,15 @@ var (
+@@ -32,6 +32,7 @@ var (
  	simplifyAST = flag.Bool("s", false, "simplify code")
  	doDiff      = flag.Bool("d", false, "display diffs instead of rewriting files")
  	allErrors   = flag.Bool("e", false, "report all errors (not just the first 10 on different lines)")
@@ -23,25 +23,32 @@ index 9e472b2..c4f84ee 100644
  
  	// debugging
  	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to this file")
+@@ -39,9 +40,6 @@ var (
+ 
+ // Keep these in sync with go/format/format.go.
+ const (
+-	tabWidth    = 8
+-	printerMode = printer.UseSpaces | printer.TabIndent | printerNormalizeNumbers
+-
+ 	// printerNormalizeNumbers means to canonicalize number literal prefixes
+ 	// and exponents while printing. See https://golang.org/doc/go1.13#gofmt.
+ 	//
+@@ -50,6 +48,8 @@ const (
  )
  
--const (
-+var (
- 	tabWidth    = 8
- 	printerMode = printer.UseSpaces | printer.TabIndent
--)
--
--var (
+ var (
++	tabWidth    = 8
++	printerMode = printer.UseSpaces | printer.TabIndent | printerNormalizeNumbers
  	fileSet    = token.NewFileSet() // per process FileSet
  	exitCode   = 0
  	rewrite    func(*ast.File) *ast.File
-@@ -186,6 +184,11 @@ func gofmtMain() {
+@@ -191,6 +191,11 @@ func gofmtMain() {
  	flag.Usage = usage
  	flag.Parse()
  
 +	if *indent > 0 {
 +		tabWidth = *indent
-+		printerMode = printer.UseSpaces
++		printerMode = printer.UseSpaces | printerNormalizeNumbers
 +	}
 +
  	if *cpuprofile != "" {
