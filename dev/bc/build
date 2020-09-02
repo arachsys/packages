@@ -1,5 +1,6 @@
 prepare() {
   unpack https://github.com/gavinhoward/bc/releases/download/2.7.2/bc-2.7.2.tar.xz
+  tree cda8357c25f81775247fc045dffb4e650902c3377fbb6b63da413b5f051f56e0
 }
 
 build() {
