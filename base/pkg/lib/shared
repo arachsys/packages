@@ -252,9 +252,12 @@ tree() {
   hashtree "${@:2}" | while read HASH; do
     if [[ $# -eq 0 ]]; then
       caller | while read LINE FILE; do
-        sed -e "$LINE s/^\\([[:blank:]]*tree\\)[[:blank:]]*\$/\\1 $HASH/" \
-            -i "$FILE"
-        warn "Updated source tree hash at $FILE:$LINE"
+        if sed -e "$LINE s/^\\([[:blank:]]*tree\\)[[:blank:]]*\$/\\1 $HASH/" \
+               -i "$FILE" 2>/dev/null; then
+          warn "Updated source tree hash at $FILE:$LINE"
+        else
+          warn "Failed to update source tree hash at $FILE:$LINE"
+        fi
       done
     elif [[ $1 != $HASH ]]; then
       caller | while read LINE FILE; do
