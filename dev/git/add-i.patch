@@ -1,17 +1,23 @@
 diff --git a/builtin/add.c b/builtin/add.c
-index 18a0881..836d389 100644
+index a825887..4db4c28 100644
 --- a/builtin/add.c
 +++ b/builtin/add.c
-@@ -189,12 +189,7 @@ int run_add_interactive(const char *revision, const char *patch_mode,
+@@ -189,18 +189,7 @@ int run_add_interactive(const char *revision, const char *patch_mode,
  {
  	int status, i;
- 	struct argv_array argv = ARGV_ARRAY_INIT;
+ 	struct strvec argv = STRVEC_INIT;
 -	int use_builtin_add_i =
 -		git_env_bool("GIT_TEST_ADD_I_USE_BUILTIN", -1);
 -
--	if (use_builtin_add_i < 0)
--		git_config_get_bool("add.interactive.usebuiltin",
--				    &use_builtin_add_i);
+-	if (use_builtin_add_i < 0) {
+-		int experimental;
+-		if (!git_config_get_bool("add.interactive.usebuiltin",
+-					 &use_builtin_add_i))
+-			; /* ok */
+-		else if (!git_config_get_bool("feature.experimental", &experimental) &&
+-			 experimental)
+-			use_builtin_add_i = 1;
+-	}
 +	int use_builtin_add_i = 1;
  
  	if (use_builtin_add_i == 1) {

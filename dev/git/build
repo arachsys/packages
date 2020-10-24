@@ -2,11 +2,11 @@ enabled nls && require gettext
 enabled perl && require perl
 
 prepare() {
-  unpack https://www.kernel.org/pub/software/scm/git/git-2.28.0.tar.xz
+  unpack https://www.kernel.org/pub/software/scm/git/git-2.29.1.tar.xz
   apply add-i.patch
   apply filter-branch.patch
   apply usage.patch
-  tree 4fd09940c9f98c02d394d64c6b5909bc46dc45a4f65568c99fb1893cce4ab876
+  tree fb85284adfba4909a7dd307439251ea0cb3ab974e42fdbf657e3c1a1944f540c
 }
 
 build() {
