@@ -1,15 +1,16 @@
 mode autotools
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.7.tar.xz
+  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.9.tar.xz
   apply dbus.patch
   apply paths.patch
   apply resolve.patch
   apply syslog.patch
-  tree 7e2ed364ce4c9179b343e8ecbe807cd6a2b6b8e242ed509992936476a9a67808
+  tree a5bf903e85ab91d6585b0422aee4f2274bd20cd0d123a12ee119a63782b51f58
 }
 
-config-extra --disable-dbus
+config-extra --disable-dbus-policy --disable-systemd-service \
+  --with-dbus-busdir=/lib/dbus/system-services
 
 post-install() {
   mv $DST/{lib,bin}/iwd

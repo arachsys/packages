@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index c515838..cdcab2b 100755
+index 40fd1f0..241d3c8 100755
 --- a/configure
 +++ b/configure
-@@ -12894,7 +12894,7 @@ _ACEOF
+@@ -12890,7 +12890,7 @@ _ACEOF
  
  
  cat >>confdefs.h <<_ACEOF
@@ -12,7 +12,7 @@ index c515838..cdcab2b 100755
  
  
 diff --git a/configure.ac b/configure.ac
-index e93d369..2486bce 100644
+index bf7e94d..94a6625 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -121,7 +121,7 @@ AC_SUBST([wired_storagedir], [${wired_storagedir}])
@@ -24,6 +24,19 @@ index e93d369..2486bce 100644
  			[Directory for Wireless daemon configuration])
  
  AC_DEFINE_UNQUOTED(WIRED_STORAGEDIR, "${wired_storagedir}",
+diff --git a/ell/dbus.c b/ell/dbus.c
+index 80de83b..8861a40 100644
+--- a/ell/dbus.c
++++ b/ell/dbus.c
+@@ -44,7 +44,7 @@
+ #include "private.h"
+ #include "dbus-private.h"
+ 
+-#define DEFAULT_SYSTEM_BUS_ADDRESS "unix:path=/var/run/dbus/system_bus_socket"
++#define DEFAULT_SYSTEM_BUS_ADDRESS "unix:path=/run/dbus/system_bus_socket"
+ 
+ #define DBUS_SERVICE_DBUS	"org.freedesktop.DBus"
+ 
 diff --git a/ell/hwdb.c b/ell/hwdb.c
 index 65276a6..e287046 100644
 --- a/ell/hwdb.c
@@ -103,10 +116,10 @@ index c719fbc..ef8d2b4 100644
  
  See *iwd.debug* for further environment variables for debugging.
 diff --git a/src/main.c b/src/main.c
-index ddafbac..b804ff3 100644
+index 32aaa31..c1f4934 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
+@@ -452,7 +452,7 @@ int main(int argc, char *argv[])
  
  	for (i = 0; config_dirs[i]; i++) {
  		L_AUTO_FREE_VAR(char *, path) =
@@ -116,15 +129,15 @@ index ddafbac..b804ff3 100644
  		if (!l_settings_load_from_file(iwd_config, path))
  			continue;
 diff --git a/src/resolve.c b/src/resolve.c
-index ae159fc..f98b45b 100644
+index 066e4c8..f6e829d 100644
 --- a/src/resolve.c
 +++ b/src/resolve.c
-@@ -377,7 +377,7 @@ static void resolve_resolvconf_remove(uint32_t ifindex, void *data)
+@@ -461,7 +461,7 @@ static struct resolve_ops resolvconf_ops = {
  
- static void *resolve_resolvconf_init(void)
+ static int resolve_resolvconf_init(void)
  {
 -	static const char *default_path = "/sbin:/usr/sbin";
 +	static const char *default_path = "/bin";
- 	bool *ready;
  	const char *path;
  
+ 	l_debug("Trying to find resolvconf in $PATH");

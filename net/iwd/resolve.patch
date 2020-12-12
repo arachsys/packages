@@ -1,32 +1,15 @@
 diff --git a/src/resolve.c b/src/resolve.c
-index f98b45b..ede67cc 100644
+index f6e829d..4387c7f 100644
 --- a/src/resolve.c
 +++ b/src/resolve.c
-@@ -34,6 +34,7 @@
+@@ -553,8 +553,8 @@ static int resolve_init(void)
+ 		if (method_name)
+ 			l_warn("[General].dns_resolve_method is deprecated, "
+ 				"use [Network].NameResolvingService");
+-		else /* Default to systemd-resolved service. */
+-			method_name = "systemd";
++		else /* Default to resolvconf service. */
++			method_name = "resolvconf";
+ 	}
  
- #include "src/iwd.h"
- #include "src/module.h"
-+#include "src/netdev.h"
- #ifdef HAVE_DBUS
- #include "src/dbus.h"
- #endif
-@@ -320,7 +321,8 @@ static void resolve_resolvconf_add_dns(uint32_t ifindex, uint8_t type,
- 	if (!*ready)
- 		return;
- 
--	cmd = l_strdup_printf("%s -a %u", resolvconf_path, ifindex);
-+	cmd = l_strdup_printf("%s -a %s.iwd", resolvconf_path,
-+			netdev_get_name(netdev_find(ifindex)));
- 
- 	if (!(resolvconf = popen(cmd, "w"))) {
- 		l_error("resolve: Failed to start %s (%s).", resolvconf_path,
-@@ -358,7 +360,8 @@ static void resolve_resolvconf_remove(uint32_t ifindex, void *data)
- 	if (!*ready)
- 		return;
- 
--	cmd = l_strdup_printf("%s -d %u", resolvconf_path, ifindex);
-+	cmd = l_strdup_printf("%s -d %s.iwd", resolvconf_path,
-+			netdev_get_name(netdev_find(ifindex)));
- 
- 	if (!(resolvconf = popen(cmd, "r"))) {
- 		l_error("resolve: Failed to start %s (%s).", resolvconf_path,
+ 	for (i = 0; resolve_method_ops_list[i].name; i++) {
