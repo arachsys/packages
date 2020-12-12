@@ -1,6 +1,6 @@
 prepare() {
-  unpack https://github.com/facebook/zstd/releases/download/v1.4.4/zstd-1.4.4.tar.gz
-  tree 5eb24d2be6af4b76ef6b04b070b2ffbc28ebf09f024eca0a6e3b51ca3c28ff3a
+  unpack https://github.com/facebook/zstd/releases/download/v1.4.5/zstd-1.4.5.tar.gz
+  tree 0afd2e1954b5734fb369bde9c360f0d2c02879d26b75898c4678594dddd88884
 }
 
 build() {
