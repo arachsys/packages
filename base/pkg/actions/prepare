@@ -7,13 +7,16 @@ while getopts :d OPTION; do
 done
 shift $(($OPTIND - 1))
 
-if [[ $# -lt 2 ]]; then
+if [[ $# -lt 1 ]]; then
   die "$(< $LIBRARY/help)"
 fi
 
 setup "$1" "${@:3}"
 
-if mkdir -p -- "$2" 2>/dev/null; then
+if [[ $2 == ?(-) ]]; then
+  SRC=$(mktemp -d)
+  trap 'rm -f -r --one-file-system "$SRC"' EXIT
+elif mkdir -p -- "$2" 2>/dev/null; then
   SRC=$(cd -- "$2" && echo $PWD)
 else
   die "Failed to create directory $2"
