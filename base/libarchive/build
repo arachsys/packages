@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://www.libarchive.org/downloads/libarchive-3.4.3.tar.xz
-  tree 0e03765de4daac168cf320ab097f75e4460cef6726678da4493a51f83eb54da9
+  unpack https://www.libarchive.org/downloads/libarchive-3.5.0.tar.xz
+  tree 115b34da41f2bec2eb40217ca6aace8d433d5c7d40db56205231bdc4de484526
 }
 
 config-extra --disable-acl --enable-bsd{cat,cpio,tar}=dynamic \
