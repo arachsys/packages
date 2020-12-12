@@ -3,7 +3,7 @@ require bison
 require flex
 
 prepare() {
-  unpack ftp://bird.network.cz/pub/bird/bird-2.0.7.tar.gz
+  unpack https://bird.network.cz/download/bird-2.0.7.tar.gz
   apply gcc10.patch
   tree e21566865a38cd57b5146b0f2cabf96f42fdbe617e559486684a36a9429de228
 }
