@@ -1,7 +1,7 @@
 prepare() {
-  unpack https://curl.haxx.se/download/curl-7.72.0.tar.xz
+  unpack https://curl.haxx.se/download/curl-7.74.0.tar.xz
   apply paths.patch
-  tree bb0c18578f51be449f0b9b57c9baaf8c40773a359a0c2e81da96bf82b2a0bd28
+  tree e8c152d47eef21f07b3e42fde72f296d78d7a155353f5ace320e848c4181839e
 }
 
 mode autotools
