@@ -2,10 +2,10 @@ mode autotools
 enable setuid setgid
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.36/util-linux-2.36.tar.xz
+  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.36/util-linux-2.36.1.tar.xz
   apply logger.patch
   apply paths.patch
-  tree 2d38b317b020f5c9d95d784059c2198d3c390aa7be13a6feed613d4d5398fe6d
+  tree 5d6b743393a51858650da8e7b28326e98f091d4aa5b1f6a2640b569e68acb8d0
 }
 
 config-extra --disable-{chfn-chsh,cramfs,last,lastb,login,lslogins,mesg} \
