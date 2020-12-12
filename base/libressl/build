@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.2.2.tar.gz
-  tree d44943850f0eae8f6db5ebf48de7bad84d86c0fd0bc80012090e62aa2511efc1
+  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.3.1.tar.gz
+  tree 71a0fbfefa672fdfcd601abea1c77468a39960cd9a0a99d3828ad376de5a6bca
 }
 
 config-extra --enable-nc
