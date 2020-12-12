@@ -2,14 +2,9 @@ mode autotools
 enable setuid
 
 prepare() {
-  unpack https://www.bitwizard.nl/mtr/files/mtr-0.92.tar.gz
+  unpack https://www.bitwizard.nl/mtr/files/mtr-0.94.tar.gz
   apply align.patch
-  sed -e 's/^\(PACKAGE_VERSION\)=.*/\1="0.92-arachsys"/' \
-      -e 's/^\(PACKAGE_STRING\)=.*/\1="mtr $PACKAGE_VERSION"/' \
-      -i configure
-  touch -c configure config.h.in
-  rm -f *.orig *.tmp *~
-  tree 3f34c104d165f024751ea9342941f1bd824e19adb040e5b9c5d586bd7c0cd69f
+  tree 7b4b3e0aa020d1a324b77178f866d2dd357146c50133609960377e1f2e924f08
 }
 
 post-install() {
