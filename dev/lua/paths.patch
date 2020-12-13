@@ -1,0 +1,37 @@
+diff --git a/Makefile b/Makefile
+index 36447a0..eff63a9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -12,11 +12,11 @@ PLAT= guess
+ # LUA_ROOT, LUA_LDIR, and LUA_CDIR in luaconf.h.
+ INSTALL_TOP= /usr/local
+ INSTALL_BIN= $(INSTALL_TOP)/bin
+-INSTALL_INC= $(INSTALL_TOP)/include
++INSTALL_INC= $(INSTALL_TOP)/lib/include
+ INSTALL_LIB= $(INSTALL_TOP)/lib
+-INSTALL_MAN= $(INSTALL_TOP)/man/man1
+-INSTALL_LMOD= $(INSTALL_TOP)/share/lua/$V
+-INSTALL_CMOD= $(INSTALL_TOP)/lib/lua/$V
++INSTALL_MAN= $(INSTALL_TOP)/lib/man/man1
++INSTALL_LMOD= $(INSTALL_TOP)/lib/lua
++INSTALL_CMOD= $(INSTALL_TOP)/lib/lua
+ 
+ # How to install. If your install program does not support "-p", then
+ # you may have to run ranlib on the installed liblua.a.
+diff --git a/src/luaconf.h b/src/luaconf.h
+index d9cf18c..40e3e38 100644
+--- a/src/luaconf.h
++++ b/src/luaconf.h
+@@ -212,9 +212,9 @@
+ 
+ #else			/* }{ */
+ 
+-#define LUA_ROOT	"/usr/local/"
+-#define LUA_LDIR	LUA_ROOT "share/lua/" LUA_VDIR "/"
+-#define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR "/"
++#define LUA_ROOT	"/"
++#define LUA_LDIR	LUA_ROOT "lib/lua/"
++#define LUA_CDIR	LUA_ROOT "lib/lua/"
+ 
+ #if !defined(LUA_PATH_DEFAULT)
+ #define LUA_PATH_DEFAULT  \
