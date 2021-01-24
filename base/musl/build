@@ -1,9 +1,8 @@
 prepare() {
-  unpack https://musl.libc.org/releases/musl-1.2.1.tar.gz
+  unpack https://musl.libc.org/releases/musl-1.2.2.tar.gz
   apply paths.patch
   apply usage.patch
-  apply wcsnrtombs.patch
-  tree 5e8065cf12e36dc687aab5b484be6a78042511be4fff9044c69810c4c2989828
+  tree 289d3855e5772cd4ac0633d505250be50091a9127c4bc7b143f8499aeb5de838
 }
 
 build() {
