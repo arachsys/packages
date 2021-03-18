@@ -1,8 +1,8 @@
 diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
-index 70a7903..90dea29 100644
+index 8652f58..d62bc70 100644
 --- a/Lib/ctypes/util.py
 +++ b/Lib/ctypes/util.py
-@@ -254,62 +254,38 @@ elif os.name == "posix":
+@@ -267,67 +267,38 @@ elif os.name == "posix":
  
      else:
  
@@ -51,17 +51,22 @@ index 70a7903..90dea29 100644
 -                                     stderr=subprocess.PIPE,
 -                                     universal_newlines=True)
 -                out, _ = p.communicate()
--                res = re.search(expr, os.fsdecode(out))
--                if res:
--                    result = res.group(0)
--            except Exception as e:
+-                res = re.findall(expr, os.fsdecode(out))
+-                for file in res:
+-                    # Check if the given file is an elf file: gcc can report
+-                    # some files that are linker scripts and not actual
+-                    # shared objects. See bpo-41976 for more details
+-                    if not _is_elf(file):
+-                        continue
+-                    return os.fsdecode(file)
+-            except Exception:
 -                pass  # result will be None
 -            return result
 -
          def find_library(name):
 -            # See issue #9998
 -            return _findSoname_ldconfig(name) or \
--                   _get_soname(_findLib_gcc(name) or _findLib_ld(name))
+-                   _get_soname(_findLib_gcc(name)) or _get_soname(_findLib_ld(name))
 +            from glob import glob
 +
 +            def is_elf(filepath):

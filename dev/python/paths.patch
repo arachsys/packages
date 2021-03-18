@@ -1,8 +1,8 @@
 diff --git a/Lib/aifc.py b/Lib/aifc.py
-index 1916e7e..a8234c0 100644
+index ed5da7d..d64a7b7 100644
 --- a/Lib/aifc.py
 +++ b/Lib/aifc.py
-@@ -928,7 +928,7 @@ def openfp(f, mode=None):
+@@ -924,7 +924,7 @@ def open(f, mode=None):
  if __name__ == '__main__':
      import sys
      if not sys.argv[1:]:
@@ -12,7 +12,7 @@ index 1916e7e..a8234c0 100644
      with open(fn, 'r') as f:
          print("Reading", fn)
 diff --git a/Lib/cgi.py b/Lib/cgi.py
-index c22c71b..cdc6415 100755
+index 1e880e5..6388eb6 100755
 --- a/Lib/cgi.py
 +++ b/Lib/cgi.py
 @@ -1,13 +1,4 @@
@@ -31,7 +31,7 @@ index c22c71b..cdc6415 100755
  """Support module for CGI (Common Gateway Interface) scripts.
  
 diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
-index 33aae30..90dea29 100644
+index 0c2510e..8652f58 100644
 --- a/Lib/ctypes/util.py
 +++ b/Lib/ctypes/util.py
 @@ -90,7 +90,7 @@ elif sys.platform.startswith("aix"):
@@ -42,8 +42,8 @@ index 33aae30..90dea29 100644
 +    # Andreas Degert's find functions, using gcc, /bin/ldconfig, objdump
      import re, tempfile
  
-     def _findLib_gcc(name):
-@@ -196,7 +196,7 @@ elif os.name == "posix":
+     def _is_elf(filename):
+@@ -209,7 +209,7 @@ elif os.name == "posix":
              expr = os.fsencode(expr)
  
              try:
@@ -53,13 +53,13 @@ index 33aae30..90dea29 100644
                                          stderr=subprocess.DEVNULL)
              except OSError:  # E.g. command not found
 diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index c625c95..6f9ee2c 100644
+index aaa300e..1feb6b0 100644
 --- a/Lib/distutils/command/install.py
 +++ b/Lib/distutils/command/install.py
 @@ -31,14 +31,14 @@ INSTALL_SCHEMES = {
      'unix_prefix': {
          'purelib': '$base/lib/python$py_version_short/site-packages',
-         'platlib': '$platbase/lib/python$py_version_short/site-packages',
+         'platlib': '$platbase/$platlibdir/python$py_version_short/site-packages',
 -        'headers': '$base/include/python$py_version_short$abiflags/$dist_name',
 +        'headers': '$base/lib/include/python$py_version_short$abiflags/$dist_name',
          'scripts': '$base/bin',
@@ -67,17 +67,17 @@ index c625c95..6f9ee2c 100644
          },
      'unix_home': {
          'purelib': '$base/lib/python',
-         'platlib': '$base/lib/python',
+         'platlib': '$base/$platlibdir/python',
 -        'headers': '$base/include/python/$dist_name',
 +        'headers': '$base/lib/include/python/$dist_name',
          'scripts': '$base/bin',
          'data'   : '$base',
          },
 diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
-index b51629e..24a72d5 100644
+index 37feae5..d1842ee 100644
 --- a/Lib/distutils/sysconfig.py
 +++ b/Lib/distutils/sysconfig.py
-@@ -111,7 +111,7 @@ def get_python_inc(plat_specific=0, prefix=None):
+@@ -110,7 +110,7 @@ def get_python_inc(plat_specific=0, prefix=None):
                  incdir = os.path.join(get_config_var('srcdir'), 'Include')
                  return os.path.normpath(incdir)
          python_dir = 'python' + get_python_version() + build_flags
@@ -97,7 +97,7 @@ index 5627bfb..334624f 100755
  
  This codec de/encodes from str to str.
 diff --git a/Lib/mailcap.py b/Lib/mailcap.py
-index bd0fc09..ee69031 100644
+index ae416a8..142e8b5 100644
 --- a/Lib/mailcap.py
 +++ b/Lib/mailcap.py
 @@ -54,8 +54,7 @@ def listmailcapfiles():
@@ -111,7 +111,7 @@ index bd0fc09..ee69031 100644
  
  
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index f33b658..e7bdc7c 100644
+index 92c2a47..d5fe4dd 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -41,14 +41,6 @@ __all__ = [
@@ -143,10 +143,10 @@ index ecb4e5a..7a01e6b 100644
  devnull = '/dev/null'
  
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index 6287554..64614b1 100644
+index 770f72c..70cf90e 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
-@@ -164,7 +164,7 @@ def _candidate_tempdir_list():
+@@ -165,7 +165,7 @@ def _candidate_tempdir_list():
                           _os.path.expandvars(r'%SYSTEMROOT%\Temp'),
                           r'c:\temp', r'c:\tmp', r'\temp', r'\tmp' ])
      else:
@@ -156,20 +156,19 @@ index 6287554..64614b1 100644
      # As a last resort, the current directory.
      try:
 diff --git a/Lib/uuid.py b/Lib/uuid.py
-index 188e16b..7b16747 100644
+index 5ae0a3e..43c286e 100644
 --- a/Lib/uuid.py
 +++ b/Lib/uuid.py
-@@ -351,7 +351,7 @@ def _popen(command, *args):
-     import os, shutil, subprocess
-     executable = shutil.which(command)
-     if executable is None:
--        path = os.pathsep.join(('/sbin', '/usr/sbin'))
-+        path = os.pathsep.join(('/bin',))
-         executable = shutil.which(command, path=path)
+@@ -361,7 +361,6 @@ def _get_command_stdout(command, *args):
+ 
+     try:
+         path_dirs = os.environ.get('PATH', os.defpath).split(os.pathsep)
+-        path_dirs.extend(['/sbin', '/usr/sbin'])
+         executable = shutil.which(command, path=os.pathsep.join(path_dirs))
          if executable is None:
              return None
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index a914a9c..d0dba79 100644
+index f128444..0626ed8 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -142,7 +142,7 @@ BINDIR=		@bindir@
@@ -178,14 +177,14 @@ index a914a9c..d0dba79 100644
  INCLUDEDIR=	@includedir@
 -CONFINCLUDEDIR=	$(exec_prefix)/include
 +CONFINCLUDEDIR=	$(exec_prefix)/lib/include
- SCRIPTDIR=	$(prefix)/lib
+ PLATLIBDIR=	@PLATLIBDIR@
+ SCRIPTDIR=	$(prefix)/$(PLATLIBDIR)
  ABIFLAGS=	@ABIFLAGS@
- 
 diff --git a/setup.py b/setup.py
-index 20d7f35..ffc9a3b 100644
+index d42eb9d..4ccf083 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -564,9 +564,11 @@ class PyBuildExt(build_ext):
+@@ -644,9 +644,11 @@ class PyBuildExt(build_ext):
  
          if multiarch_path_component != '':
              add_dir_to_list(self.compiler.library_dirs,
@@ -199,7 +198,7 @@ index 20d7f35..ffc9a3b 100644
              return
  
          if not find_executable('dpkg-architecture'):
-@@ -585,9 +587,11 @@ class PyBuildExt(build_ext):
+@@ -665,9 +667,11 @@ class PyBuildExt(build_ext):
                  with open(tmpfile) as fp:
                      multiarch_path_component = fp.readline().strip()
                  add_dir_to_list(self.compiler.library_dirs,
@@ -213,7 +212,7 @@ index 20d7f35..ffc9a3b 100644
          finally:
              os.unlink(tmpfile)
  
-@@ -670,8 +674,8 @@ class PyBuildExt(build_ext):
+@@ -750,8 +754,8 @@ class PyBuildExt(build_ext):
              add_dir_to_list(self.compiler.include_dirs,
                              sysconfig.get_config_var("INCLUDEDIR"))
  
@@ -224,7 +223,7 @@ index 20d7f35..ffc9a3b 100644
          # lib_dirs and inc_dirs are used to search for files;
          # if a file is found in one of those directories, it can
          # be assumed that no additional -I,-L directives are needed.
-@@ -953,11 +957,11 @@ class PyBuildExt(build_ext):
+@@ -1039,11 +1043,11 @@ class PyBuildExt(build_ext):
              elif curses_library:
                  readline_libs.append(curses_library)
              elif self.compiler.find_library_file(self.lib_dirs +
@@ -238,7 +237,7 @@ index 20d7f35..ffc9a3b 100644
                                 extra_link_args=readline_extra_link_args,
                                 libraries=readline_libs))
          else:
-@@ -971,7 +975,7 @@ class PyBuildExt(build_ext):
+@@ -1057,7 +1061,7 @@ class PyBuildExt(build_ext):
          if curses_library == 'ncursesw':
              curses_defines.append(('HAVE_NCURSESW', '1'))
              if not CROSS_COMPILING:
@@ -247,7 +246,7 @@ index 20d7f35..ffc9a3b 100644
              # Bug 1464056: If _curses.so links with ncursesw,
              # _curses_panel.so must link with panelw.
              panel_library = 'panelw'
-@@ -1096,33 +1100,17 @@ class PyBuildExt(build_ext):
+@@ -1186,33 +1190,17 @@ class PyBuildExt(build_ext):
          # construct a list of paths to look for the header file in on
          # top of the normal inc_dirs.
          db_inc_paths = [
@@ -287,7 +286,7 @@ index 20d7f35..ffc9a3b 100644
  
          if CROSS_COMPILING:
              db_inc_paths = []
-@@ -1350,12 +1338,9 @@ class PyBuildExt(build_ext):
+@@ -1440,12 +1428,9 @@ class PyBuildExt(build_ext):
          # We hunt for #define SQLITE_VERSION "n.n.n"
          # We need to find >= sqlite version 3.3.9, for sqlite3_prepare_v2
          sqlite_incdir = sqlite_libdir = None
@@ -303,7 +302,7 @@ index 20d7f35..ffc9a3b 100644
                               ]
          if CROSS_COMPILING:
              sqlite_inc_paths = []
-@@ -1673,7 +1658,7 @@ class PyBuildExt(build_ext):
+@@ -1763,7 +1748,7 @@ class PyBuildExt(build_ext):
  
      def detect_uuid(self):
          # Build the _uuid module if possible
@@ -312,12 +311,3 @@ index 20d7f35..ffc9a3b 100644
          if uuid_incs is not None:
              if self.compiler.find_library_file(self.lib_dirs, 'uuid'):
                  uuid_libs = ['uuid']
-@@ -2045,7 +2030,7 @@ class PyBuildExt(build_ext):
-                 return
-             # OS X 10.5 comes with libffi.dylib; the include files are
-             # in /usr/include/ffi
--            ffi_inc_dirs.append('/usr/include/ffi')
-+            ffi_inc_dirs.append('/lib/include/ffi')
- 
-         ffi_inc = [sysconfig.get_config_var("LIBFFI_INCLUDEDIR")]
-         if not ffi_inc or ffi_inc[0] == '':

@@ -1,13 +1,13 @@
 mode autotools
 
 prepare() {
-  unpack python-3.8.5.tar.xz \
-    https://www.python.org/ftp/python/3.8.5/Python-3.8.5.tar.xz
+  unpack python-3.9.2.tar.xz \
+    https://www.python.org/ftp/python/3.9.2/Python-3.9.2.tar.xz
   apply getpath.patch
   apply fakepkg.patch
   apply musl.patch
   apply paths.patch
-  tree cee28302d812cac780776993cb3dde5da1254cd67ca622522d82ebf59a570906
+  tree c2842d3a3aa663b27d74094515af0cf2438087fba10e53003155ee4456307f68
 }
 
 config-extra --enable-{ipv6,optimizations,shared} --without-ensurepip \
@@ -21,9 +21,9 @@ post-install() {
     $DST/lib/python*/{__phello__.foo.py,dbm,ensurepip,idlelib,sqlite3} \
     $DST/lib/python*/{turtle*,tkinter,__pycache__/turtle.*,LICENSE.txt} \
     $DST/bin/{2to3,idle*,pydoc3,python3,python*-config}
-  mv $DST/bin/2to3-3.8 $DST/bin/2to3
-  mv $DST/bin/pydoc3.8 $DST/bin/pydoc
-  mv $DST/bin/python3.8 $DST/bin/python3
+  mv $DST/bin/2to3-3.9 $DST/bin/2to3
+  mv $DST/bin/pydoc3.9 $DST/bin/pydoc
+  mv $DST/bin/python3.9 $DST/bin/python3
   ln $DST/bin/python3 $DST/bin/python
   sed -e '1s_^#!.*_#!/bin/python3_' -i $DST/bin/2to3 -i $DST/bin/pydoc \
     -i $DST/lib/python*/config-3*/python-config.py
