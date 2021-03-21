@@ -1,0 +1,6 @@
+mode autotools
+
+prepare() {
+  unpack ftp://sourceware.org/pub/libffi/libffi-3.3.tar.gz
+  tree 60efe8f6efb996585d850fcaa7afd9b95bfca02b9b34775cc1dd696ec7e22502
+}
