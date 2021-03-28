@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://strace.io/files/5.8/strace-5.8.tar.xz
-  tree b90680ac9924d89237512aae9b4f3b7ac9f082b5dbc61590ad8bdd53fe26f42b
+  unpack https://strace.io/files/5.11/strace-5.11.tar.xz
+  tree 2204b837973607fe7efcda20c4c74e1fb0f0dc8c3e7774235ffd69707ebe59ac
 }
 
 config-extra --disable-mpers
