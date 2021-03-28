@@ -1,6 +1,6 @@
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.9.14.tar.xz
-  tree a90f8de2e78b75dbf2f04baee773f153c94b4ac3f6dd5a48d21a94026f6bfeda
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.11.6.tar.xz
+  tree 7fa4add4da83d066996860821d51b28ad92a2e42a646463b9cb9d3172557c2c0
 }
 
 build() {
