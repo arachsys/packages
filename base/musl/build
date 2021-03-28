@@ -15,7 +15,7 @@ build() {
   make install DESTDIR=$DST
 
   for UTIL in getconf getent iconv; do
-    cc -I$DST/lib/include -L$DST/lib/shared -Os \
+    cc -isystem $DST/lib/include -L $DST/lib/shared -Os \
       $PKG/$UTIL.c -o $DST/bin/$UTIL
   done
 
