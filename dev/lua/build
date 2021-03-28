@@ -5,6 +5,6 @@ prepare() {
 }
 
 build() {
-  make linux-readline
+  make linux-readline CC="cc -std=gnu99"
   make install INSTALL_TOP=$DST
 }

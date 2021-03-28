@@ -8,8 +8,8 @@ prepare() {
 }
 
 build() {
-  PKG_CONFIG=/bin/false $SRC/configure
-  make install DESTDIR=$DST PREFIX= DATADIR=/lib HDRDIR=/lib/include \
+  CC=cc PKG_CONFIG=/bin/false $SRC/configure
+  make install CC=cc DESTDIR=$DST PREFIX= DATADIR=/lib HDRDIR=/lib/include \
     LIBDIR=/lib SBINDIR=/bin {DBM,KERNEL}_INCLUDE=/lib/include
   rm -f -r $DST/bin/{ifcfg,routef,routel,rtpr} $DST/lib/bash-completion
 }

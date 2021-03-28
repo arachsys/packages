@@ -16,7 +16,7 @@ prepare() {
 
 pre-config() {
   echo '#define HAVE_DECL_MAX 1' >fts/config.h
-  gcc -Ifts -O2 -Wall -c fts/fts.c -o fts/fts.o
+  cc -Ifts -O2 -Wall -c fts/fts.c -o fts/fts.o
   ar rcs fts/libfts.a fts/fts.o
 }
 

@@ -4,6 +4,6 @@ prepare() {
 }
 
 build() {
-  make install DESTDIR=$DST PREFIX=
+  make install CC=cc DESTDIR=$DST PREFIX=
   cp $SRC/examples/bin/* $DST/bin/
 }

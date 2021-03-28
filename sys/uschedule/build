@@ -5,6 +5,7 @@ prepare() {
 }
 
 build() {
+  echo cc >src/conf-cc
   make all
   install -s -t $DST/bin -D command/uschedule!(conf|runtimelimit)
   install -m 0644 -t $DST/lib/man/man1 -D doc/uschedule!(conf|runtimelimit).1

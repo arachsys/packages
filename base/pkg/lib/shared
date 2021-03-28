@@ -153,7 +153,7 @@ require() { :; }
 setup() {
   set -o allexport
   unset CFLAGS LDFLAGS
-  CHOST=$(gcc -dumpmachine)
+  CHOST=$(cc -dumpmachine)
   MAKEFLAGS=-j$((1 + $(nproc)))
   CACHEDIR=${CACHEDIR:-$HOME/cache}
   IMGDIR=${IMGDIR:-$HOME/img}

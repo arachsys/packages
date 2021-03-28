@@ -6,7 +6,7 @@ prepare() {
 }
 
 build() {
-  make PREFIX=
+  make CC=cc PREFIX=
   make install PREFIX=$DST
   mv $DST{,/lib}/include
   rm -f $DST/bin/bz{diff,egrep,fgrep,grep,less,more} \

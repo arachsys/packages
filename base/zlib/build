@@ -4,7 +4,7 @@ prepare() {
 }
 
 build() {
-  CC=gcc $SRC/configure --prefix=$DST --includedir='${prefix}/lib/include' \
+  CC=cc $SRC/configure --prefix=$DST --includedir='${prefix}/lib/include' \
     --libdir='${prefix}/lib' --shared
   make install mandir=$DST/lib/man pkgconfigdir=$DST/lib/pkgconfig
 }

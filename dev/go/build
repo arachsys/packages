@@ -10,7 +10,7 @@ prepare() {
 
 build() {
   GO_LDSO=/lib/ld.so GOCACHE=$SRC/pkg/obj/go-build GOROOT_FINAL=/lib/go \
-    bash -c 'cd src && source make.bash --no-banner'
+    CC=cc bash -c 'cd src && source make.bash --no-banner'
 
   mkdir -p $DST/{bin,lib/go}
   cp -d -R bin pkg src $DST/lib/go

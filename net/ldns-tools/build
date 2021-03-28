@@ -8,7 +8,7 @@ prepare() {
 build() {
   $SRC/configure --disable-{dane-ta-usage,shared} --with-{drill,ssl=/lib}
   make setup-builddir drill
-  gcc -g -I. -L.libs -Os -Wall ldns-host.c -lldns -lcrypto -o host
+  cc -g -I. -L.libs -Os -Wall ldns-host.c -lldns -lcrypto -o host
 
   install -s -t $DST/bin -D drill/drill host
   install -m 0644 -t $DST/lib/man/man1 -D drill/drill.1
