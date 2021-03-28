@@ -2,13 +2,13 @@ mode autotools
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/bash/bash-5.1.tar.gz
-  # set https://ftp.gnu.org/gnu/bash/bash-5.0-patches/bash50-{001..018}
-  # while [[ $# -gt 0 ]]; do
-  #   apply -p 0 bash-5.0.${1##*-*(0)}.patch $1
-  #   shift
-  # done
+  set https://ftp.gnu.org/gnu/bash/bash-5.1-patches/bash51-{001..004}
+  while [[ $# -gt 0 ]]; do
+    apply -p 0 bash-5.1.${1##*-*(0)}.patch $1
+    shift
+  done
   apply paths.patch
-  tree eb568a9cf2cced749d3b1597b3936cd9511e70c1e8a2647b800421ebe7644bc2
+  tree 190a64cd1260e844290f2601f80af948727e94d269816dae552b20b90096f376
 }
 
 config-extra --without-bash-malloc --with-installed-readline
