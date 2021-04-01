@@ -1,6 +1,6 @@
 prepare() {
-  unpack https://data.iana.org/time-zones/releases/tzdb-2020a.tar.lz
-  tree 18d79866abeb2592a848b014a0ac6833415b8a9881ec8d9dfd5732ed42f0e8b7
+  unpack https://data.iana.org/time-zones/releases/tzdb-2021a.tar.lz
+  tree a584eecc55311d1029edde46c8ba5c4fffae8fb3c694479c21840484370c205b
 }
 
 build() {
