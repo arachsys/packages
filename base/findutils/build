@@ -1,9 +1,9 @@
 mode autotools
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/findutils/findutils-4.7.0.tar.xz
+  unpack https://ftp.gnu.org/gnu/findutils/findutils-4.8.0.tar.xz
   apply paths.patch
-  tree d4b41ccb8ee5fc241b6e49b1ab7fddc2f14ee4f4650b95ca564f26356dff3875
+  tree 3827368db69f3e09e6f1ab45d6ff2c70d302b1b8d3b5c752475eebc018d2e276
 }
 
 config-extra --libexecdir='${prefix}/lib/findutils' \
