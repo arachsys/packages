@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/grep/grep-3.5.tar.xz
-  tree bf610885a4f12f83da394988bb606d09649ffc663863893b543debd6aa4012ca
+  unpack https://ftp.gnu.org/gnu/grep/grep-3.6.tar.xz
+  tree 42bc328ede3e279cb137d59c19cfaf0dbbcc859375ffe8e2383426fe4f4e7452
 }
 
 config-extra --enable-perl-regexp
