@@ -1,9 +1,9 @@
 mode autotools
 require bison
 require flex
+require m4
 
 prepare() {
-  unpack https://bird.network.cz/download/bird-2.0.7.tar.gz
-  apply gcc10.patch
-  tree e21566865a38cd57b5146b0f2cabf96f42fdbe617e559486684a36a9429de228
+  unpack https://bird.network.cz/download/bird-2.0.8.tar.gz
+  tree 87105f651f7d867d7ffec2025f10e79aa3cbe378cf026095c449d3ded3cf8709
 }
