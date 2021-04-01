@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-27.tar.xz
-  tree c130d955cad65538a5e4b1c377495f369a7ad22ee7999aa1dcf2e07feda9fea7
+  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-28.tar.xz
+  tree e693038b8643e8e8eb9e379bcf3cb7f93c58886c3f74001c83a3caad6551cfea
 }
 
 config-extra --with-{xz,zlib} liblzma_CFLAGS=-I/lib/include \
