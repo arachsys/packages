@@ -1,0 +1,40 @@
+diff --git a/proc/escape.c b/proc/escape.c
+index 2e8fb7d..ff3a934 100644
+--- a/proc/escape.c
++++ b/proc/escape.c
+@@ -25,13 +25,11 @@
+ #include "escape.h"
+ #include "readproc.h"
+ 
+-#if (__GNU_LIBRARY__ >= 6) && (!defined(__UCLIBC__) || defined(__UCLIBC_HAS_WCHAR__))
+-# include <wchar.h>
+-# include <wctype.h>
+-# include <stdlib.h>  /* MB_CUR_MAX */
+-# include <ctype.h>
+-# include <langinfo.h>
+-#endif
++#include <wchar.h>
++#include <wctype.h>
++#include <stdlib.h>  /* MB_CUR_MAX */
++#include <ctype.h>
++#include <langinfo.h>
+ 
+ #define SECURE_ESCAPE_ARGS(dst, bytes, cells) do { \
+   if ((bytes) <= 0) return 0; \
+diff --git a/w.c b/w.c
+index 9d07ac9..c1fda14 100644
+--- a/w.c
++++ b/w.c
+@@ -55,11 +55,7 @@
+ #include <termios.h>
+ #include <time.h>
+ #include <unistd.h>
+-#ifdef HAVE_UTMPX_H
+-#	include <utmpx.h>
+-#else
+-#	include <utmp.h>
+-#endif
++#include <utmp.h>
+ #include <arpa/inet.h>
+ 
+ static int ignoreuser = 0;	/* for '-u' */

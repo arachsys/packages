@@ -1,8 +1,9 @@
 mode autotools
 
 prepare() {
-  unpack https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-3.3.16.tar.xz
-  tree f92b2dc2fa4aa2b0e9112931f3db3112a0a5e5c7be94505220bf7d5fca66f166
+  unpack https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-3.3.17.tar.xz
+  apply musl.patch
+  tree f462aa820802486f5bd0482b3ae4971b171b940e43a09b9c331718b98b3929c6
 }
 
 config-extra --disable-{kill,modern-top,shared} --enable-watch8bit
