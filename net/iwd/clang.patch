@@ -1,0 +1,81 @@
+diff --git a/ell/cert.c b/ell/cert.c
+index 14631b2..9123276 100644
+--- a/ell/cert.c
++++ b/ell/cert.c
+@@ -435,6 +435,11 @@ static struct l_key *cert_try_link(struct l_cert *cert, struct l_keyring *ring)
+ 	return NULL;
+ }
+ 
++static void cert_keyring_cleanup(struct l_keyring **p)
++{
++	l_keyring_free(*p);
++}
++
+ #define RETURN_ERROR(msg, args...)	\
+ 	do {	\
+ 		if (error) {	\
+@@ -449,7 +454,7 @@ LIB_EXPORT bool l_certchain_verify(struct l_certchain *chain,
+ 					const char **error)
+ {
+ 	struct l_keyring *ca_ring = NULL;
+-	_auto_(l_keyring_free) struct l_keyring *verify_ring = NULL;
++	struct l_keyring *verify_ring __attribute__((cleanup(cert_keyring_cleanup))) = NULL;
+ 	struct l_cert *cert;
+ 	struct l_key *prev_key = NULL;
+ 	int verified = 0;
+diff --git a/src/eap.c b/src/eap.c
+index bef46e0..9a7e067 100644
+--- a/src/eap.c
++++ b/src/eap.c
+@@ -389,6 +389,9 @@ static const char *eap_type_to_str(enum eap_type type, uint32_t vendor_id,
+ #define IS_EXPANDED_RESPONSE(id, t) \
+ 	(type == EAP_TYPE_EXPANDED && vendor_id == (id) && vendor_type == (t))
+ 
++#define RESPONSE_IS(wanted) \
++	(type == wanted || IS_EXPANDED_RESPONSE(0, wanted))
++
+ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+ 				size_t len)
+ {
+@@ -401,14 +404,6 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+ 				eap->method->vendor_id[2];
+ 	uint32_t our_vendor_type = eap->method->vendor_type;
+ 
+-	bool response_is(enum eap_type wanted)
+-	{
+-		if (type == wanted)
+-			return true;
+-
+-		return IS_EXPANDED_RESPONSE(0, wanted);
+-	}
+-
+ 	if (len < 1)
+ 		/* Invalid packets to be ignored */
+ 		return;
+@@ -434,7 +429,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+ 			return;
+ 	}
+ 
+-	if (response_is(EAP_TYPE_NAK)) {
++	if (RESPONSE_IS(EAP_TYPE_NAK)) {
+ 		l_debug("EAP peer not configured for method: %s",
+ 			eap_type_to_str(our_type, our_vendor_id,
+ 							our_vendor_type));
+@@ -473,7 +468,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+ 	 */
+ 
+ 	if (!eap->identity) {
+-		if (!response_is(EAP_TYPE_IDENTITY))
++		if (!RESPONSE_IS(EAP_TYPE_IDENTITY))
+ 			goto unsupported_method;
+ 
+ 		/*
+@@ -501,7 +496,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+ 	 * (with the exception of the Nak)
+ 	 */
+ 	if (our_type != EAP_TYPE_EXPANDED) {
+-		if (response_is(our_type))
++		if (RESPONSE_IS(our_type))
+ 			goto handle_response;
+ 	} else if (IS_EXPANDED_RESPONSE(our_vendor_id, our_vendor_type))
+ 		goto handle_response;
