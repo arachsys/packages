@@ -1,6 +1,6 @@
 mode autotools
 
 prepare() {
-  unpack http://www.greenwoodsoftware.com/less/less-557.tar.gz
-  tree 546371caf6d9a7d44a07d34a8f8cf3e2d6bbcf42ce4c5b7b27343991a05f2950
+  unpack http://www.greenwoodsoftware.com/less/less-580.tar.gz
+  tree 2d945737f93daa341cea5953b2c6dea7d21edc7986ede45805d8e9736e4724d6
 }
