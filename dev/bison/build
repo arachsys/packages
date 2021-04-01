@@ -1,4 +1,5 @@
 mode autotools
+require m4
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/bison/bison-3.5.4.tar.xz

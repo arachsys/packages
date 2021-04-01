@@ -1,5 +1,6 @@
 require bison
 require flex
+require m4
 
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-5.9.tar.xz

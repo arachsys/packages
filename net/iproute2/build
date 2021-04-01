@@ -1,5 +1,6 @@
 require bison
 require flex
+require m4
 
 prepare() {
   unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.11.0.tar.xz
