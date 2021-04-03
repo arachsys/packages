@@ -1,0 +1,79 @@
+diff --git a/compiler-rt/lib/fuzzer/FuzzerInterceptors.cpp b/compiler-rt/lib/fuzzer/FuzzerInterceptors.cpp
+index b87798603fda..4c3802c75049 100644
+--- a/compiler-rt/lib/fuzzer/FuzzerInterceptors.cpp
++++ b/compiler-rt/lib/fuzzer/FuzzerInterceptors.cpp
+@@ -27,6 +27,7 @@
+ #include <cassert>
+ #include <cstdint>
+ #include <dlfcn.h> // for dlsym()
++#include <stdlib.h>
+ 
+ static void *getFuncAddr(const char *name, uintptr_t wrapper_addr) {
+   void *addr = dlsym(RTLD_NEXT, name);
+diff --git a/compiler-rt/cmake/config-ix.cmake b/compiler-rt/cmake/config-ix.cmake
+index f81b8384c..00f444a4b 100644
+--- a/compiler-rt/cmake/config-ix.cmake
++++ b/compiler-rt/cmake/config-ix.cmake
+@@ -798,7 +798,7 @@ endif()
+ # TODO(hctim): Enable this on Android again. Looks like it's causing a SIGSEGV
+ # for Scudo and GWP-ASan, further testing needed.
+ if (COMPILER_RT_HAS_SANITIZER_COMMON AND GWP_ASAN_SUPPORTED_ARCH AND
+-    OS_NAME MATCHES "Linux")
++    OS_NAME MATCHES "Linux" AND NOT LIBCXX_HAS_MUSL_LIBC)
+   set(COMPILER_RT_HAS_GWP_ASAN TRUE)
+ else()
+   set(COMPILER_RT_HAS_GWP_ASAN FALSE)
+diff --git a/clang/lib/Driver/ToolChains/CommonArgs.cpp b/clang/lib/Driver/ToolChains/CommonArgs.cpp
+index bcaea71dc..8e9d53f34 100644
+--- a/clang/lib/Driver/ToolChains/CommonArgs.cpp
++++ b/clang/lib/Driver/ToolChains/CommonArgs.cpp
+@@ -769,6 +769,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
+   if (TC.getTriple().isOSFreeBSD() ||
+       TC.getTriple().isOSNetBSD())
+     CmdArgs.push_back("-lexecinfo");
++  if (TC.getTriple().isOSLinux())
++    CmdArgs.push_back("-lunwind");
+ }
+ 
+ static void
+diff --git a/compiler-rt/cmake/Modules/AddCompilerRT.cmake b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
+index 361538a58..ed1d1dcab 100644
+--- a/compiler-rt/cmake/Modules/AddCompilerRT.cmake
++++ b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
+@@ -487,7 +487,7 @@ endfunction()
+ 
+ macro(add_compiler_rt_resource_file target_name file_name component)
+   set(src_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_name}")
+-  set(dst_file "${COMPILER_RT_OUTPUT_DIR}/share/${file_name}")
++  set(dst_file "${COMPILER_RT_OUTPUT_DIR}/lib/${file_name}")
+   add_custom_command(OUTPUT ${dst_file}
+     DEPENDS ${src_file}
+     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_file} ${dst_file}
+@@ -495,7 +495,7 @@ macro(add_compiler_rt_resource_file target_name file_name component)
+   add_custom_target(${target_name} DEPENDS ${dst_file})
+   # Install in Clang resource directory.
+   install(FILES ${file_name}
+-    DESTINATION ${COMPILER_RT_INSTALL_PATH}/share
++    DESTINATION ${COMPILER_RT_INSTALL_PATH}/lib
+     COMPONENT ${component})
+   add_dependencies(${component} ${target_name})
+ 
+diff --git a/compiler-rt/lib/dfsan/CMakeLists.txt b/compiler-rt/lib/dfsan/CMakeLists.txt
+index a29de8def..56cdf5f2d 100644
+--- a/compiler-rt/lib/dfsan/CMakeLists.txt
++++ b/compiler-rt/lib/dfsan/CMakeLists.txt
+@@ -42,7 +42,7 @@ foreach(arch ${DFSAN_SUPPORTED_ARCH})
+     clang_rt.dfsan-${arch}-symbols)
+ endforeach()
+ 
+-set(dfsan_abilist_dir ${COMPILER_RT_OUTPUT_DIR}/share)
++set(dfsan_abilist_dir ${COMPILER_RT_OUTPUT_DIR}/lib)
+ set(dfsan_abilist_filename ${dfsan_abilist_dir}/dfsan_abilist.txt)
+ add_custom_target(dfsan_abilist ALL
+   DEPENDS ${dfsan_abilist_filename})
+@@ -57,4 +57,4 @@ add_custom_command(OUTPUT ${dfsan_abilist_filename}
+                    DEPENDS done_abilist.txt libc_ubuntu1404_abilist.txt)
+ add_dependencies(dfsan dfsan_abilist)
+ install(FILES ${dfsan_abilist_filename}
+-        DESTINATION ${COMPILER_RT_INSTALL_PATH}/share)
++        DESTINATION ${COMPILER_RT_INSTALL_PATH}/lib)

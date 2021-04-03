@@ -1,0 +1,59 @@
+diff --git a/clang/include/clang/Driver/Distro.h b/clang/include/clang/Driver/Distro.h
+index 0e98d0076..3fd373545 100644
+--- a/clang/include/clang/Driver/Distro.h
++++ b/clang/include/clang/Driver/Distro.h
+@@ -29,6 +29,7 @@ public:
+     // in this enum, because some tests are done by integer comparison against
+     // the first and last known member in the family, e.g. IsRedHat().
+     AlpineLinux,
++    Arachsys,
+     ArchLinux,
+     DebianLenny,
+     DebianSqueeze,
+@@ -127,6 +128,8 @@ public:
+ 
+   bool IsAlpineLinux() const { return DistroVal == AlpineLinux; }
+ 
++  bool IsArachsys() const { return DistroVal == Arachsys; }
++
+   bool IsGentoo() const { return DistroVal == Gentoo; }
+ 
+   /// @}
+diff --git a/clang/lib/Driver/Distro.cpp b/clang/lib/Driver/Distro.cpp
+index ee4fe841e..ba2a25cb3 100644
+--- a/clang/lib/Driver/Distro.cpp
++++ b/clang/lib/Driver/Distro.cpp
+@@ -20,6 +20,7 @@
+ using namespace clang::driver;
+ using namespace clang;
+ 
++/*
+ static Distro::DistroType DetectOsRelease(llvm::vfs::FileSystem &VFS) {
+   llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> File =
+       VFS.getBufferForFile("/etc/os-release");
+@@ -202,6 +203,7 @@ static Distro::DistroType DetectDistro(llvm::vfs::FileSystem &VFS) {
+ 
+   return Distro::UnknownDistro;
+ }
++*/
+ 
+ static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
+                                     const llvm::Triple &TargetOrHost) {
+@@ -220,7 +222,9 @@ static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
+   llvm::Triple HostTriple(llvm::sys::getProcessTriple());
+   if (!HostTriple.isOSLinux() && onRealFS)
+     return Distro::UnknownDistro;
++  return Distro::Arachsys;
+ 
++  /*
+   if (onRealFS) {
+     // If we're backed by a real file system, perform
+     // the detection only once and save the result.
+@@ -230,6 +234,7 @@ static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
+   // This is mostly for passing tests which uses llvm::vfs::InMemoryFileSystem,
+   // which is not "real".
+   return DetectDistro(VFS);
++  */
+ }
+ 
+ Distro::Distro(llvm::vfs::FileSystem &VFS, const llvm::Triple &TargetOrHost)

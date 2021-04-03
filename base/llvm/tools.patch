@@ -1,0 +1,47 @@
+diff --git a/llvm/cmake/modules/AddLLVM.cmake b/llvm/cmake/modules/AddLLVM.cmake
+index 97c9980c7de3..51a91b54604e 100644
+--- a/llvm/cmake/modules/AddLLVM.cmake
++++ b/llvm/cmake/modules/AddLLVM.cmake
+@@ -1174,6 +1174,7 @@ endfunction()
+ if(NOT LLVM_TOOLCHAIN_TOOLS)
+   set (LLVM_TOOLCHAIN_TOOLS
+     llvm-ar
++    llvm-as
+     llvm-cov
+     llvm-cxxfilt
+     llvm-ranlib
+@@ -1182,6 +1183,8 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
+     llvm-objcopy
+     llvm-objdump
+     llvm-rc
++    llvm-readelf
++    llvm-readobj
+     llvm-size
+     llvm-strings
+     llvm-strip
+@@ -1191,11 +1194,13 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
+     # LLVM_INSTALL_BINUTILS_SYMLINKS.
+     addr2line
+     ar
++    as
+     c++filt
+     ranlib
+     nm
+     objcopy
+     objdump
++    readelf
+     size
+     strings
+     strip
+diff --git a/llvm/tools/llvm-as/CMakeLists.txt b/llvm/tools/llvm-as/CMakeLists.txt
+index 3a157a3d4098..d9917d9e1906 100644
+--- a/llvm/tools/llvm-as/CMakeLists.txt
++++ b/llvm/tools/llvm-as/CMakeLists.txt
+@@ -11,3 +11,7 @@ add_llvm_tool(llvm-as
+   DEPENDS
+   intrinsics_gen
+   )
++
++if(LLVM_INSTALL_BINUTILS_SYMLINKS)
++  add_llvm_tool_symlink(as llvm-as)
++endif()
