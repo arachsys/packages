@@ -9,9 +9,9 @@ if [[ ! -d ${0%/*}/../lib/pkg ]]; then
   exit 1
 fi
 
-LIBRARY=$(cd -- "${0%/*}/../lib/pkg" && echo $PWD)
+LIBRARY=$(cd -- "${0%/*}/../lib/pkg" && echo "$PWD")
 
-echo "Updating /etc/protocols" 
+echo "Updating /etc/protocols"
 curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/protocols \
   | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
   > /etc/protocols.tmp

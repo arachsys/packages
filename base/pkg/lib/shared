@@ -38,7 +38,7 @@ build() {
 
 die() {
   if [[ $# -gt 0 ]]; then
-    echo "$*" >&2
+    printf '%s\n' "$@" >&2
   fi
   exit 1
 }
@@ -109,7 +109,7 @@ feature() {
   if [[ -z ${FEATURES[$1]+defined} ]]; then
     return 1
   elif [[ -n ${FEATURES[$1]} ]]; then
-    echo "${FEATURES[$1]}"
+    printf '%s\n' "${FEATURES[$1]}"
   fi
 }
 
@@ -168,7 +168,7 @@ locate() {
     if [[ ! -f $2/build ]]; then
       die "Package $2 not found"
     fi
-    echo "$2"
+    printf '%s\n' "$2"
   else
     declare -a PKG=("$1"/**/"$2/build")
     if [[ ${#PKG[@]} -lt 1 ]]; then
@@ -176,7 +176,7 @@ locate() {
     elif [[ ${#PKG[@]} -gt 1 ]]; then
       die "Ambiguous package $2: ${PKG[*]}"
     fi
-    echo "${PKG%/build}"
+    printf '%s\n' "${PKG%/build}"
   fi
 }
 
@@ -241,7 +241,7 @@ tidy() {
   maybe mv -t lib/shared -- lib{,/static}/!(ld*).so?(.*)
   maybe chmod -f a+x -- lib/ld*.so?(.*)
 
-  { find . -type f -print0 | while read -d '' -r FILE; do
+  { find "$PWD" -type f -print0 | while read -d '' -r FILE; do
       if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
         # ELF executable or shared object
         if ! enabled rpaths && readelf -d "$FILE" | grep -q ' (RPATH) '; then
@@ -333,6 +333,6 @@ unpack() {
 
 warn() {
   if [[ $# -gt 0 ]]; then
-    echo "$*" >&2
+    printf '%s\n' "$@" >&2
   fi
 }
