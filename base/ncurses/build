@@ -11,12 +11,12 @@ config-extra --disable-{rpath-hack,termcap} --enable-{const,widec} \
 
 post-install() {
   for LIB in ncurses form panel menu; do
-    echo "INPUT(-l${LIB}w)" >$DST/lib/lib${LIB}.so
-    ln -f -s lib${LIB}w.a $DST/lib/lib${LIB}.a
+    echo "INPUT(-l${LIB}w)" >/dst/lib/lib${LIB}.so
+    ln -f -s lib${LIB}w.a /dst/lib/lib${LIB}.a
   done
-  echo "INPUT(-lncursesw)" >$DST/lib/libcurses.so
-  echo "INPUT(-lncursesw)" >$DST/lib/libcursesw.so
-  ln -f -s libncurses++w.a $DST/lib/libncurses++.a
-  ln -f -s libncursesw.a $DST/lib/libcurses.a
-  rm -f $DST/bin/ncurses*-config
+  echo "INPUT(-lncursesw)" >/dst/lib/libcurses.so
+  echo "INPUT(-lncursesw)" >/dst/lib/libcursesw.so
+  ln -f -s libncurses++w.a /dst/lib/libncurses++.a
+  ln -f -s libncursesw.a /dst/lib/libcurses.a
+  rm -f /dst/bin/ncurses*-config
 }

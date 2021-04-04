@@ -19,9 +19,9 @@ post-config() {
 }
 
 post-install() {
-  make install-libs DESTDIR=$DST
-  rm -f $DST/lib/e2initrd_helper
+  make install-libs DESTDIR=/dst
+  rm -f /dst/lib/e2initrd_helper
   if ! enabled shared; then
-    rm -f -r $DST/bin/{compile_et,mk_cmds} $DST/lib/{et,include,ss,*.a}
+    rm -f -r /dst/bin/{compile_et,mk_cmds} /dst/lib/{et,include,ss,*.a}
   fi
 }

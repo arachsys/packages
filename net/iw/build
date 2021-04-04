@@ -10,11 +10,11 @@ prepare() {
 
 build() {
   cd libnl
-  $SRC/libnl/configure --prefix=$SRC/libs --disable-shared
+  /src/libnl/configure --prefix=/src/libs --disable-shared
   make install
-  cd $SRC
+  cd /src
 
-  make DESTDIR=$DST PREFIX= SBINDIR=/bin MANDIR=/lib/man NO_PKG_CONFIG=1 \
-    CFLAGS="-Os ${CFLAGS} -DCONFIG_LIBNL30 -I$SRC/libs/include/libnl3" \
-    LIBS="-L$SRC/libs/lib -lnl-genl-3 -lnl-3" install
+  make DESTDIR=/dst PREFIX= SBINDIR=/bin MANDIR=/lib/man NO_PKG_CONFIG=1 \
+    CFLAGS="-Os ${CFLAGS} -DCONFIG_LIBNL30 -I/src/libs/include/libnl3" \
+    LIBS="-L/src/libs/lib -lnl-genl-3 -lnl-3" install
 }

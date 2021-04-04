@@ -14,8 +14,8 @@ config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
   --with-default-path=/bin --with-pid-dir=/run \
   --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth
 
-install-reset install-nokeys DESTDIR=$DST
+install-reset install-nokeys DESTDIR=/dst
 
 post-install() {
-  chmod u+rw,go+r $DST/lib/openssh/*
+  chmod u+rw,go+r /dst/lib/openssh/*
 }

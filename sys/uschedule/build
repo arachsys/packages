@@ -7,8 +7,8 @@ prepare() {
 build() {
   echo cc >src/conf-cc
   make all
-  install -s -t $DST/bin -D command/uschedule!(conf|runtimelimit)
-  install -m 0644 -t $DST/lib/man/man1 -D doc/uschedule!(conf|runtimelimit).1
-  install -m 0644 -t $DST/lib/man/man8 -D doc/uschedule!(conf|runtimelimit).8
-  cp $PKG/uscheduleinit $DST/bin
+  install -s -t /dst/bin -D command/uschedule!(conf|runtimelimit)
+  install -m 0644 -t /dst/lib/man/man1 -D doc/uschedule!(conf|runtimelimit).1
+  install -m 0644 -t /dst/lib/man/man8 -D doc/uschedule!(conf|runtimelimit).8
+  cp /pkg/uscheduleinit /dst/bin
 }

@@ -11,5 +11,5 @@ pre-config() {
 }
 
 post-install() {
-  rm -f $DST/bin/event_rpcgen.py
+  rm -f /dst/bin/event_rpcgen.py
 }

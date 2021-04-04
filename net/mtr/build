@@ -8,5 +8,5 @@ prepare() {
 }
 
 post-install() {
-  rm -f -r $DST/lib/bash-completion
+  rm -f -r /dst/lib/bash-completion
 }

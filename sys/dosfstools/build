@@ -6,8 +6,8 @@ prepare() {
 }
 
 post-install() {
-  ln -s fsck.fat $DST/bin/fsck.msdos
-  ln -s fsck.fat $DST/bin/fsck.vfat
-  ln -s mkfs.fat $DST/bin/mkfs.msdos
-  ln -s mkfs.fat $DST/bin/mkfs.vfat
+  ln -s fsck.fat /dst/bin/fsck.msdos
+  ln -s fsck.fat /dst/bin/fsck.vfat
+  ln -s mkfs.fat /dst/bin/mkfs.msdos
+  ln -s mkfs.fat /dst/bin/mkfs.vfat
 }

@@ -5,5 +5,5 @@ prepare() {
 }
 
 build() {
-  make install CC=cc DESTDIR=$DST PREFIX=
+  make install CC=cc DESTDIR=/dst PREFIX=
 }

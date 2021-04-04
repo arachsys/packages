@@ -3,15 +3,15 @@ Usage: pkg ACTION [ARG]...
 pkg apply [-d DIR] [-p STRIP] PATCH
   Apply a patch from a remote URL or local file.
 
-pkg build [-d] PKG [FEATURE]...
-  Build an image for package PKG in the configured image directory $IMGDIR,
-  constructing and using a temporary build chroot consisting of the base
-  packages plus any additional build requirements PKG declares. Images for
-  all the build requirements and base packages must already exist in the
-  image directory. Any existing image for PKG is replaced on successful
-  completion; otherwise it is untouched. Use -d to enable debug mode, which
-  leaves the build chroot in place for inspection whether or not the build
-  succeeds, and does not install the new image in $IMGDIR.
+pkg build [-d] [-s SRC] PKG [FEATURE]...
+  Build an image for package PKG with the specified FEATURE options in the
+  configured image directory $IMGDIR. Images for all the build requirements
+  and base packages must already exist in the image directory. Any existing
+  image for PKG is replaced on successful completion; otherwise it is
+  untouched. An empty directory or pre-prepared tree of source code for
+  building can be provided with the -s option. Use -d to enable debug mode,
+  which leaves the build chroot in place for inspection whether or not the
+  build succeeds, and does not install the new image in $IMGDIR.
 
 pkg hashtree [DIR [EXCLUDE]...]
   Generate a hash of the source code in directory DIR, skipping paths which
@@ -21,21 +21,13 @@ pkg hashtree [DIR [EXCLUDE]...]
   do not affect the result. Out-of-tree symlinks, pipes, sockets and device
   nodes are forbidden as a security risk and will result in an error.
 
-pkg make [-d] [-s SRC] PKG DST [FEATURE]...
-  In the directory DST, which must be empty, build an image for package PKG
-  with the specified FEATURE options. All the base packages plus any build
-  requirements should already be installed on the host. An empty directory
-  or pre-prepared tree of source code for building can be provided with the
-  -s option. Use -d to enable debug mode, which leaves the build tree in
-  place for inspection whether or not the build succeeds.
-
 pkg prepare PKG SRC [FEATURE]...
   In the directory SRC, which must be empty, unpack and patch the source
   code for package PKG with the specified FEATURE options. Preparation will
   stop at the first error, leaving the partial source tree for debugging.
 
 pkg requirements PKG [FEATURE]...
-  List the build requirements for PKG with specified FEATURE options.
+  List the build requirements for PKG with the specified FEATURE options.
 
 pkg root [PKG]...
   Start a login shell in a temporary chroot constructed from the images in

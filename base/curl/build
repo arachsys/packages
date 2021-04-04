@@ -8,11 +8,11 @@ mode autotools
 config-extra --with-ca-bundle=/etc/ssl/cert.pem
 
 pre-config() {
-  unexpand $SRC/curl-config.in >$SRC/curl-config.in.tmp
-  mv -f $SRC/curl-config.in{.tmp,}
+  unexpand /src/curl-config.in >/src/curl-config.in.tmp
+  mv -f /src/curl-config.in{.tmp,}
   export PATH_SEPARATOR=:
 }
 
 post-install() {
-  rm -f $DST/bin/curl-config
+  rm -f /dst/bin/curl-config
 }

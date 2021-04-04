@@ -3,6 +3,7 @@
 set -e -o pipefail
 shopt -s dotglob extglob globstar nullglob
 unset LANG LC_{ALL,COLLATE,CTYPE,MESSAGES,MONETARY,NUMERIC,TIME}
+unset DEBUG SRC
 
 if [[ ! -d ${0%/*}/../lib/pkg ]]; then
   echo "Failed to identify library path" >&2
@@ -11,6 +12,15 @@ fi
 
 LIBRARY=$(cd -- "${0%/*}/../lib/pkg" && echo $PWD)
 source "$LIBRARY/shared"
+
+if [[ -z ${HOME%%+(/)} ]]; then
+  CACHEDIR=${CACHEDIR:-/var/cache}
+else
+  CACHEDIR=${CACHEDIR:-$HOME/cache}
+fi
+
+IMGDIR=${IMGDIR:-${HOME%%+(/)}/img}
+PKGDIR=${PKGDIR:-${HOME%%+(/)}/pkg}
 
 ACTION=$LIBRARY/actions/$1
 if [[ -f $ACTION ]]; then

@@ -9,15 +9,15 @@ prepare() {
 }
 
 build() {
-  GO_LDSO=/lib/ld.so GOCACHE=$SRC/pkg/obj/go-build GOROOT_FINAL=/lib/go \
+  GO_LDSO=/lib/ld.so GOCACHE=/src/pkg/obj/go-build GOROOT_FINAL=/lib/go \
     CC=cc bash -c 'cd src && source make.bash --no-banner'
 
-  mkdir -p $DST/{bin,lib/go}
-  cp -d -R bin pkg src $DST/lib/go
-  ln -s ../lib/go/bin/{go,gofmt} $DST/bin/
+  mkdir -p /dst/{bin,lib/go}
+  cp -d -R bin pkg src /dst/lib/go
+  ln -s ../lib/go/bin/{go,gofmt} /dst/bin/
 
-  rm -f -r $DST/lib/go/{pkg/obj,pkg/bootstrap,pkg/tool/*/api}
-  rm -f -r $DST/lib/go/src/**/{*_test.go,*.bat,*.rc,testdata/}
-  strip --strip-unneeded $DST/lib/go/{bin/*,pkg/tool/*/*}
-  chmod a+x $DST/lib/go/**/*.{bash,sh}
+  rm -f -r /dst/lib/go/{pkg/obj,pkg/bootstrap,pkg/tool/*/api}
+  rm -f -r /dst/lib/go/src/**/{*_test.go,*.bat,*.rc,testdata/}
+  strip --strip-unneeded /dst/lib/go/{bin/*,pkg/tool/*/*}
+  chmod a+x /dst/lib/go/**/*.{bash,sh}
 }

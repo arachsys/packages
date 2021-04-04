@@ -6,5 +6,5 @@ prepare() {
 }
 
 post-install() {
-  rm -f $DST/bin/{pgawk,gawk}-*
+  rm -f /dst/bin/{pgawk,gawk}-*
 }

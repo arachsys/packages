@@ -11,5 +11,5 @@ prepare() {
 config-extra --with-pcap=linux
 
 post-install() {
-  rm -f $DST/bin/pcap-config
+  rm -f /dst/bin/pcap-config
 }

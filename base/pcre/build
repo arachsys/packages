@@ -9,5 +9,5 @@ prepare() {
 config-extra --enable-utf8
 
 post-install() {
-  rm -f -r $DST/bin
+  rm -f -r /dst/bin
 }

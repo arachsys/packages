@@ -15,5 +15,5 @@ post-config() {
 }
 
 post-install() {
-  mv -f $DST/bin/screen{-*,}
+  mv -f /dst/bin/screen{-*,}
 }

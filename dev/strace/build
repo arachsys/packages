@@ -8,5 +8,5 @@ prepare() {
 config-extra --disable-mpers
 
 post-install() {
-  rm -f $DST/bin/strace-{graph,log-merge}
+  rm -f /dst/bin/strace-{graph,log-merge}
 }

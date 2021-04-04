@@ -14,6 +14,6 @@ prepare() {
 config-extra --without-bash-malloc --with-installed-readline
 
 post-install() {
-  ln -f -s bash $DST/bin/sh
-  rm -f $DST/bin/bashbug $DST/lib/bash/Makefile.inc
+  ln -f -s bash /dst/bin/sh
+  rm -f /dst/bin/bashbug /dst/lib/bash/Makefile.inc
 }

@@ -15,7 +15,7 @@ prepare() {
 }
 
 build() {
-  cd $SRC/cmake
+  cd /src/cmake
   $PWD/bootstrap --prefix= --datadir=lib/cmake --docdir=lib/doc/cmake \
     --mandir=lib/man --xdgdatadir=lib --parallel=$((1 + $(nproc))) \
     --system-{bzip2,curl,libarchive,liblzma,zlib,zstd} -- \
@@ -23,9 +23,9 @@ build() {
     -DCMAKE_SYSTEM_LIBRARY_PATH="/lib/shared;/lib/static"
   make
 
-  mkdir -p $SRC/build-libunwind
-  cd $SRC/build-libunwind
-  $SRC/cmake/bin/cmake -W no-dev \
+  mkdir -p /src/build-libunwind
+  cd /src/build-libunwind
+  /src/cmake/bin/cmake -W no-dev \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
@@ -33,26 +33,26 @@ build() {
     -DLLVM_TARGETS_TO_BUILD="Native" \
     -DLIBUNWIND_USE_COMPILER_RT=Yes \
     ../libunwind
-  make install DESTDIR=$DST
+  make install DESTDIR=/dst
 
-  mkdir -p $SRC/build-libcxxabi
-  cd $SRC/build-libcxxabi
-  $SRC/cmake/bin/cmake -W no-dev \
+  mkdir -p /src/build-libcxxabi
+  cd /src/build-libcxxabi
+  /src/cmake/bin/cmake -W no-dev \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SHARED_LINKER_FLAGS=-L$DST/lib \
+    -DCMAKE_SHARED_LINKER_FLAGS=-L/dst/lib \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DLIBCXXABI_USE_COMPILER_RT=Yes \
     -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
     ../libcxxabi
-  make install DESTDIR=$DST
+  make install DESTDIR=/dst
 
-  mkdir -p $SRC/build-libcxx
-  cd $SRC/build-libcxx
-  $SRC/cmake/bin/cmake -W no-dev \
+  mkdir -p /src/build-libcxx
+  cd /src/build-libcxx
+  /src/cmake/bin/cmake -W no-dev \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SHARED_LINKER_FLAGS=-L$DST/lib \
+    -DCMAKE_SHARED_LINKER_FLAGS=-L/dst/lib \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DLIBCXX_CXX_ABI=libcxxabi \
     -DLIBCXX_CXX_ABI_INCLUDE_PATHS=../libcxxabi/include \
@@ -61,14 +61,14 @@ build() {
     -DLIBCXX_USE_COMPILER_RT=Yes \
     -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
     ../libcxx
-  make install DESTDIR=$DST
+  make install DESTDIR=/dst
 
-  mkdir -p $SRC/build-llvm
-  cd $SRC/build-llvm
-  $SRC/cmake/bin/cmake -W no-dev \
+  mkdir -p /src/build-llvm
+  cd /src/build-llvm
+  /src/cmake/bin/cmake -W no-dev \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SHARED_LINKER_FLAGS=-L$DST/lib \
+    -DCMAKE_SHARED_LINKER_FLAGS=-L/dst/lib \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld" \
     -DLLVM_HOST_TRIPLE=$CHOST \
@@ -84,9 +84,9 @@ build() {
     -DLLD_SYMLINKS_TO_CREATE="ld;wasm-ld" \
     $(enabled lto && echo -DLLVM_ENABLE_LTO=Thin) \
     ../llvm
-  make install DESTDIR=$DST
+  make install DESTDIR=/dst
 
-  LLVMDIR=$DST/lib/llvm/$(bin/llvm-config --version)
+  LLVMDIR=/dst/lib/llvm/$(bin/llvm-config --version)
   mkdir -p $LLVMDIR/bin $LLVMDIR/include $LLVMDIR/lib
   cp bin/llvm-config $LLVMDIR/bin/
   cp $(bin/llvm-config --libfiles) $LLVMDIR/lib/
@@ -95,7 +95,7 @@ build() {
     -or -name '*.inc' -or -name '*.td' -or -delete
   rm -f -r $LLVMDIR/include/**/{CMakeFiles,config.h}
 
-  rm -f -r $DST/include/{clang-c,llvm-c}
-  rm -f -r $DST/lib/{cmake,libclang.so*,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
-  mv $DST/include $DST/lib/include
+  rm -f -r /dst/include/{clang-c,llvm-c}
+  rm -f -r /dst/lib/{cmake,libclang.so*,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
+  mv /dst/include /dst/lib/include
 }

@@ -10,5 +10,5 @@ config-extra --disable-{rpath,shared} --with-conf-file=/etc/unbound.conf \
   --with-{libexpat,ssl}=/lib --with-run-dir=/run/unbound --with-username=dns
 
 post-install() {
-  rm -f -r $DST/include $DST/lib
+  rm -f -r /dst/include /dst/lib
 }

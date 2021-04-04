@@ -1,19 +1,26 @@
-while getopts :d OPTION; do
+while getopts :ds: OPTION; do
   case $OPTION in
     d)
       DEBUG=1
+      ;;
+    s)
+      if [[ -d $OPTARG ]]; then
+        SRC=$OPTARG
+      else
+        die "Prepared source tree $OPTARG not found"
+      fi
       ;;
   esac
 done
 shift $(($OPTIND - 1))
 
-if [[ -z ${1%%+(/)} ]]; then
+if [[ -z ${1##*/} ]]; then
   die "$(< $LIBRARY/help)"
 fi
 
-setup "$@"
-
+PKG=$(locate "$PKGDIR" "$1")
 mkdir -p "$CACHEDIR" "$IMGDIR"
+
 ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
 if [[ -n $DEBUG ]]; then
   trap 'echo "Build root left in $ROOT" >&2' EXIT
@@ -21,49 +28,41 @@ else
   trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 fi
 
-mkdir -m 0755 -p "$ROOT"/{bin,cache,dst,dev,etc,lib,pkg,proc,src,sys}
+mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,run,sys,var}
+mkdir -m 0755 -p "$ROOT"/{dst,pkg,src,var/cache}
 mkdir -m 1777 -p "$ROOT"/{run/shm,var/tmp}
-cp -L -R /etc/{protocols,resolv.conf,services,ssl} "$ROOT/etc/"
-cp $LIBRARY/skel/{passwd,group} "$ROOT/etc/"
 ln -s var/tmp "$ROOT/tmp"
 
-for REQUIRED in "$PKGDIR"/base/* \
-    $(require() { echo "$1"; } && source "$PKG/build"); do
-  if [[ -d "$IMGDIR/${REQUIRED##*/}" ]]; then
-    cp -a -l -T "$IMGDIR/${REQUIRED##*/}" "$ROOT"
+cp -L -R /etc/{protocols,resolv.conf,services,ssl} "$ROOT/etc/"
+cp "$LIBRARY/skel/passwd" "$LIBRARY/skel/group" "$ROOT/etc/"
+
+for IMG in "$PKGDIR"/base/*; do
+  if [[ -d "$IMGDIR/${IMG##*/}" ]]; then
+    cp -a -l -T "$IMGDIR/${IMG##*/}" "$ROOT"
   else
-    die "Build requirement ${REQUIRED##*/} not found in $IMGDIR"
+    die "Base image ${IMG##*/} not found in $IMGDIR"
   fi
 done
 
-( trap 'umount -l "$ROOT"' EXIT
+mapfile -t REQUIRED \
+  < <(encapsulate "$ROOT" pkg helper requirements "${@:2}")
+for IMG in "${REQUIRED[@]}"; do
+  if [[ -n ${IMG%%+(/)} ]] && [[ -d "$IMGDIR/$IMG" ]]; then
+    cp -a -l -T "$IMGDIR/$IMG" "$ROOT"
+  else
+    die "Required image $IMG not found in $IMGDIR"
+  fi
+done
 
-  mount -B --make-slave "$ROOT" "$ROOT"
-  mount -B --make-slave "$ROOT/dst" "$ROOT/dst"
-  mount -B --make-slave "$ROOT/run" "$ROOT/run"
-  mount -B --make-slave "$ROOT/src" "$ROOT/src"
-  mount -B --make-slave "$ROOT/var/tmp" "$ROOT/var/tmp"
-
-  mount -R --make-rslave /dev "$ROOT/dev"
-  mount -R --make-rslave /proc "$ROOT/proc"
-  mount -R --make-rslave /sys "$ROOT/sys"
-  mount -R --make-rslave "$CACHEDIR" "$ROOT/cache"
-  mount -R --make-rslave "$PKGDIR" "$ROOT/pkg"
-
-  mount -B -o remount,ro "$ROOT"
-  mount -B -o remount,ro "$ROOT/pkg"
-
-  chroot $ROOT env -i CACHEDIR=/cache HOME=/ PATH=/bin PKGDIR=/pkg \
-    TERM="$TERM" pkg make ${DEBUG:+-d} -s /src "$1" /dst "${@:2}"
-)
+encapsulate "$ROOT" pkg helper build "${@:2}"
 
 if [[ -n $DEBUG ]]; then
   echo "Debug mode: not replacing existing image"
 elif [[ -e "$IMGDIR/${1##*/}" ]]; then
   echo "Replacing existing image in $IMGDIR/${1##*/}"
   rm -f -r "$IMGDIR/${1##*/}"
-  mv -- "$ROOT/dst" "$IMGDIR/${1##*/}"
+  mv "$ROOT/dst" "$IMGDIR/${1##*/}"
 else
   echo "Installing new image in $IMGDIR/${1##*/}"
-  mv -- "$ROOT/dst" "$IMGDIR/${1##*/}"
+  mv "$ROOT/dst" "$IMGDIR/${1##*/}"
 fi

@@ -20,16 +20,16 @@ declare -A -g DEFAULTARGS=(
   [--sysconfdir]='--sysconfdir=/etc'
 )
 declare -A -g COMPILEARGS=()
-declare -A -g INSTALLARGS=( [install]='install' [DESTDIR]="DESTDIR=$DST" )
+declare -A -g INSTALLARGS=( [install]='install' [DESTDIR]="DESTDIR=/dst" )
 
 if NLS=$(feature nls); then
   if [[ $NLS == ?(all) ]]; then
-    CONFIGARGS[--enable-nls]='--enable-nls'
+    DEFAULTARGS[--enable-nls]='--enable-nls'
   else
-    CONFIGARGS[--enable-nls]="--enable-nls=$NLS"
+    DEFAULTARGS[--enable-nls]="--enable-nls=$NLS"
   fi
 else
-  CONFIGARGS[--disable-nls]='--disable-nls'
+  DEFAULTARGS[--disable-nls]='--disable-nls'
 fi
 
 config-extra() {
@@ -101,7 +101,7 @@ install-reset() {
 filter-defaults() {
   local ARG HELP
 
-  if HELP=$("$SRC/configure" --help 2>&1); then
+  if HELP=$("/src/configure" --help 2>&1); then
     for ARG in "${!DEFAULTARGS[@]}"; do
       if [[ $HELP == *[[:space:],]$ARG?([[:space:]=,]*) ]]; then
         continue
@@ -133,12 +133,12 @@ filter-defaults() {
 
 build() {
   if enabled vpath; then
-    cd $(mktemp -d "$SRC/build-XXXXXX")
+    cd $(mktemp -d "/src/build-XXXXXX")
   fi
 
   pre-config
   filter-defaults
-  "$SRC/configure" "${CONFIGARGS[@]}"
+  "/src/configure" "${CONFIGARGS[@]}"
   post-config
 
   pre-compile

@@ -12,23 +12,23 @@ prepare() {
 
 pre-config() {
   cd libmnl
-  $PWD/configure --prefix=$SRC/libs --disable-shared
+  $PWD/configure --prefix=/src/libs --disable-shared
   make install
-  cd $SRC
+  cd /src
 
   cd libnftnl
-  $PWD/configure --prefix=$SRC/libs --disable-shared \
-    LIBMNL_CFLAGS=-I$SRC/libs/include LIBMNL_LIBS="-L$SRC/libs/lib -lmnl"
+  $PWD/configure --prefix=/src/libs --disable-shared \
+    LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl"
   make install
-  cd $SRC
+  cd /src
 }
 
 config-extra --disable-{debug,man-doc,python,shared} --with-mini-gmp
-config-extra LIBMNL_CFLAGS=-I$SRC/libs/include
-config-extra LIBMNL_LIBS="-L$SRC/libs/lib -lmnl"
-config-extra LIBNFTNL_CFLAGS=-I$SRC/libs/include
-config-extra LIBNFTNL_LIBS="-L$SRC/libs/lib -lnftnl"
+config-extra LIBMNL_CFLAGS=-I/src/libs/include
+config-extra LIBMNL_LIBS="-L/src/libs/lib -lmnl"
+config-extra LIBNFTNL_CFLAGS=-I/src/libs/include
+config-extra LIBNFTNL_LIBS="-L/src/libs/lib -lnftnl"
 
 post-install() {
-  rm -f -r $DST/lib/{include,lib*.a,lib*.la}
+  rm -f -r /dst/lib/{include,lib*.a,lib*.la}
 }

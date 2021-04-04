@@ -5,7 +5,7 @@ prepare() {
 
 build() {
   make headers HOSTCC=cc
-  find usr/include -type f -name '*.h' -exec cp -t $DST --parents {} +
-  find usr/include -type l -exec cp -d -t $DST --parents {} +
-  mv $DST/usr $DST/lib
+  find usr/include -type f -name '*.h' -exec cp -t /dst --parents {} +
+  find usr/include -type l -exec cp -d -t /dst --parents {} +
+  mv /dst/usr /dst/lib
 }

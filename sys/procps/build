@@ -9,5 +9,5 @@ prepare() {
 config-extra --disable-{kill,modern-top,shared} --enable-watch8bit
 
 post-install() {
-  rm -f -r $DST/bin/w $DST/lib/{include,libprocps.a,man/man1/w.1,pkgconfig}
+  rm -f -r /dst/bin/w /dst/lib/{include,libprocps.a,man/man1/w.1,pkgconfig}
 }

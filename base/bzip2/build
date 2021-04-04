@@ -7,8 +7,8 @@ prepare() {
 
 build() {
   make CC=cc PREFIX=
-  make install PREFIX=$DST
-  mv $DST{,/lib}/include
-  rm -f $DST/bin/bz{diff,egrep,fgrep,grep,less,more} \
-    $DST/lib/man/man1/bz{diff,egrep,fgrep,grep,less,more}.1
+  make install PREFIX=/dst
+  mv /dst/include /dst/lib/
+  rm -f /dst/bin/bz{diff,egrep,fgrep,grep,less,more} \
+    /dst/lib/man/man1/bz{diff,egrep,fgrep,grep,less,more}.1
 }

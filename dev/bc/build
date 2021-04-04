@@ -4,8 +4,8 @@ prepare() {
 }
 
 build() {
-  PREFIX= DATAROOTDIR=/lib MANDIR=/lib/man CC="cc -std=c99" $SRC/configure \
+  PREFIX= DATAROOTDIR=/lib MANDIR=/lib/man CC="cc -std=c99" /src/configure \
     --opt=3 --disable-generated-tests --disable-nls
   make
-  make install DESTDIR=$DST
+  make install DESTDIR=/dst
 }

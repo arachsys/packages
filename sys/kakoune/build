@@ -7,5 +7,5 @@ prepare() {
 }
 
 build() {
-  make install CXX=c++ DESTDIR=$DST PREFIX=
+  make install CXX=c++ DESTDIR=/dst PREFIX=
 }

@@ -6,20 +6,20 @@ prepare() {
 }
 
 build() {
-  $SRC/configure --host=$CHOST --build=$CHOST --prefix= \
+  /src/configure --host=$CHOST --build=$CHOST --prefix= \
                  --includedir='$(prefix)/lib/include' \
                  --libdir='$(prefix)/lib/shared' \
                  --syslibdir='$(prefix)/lib' \
                  --disable-wrapper
-  mkdir -p $DST/bin $DST/lib
-  make install DESTDIR=$DST
+  mkdir -p /dst/bin /dst/lib
+  make install DESTDIR=/dst
 
   for UTIL in getconf getent iconv; do
-    cc -isystem $DST/lib/include -L $DST/lib/shared -Os \
-      $PKG/$UTIL.c -o $DST/bin/$UTIL
+    cc -isystem /dst/lib/include -L /dst/lib/shared -Os \
+      /pkg/$UTIL.c -o /dst/bin/$UTIL
   done
 
-  rm -f $DST/lib/ld-*.so.*
-  ln -s shared/libc.so $DST/lib/ld.so
-  ln -s ../lib/shared/libc.so $DST/bin/ldd
+  rm -f /dst/lib/ld-*.so.*
+  ln -s shared/libc.so /dst/lib/ld.so
+  ln -s ../lib/shared/libc.so /dst/bin/ldd
 }

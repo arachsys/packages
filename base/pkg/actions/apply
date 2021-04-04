@@ -1,6 +1,6 @@
 if [[ $# -lt 1 ]]; then
   die "$(< $LIBRARY/help)"
 else
-  unset CACHEDIR
+  unset CACHEDIR PKG
   apply "$@"
 fi

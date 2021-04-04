@@ -9,6 +9,6 @@ prepare() {
 install-reset dtach dtach.1
 
 post-install() {
-  install -D -s dtach $DST/bin/dtach
-  install -D dtach.1 $DST/lib/man/man1/dtach.1
+  install -D -s dtach /dst/bin/dtach
+  install -D dtach.1 /dst/lib/man/man1/dtach.1
 }

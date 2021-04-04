@@ -1,0 +1,26 @@
+if [[ ! -f /pkg/build ]]; then
+  die "${0##*/} helper is for internal use only"
+fi
+
+PKG=/pkg
+setup "${@:2}"
+source /pkg/build
+
+if [[ $1 == requirements ]]; then
+  if [[ ${#REQUIREMENTS[@]} -gt 0 ]]; then
+    printf '%s\n' "${!REQUIREMENTS[@]}"
+  fi
+elif [[ $1 == prepare ]] && [[ -d /src ]]; then
+  if ( set -- /src/* && [[ $# -ne 0 ]] ); then
+    die "Cannot unpack sources: directory is not empty"
+  fi
+  cd /src && prepare /pkg /src
+elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
+  if ( set -- /src/* && [[ $# -eq 0 ]] ); then
+    cd /src && prepare /pkg /src
+  fi
+  cd /src && build /pkg /src /dst 2>&1
+  cd /dst && tidy /pkg /dst
+else
+  die "$0 helper action is for internal use only"
+fi

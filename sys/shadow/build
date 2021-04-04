@@ -26,7 +26,7 @@ post-config() {
 }
 
 post-install() {
-  chgrp shadow $DST/bin/{chage,expiry}
-  chmod u-s,g+s $DST/bin/{chage,expiry}
-  rm -f $DST/bin/{groups,logoutd} $DST/lib/man/man{1/groups.1,8/logoutd.8}
+  chgrp shadow /dst/bin/{chage,expiry}
+  chmod u-s,g+s /dst/bin/{chage,expiry}
+  rm -f /dst/bin/{groups,logoutd} /dst/lib/man/man{1/groups.1,8/logoutd.8}
 }

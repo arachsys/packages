@@ -6,6 +6,6 @@ prepare() {
 }
 
 post-install() {
-  rm -f $DST/bin/{lz,xz}{cmp,diff,*grep,less,more} \
-    $DST/lib/man/man1/{lz,xz}{cmp,diff,*grep,less,more}.1
+  rm -f /dst/bin/{lz,xz}{cmp,diff,*grep,less,more} \
+    /dst/lib/man/man1/{lz,xz}{cmp,diff,*grep,less,more}.1
 }

@@ -12,6 +12,6 @@ compile-extra pkglibdir=/lib/dovecot/shared
 install-extra pkglibdir=/lib/dovecot/shared
 
 post-install() {
-  rm -f $DST/bin/dovecot-sysreport $DST/lib/dovecot/**/{*.a,decode2test.sh}
-  rm -f -r $DST/lib/{aclocal,include}
+  rm -f /dst/bin/dovecot-sysreport /dst/lib/dovecot/**/{*.a,decode2test.sh}
+  rm -f -r /dst/lib/{aclocal,include}
 }

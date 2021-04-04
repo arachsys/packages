@@ -24,9 +24,9 @@ pre-config() {
 config-extra --with-{group-queue,user-queue,user-smtpd}=smtp \
   --with-libs=-lfts --with-path-{pidfile,socket}=/run \
   --with-path-{empty=/run/empty,mbox=/var/mail,queue=/var/lib/smtpd} \
-  CFLAGS=-I$SRC/fts LDFLAGS=-L$SRC/fts
+  CFLAGS=-I/src/fts LDFLAGS=-L/src/fts
 
 post-install() {
-  chmod u+w $DST/{bin,lib/opensmtpd}/*
-  ln -s smtpctl $DST/bin/sendmail
+  chmod u+w /dst/{bin,lib/opensmtpd}/*
+  ln -s smtpctl /dst/bin/sendmail
 }

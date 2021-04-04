@@ -12,20 +12,20 @@ prepare() {
 }
 
 config-extra --enable-{ipv6,optimizations,shared} --without-ensurepip \
-  --with-{computed-gotos,dbmliborder=,lto} PKG_CONFIG=$SRC/fake-pkg-config \
+  --with-{computed-gotos,dbmliborder=,lto} PKG_CONFIG=/src/fake-pkg-config \
   CFLAGS="$CFLAGS -fno-semantic-interposition" \
   LDFLAGS="$LDFLAGS -fno-semantic-interposition"
 
 post-install() {
   # Make at least some attempt to prune and tidy the absurd bundled junk:
-  rm -f -r $DST/lib/python*/{,*/}{test,tests}/ \
-    $DST/lib/python*/{__phello__.foo.py,dbm,ensurepip,idlelib,sqlite3} \
-    $DST/lib/python*/{turtle*,tkinter,__pycache__/turtle.*,LICENSE.txt} \
-    $DST/bin/{2to3,idle*,pydoc3,python3,python*-config}
-  mv $DST/bin/2to3-3.9 $DST/bin/2to3
-  mv $DST/bin/pydoc3.9 $DST/bin/pydoc
-  mv $DST/bin/python3.9 $DST/bin/python3
-  ln $DST/bin/python3 $DST/bin/python
-  sed -e '1s_^#!.*_#!/bin/python3_' -i $DST/bin/2to3 -i $DST/bin/pydoc \
-    -i $DST/lib/python*/config-3*/python-config.py
+  rm -f -r /dst/lib/python*/{,*/}{test,tests}/ \
+    /dst/lib/python*/{__phello__.foo.py,dbm,ensurepip,idlelib,sqlite3} \
+    /dst/lib/python*/{turtle*,tkinter,__pycache__/turtle.*,LICENSE.txt} \
+    /dst/bin/{2to3,idle*,pydoc3,python3,python*-config}
+  mv /dst/bin/2to3-3.9 /dst/bin/2to3
+  mv /dst/bin/pydoc3.9 /dst/bin/pydoc
+  mv /dst/bin/python3.9 /dst/bin/python3
+  ln /dst/bin/python3 /dst/bin/python
+  sed -e '1s_^#!.*_#!/bin/python3_' -i /dst/bin/2to3 -i /dst/bin/pydoc \
+    -i /dst/lib/python*/config-3*/python-config.py
 }

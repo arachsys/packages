@@ -8,7 +8,7 @@ build() {
   LEAPSECONDS=$(if enabled leapseconds; then echo "-L leapseconds"; fi)
   for TZ in africa antarctica asia australasia etcetera europe \
             northamerica southamerica; do
-    $SRC/zic -d $DST/lib/zoneinfo $LEAPSECONDS $TZ
+    /src/zic -d /dst/lib/zoneinfo $LEAPSECONDS $TZ
   done
-  $SRC/zic -d $DST/lib/zoneinfo -p America/New_York
+  /src/zic -d /dst/lib/zoneinfo -p America/New_York
 }

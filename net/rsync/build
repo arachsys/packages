@@ -9,5 +9,5 @@ prepare() {
 config-extra --disable-lz4 --disable-xxhash --with-included-popt
 
 post-install() {
-  rm -f $DST/{bin/rsync-ssl,lib/man/man1/rsync-ssl.1}
+  rm -f /dst/{bin/rsync-ssl,lib/man/man1/rsync-ssl.1}
 }

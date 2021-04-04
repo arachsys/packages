@@ -46,13 +46,13 @@ post-config() {
 }
 
 post-install() {
-  local TARGET=$(cd $DST/lib/gcc && echo *)
-  local VERSION=$(cd $DST/lib/gcc/$TARGET && echo *)
-  make -C host-$TARGET/libctf install DESTDIR=$DST
-  cp include/libiberty.h $DST/lib/include/
-  mkdir -p $DST/lib/bfd-plugins
-  ln -s ../gcc/$TARGET/$VERSION/liblto_plugin.so $DST/lib/bfd-plugins/
-  mv $DST/lib/**/*.spec $DST/lib/gcc/$TARGET/$VERSION/
-  rm -f $DST/bin/{$TARGET-*,ld.bfd,gccbug} $DST/**/*.py
-  ln -s gcc $DST/bin/cc
+  local TARGET=$(cd /dst/lib/gcc && echo *)
+  local VERSION=$(cd /dst/lib/gcc/$TARGET && echo *)
+  make -C host-$TARGET/libctf install DESTDIR=/dst
+  cp include/libiberty.h /dst/lib/include/
+  mkdir -p /dst/lib/bfd-plugins
+  ln -s ../gcc/$TARGET/$VERSION/liblto_plugin.so /dst/lib/bfd-plugins/
+  mv /dst/lib/**/*.spec /dst/lib/gcc/$TARGET/$VERSION/
+  rm -f /dst/bin/{$TARGET-*,ld.bfd,gccbug} /dst/**/*.py
+  ln -s gcc /dst/bin/cc
 }

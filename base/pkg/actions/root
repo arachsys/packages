@@ -1,34 +1,20 @@
-setup -
-
 mkdir -p "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 
-mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,sys}
+mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,run,sys,var}
 mkdir -m 1777 -p "$ROOT"/{run/shm,var/tmp}
-cp -L -R /etc/{protocols,resolv.conf,services,ssl} "$ROOT/etc/"
-cp $LIBRARY/skel/{passwd,group} "$ROOT/etc/"
 ln -s var/tmp "$ROOT/tmp"
 
-for REQUIRED in "$PKGDIR"/base/* "$@"; do
-  if [[ -d "$IMGDIR/${REQUIRED##*/}" ]]; then
-    cp -a -l -T "$IMGDIR/${REQUIRED##*/}" "$ROOT"
+cp -L -R /etc/{protocols,resolv.conf,services,ssl} "$ROOT/etc/"
+cp "$LIBRARY/skel/passwd" "$LIBRARY/skel/group" "$ROOT/etc/"
+
+for IMG in "$PKGDIR"/base/* "$@"; do
+  if [[ -d "$IMGDIR/${IMG##*/}" ]]; then
+    cp -a -l -T "$IMGDIR/${IMG##*/}" "$ROOT"
   else
-    die "Image for package ${REQUIRED##*/} not found in $IMGDIR"
+    die "Package image ${IMG##*/} not found in $IMGDIR"
   fi
 done
 
-( trap 'umount -l "$ROOT"' EXIT
-
-  mount -B --make-slave "$ROOT" "$ROOT"
-  mount -B --make-slave "$ROOT/run" "$ROOT/run"
-  mount -B --make-slave "$ROOT/var/tmp" "$ROOT/var/tmp"
-
-  mount -R --make-rslave /dev "$ROOT/dev"
-  mount -R --make-rslave /proc "$ROOT/proc"
-  mount -R --make-rslave /sys "$ROOT/sys"
-
-  mount -B -o remount,ro "$ROOT"
-
-  chroot $ROOT env -i HOME=/ PATH=/bin TERM="$TERM" bash -l
-)
+encapsulate "$ROOT" bash -l

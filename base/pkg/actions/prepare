@@ -1,29 +1,43 @@
-while getopts :d OPTION; do
-  case $OPTION in
-    d)
-      DEBUG=1
-      ;;
-  esac
-done
-shift $(($OPTIND - 1))
-
 if [[ $# -lt 1 ]]; then
   die "$(< $LIBRARY/help)"
+elif [[ $2 != ?(-) ]] && [[ -e "$2" ]]; then
+  die "Cannot unpack sources: $2 already exists"
 fi
 
-setup "$1" "${@:3}"
+PKG=$(locate "$PKGDIR" "$1")
+mkdir -p "$CACHEDIR" "$IMGDIR"
 
-if [[ $2 == ?(-) ]]; then
-  SRC=$(mktemp -d)
-  trap 'rm -f -r --one-file-system "$SRC"' EXIT
-elif mkdir -p -- "$2" 2>/dev/null; then
-  SRC=$(cd -- "$2" && echo $PWD)
-else
-  die "Failed to create directory $2"
+ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
+trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+
+mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,run,sys,var}
+mkdir -m 0755 -p "$ROOT"/{pkg,src,var/cache}
+mkdir -m 1777 -p "$ROOT"/{run/shm,var/tmp}
+ln -s var/tmp "$ROOT/tmp"
+
+cp -L -R /etc/{protocols,resolv.conf,services,ssl} "$ROOT/etc/"
+cp "$LIBRARY/skel/passwd" "$LIBRARY/skel/group" "$ROOT/etc/"
+
+for IMG in "$PKGDIR"/base/*; do
+  if [[ -d "$IMGDIR/${IMG##*/}" ]]; then
+    cp -a -l -T "$IMGDIR/${IMG##*/}" "$ROOT"
+  else
+    die "Base image ${IMG##*/} not found in $IMGDIR"
+  fi
+done
+
+mapfile -t REQUIRED \
+  < <(encapsulate "$ROOT" pkg helper requirements "${@:3}")
+for IMG in "${REQUIRED[@]}"; do
+  if [[ -n ${IMG%%+(/)} ]] && [[ -d "$IMGDIR/$IMG" ]]; then
+    cp -a -l -T "$IMGDIR/$IMG" "$ROOT"
+  else
+    die "Required image $IMG not found in $IMGDIR"
+  fi
+done
+
+encapsulate "$ROOT" pkg helper prepare "${@:3}"
+
+if [[ $2 != ?(-) ]]; then
+  mv "$ROOT/src" "$2"
 fi
-
-if ( cd "$SRC" && set -- * && [[ $# -gt 0 ]] ); then
-  die "Cannot unpack sources in $SRC: directory is not empty"
-fi
-
-( source "$PKG/build" && cd "$SRC" && prepare )

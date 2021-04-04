@@ -9,6 +9,6 @@ config-extra --disable-acl --enable-bsd{cat,cpio,tar}=dynamic \
   --enable-xattr --without-{expat,xml2} --with-{bz2lib,lzma,zlib,zstd}
 
 post-install() {
-  mv $DST/bin/{bsdcpio,cpio}
-  mv $DST/bin/{bsdtar,tar}
+  mv /dst/bin/{bsdcpio,cpio}
+  mv /dst/bin/{bsdtar,tar}
 }

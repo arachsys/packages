@@ -7,10 +7,10 @@ prepare() {
 }
 
 post-install() {
-  find $DST -name 'README*' -type f -delete
-  cat >$DST/bin/yacc <<'EOF'
+  find /dst -name 'README*' -type f -delete
+  cat >/dst/bin/yacc <<'EOF'
 #!/bin/sh
 exec bison -y "$@"
 EOF
-  chmod 0755 $DST/bin/yacc
+  chmod 0755 /dst/bin/yacc
 }

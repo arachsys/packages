@@ -11,6 +11,6 @@ build() {
   sed 's/@VCS_TAG@/s20190709/' git-version.h.meson >>config.h
   cc -Os -Wall -D_GNU_SOURCE -include config.h iputils_common.c \
     ping_common.c ping6_common.c ping.c -lm -lresolv -o ping
-  mkdir -p $DST/bin
-  install -m 4755 -o root -g root -s ping $DST/bin
+  mkdir -p /dst/bin
+  install -m 4755 -o root -g root -s ping /dst/bin
 }

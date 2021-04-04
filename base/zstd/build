@@ -4,7 +4,7 @@ prepare() {
 }
 
 build() {
-  make install DESTDIR=$DST PREFIX= INCLUDEDIR=/lib/include \
+  make install DESTDIR=/dst PREFIX= INCLUDEDIR=/lib/include \
     LIBDIR=/lib MAN1DIR=/lib/man/man1
-  rm -f $DST/bin/zstd{grep,less} $DST/lib/man/man1/zstd{grep,less}.1
+  rm -f /dst/bin/zstd{grep,less} /dst/lib/man/man1/zstd{grep,less}.1
 }

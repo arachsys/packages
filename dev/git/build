@@ -10,12 +10,12 @@ prepare() {
 }
 
 build() {
-  make install DESTDIR=$DST prefix= gitexecdir=/lib/git \
+  make install DESTDIR=/dst prefix= gitexecdir=/lib/git \
     gitwebdir=/lib/gitweb htmldir=/lib/doc/git infodir=/lib/info \
     mandir=/lib/man template_dir=/lib/git/templates \
     CURL_LDFLAGS=-lcurl NO_{EXPAT,PYTHON,REGEX,TCLTK}=1 \
     $(enabled nls || echo NO_GETTEXT=1) $(enabled perl || echo NO_PERL=1)
-  grep -l -r -F -Z 'fatal: git was built without support for' $DST \
+  grep -l -r -F -Z 'fatal: git was built without support for' /dst \
     | xargs -0 rm --
-  find $DST/lib/git/templates -name '*.sample' -delete
+  find /dst/lib/git/templates -name '*.sample' -delete
 }

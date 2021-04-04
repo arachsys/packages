@@ -7,5 +7,5 @@ prepare() {
 }
 
 post-install() {
-  rm -f $DST/bin/tcpdump.*
+  rm -f /dst/bin/tcpdump.*
 }

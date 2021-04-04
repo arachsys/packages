@@ -15,5 +15,5 @@ compile-extra SHLIB_LIBS=-lncurses
 
 post-config() {
   # In the absence of working configure support for --disable-rpath:
-  sed -e 's/ -Wl,-rpath,\$(libdir) / /' -i $SRC/shlib/Makefile
+  sed -e 's/ -Wl,-rpath,\$(libdir) / /' -i /src/shlib/Makefile
 }

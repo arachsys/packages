@@ -10,7 +10,7 @@ config-extra --with-{xz,zlib} liblzma_CFLAGS=-I/lib/include \
 
 post-install() {
   for NAME in depmod insmod lsmod modinfo modprobe rmmod; do
-    ln $DST/bin/kmod $DST/bin/$NAME
+    ln /dst/bin/kmod /dst/bin/$NAME
   done
-  rm -f -r $DST/lib/{bash-completion,include,libkmod.*}
+  rm -f -r /dst/lib/{bash-completion,include,libkmod.*}
 }

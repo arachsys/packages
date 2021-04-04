@@ -14,6 +14,6 @@ config-extra --disable-dbus-policy --disable-systemd-service \
   --with-dbus-busdir=/lib/dbus/system-services
 
 post-install() {
-  mv $DST/{lib,bin}/iwd
-  cp $PKG/resolvconf $DST/bin/
+  mv /dst/{lib,bin}/iwd
+  cp /pkg/resolvconf /dst/bin/
 }
