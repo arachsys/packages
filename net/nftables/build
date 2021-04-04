@@ -1,6 +1,5 @@
 mode autotools
-require bison
-require flex
+require bison flex
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
