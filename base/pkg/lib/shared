@@ -125,13 +125,13 @@ fetch() {
   elif [[ -d $CACHEDIR && -n $1 ]]; then
     if [[ ! -f $CACHEDIR/$1 ]]; then
       echo "Downloading $1 from $2:" >&2
-      if ! curl -f -o "$CACHEDIR/$1.part" -C - -L -# "$2"; then
+      if ! curl -f -o "$CACHEDIR/$1.part" -C - -L "$2"; then
         die "Failed to fetch $2"
       fi
       mv "$CACHEDIR/$1.part" "$CACHEDIR/$1"
     fi
     cat "$CACHEDIR/$1"
-  elif ! curl -f -L -# "$2"; then
+  elif ! curl -f -L "$2"; then
     die "Failed to fetch $2"
   fi
 }
