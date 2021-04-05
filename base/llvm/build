@@ -10,7 +10,7 @@ prepare() {
   apply prune.patch
   apply sanitizer.patch
   apply tools.patch
-  tree 58a1eaded2c4e9a0a861543856371bae702eea0d257ecd676a289663afd76da0
+  tree b2f7e49d8bb87220c5c95493a2039f3abf9ba1227c323ce3e60a4275f6020fb8
 }
 
 build() {
@@ -22,67 +22,43 @@ build() {
     -DCMAKE_SYSTEM_LIBRARY_PATH="/lib/shared;/lib/static"
   make
 
-  mkdir -p /src/build-libunwind
-  cd /src/build-libunwind
-  /src/cmake/bin/cmake -W no-dev \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SKIP_INSTALL_RPATH=Yes \
-    -DLLVM_HOST_TRIPLE=$CHOST \
-    -DLLVM_TARGETS_TO_BUILD="Native" \
-    -DLIBUNWIND_USE_COMPILER_RT=Yes \
-    ../libunwind
-  make install DESTDIR=/dst
+  declare -a CONFIG
+  enabled lto && CONFIG+=( -DLLVM_ENABLE_LTO=Thin )
+  if [[ -f /lib/shared/libc++abi.so && -f /lib/shared/libunwind.so ]]; then
+    CONFIG+=( -DSANITIZER_COMMON_LINK_LIBS="c++abi;unwind" )
+  else
+    CONFIG+=( -DCOMPILER_RT_BUILD_LIBFUZZER=No )
+    CONFIG+=( -DCOMPILER_RT_BUILD_MEMPROF=No )
+    CONFIG+=( -DCOMPILER_RT_BUILD_SANITIZERS=No )
+    CONFIG+=( -DCOMPILER_RT_BUILD_XRAY=No )
+  fi
 
-  mkdir -p /src/build-libcxxabi
-  cd /src/build-libcxxabi
+  mkdir -p /src/build
+  cd /src/build
   /src/cmake/bin/cmake -W no-dev \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SHARED_LINKER_FLAGS=-L/dst/lib \
-    -DCMAKE_SKIP_INSTALL_RPATH=Yes \
-    -DLIBCXXABI_USE_COMPILER_RT=Yes \
-    -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
-    ../libcxxabi
-  make install DESTDIR=/dst
-
-  mkdir -p /src/build-libcxx
-  cd /src/build-libcxx
-  /src/cmake/bin/cmake -W no-dev \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SHARED_LINKER_FLAGS=-L/dst/lib \
-    -DCMAKE_SKIP_INSTALL_RPATH=Yes \
-    -DLIBCXX_CXX_ABI=libcxxabi \
-    -DLIBCXX_CXX_ABI_INCLUDE_PATHS=../libcxxabi/include \
-    -DLIBCXX_HAS_ATOMIC_LIB=No \
-    -DLIBCXX_HAS_MUSL_LIBC=Yes \
-    -DLIBCXX_USE_COMPILER_RT=Yes \
-    -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
-    ../libcxx
-  make install DESTDIR=/dst
-
-  mkdir -p /src/build-llvm
-  cd /src/build-llvm
-  /src/cmake/bin/cmake -W no-dev \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SHARED_LINKER_FLAGS=-L/dst/lib \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld" \
+    -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi" \
     -DLLVM_HOST_TRIPLE=$CHOST \
     -DLLVM_INSTALL_BINUTILS_SYMLINKS=Yes \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=Yes \
     -DLLVM_TARGETS_TO_BUILD="Native;BPF;WebAssembly" \
+    -DLIBUNWIND_USE_COMPILER_RT=Yes \
+    -DLIBCXXABI_USE_COMPILER_RT=Yes \
+    -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
+    -DLIBCXX_CXX_ABI=libcxxabi \
+    -DLIBCXX_HAS_ATOMIC_LIB=No \
     -DLIBCXX_HAS_MUSL_LIBC=Yes \
-    -DSANITIZER_COMMON_LINK_LIBS="c++abi;unwind" \
+    -DLIBCXX_USE_COMPILER_RT=Yes \
     -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
     -DCLANG_DEFAULT_RTLIB=compiler-rt \
     -DCLANG_INSTALL_SCAN{BUILD,VIEW}=No \
     -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
     -DLLD_SYMLINKS_TO_CREATE="ld;wasm-ld" \
-    $(enabled lto && echo -DLLVM_ENABLE_LTO=Thin) \
-    ../llvm
+    "${CONFIG[@]}" ../llvm
+  make compiler-rt
   make install DESTDIR=/dst
 
   LLVMDIR=/dst/lib/llvm/$(bin/llvm-config --version)

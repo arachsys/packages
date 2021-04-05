@@ -197,3 +197,43 @@ index 01efebdcb929..d46645144cb2 100644
  endif()
  
  # Support plugins.
+diff --git a/llvm/runtimes/CMakeLists.txt b/llvm/runtimes/CMakeLists.txt
+index 243d6ceb2..06fa947bb 100644
+--- a/llvm/runtimes/CMakeLists.txt
++++ b/llvm/runtimes/CMakeLists.txt
+@@ -84,7 +84,7 @@ function(builtin_default_target compiler_rt_path)
+                            CMAKE_ARGS -DLLVM_LIBRARY_OUTPUT_INTDIR=${LLVM_LIBRARY_DIR}
+                                       -DLLVM_RUNTIME_OUTPUT_INTDIR=${LLVM_TOOLS_BINARY_DIR}
+                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${TARGET_TRIPLE}
+-                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=${LLVM_ENABLE_PER_TARGET_RUNTIME_DIR_default}
++                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
+                                       -DCMAKE_C_COMPILER_TARGET=${TARGET_TRIPLE}
+                                       -DCMAKE_ASM_COMPILER_TARGET=${TARGET_TRIPLE}
+                                       -DCMAKE_C_COMPILER_WORKS=ON
+@@ -116,7 +116,7 @@ function(builtin_register_target compiler_rt_path target)
+                            CMAKE_ARGS -DLLVM_LIBRARY_OUTPUT_INTDIR=${LLVM_LIBRARY_DIR}
+                                       -DLLVM_RUNTIME_OUTPUT_INTDIR=${LLVM_TOOLS_BINARY_DIR}
+                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${target}
+-                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=ON
++                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
+                                       -DCMAKE_C_COMPILER_TARGET=${target}
+                                       -DCMAKE_ASM_COMPILER_TARGET=${target}
+                                       -DCMAKE_C_COMPILER_WORKS=ON
+@@ -235,7 +235,7 @@ function(runtime_default_target)
+                                       -DLLVM_INCLUDE_TESTS=${LLVM_INCLUDE_TESTS}
+                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${TARGET_TRIPLE}
+                                       -DLLVM_ENABLE_PROJECTS_USED=${LLVM_ENABLE_PROJECTS_USED}
+-                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=${LLVM_ENABLE_PER_TARGET_RUNTIME_DIR_default}
++                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
+                                       -DCMAKE_C_COMPILER_TARGET=${TARGET_TRIPLE}
+                                       -DCMAKE_CXX_COMPILER_TARGET=${TARGET_TRIPLE}
+                                       -DCMAKE_ASM_COMPILER_TARGET=${TARGET_TRIPLE}
+@@ -341,7 +341,7 @@ function(runtime_register_target name target)
+                                       -DLLVM_INCLUDE_TESTS=${LLVM_INCLUDE_TESTS}
+                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${target}
+                                       -DLLVM_ENABLE_PROJECTS_USED=${LLVM_ENABLE_PROJECTS_USED}
+-                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=ON
++                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
+                                       -DCMAKE_C_COMPILER_TARGET=${target}
+                                       -DCMAKE_CXX_COMPILER_TARGET=${target}
+                                       -DCMAKE_ASM_COMPILER_TARGET=${target}
