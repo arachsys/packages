@@ -3,7 +3,7 @@ if [[ ! -f /pkg/build ]]; then
 fi
 
 PKG=/pkg
-setup "${@:2}"
+setup "${@:3}"
 source /pkg/build
 
 if [[ $1 == requirements ]]; then
@@ -14,13 +14,25 @@ elif [[ $1 == prepare ]] && [[ -d /src ]]; then
   if ( set -- /src/* && [[ $# -ne 0 ]] ); then
     die "Cannot unpack sources: directory is not empty"
   fi
-  cd /src && prepare /pkg /src
+  cd /src && prepare "${@:2}"
 elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
   if ( set -- /src/* && [[ $# -eq 0 ]] ); then
-    cd /src && prepare /pkg /src
+    cd /src && prepare "${@:2}"
   fi
-  cd /src && build /pkg /src /dst 2>&1
-  cd /dst && tidy /pkg /dst
+  cd /src && build "${@:2}" 2>&1
+
+  if [[ -d /dst/img ]]; then
+    find /dst -path /dst/img -prune -or -type d \
+        -or -printf '%p is outside /dst/img in multi-image build\n' \
+      | [[ -z $(tee /dev/stderr) ]]
+  else
+    mkdir -p "/dst/img/$2"
+    mv /dst/!(img) "/dst/img/$2/"
+  fi
+
+  for IMG in /dst/img/*; do
+    cd "$IMG" && tidy
+  done
 else
   die "$0 helper action is for internal use only"
 fi

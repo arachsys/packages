@@ -268,13 +268,18 @@ tidy() {
       fi
     done
 
-    find . -lname '/*' -printf '%P is an absolute symlink\n' \
-      -or -xtype l -printf '%P is a dangling symlink\n' \
-      -or -not -xtype d -not -xtype f -printf '%P is a special file\n'
+    find "$PWD" -mindepth 1 -path "$PWD/bin" -type d -prune \
+      -or -path "$PWD/lib" -type d -prune \
+      -or -printf "%p is neither in $PWD/bin nor $PWD/lib\n"
 
-    find . -mindepth 1 -type d \( -path ./lib -prune -or -path ./bin \) \
-      -or -path './bin/*' -xtype f -executable \
-      -or -printf 'Invalid content: %M %n %P\n'
+    find "$PWD" -lname '/*' -printf '%p is an absolute symlink\n' \
+      -or -xtype l -printf '%p is a dangling symlink\n' \
+      -or -not -xtype d -not -xtype f -printf '%p is a special file\n'
+
+    if [[ -d $PWD/bin ]]; then
+      find "$PWD/bin" -mindepth 1 -xtype d -printf '%p is a directory\n' \
+        -or -xtype f -executable -or -printf '%p is not executable\n'
+    fi
   } | [[ -z $(tee /dev/stderr) ]]
 
   find . -depth -type d -empty -delete -or -exec touch -r . {} +

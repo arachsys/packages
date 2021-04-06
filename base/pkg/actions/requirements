@@ -24,4 +24,4 @@ for IMG in "$PKGDIR"/base/*; do
   fi
 done
 
-encapsulate "$ROOT" pkg helper requirements "${@:2}"
+encapsulate "$ROOT" pkg helper requirements "${PKG##*/}" "${@:2}"

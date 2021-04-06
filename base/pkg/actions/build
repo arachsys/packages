@@ -45,7 +45,7 @@ for IMG in "$PKGDIR"/base/*; do
 done
 
 mapfile -t REQUIRED \
-  < <(encapsulate "$ROOT" pkg helper requirements "${@:2}")
+  < <(encapsulate "$ROOT" pkg helper requirements "${PKG##*/}" "${@:2}")
 for IMG in "${REQUIRED[@]}"; do
   if [[ -n ${IMG%%+(/)} ]] && [[ -d "$IMGDIR/$IMG" ]]; then
     cp -a -l -T "$IMGDIR/$IMG" "$ROOT"
@@ -54,15 +54,19 @@ for IMG in "${REQUIRED[@]}"; do
   fi
 done
 
-encapsulate "$ROOT" pkg helper build "${@:2}"
+encapsulate "$ROOT" pkg helper build "${PKG##*/}" "${@:2}"
 
 if [[ -n $DEBUG ]]; then
-  echo "Debug mode: not replacing existing image"
-elif [[ -e "$IMGDIR/${1##*/}" ]]; then
-  echo "Replacing existing image in $IMGDIR/${1##*/}"
-  rm -f -r "$IMGDIR/${1##*/}"
-  mv "$ROOT/dst" "$IMGDIR/${1##*/}"
+  echo "Debug mode: not installing or replacing images"
 else
-  echo "Installing new image in $IMGDIR/${1##*/}"
-  mv "$ROOT/dst" "$IMGDIR/${1##*/}"
+  for IMG in "$ROOT"/dst/img/*; do
+    if [[ -d "$IMGDIR/${IMG##*/}" ]]; then
+      echo "Replacing existing image in $IMGDIR/${IMG##*/}"
+      rm -f -r "$IMGDIR/${IMG##*/}"
+      mv "$IMG" "$IMGDIR/${IMG##*/}"
+    else
+      echo "Installing new image in $IMGDIR/${IMG##*/}"
+      mv "$IMG" "$IMGDIR/${IMG##*/}"
+    fi
+  done
 fi

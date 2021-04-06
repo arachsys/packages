@@ -27,7 +27,7 @@ for IMG in "$PKGDIR"/base/*; do
 done
 
 mapfile -t REQUIRED \
-  < <(encapsulate "$ROOT" pkg helper requirements "${@:3}")
+  < <(encapsulate "$ROOT" pkg helper requirements "${PKG##*/}" "${@:3}")
 for IMG in "${REQUIRED[@]}"; do
   if [[ -n ${IMG%%+(/)} ]] && [[ -d "$IMGDIR/$IMG" ]]; then
     cp -a -l -T "$IMGDIR/$IMG" "$ROOT"
@@ -36,7 +36,7 @@ for IMG in "${REQUIRED[@]}"; do
   fi
 done
 
-encapsulate "$ROOT" pkg helper prepare "${@:3}"
+encapsulate "$ROOT" pkg helper prepare "${PKG##*/}" "${@:3}"
 
 if [[ $2 != ?(-) ]]; then
   mv "$ROOT/src" "$2"
