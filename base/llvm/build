@@ -24,7 +24,9 @@ build() {
 
   declare -a CONFIG
   enabled lto && CONFIG+=( -DLLVM_ENABLE_LTO=Thin )
-  if [[ -f /lib/shared/libc++abi.so && -f /lib/shared/libunwind.so ]]; then
+  if [[ $CHOST == @(amd64|x86_64)-* ]] \
+      && [[ -f /lib/shared/libc++abi.so ]] \
+      && [[ -f /lib/shared/libunwind.so ]]; then
     CONFIG+=( -DSANITIZER_COMMON_LINK_LIBS="c++abi;unwind" )
   else
     CONFIG+=( -DCOMPILER_RT_BUILD_LIBFUZZER=No )
