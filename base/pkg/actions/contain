@@ -1,0 +1,26 @@
+if [[ $# -lt 2 ]] || [[ ! -d "$1" ]]; then
+  die "${0##*/} contain is [for internal use only"
+fi
+
+if [[ /proc/self/ns/mnt -ef /proc/$PPID/ns/mnt ]]; then
+  exec unshare -m "$0" contain "$@"
+fi
+
+mount -B --make-slave "$1" "$1"
+trap 'umount -l "$1"' EXIT
+
+[[ -d $1/dev ]] && mount -R --make-rslave /dev "$1/dev"
+[[ -d $1/dst ]] && mount -B --make-slave "$1/dst" "$1/dst"
+[[ -d $1/pkg ]] && mount -R --make-rslave "${PKG:-$1/pkg}" "$1/pkg"
+[[ -d $1/proc ]] && mount -R --make-rslave /proc "$1/proc"
+[[ -d $1/run ]] && mount -B --make-slave "$1/run" "$1/run"
+[[ -d $1/src ]] && mount -R --make-rslave "${SRC:-$1/src}" "$1/src"
+[[ -d $1/sys ]] && mount -R --make-rslave /sys "$1/sys"
+[[ -d $1/var ]] && mount -B --make-slave "$1/var" "$1/var"
+
+if [[ -d $1/var/cache ]] && [[ -n $CACHEDIR ]]; then
+  mount -R --make-rslave "$CACHEDIR" "$1/var/cache"
+fi
+
+mount -B -o remount,ro "$1"
+chroot "$1" env -i HOME=/ PATH=/bin TERM="$TERM" "${@:2}"

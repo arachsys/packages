@@ -8,20 +8,6 @@ mkdir -p "$CACHEDIR" "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 
-mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,pkg,proc,run,sys,var}
-mkdir -m 0755 -p "$ROOT"/{pkg,var/cache}
-mkdir -m 1777 -p "$ROOT"/{run/shm,var/tmp}
-ln -s var/tmp "$ROOT/tmp"
-
-cp -L -R /etc/{protocols,resolv.conf,services,ssl} "$ROOT/etc/"
-cp "$LIBRARY/skel/passwd" "$LIBRARY/skel/group" "$ROOT/etc/"
-
-for IMG in "$PKGDIR"/base/*; do
-  if [[ -d "$IMGDIR/${IMG##*/}" ]]; then
-    cp -a -l -T "$IMGDIR/${IMG##*/}" "$ROOT"
-  else
-    die "Base image ${IMG##*/} not found in $IMGDIR"
-  fi
-done
-
-encapsulate "$ROOT" pkg helper requirements "${PKG##*/}" "${@:2}"
+populate "$ROOT" base
+mkdir -p "$ROOT/pkg"
+PKG=$PKG pkg contain "$ROOT" pkg helper requirements "${PKG##*/}" "${@:2}"

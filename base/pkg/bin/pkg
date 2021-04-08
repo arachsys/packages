@@ -3,7 +3,6 @@
 set -e -o pipefail
 shopt -s dotglob extglob globstar nullglob
 unset LANG LC_{ALL,COLLATE,CTYPE,MESSAGES,MONETARY,NUMERIC,TIME}
-unset DEBUG SRC
 
 if [[ ! -d ${0%/*}/../lib/pkg ]]; then
   echo "Failed to identify library path" >&2

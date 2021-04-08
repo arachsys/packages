@@ -30,7 +30,7 @@ elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
     mv /dst/!(img) "/dst/img/$2/"
   fi
 
-  for IMG in /dst/img/*; do
+  for IMG in /dst/img/*/; do
     cd "$IMG" && tidy
   done
 else

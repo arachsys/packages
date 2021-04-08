@@ -3,7 +3,6 @@ declare -A REQUIREMENTS=()
 
 apply() {
   local DIR OPTARG OPTIND OPTION STRIP=1
-
   while getopts :d:p: OPTION; do
     case $OPTION in
       d)
@@ -74,36 +73,6 @@ enabled() {
     shift
   done
 }
-
-encapsulate() (
-  mount -B --make-slave "$1" "$1"
-  trap 'umount -l "$1"' EXIT
-
-  mount -B --make-slave "$1/run" "$1/run"
-  mount -B --make-slave "$1/var/tmp" "$1/var/tmp"
-  mount -R --make-rslave /dev "$1/dev"
-  mount -R --make-rslave /proc "$1/proc"
-  mount -R --make-rslave /sys "$1/sys"
-
-  if [[ -d $1/dst ]]; then
-    mount -B --make-slave "$1/dst" "$1/dst"
-  fi
-
-  if [[ -d $1/pkg ]] && [[ -n $PKG ]]; then
-    mount -R --make-rslave "$PKG" "$1/pkg"
-  fi
-
-  if [[ -d $1/src ]]; then
-    mount -R --make-rslave "${SRC:-$1/src}" "$1/src"
-  fi
-
-  if [[ -d $1/var/cache ]]; then
-    mount -R --make-rslave "${CACHEDIR:-$1/var/cache}" "$1/var/cache"
-  fi
-
-  mount -B -o remount,ro "$1"
-  chroot "$1" env -i HOME=/ PATH=/bin TERM="$TERM" "${@:2}"
-)
 
 feature() {
   if [[ -z ${FEATURES[$1]+defined} ]]; then
@@ -192,6 +161,41 @@ mode() {
   fi
 }
 
+populate() {
+  local FILE
+  declare -A IMAGES=()
+
+  mkdir -m 0755 -p "$1"/{bin,dev,etc,lib,proc,run,sys,var,var/cache}
+  mkdir -m 1777 -p "$1"/{run/shm,var/tmp}
+  if [[ ! -d "$1/tmp" ]]; then
+    ln -f -s -T var/tmp "$1/tmp"
+  fi
+
+  for FILE in /etc/{protocols,resolv.conf,services,ssl} \
+      "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"; do
+    if [[ ! -e $1/${FILE##*/} ]]; then
+      cp -L -R "$FILE" "$1/etc/"
+    fi
+  done
+
+  while [[ $# -gt 1 ]]; do
+    declare -a REQUIRED=()
+    if [[ -n $2 ]] && ! let "IMAGES[$2]++"; then
+      if [[ -f $IMGDIR/$2 ]]; then
+        mapfile -t REQUIRED < "$IMGDIR/$2"
+      elif [[ -d $IMGDIR/$2 ]]; then
+        maybe cp -a -l -t "$1" -- "$IMGDIR/$2"/!(requirements)
+        if [[ -f $IMGDIR/$2/requirements ]]; then
+          mapfile -t REQUIRED < "$IMGDIR/$2/requirements"
+        fi
+      else
+        die "Required image $2 not found in $IMGDIR"
+      fi
+    fi
+    set -- "$1" "${REQUIRED[@]}" "${@:3}"
+  done
+}
+
 prepare() {
   die "Package does not define prepare()"
 }
@@ -270,6 +274,7 @@ tidy() {
 
     find "$PWD" -mindepth 1 -path "$PWD/bin" -type d -prune \
       -or -path "$PWD/lib" -type d -prune \
+      -or -path "$PWD/requirements" -type f \
       -or -printf "%p is neither in $PWD/bin nor $PWD/lib\n"
 
     find "$PWD" -lname '/*' -printf '%p is an absolute symlink\n' \
