@@ -8,4 +8,5 @@ prepare() {
 
 post-install() {
   rm -f /dst/bin/tcpdump.*
+  echo libpcap >>/dst/requirements
 }

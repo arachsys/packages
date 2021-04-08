@@ -18,4 +18,7 @@ build() {
   grep -l -r -F -Z 'fatal: git was built without support for' /dst \
     | xargs -0 rm --
   find /dst/lib/git/templates -name '*.sample' -delete
+  if enabled perl; then
+    echo perl >>/dst/requirements
+  fi
 }

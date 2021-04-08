@@ -12,11 +12,6 @@ prepare() {
 
 config-extra --without-audit --with-bcrypt --without-libpam
 
-if enabled pam; then
-  require pam
-  config-extra --with-libpam
-fi
-
 post-config() {
   sed -e 's:^\(#define FAILLOG_FILE\).*:\1 "/var/log/faillog":' \
       -e 's:^\(#define LASTLOG_FILE\).*:\1 "/var/log/lastlog":' \

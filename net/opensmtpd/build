@@ -25,4 +25,5 @@ config-extra --with-{group-queue,user-queue,user-smtpd}=smtp \
 post-install() {
   chmod u+w /dst/{bin,lib/opensmtpd}/*
   ln -s smtpctl /dst/bin/sendmail
+  echo libevent >>/dst/requirements
 }

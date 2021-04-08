@@ -28,4 +28,5 @@ post-install() {
   ln /dst/bin/python3 /dst/bin/python
   sed -e '1s_^#!.*_#!/bin/python3_' -i /dst/bin/2to3 -i /dst/bin/pydoc \
     -i /dst/lib/python*/config-3*/python-config.py
+  echo libffi >>/dst/requirements
 }
