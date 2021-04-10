@@ -2,13 +2,13 @@ mode autotools
 require libffi
 
 prepare() {
-  unpack python-3.9.2.tar.xz \
-    https://www.python.org/ftp/python/3.9.2/Python-3.9.2.tar.xz
+  unpack python-3.9.4.tar.xz \
+    https://www.python.org/ftp/python/3.9.4/Python-3.9.4.tar.xz
   apply getpath.patch
   apply fakepkg.patch
   apply musl.patch
   apply paths.patch
-  tree 1543533c5247381b2bed5b176b12338f0e59713ad2609bb7bc2f554eb0889579
+  tree 0dc78cf9c9db50018bab54513668132da896f5bb967fc90ae06aa46d1c6058be
 }
 
 config-extra --enable-{ipv6,optimizations,shared} --without-ensurepip \

@@ -26,7 +26,7 @@ index 1e880e5..6388eb6 100755
 -# binary installations by Linux vendors often install Python in
 -# /usr/bin.  So let those vendors patch cgi.py to match their choice
 -# of installation.
-+#!/usr/bin/python3
++#!/bin/python3
  
  """Support module for CGI (Common Gateway Interface) scripts.
  
@@ -92,7 +92,7 @@ index 5627bfb..334624f 100755
 +++ b/Lib/encodings/rot_13.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/env python3
++#!/bin/python3
  """ Python Character Mapping Codec for ROT13.
  
  This codec de/encodes from str to str.
