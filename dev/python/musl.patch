@@ -101,3 +101,55 @@ index 8652f58..d62bc70 100644
  
  ################################################################
  # test code
+diff --git a/Lib/test/test_sysconfig.py b/Lib/test/test_sysconfig.py
+index 0ca5c93..ddde153 100644
+--- a/Lib/test/test_sysconfig.py
++++ b/Lib/test/test_sysconfig.py
+@@ -378,10 +378,13 @@ class TestSysConfig(unittest.TestCase):
+         if re.match('(i[3-6]86|x86_64)$', machine):
+             if ctypes.sizeof(ctypes.c_char_p()) == 4:
+                 self.assertTrue(suffix.endswith('i386-linux-gnu.so') or
+-                                suffix.endswith('x86_64-linux-gnux32.so'),
++                                suffix.endswith('x86_64-linux-gnux32.so') or
++                                suffix.endswith('i386-linux-musl.so'),
+                                 suffix)
+             else: # 8 byte pointer size
+-                self.assertTrue(suffix.endswith('x86_64-linux-gnu.so'), suffix)
++                self.assertTrue(suffix.endswith('x86_64-linux-gnu.so') or
++                                suffix.endswith('x86_64-linux-musl.so'),
++                                suffix)
+ 
+     @unittest.skipUnless(sys.platform == 'darwin', 'OS X-specific test')
+     def test_osx_ext_suffix(self):
+diff --git a/configure b/configure
+index 1252335..8abd246 100755
+--- a/configure
++++ b/configure
+@@ -5346,6 +5346,11 @@ EOF
+ 
+ if $CPP $CPPFLAGS conftest.c >conftest.out 2>/dev/null; then
+   PLATFORM_TRIPLET=`grep -v '^#' conftest.out | grep -v '^ *$' | tr -d ' 	'`
++  case "$build_os" in
++  linux-musl*)
++    PLATFORM_TRIPLET=`echo "$PLATFORM_TRIPLET" | sed 's/linux-gnu/linux-musl/'`
++    ;;
++  esac
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PLATFORM_TRIPLET" >&5
+ $as_echo "$PLATFORM_TRIPLET" >&6; }
+ else
+diff --git a/configure.ac b/configure.ac
+index 972287a..d036e75 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -870,6 +870,11 @@ EOF
+ 
+ if $CPP $CPPFLAGS conftest.c >conftest.out 2>/dev/null; then
+   PLATFORM_TRIPLET=`grep -v '^#' conftest.out | grep -v '^ *$' | tr -d ' 	'`
++  case "$build_os" in
++  linux-musl*)
++    PLATFORM_TRIPLET=`echo "$PLATFORM_TRIPLET" | sed 's/linux-gnu/linux-musl/'`
++    ;;
++  esac
+   AC_MSG_RESULT([$PLATFORM_TRIPLET])
+ else
+   AC_MSG_RESULT([none])
