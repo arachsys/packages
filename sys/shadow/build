@@ -4,17 +4,15 @@ enable setuid setgid
 prepare() {
   unpack https://github.com/shadow-maint/shadow/releases/download/4.8.1/shadow-4.8.1.tar.xz
   apply bcrypt.patch
-  apply chfn.patch
-  apply lastlog.patch
   apply paths.patch
-  tree 1e8263112032d6ee5bb1a64cd10e9113aa6c27237aa78fa0a64f2a6134ae44d1
+  tree 7bcae65e891ddfbe749861099e63c5711ada9697c6b6d5875d87a0ff788b4810
 }
 
 config-extra --without-audit --with-bcrypt --without-libpam
 
 post-config() {
-  sed -e 's:^\(#define FAILLOG_FILE\).*:\1 "/var/log/faillog":' \
-      -e 's:^\(#define LASTLOG_FILE\).*:\1 "/var/log/lastlog":' \
+  sed -e 's:^\(#define FAILLOG_FILE\).*:\1 "/dev/null":' \
+      -e 's:^\(#define LASTLOG_FILE\).*:\1 "/dev/null":' \
       -e 's:^\(#define _UTMP_FILE\).*:\1 "/dev/null":' \
       -e 's:^\(#define _WTMP_FILE\).*:\1 "/dev/null":' \
       -i config.h
@@ -23,5 +21,6 @@ post-config() {
 post-install() {
   chgrp shadow /dst/bin/{chage,expiry}
   chmod u-s,g+s /dst/bin/{chage,expiry}
-  rm -f /dst/bin/{groups,logoutd} /dst/lib/man/man{1/groups.1,8/logoutd.8}
+  rm -f /dst/bin/{chfn,faillog,groups,lastlog,logoutd}
+  rm -f /dst/lib/man/man*/{chfn,faillog,groups,lastlog,logoutd}.*
 }
