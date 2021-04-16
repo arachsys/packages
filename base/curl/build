@@ -1,15 +1,24 @@
 prepare() {
   unpack https://curl.haxx.se/download/curl-7.76.0.tar.xz
+  unpack -d nghttp2 \
+    https://github.com/nghttp2/nghttp2/releases/download/v1.43.0/nghttp2-1.43.0.tar.xz
   apply paths.patch
-  tree 461c824ae906026aed24d957754e083d93521aa580e7c450496eb4f8be9e0fc8
+  tree 684b05d5f9cdb261a08c7c38c2051766aa983ec14d0443aa66f0b9459170894c
 }
 
 mode autotools
-config-extra --with-ca-bundle=/etc/ssl/cert.pem
+config-extra --with-ca-bundle=/etc/ssl/cert.pem \
+  CPPFLAGS="-DUSE_NGHTTP2=1 -I/src/nghttp2/lib/includes" \
+  LDFLAGS=-L/src/nghttp2/lib/.libs LIBS=-lnghttp2
 
 pre-config() {
-  unexpand /src/curl-config.in >/src/curl-config.in.tmp
-  mv -f /src/curl-config.in{.tmp,}
+  cd /src/nghttp2
+  /src/nghttp2/configure --disable-shared --enable-lib-only --with-pic 
+  make
+
+  cd /src
+  unexpand curl-config.in >curl-config.in.tmp
+  mv -f curl-config.in{.tmp,}
   export PATH_SEPARATOR=:
 }
 
