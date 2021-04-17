@@ -1,8 +1,8 @@
 require python
 
 prepare() {
-  unpack llvm-project-12.0.0-rc4.tar.gz \
-    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-12.0.0-rc4.tar.gz
+  unpack llvm-project-12.0.0.tar.xz \
+    https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/llvm-project-12.0.0.src.tar.xz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.19.6/cmake-3.19.6.tar.gz
   apply distro.patch
@@ -10,7 +10,7 @@ prepare() {
   apply prune.patch
   apply sanitizer.patch
   apply tools.patch
-  tree b2f7e49d8bb87220c5c95493a2039f3abf9ba1227c323ce3e60a4275f6020fb8
+  tree 58ba21cb479a2fd6789f47d341c5c952c16d11ad60722d085937c32792a04310
 }
 
 build() {
@@ -24,8 +24,7 @@ build() {
 
   declare -a CONFIG
   enabled lto && CONFIG+=( -DLLVM_ENABLE_LTO=Thin )
-  if [[ $CHOST == @(amd64|x86_64)-* ]] \
-      && [[ -f /lib/shared/libc++abi.so ]] \
+  if [[ -f /lib/shared/libc++abi.so ]] \
       && [[ -f /lib/shared/libunwind.so ]]; then
     CONFIG+=( -DSANITIZER_COMMON_LINK_LIBS="c++abi;unwind" )
   else
@@ -75,4 +74,11 @@ build() {
   rm -f -r /dst/include/{clang-c,llvm-c}
   rm -f -r /dst/lib/{cmake,libclang.so*,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
   mv /dst/include /dst/lib/include
+
+  if [[ $CHOST != @(amd64|x86_64)-* ]]; then
+    RUNTIME=$(cc -print-libgcc-file-name)
+    UNWIND=$(readlink /dst/lib/libunwind.so)
+    rm -f /dst/lib/libunwind.so
+    echo "INPUT ( $UNWIND $RUNTIME )" >/dst/lib/libunwind.so
+  fi
 }
