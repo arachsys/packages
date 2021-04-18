@@ -1,0 +1,27 @@
+require python rust
+
+prepare() {
+  unpack rustc-beta-src-20210407.tar.xz \
+    https://static.rust-lang.org/dist/2021-04-07/rustc-beta-src.tar.xz
+  apply curl.patch
+  apply libressl.patch
+  apply nocred.patch
+  apply system.patch
+  sed -e 's/\("files":{\)[^}]*/\1/' \
+    -i vendor/{curl-sys,openssl-sys}/.cargo-checksum.json
+  tree e8bc8b886266fb2aea9672ce1c38d07cb2e3ebaf973857fd4dc63f82ee3fe06c
+}
+
+build() {
+  /src/configure --prefix= --{build,host,target}=${CHOST/arachsys/unknown} \
+     --disable-codegen-tests --disable-dist-src --disable-docs \
+     --disable-manage-submodules --disable-ninja --disable-rpath \
+     --enable-extended --enable-local-rust --enable-locked-deps \
+     --enable-use-libcxx --enable-vendor --dist-compression-formats=gz \
+     --llvm-config=/lib/llvm/12.0.0/bin/llvm-config --llvm-libunwind=system \
+     --local-rust-root= --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
+
+  DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
+    RUSTFLAGS="-Lnative=/lib/shared -Lnative=/lib/static" python x.py install
+  rm -f -r /dst/{bin/rust-*db*,etc,lib/rustlib/!(${CHOST%%-*}-*),share}
+}
