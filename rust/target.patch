@@ -1,0 +1,46 @@
+diff --git a/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs
+new file mode 100644
+index 000000000..469d8622e
+--- /dev/null
++++ b/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs
+@@ -0,0 +1,10 @@
++use crate::spec::Target;
++
++pub fn target() -> Target {
++    let mut base = super::aarch64_unknown_linux_musl::target();
++    base.llvm_target = "aarch64-arachsys-linux-musl".to_string();
++    base.options.vendor = "arachsys".to_string();
++    base.options.crt_static_default = false;
++    base.options.static_position_independent_executables = true;
++    base
++}
+diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
+index c9fffd213..43b070d78 100644
+--- a/compiler/rustc_target/src/spec/mod.rs
++++ b/compiler/rustc_target/src/spec/mod.rs
+@@ -621,6 +621,9 @@ impl ToJson for StackProbeType {
+ }
+ 
+ supported_targets! {
++    ("x86_64-arachsys-linux-musl", x86_64_arachsys_linux_musl),
++    ("aarch64-arachsys-linux-musl", aarch64_arachsys_linux_musl),
++
+     ("x86_64-unknown-linux-gnu", x86_64_unknown_linux_gnu),
+     ("x86_64-unknown-linux-gnux32", x86_64_unknown_linux_gnux32),
+     ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
+diff --git a/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
+new file mode 100644
+index 000000000..96c1f3e3c
+--- /dev/null
++++ b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
+@@ -0,0 +1,10 @@
++use crate::spec::Target;
++
++pub fn target() -> Target {
++    let mut base = super::x86_64_unknown_linux_musl::target();
++    base.llvm_target = "x86_64-arachsys-linux-musl".to_string();
++    base.options.vendor = "arachsys".to_string();
++    base.options.crt_static_default = false;
++    base.options.static_position_independent_executables = true;
++    base
++}
