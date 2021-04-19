@@ -2,10 +2,9 @@ mode autotools
 require bison m4
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.2p3.tar.gz
-  apply common.patch
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.8p1.tar.gz
   apply paths.patch
-  tree ff2c16297afa1356d5b658771b6f3487ce556d0b6a96205b209b3453eeb7db97
+  tree 2da4b11de1f851c8553ae19d0bc67b78fdd5899dd8a800e8d7f8d1dfb5a1da28
 }
 
 config-extra --enable-https-constraint --with-privsep-{path=/run/empty,user=ntp}
