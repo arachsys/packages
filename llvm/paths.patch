@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Gnu.cpp b/clang/lib/Driver/ToolChains/Gnu.cpp
-index 1d8a3cdce92a..e6dd9d4b3243 100644
+index 1d8a3cdce..e6dd9d4b3 100644
 --- a/clang/lib/Driver/ToolChains/Gnu.cpp
 +++ b/clang/lib/Driver/ToolChains/Gnu.cpp
 @@ -2865,7 +2865,7 @@ void Generic_GCC::AddMultiarchPaths(const Driver &D,
@@ -39,7 +39,7 @@ index 1d8a3cdce92a..e6dd9d4b3243 100644
                                 GCCMultiarchTriple, TargetMultiarchTriple,
                                 Multilib.includeSuffix(), DriverArgs, CC1Args))
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 9663a7390ada..a8fbf54ab26b 100644
+index 9663a7390..012920462 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
 @@ -170,7 +170,10 @@ std::string Linux::getMultiarchTriple(const Driver &D,
@@ -89,18 +89,18 @@ index 9663a7390ada..a8fbf54ab26b 100644
    const std::string MultiarchTriple = getMultiarchTriple(D, Triple, SysRoot);
  
    Generic_GCC::AddMultilibPaths(D, SysRoot, OSLibDir, MultiarchTriple, Paths);
-@@ -312,7 +316,9 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -311,8 +315,8 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+     addPathIfExists(D, D.Dir + "/../" + OSLibDir, Paths);
    }
  
-   addPathIfExists(D, SysRoot + "/lib/" + MultiarchTriple, Paths);
+-  addPathIfExists(D, SysRoot + "/lib/" + MultiarchTriple, Paths);
 -  addPathIfExists(D, SysRoot + "/lib/../" + OSLibDir, Paths);
-+  addPathIfExists(D, SysRoot + "/" + OSLibDir, Paths);
 +  addPathIfExists(D, SysRoot + "/" + OSLibDir + "/shared", Paths);
 +  addPathIfExists(D, SysRoot + "/" + OSLibDir + "/static", Paths);
  
    if (IsAndroid) {
      // Android sysroots contain a library directory for each supported OS
-@@ -328,19 +334,21 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -328,33 +332,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
                      Paths);
    }
  
@@ -117,43 +117,24 @@ index 9663a7390ada..a8fbf54ab26b 100644
 -    StringRef ABIName = tools::riscv::getRISCVABI(Args, Triple);
 -    addPathIfExists(D, SysRoot + "/" + OSLibDir + "/" + ABIName, Paths);
 -    addPathIfExists(D, SysRoot + "/usr/" + OSLibDir + "/" + ABIName, Paths);
-+  if (!Distro.IsArachsys()) {
-+    addPathIfExists(D, SysRoot + "/usr/lib/" + MultiarchTriple, Paths);
-+    // 64-bit OpenEmbedded sysroots may not have a /usr/lib dir. So they cannot
-+    // find /usr/lib64 as it is referenced as /usr/lib/../lib64. So we handle
-+    // this here.
-+    if (Triple.getVendor() == llvm::Triple::OpenEmbedded &&
-+        Triple.isArch64Bit())
-+      addPathIfExists(D, SysRoot + "/usr/" + OSLibDir, Paths);
-+    else
-+      addPathIfExists(D, SysRoot + "/usr/lib/../" + OSLibDir, Paths);
-+    if (IsRISCV) {
-+      StringRef ABIName = tools::riscv::getRISCVABI(Args, Triple);
-+      addPathIfExists(D, SysRoot + "/" + OSLibDir + "/" + ABIName, Paths);
-+      addPathIfExists(D, SysRoot + "/usr/" + OSLibDir + "/" + ABIName, Paths);
-+    }
-   }
- 
+-  }
+-
    Generic_GCC::AddMultiarchPaths(D, SysRoot, OSLibDir, Paths);
-@@ -350,11 +358,15 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
-   // searched.
-   // FIXME: It's not clear whether we should use the driver's installed
-   // directory ('Dir' below) or the ResourceDir.
+-
+-  // Similar to the logic for GCC above, if we are currently running Clang
+-  // inside of the requested system root, add its parent library path to those
+-  // searched.
+-  // FIXME: It's not clear whether we should use the driver's installed
+-  // directory ('Dir' below) or the ResourceDir.
 -  if (StringRef(D.Dir).startswith(SysRoot))
-+  if (StringRef(D.Dir).startswith(SysRoot)) {
-     addPathIfExists(D, D.Dir + "/../lib", Paths);
-+    addPathIfExists(D, D.Dir + "/../lib/shared", Paths);
-+    addPathIfExists(D, D.Dir + "/../lib/static", Paths);
-+  }
- 
-   addPathIfExists(D, SysRoot + "/lib", Paths);
+-    addPathIfExists(D, D.Dir + "/../lib", Paths);
+-
+-  addPathIfExists(D, SysRoot + "/lib", Paths);
 -  addPathIfExists(D, SysRoot + "/usr/lib", Paths);
-+  if (!Distro.IsArachsys())
-+    addPathIfExists(D, SysRoot + "/usr/lib", Paths);
  }
  
  ToolChain::CXXStdlibType Linux::GetDefaultCXXStdlibType() const {
-@@ -420,6 +432,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
+@@ -420,6 +398,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
  
    const Distro Distro(getDriver().getVFS(), Triple);
  
@@ -163,7 +144,7 @@ index 9663a7390ada..a8fbf54ab26b 100644
    if (Triple.isAndroid())
      return Triple.isArch64Bit() ? "/system/bin/linker64" : "/system/bin/linker";
  
-@@ -568,9 +583,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -568,9 +549,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (DriverArgs.hasArg(clang::driver::options::OPT_nostdinc))
      return;
  
@@ -173,7 +154,7 @@ index 9663a7390ada..a8fbf54ab26b 100644
    SmallString<128> ResourceDirInclude(D.ResourceDir);
    llvm::sys::path::append(ResourceDirInclude, "include");
    if (!DriverArgs.hasArg(options::OPT_nobuiltininc) &&
-@@ -767,9 +779,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -767,9 +745,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // Add an include of '/include' directly. This isn't provided by default by
    // system GCCs, but is often used with cross-compiling GCCs, and harmless to
    // add even when Clang is acting as-if it were a system compiler.
@@ -185,7 +166,7 @@ index 9663a7390ada..a8fbf54ab26b 100644
    if (!DriverArgs.hasArg(options::OPT_nobuiltininc) && getTriple().isMusl())
      addSystemInclude(DriverArgs, CC1Args, ResourceDirInclude);
 diff --git a/clang/tools/driver/CMakeLists.txt b/clang/tools/driver/CMakeLists.txt
-index 01efebdcb929..d46645144cb2 100644
+index 01efebdcb..d46645144 100644
 --- a/clang/tools/driver/CMakeLists.txt
 +++ b/clang/tools/driver/CMakeLists.txt
 @@ -48,7 +48,7 @@ clang_target_link_libraries(clang
