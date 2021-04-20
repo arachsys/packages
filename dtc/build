@@ -1,0 +1,11 @@
+require bison flex m4
+
+prepare() {
+  unpack https://github.com/dgibson/dtc/archive/refs/tags/v1.6.0.tar.gz
+  apply tidy.patch
+}
+
+build() {
+  make install DESTDIR=/dst PREFIX= INCLUDEDIR=/lib/include \
+    INSTALL=install NO_YAML=1 PKG_CONFIG=false
+}

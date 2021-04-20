@@ -1,0 +1,16 @@
+diff --git a/dtdiff b/dtdiff
+index cdbf079..2e9398f 100644
+--- a/dtdiff
++++ b/dtdiff
+@@ -1,10 +1,4 @@
+-#! /bin/bash
+-# SPDX-License-Identifier: GPL-2.0-or-later
+-
+-# This script uses the bash <(...) extension.
+-# If you want to change this to work with a generic /bin/sh, make sure
+-# you fix that.
+-
++#!/bin/bash
+ 
+ DTC=dtc
+ 
