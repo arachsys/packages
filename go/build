@@ -2,10 +2,10 @@ enable unstripped
 require go
 
 prepare() {
-  unpack https://golang.org/dl/go1.16.src.tar.gz
+  unpack https://golang.org/dl/go1.16.3.src.tar.gz
   apply fmt.patch
   apply paths.patch
-  tree 3cab28a30bb9c1e5847e7b1f9f6c9ca9da006a8e6978549690cd28880ddc443c
+  tree d20c573726924764a03fa19e11682b370d861c7da8befe6e1cf7977764e4e170
 }
 
 build() {
