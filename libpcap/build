@@ -2,8 +2,8 @@ mode autotools
 require bison flex m4
 
 prepare() {
-  unpack https://www.tcpdump.org/release/libpcap-1.9.1.tar.gz
-  tree adf531bdac94b7c235ac0ca5176db047a93621bf31f9ea9395e81e1fed991f2d
+  unpack https://www.tcpdump.org/release/libpcap-1.10.0.tar.gz
+  tree 6708e3633399b92767d98273c999d13118f3d1008ad68d5ae35a53e95cae2190
 }
 
 config-extra --with-pcap=linux
