@@ -1,5 +1,5 @@
 mode autotools
-require bison flex m4
+require bison flex
 
 prepare() {
   unpack https://www.tcpdump.org/release/libpcap-1.10.0.tar.gz

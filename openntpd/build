@@ -1,5 +1,5 @@
 mode autotools
-require bison m4
+require bison
 
 prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.8p1.tar.gz

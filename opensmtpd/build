@@ -1,5 +1,5 @@
 mode autotools
-require bison libevent m4
+require bison libevent
 enable setuid
 enable setgid
 

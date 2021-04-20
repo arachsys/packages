@@ -1,5 +1,5 @@
 mode autotools
-require bison flex m4
+require bison flex
 
 prepare() {
   unpack https://bird.network.cz/download/bird-2.0.8.tar.gz
