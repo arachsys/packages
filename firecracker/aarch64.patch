@@ -1,0 +1,17 @@
+diff --git a/.cargo/config b/.cargo/config
+index 389e0f9..2c552fa 100644
+--- a/.cargo/config
++++ b/.cargo/config
+@@ -1,12 +1,4 @@
+-[build]
+-target = "x86_64-unknown-linux-musl"
+-target-dir = "build/cargo_target"
+-
+ [target.'cfg(any(target_arch="arm", target_arch="aarch64"))']
+-# On aarch64 musl depends on some libgcc functions (i.e `__addtf3` and other `*tf3` functions) for logic that uses
+-# long double. Such functions are not builtin in the rust compiler, so we need to get them from libgcc.
+-# No need for the `crt_static` flag as rustc appends it by default.
+ rustflags = [
+-	"-C", "link-arg=-lgcc",
+ 	"-C", "link-arg=-lfdt",
+ ]
