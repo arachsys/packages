@@ -2,11 +2,11 @@ mode autotools
 enable setuid
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.5p1.tar.gz
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.6p1.tar.gz
   apply askpass.patch
   apply dnssegv.patch
   apply sftp.patch
-  tree 9fd5a0199f4638007f7fa01e05a2098078173ff71865bb711ade50d2acf87feb
+  tree bc657556e8b229fb943fbc39680b26db8f1bdcf78e0a0240e2f4f7a1bf3009b6
 }
 
 config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
