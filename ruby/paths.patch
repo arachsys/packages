@@ -1,0 +1,54 @@
+diff --git a/configure.ac b/configure.ac
+index c143c23..f7e98ff 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3803,10 +3803,10 @@ AS_CASE(["$target_os"],
+     rubyw_install_name='$(RUBYW_INSTALL_NAME)'
+     ])
+ 
+-rubylibdir='${rubylibprefix}/${ruby_version}'
+-rubyarchdir=${multiarch+'${rubyarchprefix}/${ruby_version}'}${multiarch-'${rubylibdir}/${arch}'}
++rubylibdir='${rubylibprefix}'
++rubyarchdir=${multiarch+'${rubyarchprefix}'}${multiarch-'${rubylibdir}'}
+ 
+-rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
++rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}'}
+ AC_ARG_WITH(rubyarchprefix,
+ 	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
+ 			   [prefix for architecture dependent ruby libraries [[RUBYLIBPREFIX/ARCH]]]),
+diff --git a/configure b/configure
+index aeb606e..d929a00 100755
+--- a/configure
++++ b/configure
+@@ -31152,10 +31152,10 @@ case "$target_os" in #(
+      ;;
+ esac
+ 
+-rubylibdir='${rubylibprefix}/${ruby_version}'
+-rubyarchdir=${multiarch+'${rubyarchprefix}/${ruby_version}'}${multiarch-'${rubylibdir}/${arch}'}
++rubylibdir='${rubylibprefix}'
++rubyarchdir=${multiarch+'${rubyarchprefix}'}${multiarch-'${rubylibdir}'}
+ 
+-rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
++rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}'}
+ 
+ # Check whether --with-rubyarchprefix was given.
+ if test "${with_rubyarchprefix+set}" = set; then :
+diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
+index 8aae67c..9ced26f 100644
+--- a/lib/rubygems/defaults.rb
++++ b/lib/rubygems/defaults.rb
+@@ -38,13 +38,11 @@ module Gem
+              [
+                File.dirname(RbConfig::CONFIG['sitedir']),
+                'Gems',
+-               RbConfig::CONFIG['ruby_version'],
+              ]
+            else
+              [
+                RbConfig::CONFIG['rubylibprefix'],
+                'gems',
+-               RbConfig::CONFIG['ruby_version'],
+              ]
+            end
+ 

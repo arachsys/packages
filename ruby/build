@@ -1,0 +1,17 @@
+mode autotools
+
+prepare() {
+  unpack https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.1.tar.gz
+  apply paths.patch
+  apply plain.patch
+  tree 03615999728b6a89c798c760be248c7e1a75d09f6045e5cc23193a9d5b8fae39
+}
+
+config-extra --disable-install-doc  --disable-rpath --enable-shared \
+  --with-ridir=/lib/ruby/doc --with-ruby{arch,}hdrdir=/lib/include \
+  --with-ruby{arch,lib}prefix=/lib/ruby \
+  --with-{site,vendor}{archdir,archhdrdir,dir,hdrdir}=no
+
+post-install() {
+  rm -f /dst/lib/include/rb_mjit_min_header-*.h
+}

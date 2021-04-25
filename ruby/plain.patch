@@ -1,0 +1,22 @@
+diff --git a/ruby.c b/ruby.c
+index 9990882..31355c4 100644
+--- a/ruby.c
++++ b/ruby.c
+@@ -1729,7 +1729,7 @@ process_options(int argc, char **argv, ruby_cmdline_options_t *opt)
+                     tty = tty_enabled();
+                     dup2(fd, 1);
+                     dup2(fd, 2);
+-                    usage(progname, 1, tty, columns);
++                    usage(progname, 1, 0, columns);
+                     fflush(stdout);
+                     dup2(oldout, 1);
+                     dup2(olderr, 2);
+@@ -1739,7 +1739,7 @@ process_options(int argc, char **argv, ruby_cmdline_options_t *opt)
+ #endif
+             }
+         }
+-	usage(progname, (opt->dump & DUMP_BIT(help)), tty, columns);
++	usage(progname, (opt->dump & DUMP_BIT(help)), 0, columns);
+ 	return Qtrue;
+     }
+ 
