@@ -8,8 +8,8 @@ prepare() {
   apply nocred.patch
   apply system.patch
   apply target.patch
-  sed -e 's/\("files":{\)[^}]*/\1/' \
-    -i vendor/{curl-sys,openssl-sys}/.cargo-checksum.json
+  sed -i 's/\("files":{\)[^}]*/\1/' \
+    vendor/{curl-sys,openssl-sys}/.cargo-checksum.json
   tree aae637741c1112a935449fc54325fb26a800f7031b204dae630907cab8c89207
 }
 

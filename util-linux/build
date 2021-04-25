@@ -14,13 +14,13 @@ config-extra --disable-{chfn-chsh,cramfs,last,lastb,login,lslogins,mesg} \
 
 post-config() {
   find . -type f -name Makefile | while read FILE; do
-    sed -e 's:^\(usrsbin_execdir *=\).*:\1 /bin:' -i $FILE
-    sed -e 's:^\(usrlib_execdir *=\).*:\1 /lib:' -i $FILE
-    sed -e 's:^\(pkgconfigdir *=\).*:\1 /lib/pkgconfig:' -i $FILE
+    sed -i 's:^\(usrsbin_execdir *=\).*:\1 /bin:' $FILE
+    sed -i 's:^\(usrlib_execdir *=\).*:\1 /lib:' $FILE
+    sed -i 's:^\(pkgconfigdir *=\).*:\1 /lib/pkgconfig:' $FILE
   done
-  sed -e 's:/sbin:/bin:g' -i po/*.{gmo,po,pot}
-  sed -e 's:/etc/mtab:/run/mtab:g' -i po/*.{gmo,po,pot}
-  sed -e 's:/etc/adjtime:/var/lib/adjtime:g' -i po/*.{gmo,po,pot}
+  sed -i 's:/sbin:/bin:g' po/*.{gmo,po,pot}
+  sed -i 's:/etc/mtab:/run/mtab:g' po/*.{gmo,po,pot}
+  sed -i 's:/etc/adjtime:/var/lib/adjtime:g' po/*.{gmo,po,pot}
 }
 
 post-install() {

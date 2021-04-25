@@ -12,5 +12,5 @@ build() {
 
   install -s -t /dst/bin -D drill/drill host
   install -m 0644 -t /dst/lib/man/man1 -D drill/drill.1
-  sed -e 's/ldns-//gI' ldns-host.1 >/dst/lib/man/man1/host.1
+  sed 's/ldns-//gI' ldns-host.1 >/dst/lib/man/man1/host.1
 }

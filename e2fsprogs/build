@@ -15,7 +15,7 @@ if enabled shared; then
 fi
 
 post-config() {
-  sed -e '/^E2SCRUB_DIR *=/s/^/#/' -i Makefile
+  sed -i '/^E2SCRUB_DIR *=/s/^/#/' Makefile
 }
 
 post-install() {

@@ -7,7 +7,7 @@ prepare() {
 }
 
 pre-config() {
-  sed -e '/GENERIC_LDFLAGS =/s/\$(RELEASE) //p' -i Makefile.{am,in}
+  sed -i '/GENERIC_LDFLAGS =/s/\$(RELEASE) //p' Makefile.{am,in}
 }
 
 post-install() {

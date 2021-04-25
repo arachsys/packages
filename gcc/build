@@ -43,7 +43,7 @@ install-extra tooldir='${prefix}'
 
 post-config() {
   # Packaging error in binutils 2.34 unconditionally requires texinfo
-  sed -e '/^MAKEINFO/s/=.*/= true/' -i Makefile
+  sed -i '/^MAKEINFO/s/=.*/= true/' Makefile
 }
 
 post-install() {
