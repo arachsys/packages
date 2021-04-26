@@ -1,6 +1,6 @@
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.11.6.tar.xz
-  tree 7fa4add4da83d066996860821d51b28ad92a2e42a646463b9cb9d3172557c2c0
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.12.tar.xz
+  tree caaafa22138512e65d2cb812197c834adae786280c53364a095c1f72eabdf9f1
 }
 
 build() {
