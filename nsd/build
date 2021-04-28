@@ -2,8 +2,8 @@ mode autotools
 require libevent
 
 prepare() {
-  unpack https://www.nlnetlabs.nl/downloads/nsd/nsd-4.3.1.tar.gz
-  tree a1ffc39c1bf541fcfed8e9f57fe336be22b813e06aa47d13af3fda370eb71d76
+  unpack https://www.nlnetlabs.nl/downloads/nsd/nsd-4.3.6.tar.gz
+  tree c90be5e5466a5025303b2f836b805581f4893c32660e38b382492cb9c2e8693f
 }
 
 config-extra --enable-root-server --with-dbfile=/var/lib/nsd/nsd.db \
