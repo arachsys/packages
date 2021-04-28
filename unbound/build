@@ -2,8 +2,8 @@ mode autotools
 require expat
 
 prepare() {
-  unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.10.1.tar.gz
-  tree ccb4589266d289836830570392a984fe73078c0812d0fa7e813df020d03cbc2f
+  unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.13.1.tar.gz
+  tree 3834a60ef547e8438d2c85e709519b75847e3c98bfcf1220e85c52aee4e3e04a
 }
 
 config-extra --disable-{rpath,shared} --with-conf-file=/etc/unbound.conf \
