@@ -1,8 +1,9 @@
 prepare() {
   unpack https://ftp.gnu.org/gnu/coreutils/coreutils-8.32.tar.xz
+  apply fmt.patch
   apply getdents64.patch
   apply uname.patch
-  tree dc925d9b6e88c1825bb8e696efbd11ff86bbab5fd869c7fb2d5c3314229549d0
+  tree c144ab043caade79dd477282001d99304db1da53b259928d0b4afe18bffcad95
 }
 
 mode autotools

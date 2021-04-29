@@ -1,0 +1,49 @@
+diff --git a/src/fmt.c b/src/fmt.c
+index d1e3bc3..6c5f982 100644
+--- a/src/fmt.c
++++ b/src/fmt.c
+@@ -40,7 +40,7 @@
+    "best".  Adjust to taste, subject to the caveats given.  */
+ 
+ /* Default longest permitted line length (max_width).  */
+-#define WIDTH	75
++#define WIDTH	76
+ 
+ /* Prefer lines to be LEEWAY % shorter than the maximum width, giving
+    room for optimization.  */
+@@ -286,8 +286,8 @@ The option -WIDTH is an abbreviated form of --width=DIGITS.\n\
+          format string:  xgettext:no-c-format */
+       fputs (_("\
+   -t, --tagged-paragraph    indentation of first line different from second\n\
+-  -u, --uniform-spacing     one space between words, two after sentences\n\
+-  -w, --width=WIDTH         maximum line width (default of 75 columns)\n\
++  -u, --uniform-spacing     one space between words and after sentences\n\
++  -w, --width=WIDTH         maximum line width (default of 76 columns)\n\
+   -g, --goal=WIDTH          goal width (default of 93% of width)\n\
+ "), stdout);
+       fputs (HELP_OPTION_DESCRIPTION, stdout);
+@@ -654,8 +654,8 @@ same_para (int c)
+ /* Read a line from input file F, given first non-blank character C
+    after the prefix, and the following indent, and break it into words.
+    A word is a maximal non-empty string of non-white characters.  A word
+-   ending in [.?!]["')\]]* and followed by end-of-line or at least two
+-   spaces ends a sentence, as in emacs.
++   ending in [.?!]["')\]]* and followed by end-of-line or at least one
++   space ends a sentence.
+ 
+    Return the first non-blank character of the next line.  */
+ 
+@@ -694,11 +694,9 @@ get_line (FILE *f, int c)
+       start = in_column;
+       c = get_space (f, c);
+       word_limit->space = in_column - start;
+-      word_limit->final = (c == EOF
+-                           || (word_limit->period
+-                               && (c == '\n' || word_limit->space > 1)));
++      word_limit->final = (c == EOF || word_limit->period);
+       if (c == '\n' || c == EOF || uniform)
+-        word_limit->space = word_limit->final ? 2 : 1;
++        word_limit->space = 1;
+       if (word_limit == end_of_word)
+         {
+           set_other_indent (true);
