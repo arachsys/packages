@@ -40,6 +40,7 @@ build() {
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
+    -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=Yes \
     -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld" \
     -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi" \
     -DLLVM_HOST_TRIPLE=$CHOST \
@@ -76,9 +77,9 @@ build() {
   mv /dst/include /dst/lib/include
 
   if [[ $CHOST != @(amd64|x86_64)-* ]]; then
-    RUNTIME=$(cc -print-libgcc-file-name)
+    RUNTIME=$(/dst/bin/clang -print-libgcc-file-name)
     UNWIND=$(readlink /dst/lib/libunwind.so)
     rm -f /dst/lib/libunwind.so
-    echo "INPUT ( $UNWIND $RUNTIME )" >/dst/lib/libunwind.so
+    echo "INPUT ( $UNWIND ..${RUNTIME#/dst/lib} )" >/dst/lib/libunwind.so
   fi
 }
