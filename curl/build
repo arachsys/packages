@@ -23,5 +23,5 @@ pre-config() {
 }
 
 post-install() {
-  rm -f /dst/bin/curl-config
+  rm -f /dst/bin/curl-config /dst/lib/aclocal/libcurl.m4
 }

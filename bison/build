@@ -7,7 +7,7 @@ prepare() {
 }
 
 post-install() {
-  find /dst -name 'README*' -type f -delete
+  rm -f -r /dst/lib/{aclocal,bison/*.css,bison/xslt,**/README*}
   cat >/dst/bin/yacc <<'EOF'
 #!/bin/sh
 exec bison -y "$@"
