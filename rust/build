@@ -1,7 +1,7 @@
 require python rust
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.52.0-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.52.1-src.tar.gz
   apply curl.patch
   apply libressl.patch
   apply nocred.patch
@@ -9,7 +9,7 @@ prepare() {
   apply target.patch
   sed -i 's/\("files":{\)[^}]*/\1/' \
     vendor/{curl-sys,openssl-sys}/.cargo-checksum.json
-  tree 40d7013bae138a7dbd329a0f06379e53797f4463994afbc855b5dc16a84ffaed
+  tree 0cd2d6a4a30edff5d0426484764ba55923c4f3be0062c94196c1d626341bddd2
 }
 
 build() {
