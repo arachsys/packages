@@ -1,10 +1,10 @@
 prepare() {
-  unpack https://github.com/facebook/zstd/releases/download/v1.4.9/zstd-1.4.9.tar.gz
-  tree 01a4b47029954a6dbc109b4a04092e7d803fce22670de2b1f8e62363fc05e37e
+  unpack https://github.com/facebook/zstd/releases/download/v1.5.0/zstd-1.5.0.tar.gz
+  tree 9a2ab04af2c56c64cab10180764a2b8b84144443972593995ace39934e1ac29f
 }
 
 build() {
-  make install DESTDIR=/dst PREFIX= INCLUDEDIR=/lib/include \
+  make lib-mt install DESTDIR=/dst PREFIX= INCLUDEDIR=/lib/include \
     LIBDIR=/lib MAN1DIR=/lib/man/man1
   rm -f /dst/bin/zstd{grep,less} /dst/lib/man/man1/zstd{grep,less}.1
 }
