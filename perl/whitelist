@@ -1,5 +1,5 @@
 # This whitelist is derived from the manifest of Debian's perl-base 5.30.0-10 package.
- 
+
 bin/perl
 lib/man/man1/perl.1
 lib/perl/AutoLoader.pm

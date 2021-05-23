@@ -34,8 +34,8 @@ build() {
 
   # Prune the installed files into the perl-base package:
   set -- "/dst"
-  for PATTERN in $(sed 's/#.*//' /pkg/whitelist); do
+  while read PATTERN; do
     set -- "$@" -path "/dst/$PATTERN" -prune -or
-  done
+  done < <(sed -n -e 's/#.*//' -e '/\S/p' /pkg/whitelist)
   find "$@" -type f -exec rm {} +
 }
