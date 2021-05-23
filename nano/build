@@ -1,0 +1,10 @@
+mode autotools
+
+prepare() {
+  unpack https://www.nano-editor.org/dist/v5/nano-5.7.tar.xz
+  tree fb8dd87bc638fb3e701ab6d4a2d90d7183753b53c9d0da232e183811d9b1eaae
+}
+
+post-install() {
+  rm -f /dst/bin/rnano
+}
