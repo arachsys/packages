@@ -1,0 +1,14 @@
+mode autotools
+
+prepare() {
+  unpack https://downloads.sourceforge.net/joe-editor/joe-4.6.tar.gz
+  apply shell.patch
+  tree 2469822c8e9c5bd90b40822a4c6104b58a28353912a0555feb84ce62576cc7d7
+}
+
+config-extra --sysconfdir='${prefix}/lib'
+
+post-install() {
+  rm -f -r /dst/bin/rjoe \
+    /dst/lib/{applications,joe/{jicerc.ru,*.zh_TW,lang,rjoerc,shell.csh}}
+}
