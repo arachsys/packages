@@ -37,30 +37,30 @@ index 449cbe0..c885601 100644
  				TERM_LIST+="${I##*/} "
  			done
  			COMPREPLY=( $(compgen -W "$TERM_LIST" -- $cur) )
-diff --git a/disk-utils/fsck.8 b/disk-utils/fsck.8
-index 97eb8d8..c399020 100644
---- a/disk-utils/fsck.8
-+++ b/disk-utils/fsck.8
-@@ -23,7 +23,7 @@ is used to check and optionally repair one or more Linux filesystems.
- can be a device name (e.g.,
- .IR /dev/hdc1 ", " /dev/sdb2 ),
- a mount point (e.g.,
--.IR / ", " /usr ", " /home ),
-+.IR / ", " /var ", " /home ),
- or an filesystem label or UUID specifier (e.g.,
- UUID=8868abf6-88c5-4a83-98b8-bfc24057f7bd or LABEL=root).
- Normally, the
-@@ -84,7 +84,7 @@ is simply a front-end for the various filesystem checkers
- (\fBfsck\fR.\fIfstype\fR) available under Linux.  The
- filesystem-specific checker is searched for in the
- PATH environment variable. If the PATH is undefined then
--fallback to "/sbin".
-+fallback to "/bin".
- .PP
- Please see the filesystem-specific checker manual pages for
- further details.
+diff --git a/disk-utils/fsck.8.adoc b/disk-utils/fsck.8.adoc
+index 703e989..bea40fc 100644
+--- a/disk-utils/fsck.8.adoc
++++ b/disk-utils/fsck.8.adoc
+@@ -20,7 +20,7 @@ fsck - check and repair a Linux filesystem
+ 
+ == DESCRIPTION
+ 
+-*fsck* is used to check and optionally repair one or more Linux filesystems. _filesystem_ can be a device name (e.g., _/dev/hdc1_, _/dev/sdb2_), a mount point (e.g., _/_, _/usr_, _/home_), or an filesystem label or UUID specifier (e.g., UUID=8868abf6-88c5-4a83-98b8-bfc24057f7bd or LABEL=root). Normally, the *fsck* program will try to handle filesystems on different physical disk drives in parallel to reduce the total amount of time needed to check all of them.
++*fsck* is used to check and optionally repair one or more Linux filesystems. _filesystem_ can be a device name (e.g., _/dev/hdc1_, _/dev/sdb2_), a mount point (e.g., _/_, _/var_, _/home_), or an filesystem label or UUID specifier (e.g., UUID=8868abf6-88c5-4a83-98b8-bfc24057f7bd or LABEL=root). Normally, the *fsck* program will try to handle filesystems on different physical disk drives in parallel to reduce the total amount of time needed to check all of them.
+ 
+ If no filesystems are specified on the command line, and the *-A* option is not specified, *fsck* will default to checking filesystems in _/etc/fstab_ serially. This is equivalent to the *-As* options.
+ 
+@@ -45,7 +45,7 @@ Shared-library error
+ 
+ The exit status returned when multiple filesystems are checked is the bit-wise OR of the exit statuses for each filesystem that is checked.
+ 
+-In actuality, *fsck* is simply a front-end for the various filesystem checkers (*fsck*._fstype_) available under Linux. The filesystem-specific checker is searched for in the *PATH* environment variable. If the *PATH* is undefined then fallback to _/sbin_.
++In actuality, *fsck* is simply a front-end for the various filesystem checkers (*fsck*._fstype_) available under Linux. The filesystem-specific checker is searched for in the *PATH* environment variable. If the *PATH* is undefined then fallback to _/bin_.
+ 
+ Please see the filesystem-specific checker manual pages for further details.
+ 
 diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index fda80a6..2590907 100644
+index fe114d7..8b280bd 100644
 --- a/disk-utils/fsck.c
 +++ b/disk-utils/fsck.c
 @@ -154,7 +154,7 @@ static int kill_sent;
@@ -86,7 +86,7 @@ index 5566908..096b36c 100644
  
  #ifdef HAVE_LOCALE_H
 diff --git a/include/pathnames.h b/include/pathnames.h
-index 3845d4c..8965f64 100644
+index 9be2baa..55244cd 100644
 --- a/include/pathnames.h
 +++ b/include/pathnames.h
 @@ -16,21 +16,12 @@
@@ -101,7 +101,7 @@ index 3845d4c..8965f64 100644
 -#else
 -# define _PATH_DEFPATH	        "/usr/local/bin:/bin:/usr/bin"
 +#ifndef _PATH_DEFPATH
-+# define _PATH_DEFPATH		"/bin"
++# define _PATH_DEFPATH	        "/bin"
  #endif
  
 -#undef _PATH_DEFPATH_ROOT
@@ -152,8 +152,8 @@ index 3845d4c..8965f64 100644
  /* misc paths */
 -#define _PATH_WORDS             "/usr/share/dict/words"
 -#define _PATH_WORDS_ALT         "/usr/share/dict/web2"
-+#define _PATH_WORDS		"/lib/dict/words"
-+#define _PATH_WORDS_ALT		"/lib/dict/web2"
++#define _PATH_WORDS             "/lib/dict/words"
++#define _PATH_WORDS_ALT         "/lib/dict/web2"
  
  /* mount paths */
  #define _PATH_FILESYSTEMS	"/etc/filesystems"
@@ -219,7 +219,7 @@ index bd079d4..508fa25 100644
  	int lvpipe[] = { -1, -1 }, stripes = 0, stripesize = 0;
  	FILE *stream = NULL;
 diff --git a/libmount/python/context.c b/libmount/python/context.c
-index 6e3ffcb..d6b5ad2 100644
+index 353a893..8aae7ac 100644
 --- a/libmount/python/context.c
 +++ b/libmount/python/context.c
 @@ -332,7 +332,7 @@ static PyObject *Context_disable_canonicalize(ContextObjext *self, PyObject *arg
@@ -258,8 +258,21 @@ index 6e3ffcb..d6b5ad2 100644
  	"\n" \
  	"This is similar to:\n" \
  	"\n" \
+diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
+index 8c0a20e..1c19783 100644
+--- a/libmount/src/context_mount.c
++++ b/libmount/src/context_mount.c
+@@ -1849,7 +1849,7 @@ int mnt_context_get_mount_excode(
+ 		else if (mnt_fs_is_netfs(mnt_context_get_fs(cxt)))
+ 			snprintf(buf, bufsz,
+ 				_("bad option; for several filesystems (e.g. nfs, cifs) "
+-				  "you might need a /sbin/mount.<type> helper program"));
++				  "you might need a /bin/mount.<type> helper program"));
+ 		else
+ 			snprintf(buf, bufsz,
+ 				_("wrong fs type, bad option, bad superblock on %s, "
 diff --git a/libuuid/src/uuidd.h b/libuuid/src/uuidd.h
-index e55c86f..9ad9508 100644
+index fbe821f..d718828 100644
 --- a/libuuid/src/uuidd.h
 +++ b/libuuid/src/uuidd.h
 @@ -38,7 +38,7 @@
@@ -271,184 +284,139 @@ index e55c86f..9ad9508 100644
  
  #define UUIDD_OP_GETPID			0
  #define UUIDD_OP_GET_MAXOP		1
-diff --git a/login-utils/login.1 b/login-utils/login.1
-index 3f5a05e..8c9bfb4 100644
---- a/login-utils/login.1
-+++ b/login-utils/login.1
-@@ -53,10 +53,8 @@ and
- are set according to the appropriate fields in the password entry.
- .B $PATH
- defaults to
--.I /usr\:/local\:/bin:\:/bin:\:/usr\:/bin
--for normal users, and to
--.I /usr\:/local\:/sbin:\:/usr\:/local\:/bin:\:/sbin:\:/bin:\:/usr\:/sbin:\:/usr\:/bin
--for root, if not otherwise configured.
-+.I /bin
-+if not otherwise configured.
- .P
- The environment variable
- .B $TERM
-@@ -159,7 +157,7 @@ to be displayed upon login.  If the specified path is a directory then displays
- all files with .motd file extension in version-sort order from the directory.
- .PP
- The default value is
--.IR "/usr/share/misc/motd:/run/motd:/etc/motd" .
-+.IR "/lib/misc/motd:/run/motd:/etc/motd" .
- If the
- .B MOTD_FILE
- item is empty or a quiet login is enabled, then the message of the day
-@@ -329,7 +327,7 @@ If set, it will be used to define the
- .B PATH
- environment variable when
- a regular user logs in.  The default value is
--.I /usr\:/local\:/bin:\:/bin:\:/usr\:/bin
-+.I /bin
- .RE
- .PP
- .B ENV_ROOTPATH
-@@ -340,14 +338,14 @@ a regular user logs in.  The default value is
- .RS 4
- If set, it will be used to define the PATH environment variable when
- the superuser logs in.  ENV_ROOTPATH takes precedence.  The default value is
--.I /usr\:/local\:/sbin:\:/usr\:/local\:/bin:\:/sbin:\:/bin:\:/usr\:/sbin:\:/usr\:/bin
-+.I /bin
- .RE
- .SH FILES
- .nf
--.I /var/run/utmp
-+.I /run/utmp
- .I /var/log/wtmp
- .I /var/log/lastlog
--.I /var/spool/mail/*
-+.I /var/mail/*
- .I /etc/motd
- .I /etc/passwd
- .I /etc/nologin
-diff --git a/login-utils/runuser.1 b/login-utils/runuser.1
-index 0088eae..8fd4a60 100644
---- a/login-utils/runuser.1
-+++ b/login-utils/runuser.1
-@@ -198,7 +198,7 @@ for
- .RS 4
- Defines the PATH environment variable for a regular user.  The
- default value is
--.IR /usr/local/bin:\:/bin:\:/usr/bin .
-+.IR /bin .
- .RE
- .PP
- .B ENV_ROOTPATH
-@@ -212,7 +212,7 @@ Defines the
- environment variable for root.
- .B ENV_SUPATH
- takes precedence.  The default value is
--.IR /usr/local/sbin:\:/usr/local/bin:\:/sbin:\:/bin:\:/usr/sbin:\:/usr/bin .
-+.IR /bin .
- .RE
- .PP
- .B ALWAYS_SET_PATH
-@@ -228,13 +228,7 @@ initializes
- .sp
- The environment variable
- .B PATH
--may be different on systems where
--.I /bin
--and
--.I /sbin
--are merged into
--.IR  /usr ;
--this variable is also affected by the \fB\-\-login\fR command-line option and
-+is affected by the \fB\-\-login\fR command-line option and
- the PAM system setting (e.g.,
- .BR pam_env (8)).
- .SH EXIT STATUS
-diff --git a/login-utils/su.1 b/login-utils/su.1
-index 622be73..0086daa 100644
---- a/login-utils/su.1
-+++ b/login-utils/su.1
-@@ -226,7 +226,7 @@ Defines the
- .B PATH
- environment variable for a regular user.  The
- default value is
--.IR /usr/local/bin:\:/bin:\:/usr/bin .
-+.IR /bin .
- .RE
- .PP
- .B ENV_ROOTPATH
-@@ -238,7 +238,7 @@ default value is
- Defines the PATH environment variable for root.
- .B ENV_SUPATH
- takes precedence.  The default value is
--.IR /usr/local/sbin:\:/usr/local/bin:\:/sbin:\:/bin:\:/usr/sbin:\:/usr/bin .
-+.IR /bin .
- .RE
- .PP
- .B ALWAYS_SET_PATH
-@@ -254,13 +254,7 @@ initializes
- .sp
- The environment variable
- .B PATH
--may be different on systems where
--.I /bin
--and
--.I /sbin
--are merged into
--.IR  /usr ;
--this variable is also affected by the \fB\-\-login\fR command-line option and
-+is affected by the \fB\-\-login\fR command-line option and
- the PAM system setting (e.g.,
- .BR pam_env (8)).
- .SH EXIT STATUS
-diff --git a/misc-utils/getopt.1 b/misc-utils/getopt.1
-index 356e16a..e6ba6c8 100644
---- a/misc-utils/getopt.1
-+++ b/misc-utils/getopt.1
-@@ -418,7 +418,7 @@ if it is called with
- Example scripts for (ba)sh and (t)csh are provided with the
- .BR getopt (1)
- distribution, and are installed in
--.I /usr/share/doc/util-linux/getopt/
-+.I /lib/doc/util-linux/getopt/
- directory.
- .SH ENVIRONMENT
- .IP POSIXLY_CORRECT
-diff --git a/misc-utils/kill.1 b/misc-utils/kill.1
-index 5e0ebaf..21606ca 100644
---- a/misc-utils/kill.1
-+++ b/misc-utils/kill.1
-@@ -89,7 +89,7 @@ The signal to send.  It may be given as a name or a number.
- \fB\-l\fR, \fB\-\-list\fR [\fInumber\fR]
- Print a list of signal names, or convert the given signal number to a name.
- The signals can be found in
--.IR /usr/\:include/\:linux/\:signal.h .
-+.IR /lib/\:include/\:linux/\:signal.h .
- .TP
- \fB\-L\fR, \fB\-\-table\fR
- Similar to \fB\-l\fR, but it will print signal names and their corresponding
-diff --git a/misc-utils/look.1 b/misc-utils/look.1
-index 2de4f8d..f7c0f5b 100644
---- a/misc-utils/look.1
-+++ b/misc-utils/look.1
-@@ -59,7 +59,7 @@ is invoked with).
- If
- .I file
- is not specified, the file
--.I /usr/share/dict/words
-+.I /lib/dict/words
- is used, only alphanumeric characters are compared and the case of
- alphabetic characters is ignored.
- .SH OPTIONS
-@@ -100,9 +100,9 @@ no lines were found, and >1 if an error occurred.
- Path to a dictionary file.  The environment variable has greater priority
- than the dictionary path defined in FILES segment.
- .SH FILES
--.IP "\fB/usr/share/dict/words\fR" 4
-+.IP "\fB/lib/dict/words\fR" 4
+diff --git a/login-utils/login.1.adoc b/login-utils/login.1.adoc
+index 412b85d..cc313f5 100644
+--- a/login-utils/login.1.adoc
++++ b/login-utils/login.1.adoc
+@@ -26,7 +26,7 @@ The user is then prompted for a password, where appropriate. Echoing is disabled
+ 
+ If password aging has been enabled for the account, the user may be prompted for a new password before proceeding. In such case old password must be provided and the new password entered before continuing. Please refer to *passwd*(1) for more information.
+ 
+-The user and group ID will be set according to their values in the _/etc/passwd_ file. There is one exception if the user ID is zero. In this case, only the primary group ID of the account is set. This should allow the system administrator to login even in case of network problems. The environment variable values for *$HOME*, *$USER*, *$SHELL*, *$PATH*, *$LOGNAME*, and *$MAIL* are set according to the appropriate fields in the password entry. *$PATH* defaults to _/usr/local/bin:/bin:/usr/bin_ for normal users, and to _/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin_ for root, if not otherwise configured.
++The user and group ID will be set according to their values in the _/etc/passwd_ file. There is one exception if the user ID is zero. In this case, only the primary group ID of the account is set. This should allow the system administrator to login even in case of network problems. The environment variable values for *$HOME*, *$USER*, *$SHELL*, *$PATH*, *$LOGNAME*, and *$MAIL* are set according to the appropriate fields in the password entry. *$PATH* defaults to _/bin_ if not otherwise configured.
+ 
+ The environment variable *$TERM* will be preserved, if it exists, else it will be initialized to the terminal type on your tty. Other environment variables are preserved if the *-p* option is given.
+ 
+@@ -63,7 +63,7 @@ Display version information and exit.
+ *MOTD_FILE* (string)::
+ Specifies a ":" delimited list of "message of the day" files and directories to be displayed upon login. If the specified path is a directory then displays all files with .motd file extension in version-sort order from the directory.
+ +
+-The default value is _/usr/share/misc/motd:/run/motd:/etc/motd_. If the *MOTD_FILE* item is empty or a quiet login is enabled, then the message of the day is not displayed. Note that the same functionality is also provided by the *pam_motd*(8) PAM module.
++The default value is _/lib/misc/motd:/run/motd:/etc/motd_. If the *MOTD_FILE* item is empty or a quiet login is enabled, then the message of the day is not displayed. Note that the same functionality is also provided by the *pam_motd*(8) PAM module.
+ +
+ The directories in the *MOTD_FILE* are supported since version 2.36.
+ +
+@@ -129,19 +129,19 @@ Note that logging unknown usernames may be a security issue if a user enters the
+ 
+ *ENV_PATH* (string)::
+ 
+-If set, it will be used to define the *PATH* environment variable when a regular user logs in. The default value is _/usr/local/bin:/bin:/usr/bin_.
++If set, it will be used to define the *PATH* environment variable when a regular user logs in. The default value is _/bin_.
+ 
+ *ENV_ROOTPATH* (string)::
+ *ENV_SUPATH* (string)::
+ 
+-If set, it will be used to define the PATH environment variable when the superuser logs in. *ENV_ROOTPATH* takes precedence. The default value is _/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin_.
++If set, it will be used to define the PATH environment variable when the superuser logs in. *ENV_ROOTPATH* takes precedence. The default value is _/bin_.
+ 
+ == FILES
+ 
+-_/var/run/utmp_,
++_/run/utmp_,
+ _/var/log/wtmp_,
+ _/var/log/lastlog_,
+-_/var/spool/mail/*_,
++_/var/mail/*_,
+ _/etc/motd_,
+ _/etc/passwd_,
+ _/etc/nologin_,
+diff --git a/login-utils/runuser.1.adoc b/login-utils/runuser.1.adoc
+index b2ba32e..4144086 100644
+--- a/login-utils/runuser.1.adoc
++++ b/login-utils/runuser.1.adoc
+@@ -85,16 +85,16 @@ Display help text and exit.
+ *runuser* reads the _/etc/default/runuser_ and _/etc/login.defs_ configuration files. The following configuration items are relevant for *runuser*:
+ 
+ *ENV_PATH* (string)::
+-Defines the PATH environment variable for a regular user. The default value is _/usr/local/bin:/bin:/usr/bin_.
++Defines the PATH environment variable for a regular user. The default value is _/bin_.
+ 
+ *ENV_ROOTPATH* (string)::
+ *ENV_SUPATH* (string)::
+-Defines the *PATH* environment variable for root. *ENV_SUPATH* takes precedence. The default value is _/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin_.
++Defines the *PATH* environment variable for root. *ENV_SUPATH* takes precedence. The default value is _/bin_.
+ 
+ *ALWAYS_SET_PATH* (boolean)::
+ If set to _yes_ and --login and --preserve-environment were not specified *runuser* initializes *PATH*.
+ 
+-The environment variable *PATH* may be different on systems where _/bin_ and _/sbin_ are merged into _/usr_; this variable is also affected by the *--login* command-line option and the PAM system setting (e.g., *pam_env*(8)).
++The environment variable *PATH* is affected by the *--login* command-line option and the PAM system setting (e.g., *pam_env*(8)).
+ 
+ == EXIT STATUS
+ 
+diff --git a/login-utils/su.1.adoc b/login-utils/su.1.adoc
+index 4ebfd2d..9df71b2 100644
+--- a/login-utils/su.1.adoc
++++ b/login-utils/su.1.adoc
+@@ -92,16 +92,16 @@ Upon receiving either *SIGINT*, *SIGQUIT* or *SIGTERM*, *su* terminates its chil
+ Delay in seconds in case of an authentication failure. The number must be a non-negative integer.
+ 
+ *ENV_PATH* (string)::
+-Defines the *PATH* environment variable for a regular user. The default value is _/usr/local/bin:/bin:/usr/bin_.
++Defines the *PATH* environment variable for a regular user. The default value is _/bin_.
+ 
+ *ENV_ROOTPATH* (string)::
+ *ENV_SUPATH* (string)::
+-Defines the *PATH* environment variable for root. *ENV_SUPATH* takes precedence. The default value is _/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin_.
++Defines the *PATH* environment variable for root. *ENV_SUPATH* takes precedence. The default value is _/bin_.
+ 
+ *ALWAYS_SET_PATH* (boolean)::
+ If set to _yes_ and *--login* and *--preserve-environment* were not specified *su* initializes *PATH*.
+ +
+-The environment variable *PATH* may be different on systems where _/bin_ and _/sbin_ are merged into _/usr_; this variable is also affected by the *--login* command-line option and the PAM system setting (e.g., *pam_env*(8)).
++The environment variable *PATH* is affected by the *--login* command-line option and the PAM system setting (e.g., *pam_env*(8)).
+ 
+ == EXIT STATUS
+ 
+diff --git a/misc-utils/kill.1.adoc b/misc-utils/kill.1.adoc
+index 4e5626b..b6fe72b 100644
+--- a/misc-utils/kill.1.adoc
++++ b/misc-utils/kill.1.adoc
+@@ -55,7 +55,7 @@ All processes invoked using this _name_ will be signaled.
+ *-s*, *--signal* _signal_::
+ The signal to send. It may be given as a name or a number.
+ *-l*, *--list* [_number_]::
+-Print a list of signal names, or convert the given signal number to a name. The signals can be found in _/usr/include/linux/signal.h_.
++Print a list of signal names, or convert the given signal number to a name. The signals can be found in _/lib/include/linux/signal.h_.
+ *-L*, *--table*::
+ Similar to *-l*, but it will print signal names and their corresponding numbers.
+ *-a*, *--all*::
+diff --git a/misc-utils/look.1.adoc b/misc-utils/look.1.adoc
+index e4d798e..7c37870 100644
+--- a/misc-utils/look.1.adoc
++++ b/misc-utils/look.1.adoc
+@@ -52,7 +52,7 @@ look - display lines beginning with a given string
+ 
+ The *look* utility displays any lines in _file_ which contain _string_. As *look* performs a binary search, the lines in _file_ must be sorted (where *sort*(1) was given the same options *-d* and/or *-f* that *look* is invoked with).
+ 
+-If _file_ is not specified, the file _/usr/share/dict/words_ is used, only alphanumeric characters are compared and the case of alphabetic characters is ignored.
++If _file_ is not specified, the file _/lib/dict/words_ is used, only alphanumeric characters are compared and the case of alphabetic characters is ignored.
+ 
+ == OPTIONS
+ 
+@@ -85,10 +85,10 @@ Path to a dictionary file. The environment variable has greater priority than th
+ 
+ == FILES
+ 
+-_/usr/share/dict/words_::
++_/lib/dict/words_::
  the dictionary
--.IP "\fB/usr/share/dict/web2\fR" 4
-+.IP "\fB/lib/dict/web2\fR" 4
+ 
+-_/usr/share/dict/web2_::
++_/lib/dict/web2_::
  the alternative dictionary
- .SH HISTORY
- The
+ 
+ == HISTORY
 diff --git a/misc-utils/uuidd.rc.in b/misc-utils/uuidd.rc.in
 index 7943945..a84a8d6 100644
 --- a/misc-utils/uuidd.rc.in
@@ -464,51 +432,40 @@ index 7943945..a84a8d6 100644
  UUIDD_USER=uuidd
  UUIDD_GROUP=uuidd
  UUIDD_DIR=@runstatedir@/uuidd
-diff --git a/misc-utils/whereis.1 b/misc-utils/whereis.1
-index 08e351c..2f443a2 100644
---- a/misc-utils/whereis.1
-+++ b/misc-utils/whereis.1
-@@ -72,11 +72,11 @@ The options \fB\-B\fP, \fB\-M\fP and \fB\-S\fP reset search paths for the
- subsequent \fIname\fP patterns.  For example,
- .RS
- .sp
--.B "whereis \-m ls \-M /usr/share/man/man1 \-f cal"
-+.B "whereis \-m ls \-M /lib/man/man1 \-f cal"
- .sp
- .RE
- searches for "ls" man pages in all default paths, but for "cal" in
--the /usr/share/man/man1 directory only.
-+the /lib/man/man1 directory only.
+diff --git a/misc-utils/whereis.1.adoc b/misc-utils/whereis.1.adoc
+index 8d84b20..9006b9d 100644
+--- a/misc-utils/whereis.1.adoc
++++ b/misc-utils/whereis.1.adoc
+@@ -63,10 +63,10 @@ searches for "ls" and "tr" binaries and man pages, and for "gcc" man pages only.
+ The options *-B*, *-M* and *-S* reset search paths for the subsequent _name_ patterns. For example,
  
- .SH OPTIONS
- .IP \fB\-b\fP
-@@ -153,16 +153,16 @@ are displayed with
- enables debug output.
- .SH EXAMPLES
- To find all files in
--.I /usr/\:bin
-+.I /\:bin
- which are not documented
- in
--.I /usr/\:man/\:man1
-+.I /lib/\:man/\:man1
- or have no source in
--.IR /usr/\:src :
-+.IR /lib/\:src :
- .IP
--.B cd /usr/bin
-+.B cd /bin
- .br
--.B whereis \-u \-ms \-M /usr/man/man1 \-S /usr/src \-f *
-+.B whereis \-u \-ms \-M /lib/man/man1 \-S /lib/src \-f *
- .SH AVAILABILITY
- The whereis command is part of the util-linux package and is available from
- .UR https://\:www.kernel.org\:/pub\:/linux\:/utils\:/util-linux/
+ ____
+-*whereis -m ls -M /usr/share/man/man1 -f cal*
++*whereis -m ls -M /lib/man/man1 -f cal*
+ ____
+ 
+-searches for "*ls*" man pages in all default paths, but for "cal" in the _/usr/share/man/man1_ directory only.
++searches for "*ls*" man pages in all default paths, but for "cal" in the _/lib/man/man1_ directory only.
+ 
+ == OPTIONS
+ 
+@@ -114,9 +114,9 @@ enables debug output.
+ 
+ == EXAMPLES
+ 
+-To find all files in _/usr/bin_ which are not documented in _/usr/man/man1_ or have no source in _/usr/src_:
++To find all files in _/bin_ which are not documented in _/lib/man/man1_ or have no source in _/lib/src_:
+ 
+-*cd /usr/bin* *whereis -u -ms -M /usr/man/man1 -S /usr/src -f **
++*cd /bin* *whereis -u -ms -M /lib/man/man1 -S /lib/src -f **
+ 
+ include::man-common/bugreports.adoc[]
+ 
 diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index 7a28a2c..7c397d4 100644
+index db092ce..08ed311 100644
 --- a/misc-utils/whereis.c
 +++ b/misc-utils/whereis.c
-@@ -97,82 +97,20 @@ struct wh_dirlist {
+@@ -97,84 +97,20 @@ struct wh_dirlist {
  };
  
  static const char *bindirs[] = {
@@ -522,10 +479,12 @@ index 7a28a2c..7c397d4 100644
 -	"/usr/local/lib/" MULTIARCHTRIPLET,
 -#endif
 -	"/usr/lib",
+-	"/usr/lib32",
 -	"/usr/lib64",
 -	"/etc",
 -	"/usr/etc",
  	"/lib",
+-	"/lib32",
 -	"/lib64",
 -	"/usr/games",
 -	"/usr/games/bin",
@@ -595,536 +554,273 @@ index 7a28a2c..7c397d4 100644
  	NULL
  };
  
-diff --git a/sys-utils/hwclock.8 b/sys-utils/hwclock.8
-index 5cd701f..7cbfb65 100644
---- a/sys-utils/hwclock.8
-+++ b/sys-utils/hwclock.8
-@@ -75,7 +75,7 @@ Predict what the Hardware Clock will read in the future based upon the
- time given by the
- .B \-\-date
- option and the information in
--.IR /etc/adjtime .
-+.IR /var/lib/adjtime .
- This is useful, for example, to account for drift when setting a
- Hardware Clock wakeup (aka alarm). See
- .BR \%rtcwake (8).
-@@ -104,7 +104,7 @@ The
- .B \-\-get
- function also applies drift correction to the time read, based upon the
- information in
--.IR /etc/adjtime .
-+.IR /var/lib/adjtime .
- Do not use this function if the Hardware Clock is being modified by
- anything other than the current operating system's
- .B \%hwclock
-@@ -124,7 +124,7 @@ from it must be shifted to the UTC timescale before using it to set the System
- Clock.  The
- .B \%\-\-hctosys
- function does this based upon the information in the
--.I /etc/adjtime
-+.I /var/lib/adjtime
- file or the command line arguments
- .BR \%\-\-localtime " and " \-\-utc .
- Note: no daylight saving adjustment is made.  See the discussion below, under
-@@ -163,13 +163,13 @@ something has changed the Hardware Clock, like NTP's \%'11\ minute\ mode', then
- will set the time incorrectly by including drift compensation.
- .sp
- Drift compensation can be inhibited by setting the drift factor in
--.I /etc/adjtime
-+.I /var/lib/adjtime
- to zero.  This setting will be persistent as long as the
- .BR \%\-\-update\-drift " option is not used with " \%\-\-systohc
- at shutdown (or anywhere else).  Another way to inhibit this is by using the
- .BR \%\-\-noadjfile " option when calling the " \%\-\-hctosys
- function.  A third method is to delete the
--.IR /etc/adjtime " file."
-+.IR /var/lib/adjtime " file."
- .B Hwclock
- will then default to using the UTC timescale for the Hardware Clock.  If
- the Hardware Clock is ticking local time it will need to be defined in
-@@ -195,7 +195,7 @@ the Hardware Clock while its Linux instance is not running.
- Set the Hardware Clock to the time given by the
- .B \-\-date
- option, and update the timestamps in
--.IR /etc/adjtime .
-+.IR /var/lib/adjtime .
- With the
- .B \%\-\-update-drift
- option also (re)calculate the drift factor.  Try it without the option if
-@@ -234,7 +234,7 @@ changed then a reboot would be required to inform the kernel.
- .TP
- .BR \-w , \ \-\-systohc
- Set the Hardware Clock from the System Clock, and update the timestamps in
--.IR /etc/adjtime .
-+.IR /var/lib/adjtime .
- With the
- .B \%\-\-update-drift
- option also (re)calculate the drift factor.  Try it without the option if
-@@ -252,7 +252,7 @@ Display help text and exit.
- .
- .TP
- .BI \-\-adjfile= filename
--.RI "Override the default " /etc/adjtime " file path."
-+.RI "Override the default " /var/lib/adjtime " file path."
- .
- .TP
- .BI \%\-\-date= date_string
-@@ -371,7 +371,7 @@ If you specify neither
- then the one last given with a set function
- .RB ( \-\-set ", " \%\-\-systohc ", or " \%\-\-adjust ),
- as recorded in
--.IR /etc/adjtime ,
-+.IR /var/lib/adjtime ,
- will be used.  If the adjtime file doesn't exist, the default is UTC.
- .sp
- Note: daylight saving time changes may be inconsistent when the
-@@ -381,7 +381,7 @@ Hardware Clock is kept in local time.  See the discussion below, under
- .TP
- .B \-\-noadjfile
- Disable the facilities provided by
--.IR /etc/adjtime .
-+.IR /var/lib/adjtime .
- .B \%hwclock
- will not read nor write to that file with this option.  Either
- .BR \-\-utc " or " \%\-\-localtime
-@@ -390,14 +390,14 @@ must be specified when using this option.
- .TP
- .B \-\-test
- Do not actually change anything on the system, that is, the Clocks or
--.I /etc/adjtime
-+.I /var/lib/adjtime
- .RB ( \%\-\-verbose
- is implicit with this option).
- .
- .TP
- .B \-\-update\-drift
- Update the Hardware Clock's drift factor in
--.IR /etc/adjtime .
-+.IR /var/lib/adjtime .
- It can only be used with
- .BR \-\-set " or " \%\-\-systohc ,
- .sp
-@@ -432,7 +432,7 @@ the RTC is not read).
- .RB "Having " \%hwclock
- calculate the drift factor is a good starting point, but for optimal
- results it will likely need to be adjusted by directly editing the
--.I /etc/adjtime
-+.I /var/lib/adjtime
- file.  For most configurations once a machine's optimal drift factor is
- crafted it should not need to be changed.  Therefore, the old behavior to
- automatically (re)calculate drift was changed and now requires this
-@@ -578,7 +578,7 @@ Hardware Clock.
- .PP
- It works like this:
- .BR \%hwclock " keeps a file,"
--.IR /etc/adjtime ,
-+.IR /var/lib/adjtime ,
- that keeps some historical information.  This is called the adjtime file.
- .PP
- Suppose you start with no adjtime file.  You issue a
-@@ -613,7 +613,7 @@ the systematic drift rate is (re)calculated by comparing the fully drift
- corrected current Hardware Clock time with the new set time, from that
- it derives the 24 hour drift rate based on the last calibrated timestamp
- from the adjtime file.  This updated drift factor is then saved in
--.IR /etc/adjtime .
-+.IR /var/lib/adjtime .
- .PP
- A small amount of error creeps in when
- the Hardware Clock is set, so
-@@ -839,7 +839,7 @@ then the System Clock must be set correctly (step 6a) just before doing so.
- .RB "Having " hwclock
- calculate the drift factor is a good starting point, but for optimal
- results it will likely need to be adjusted by directly editing the
--.I /etc/adjtime
-+.I /var/lib/adjtime
- file.  Continue to test and refine the drift factor until the Hardware
- Clock is corrected properly at startup.  To check this, first make sure
- that the System Time is correct before shutdown and then use
-@@ -898,7 +898,7 @@ known to have issues.
- .PP
- To configure a system to use a particular database all of the files
- located in its directory must be copied to the root of
--.IR \%/usr/share/zoneinfo .
-+.IR \%/lib/zoneinfo .
- Files are never used directly from the posix or 'right' subdirectories, e.g.,
- .RI \%TZ=' right/Europe/Dublin '.
- This habit was becoming so common that the upstream zoneinfo project
-@@ -906,11 +906,11 @@ restructured the system's file tree by moving the posix and 'right'
- subdirectories out of the zoneinfo directory and into sibling directories:
- .PP
- .in +2
--.I /usr/share/zoneinfo
-+.I /lib/zoneinfo
- .br
--.I /usr/share/zoneinfo\-posix
-+.I /lib/zoneinfo\-posix
- .br
--.I /usr/share/zoneinfo\-leaps
-+.I /lib/zoneinfo\-leaps
- .PP
- Unfortunately, some Linux distributions are changing it back to the old
- tree structure in their packages. So the problem of system
-@@ -921,7 +921,7 @@ when an application such as a World Clock needs the South_Pole timezone
- file; or an email MTA, or
- .B hwclock
- needs the UTC timezone file; they fetch it from the root of
--.I \%/usr/share/zoneinfo
-+.I \%/lib/zoneinfo
- , because that is what they are supposed to do. Those files exclude leap
- seconds, but the System Clock now includes them, causing an incorrect
- time conversion.
-@@ -951,13 +951,13 @@ If this variable is set its value takes precedence over the system
- configured timezone database directory path.
- .SH FILES
- .TP
--.I /etc/adjtime
-+.I /var/lib/adjtime
- The configuration and state file for hwclock.
- .TP
- .I /etc/localtime
- The system timezone file.
- .TP
--.I /usr/share/zoneinfo/
-+.I /lib/zoneinfo/
- The system timezone database directory.
- .PP
- Device files
-diff --git a/sys-utils/hwclock.8.in b/sys-utils/hwclock.8.in
-index 2354ddd..58933be 100644
---- a/sys-utils/hwclock.8.in
-+++ b/sys-utils/hwclock.8.in
-@@ -898,7 +898,7 @@ known to have issues.
- .PP
- To configure a system to use a particular database all of the files
- located in its directory must be copied to the root of
--.IR \%/usr/share/zoneinfo .
-+.IR \%/lib/zoneinfo .
- Files are never used directly from the posix or 'right' subdirectories, e.g.,
- .RI \%TZ=' right/Europe/Dublin '.
- This habit was becoming so common that the upstream zoneinfo project
-@@ -906,11 +906,11 @@ restructured the system's file tree by moving the posix and 'right'
- subdirectories out of the zoneinfo directory and into sibling directories:
- .PP
- .in +2
--.I /usr/share/zoneinfo
-+.I /lib/zoneinfo
- .br
--.I /usr/share/zoneinfo\-posix
-+.I /lib/zoneinfo\-posix
- .br
--.I /usr/share/zoneinfo\-leaps
-+.I /lib/zoneinfo\-leaps
- .PP
- Unfortunately, some Linux distributions are changing it back to the old
- tree structure in their packages. So the problem of system
-@@ -921,7 +921,7 @@ when an application such as a World Clock needs the South_Pole timezone
- file; or an email MTA, or
- .B hwclock
- needs the UTC timezone file; they fetch it from the root of
--.I \%/usr/share/zoneinfo
-+.I \%/lib/zoneinfo
- , because that is what they are supposed to do. Those files exclude leap
- seconds, but the System Clock now includes them, causing an incorrect
- time conversion.
-@@ -957,7 +957,7 @@ The configuration and state file for hwclock.
- .I /etc/localtime
- The system timezone file.
- .TP
--.I /usr/share/zoneinfo/
-+.I /lib/zoneinfo/
- The system timezone database directory.
- .PP
- Device files
-diff --git a/sys-utils/mount.8 b/sys-utils/mount.8
-index d633d25..439402e 100644
---- a/sys-utils/mount.8
-+++ b/sys-utils/mount.8
-@@ -632,7 +632,7 @@ argument, and finally applying a
- option, when present.
+diff --git a/sys-utils/hwclock.8.adoc b/sys-utils/hwclock.8.adoc
+index e45d989..125d6f8 100644
+--- a/sys-utils/hwclock.8.adoc
++++ b/sys-utils/hwclock.8.adoc
+@@ -330,11 +330,11 @@ A discussion on date-time configuration would be incomplete without addressing t
+ //TRANSLATORS: Keep {plus} untranslated.
+ There are two separate databases in the zoneinfo system, posix and 'right'. 'Right' (now named zoneinfo-leaps) includes leap seconds and posix does not. To use the 'right' database the System Clock must be set to (UTC {plus} leap seconds), which is equivalent to (TAI - 10). This allows calculating the exact number of seconds between two dates that cross a leap second epoch. The System Clock is then converted to the correct civil time, including UTC, by using the 'right' timezone files which subtract the leap seconds. Note: this configuration is considered experimental and is known to have issues.
  
- The \fBmount\fR command does not pass all command-line options to the
--\fB/sbin/mount.\fIsuffix\fR mount helpers.  The interface between \fBmount\fR
-+\fB/bin/mount.\fIsuffix\fR mount helpers.  The interface between \fBmount\fR
- and the mount helpers is described below in the section \fBEXTERNAL HELPERS\fR.
- .sp
- Command-line options available for the
-@@ -686,7 +686,7 @@ helpers which call \fBmount \-i\fR.  It is strongly recommended to not use this
- command-line option for normal mount operations.
- .sp
- Note that \fBmount\fR(8) does not pass this option to the
--\fB/sbin/mount.\fItype\fR helpers.
-+\fB/bin/mount.\fItype\fR helpers.
- .TP
- .BR \-F , " \-\-fork"
- (Used in conjunction with
-@@ -698,9 +698,9 @@ This has the advantage that it is faster; also NFS timeouts proceed in
- parallel.
- A disadvantage is that the order of the mount operations is undefined.
- Thus, you cannot use this option if you want to mount both
--.I /usr
-+.I /var
- and
--.IR /usr/spool .
-+.IR /var/spool .
- .IP "\fB\-f, \-\-fake\fP"
- Causes everything to be done except for the actual system call; if it's not
- obvious, this ``fakes'' mounting the filesystem.  This option is useful in
-@@ -715,7 +715,7 @@ checks for an existing record in
- and fails when the record already
- exists (with a regular non-fake mount, this check is done by the kernel).
- .IP "\fB\-i, \-\-internal\-only\fP"
--Don't call the \fB/sbin/mount.\fIfilesystem\fR helper even if it exists.
-+Don't call the \fB/bin/mount.\fIfilesystem\fR helper even if it exists.
- .TP
- .BR \-L , " \-\-label " \fIlabel
- Mount the partition that has the specified
-@@ -924,7 +924,7 @@ or chroot scripts where additional configuration is specified beyond standard
- system configuration.
- .sp
- Note that \fBmount\fR(8) does not pass the option \fB\-\-fstab\fP to the
--\fB/sbin/mount.\fItype\fR helpers, meaning that the alternative
-+\fB/bin/mount.\fItype\fR helpers, meaning that the alternative
- .I fstab
- files will be
- invisible for the helpers.  This is no problem for normal mounts, but user
-@@ -1028,13 +1028,13 @@ For a few types however (like nfs, nfs4, cifs, smbfs, ncpfs) an ad hoc code is
- necessary.  The nfs, nfs4, cifs, smbfs, and ncpfs filesystems
- have a separate mount program.  In order to make it possible to
- treat all types in a uniform way, \fBmount\fR will execute the program
--.BI /sbin/mount. type
-+.BI /bin/mount. type
- (if that exists) when called with type
- .IR type .
- Since different versions of the
- .B smbmount
- program have different calling conventions,
--.B /sbin/mount.smbfs
-+.B /bin/mount.smbfs
- may have to be a shell script that sets up the desired call.
- .RE
- .TP
-@@ -1514,7 +1514,7 @@ Set the owner and group of the files in the filesystem (default: uid=gid=0).
- Set the permission mask for ADFS 'owner' permissions and 'other' permissions,
- respectively (default: 0700 and 0077, respectively).
- See also
--.IR /usr/src/linux/Documentation/filesystems/adfs.rst .
-+.IR /lib/src/linux/Documentation/filesystems/adfs.rst .
+-To configure a system to use a particular database all of the files located in its directory must be copied to the root of _/usr/share/zoneinfo_. Files are never used directly from the posix or 'right' subdirectories, e.g., TZ='_right/Europe/Dublin_'. This habit was becoming so common that the upstream zoneinfo project restructured the system's file tree by moving the posix and 'right' subdirectories out of the zoneinfo directory and into sibling directories:
++To configure a system to use a particular database all of the files located in its directory must be copied to the root of _/lib/zoneinfo_. Files are never used directly from the posix or 'right' subdirectories, e.g., TZ='_right/Europe/Dublin_'. This habit was becoming so common that the upstream zoneinfo project restructured the system's file tree by moving the posix and 'right' subdirectories out of the zoneinfo directory and into sibling directories:
  
- .SS "Mount options for affs"
- .TP
-@@ -2715,7 +2715,7 @@ failed, some succeeded).
+-_/usr/share/zoneinfo_, _/usr/share/zoneinfo-posix_, _/usr/share/zoneinfo-leaps_
++_/lib/zoneinfo_, _/lib/zoneinfo-posix_, _/lib/zoneinfo-leaps_
+ 
+-Unfortunately, some Linux distributions are changing it back to the old tree structure in their packages. So the problem of system administrators reaching into the 'right' subdirectory persists. This causes the system timezone to be configured to include leap seconds while the zoneinfo database is still configured to exclude them. Then when an application such as a World Clock needs the South_Pole timezone file; or an email MTA, or *hwclock* needs the UTC timezone file; they fetch it from the root of _/usr/share/zoneinfo_ , because that is what they are supposed to do. Those files exclude leap seconds, but the System Clock now includes them, causing an incorrect time conversion.
++Unfortunately, some Linux distributions are changing it back to the old tree structure in their packages. So the problem of system administrators reaching into the 'right' subdirectory persists. This causes the system timezone to be configured to include leap seconds while the zoneinfo database is still configured to exclude them. Then when an application such as a World Clock needs the South_Pole timezone file; or an email MTA, or *hwclock* needs the UTC timezone file; they fetch it from the root of _/lib/zoneinfo_ , because that is what they are supposed to do. Those files exclude leap seconds, but the System Clock now includes them, causing an incorrect time conversion.
+ 
+ Attempting to mix and match files from these separate databases will not work, because they each require the System Clock to use a different timescale. The zoneinfo database must be configured to use either posix or 'right', as described above, or by assigning a database path to the _TZDIR_ environment variable.
+ 
+@@ -364,7 +364,7 @@ The configuration and state file for hwclock.
+ _/etc/localtime_::
+ The system timezone file.
+ 
+-_/usr/share/zoneinfo/_::
++_/lib/zoneinfo/_::
+ The system timezone database directory.
+ 
+ Device files *hwclock* may try for Hardware Clock access: _/dev/rtc0_ _/dev/rtc_ _/dev/misc/rtc_ _/dev/efirtc_ _/dev/misc/efirtc_
+diff --git a/sys-utils/mount.8.adoc b/sys-utils/mount.8.adoc
+index 37fb49d..ab69584 100644
+--- a/sys-utils/mount.8.adoc
++++ b/sys-utils/mount.8.adoc
+@@ -294,7 +294,7 @@ mount --make-unbindable /foo
+ 
+ The full set of mount options used by an invocation of *mount* is determined by first extracting the mount options for the filesystem from the _fstab_ table, then applying any options specified by the *-o* argument, and finally applying a *-r* or *-w* option, when present.
+ 
+-The *mount* command does not pass all command-line options to the **/sbin/mount.**__suffix__ mount helpers. The interface between *mount* and the mount helpers is described below in the section *EXTERNAL HELPERS*.
++The *mount* command does not pass all command-line options to the **/bin/mount.**__suffix__ mount helpers. The interface between *mount* and the mount helpers is described below in the section *EXTERNAL HELPERS*.
+ 
+ Command-line options available for the *mount* command are:
+ 
+@@ -313,16 +313,16 @@ Remount a subtree somewhere else (so that its contents are available in both pla
+ *-c*, *--no-canonicalize*::
+ Don't canonicalize paths. The *mount* command canonicalizes all paths (from the command line or _fstab_) by default. This option can be used together with the *-f* flag for already canonicalized absolute paths. The option is designed for mount helpers which call *mount -i*. It is strongly recommended to not use this command-line option for normal mount operations.
+ +
+-Note that *mount* does not pass this option to the **/sbin/mount.**__type__ helpers.
++Note that *mount* does not pass this option to the **/bin/mount.**__type__ helpers.
+ 
+ *-F*, *--fork*::
+-(Used in conjunction with *-a*.) Fork off a new incarnation of *mount* for each device. This will do the mounts on different devices or different NFS servers in parallel. This has the advantage that it is faster; also NFS timeouts proceed in parallel. A disadvantage is that the order of the mount operations is undefined. Thus, you cannot use this option if you want to mount both _/usr_ and _/usr/spool_.
++(Used in conjunction with *-a*.) Fork off a new incarnation of *mount* for each device. This will do the mounts on different devices or different NFS servers in parallel. This has the advantage that it is faster; also NFS timeouts proceed in parallel. A disadvantage is that the order of the mount operations is undefined. Thus, you cannot use this option if you want to mount both _/var_ and _/var/spool_.
+ 
+ *-f, --fake*::
+ Causes everything to be done except for the actual system call; if it's not obvious, this "fakes" mounting the filesystem. This option is useful in conjunction with the *-v* flag to determine what the *mount* command is trying to do. It can also be used to add entries for devices that were mounted earlier with the *-n* option. The *-f* option checks for an existing record in _/etc/mtab_ and fails when the record already exists (with a regular non-fake mount, this check is done by the kernel).
+ 
+ *-i, --internal-only*::
+-Don't call the **/sbin/mount.**__filesystem__ helper even if it exists.
++Don't call the **/bin/mount.**__filesystem__ helper even if it exists.
+ 
+ *-L*, *--label* _label_::
+ Mount the partition that has the specified _label_.
+@@ -401,7 +401,7 @@ mounts all from system _fstab_ to _/chroot_, all missing mountpoint are created
+ *-T*, *--fstab* _path_::
+ Specifies an alternative _fstab_ file. If _path_ is a directory, then the files in the directory are sorted by *strverscmp*(3); files that start with "." or without an _.fstab_ extension are ignored. The option can be specified more than once. This option is mostly designed for initramfs or chroot scripts where additional configuration is specified beyond standard system configuration.
+ +
+-Note that *mount* does not pass the option *--fstab* to the **/sbin/mount.**__type__ helpers, meaning that the alternative _fstab_ files will be invisible for the helpers. This is no problem for normal mounts, but user (non-root) mounts always require _fstab_ to verify the user's rights.
++Note that *mount* does not pass the option *--fstab* to the **/bin/mount.**__type__ helpers, meaning that the alternative _fstab_ files will be invisible for the helpers. This is no problem for normal mounts, but user (non-root) mounts always require _fstab_ to verify the user's rights.
+ 
+ *-t*, *--types* _fstype_::
+ The argument following the *-t* is used to indicate the filesystem type. The filesystem types which are currently supported depend on the running kernel. See _/proc/filesystems_ and _/lib/modules/$(uname -r)/kernel/fs_ for a complete list of the filesystems. The most common are ext2, ext3, ext4, xfs, btrfs, vfat, sysfs, proc, nfs and cifs.
+@@ -421,7 +421,7 @@ The prefix *no* can be meaningful with the *-a* option. For example, the command
+ +
+ mounts all filesystems except those of type _msdos_ and _smbfs_.
+ +
+-For most types all the *mount* program has to do is issue a simple *mount*(2) system call, and no detailed knowledge of the filesystem type is required. For a few types however (like nfs, nfs4, cifs, smbfs, ncpfs) an ad hoc code is necessary. The nfs, nfs4, cifs, smbfs, and ncpfs filesystems have a separate mount program. In order to make it possible to treat all types in a uniform way, *mount* will execute the program **/sbin/mount.**__type__ (if that exists) when called with type _type_. Since different versions of the *smbmount* program have different calling conventions, */sbin/mount.smbfs* may have to be a shell script that sets up the desired call.
++For most types all the *mount* program has to do is issue a simple *mount*(2) system call, and no detailed knowledge of the filesystem type is required. For a few types however (like nfs, nfs4, cifs, smbfs, ncpfs) an ad hoc code is necessary. The nfs, nfs4, cifs, smbfs, and ncpfs filesystems have a separate mount program. In order to make it possible to treat all types in a uniform way, *mount* will execute the program **/bin/mount.**__type__ (if that exists) when called with type _type_. Since different versions of the *smbmount* program have different calling conventions, */bin/mount.smbfs* may have to be a shell script that sets up the desired call.
+ 
+ *-U*, *--uuid* _uuid_::
+ Mount the partition that has the specified _uuid_.
+@@ -660,7 +660,7 @@ What options are supported depends a bit on the running kernel. Further informat
+ Set the owner and group of the files in the filesystem (default: uid=gid=0).
+ 
+ **ownmask=**__value__ and **othmask=**__value__::
+-Set the permission mask for ADFS 'owner' permissions and 'other' permissions, respectively (default: 0700 and 0077, respectively). See also _/usr/src/linux/Documentation/filesystems/adfs.rst_.
++Set the permission mask for ADFS 'owner' permissions and 'other' permissions, respectively (default: 0700 and 0077, respectively). See also _/lib/src/linux/Documentation/filesystems/adfs.rst_.
+ 
+ === Mount options for affs
+ 
+@@ -1386,9 +1386,9 @@ The command *mount -a* returns 0 (all succeeded), 32 (all failed), or 64 (some f
+ 
  The syntax of external mount helpers is:
- .sp
- .in +4
--.BI /sbin/mount. suffix
-+.BI /bin/mount. suffix
- .I spec dir
- .RB [ \-sfnv ]
- .RB [ \-N
-@@ -2729,7 +2729,7 @@ The syntax of external mount helpers is:
- where the \fIsuffix\fR is the filesystem type and the \fB\-sfnvoN\fR options have
- the same meaning as the normal mount options.  The \fB\-t\fR option is used for
- filesystems with subtypes support (for example
--.BR "/sbin/mount.fuse \-t fuse.sshfs" ).
-+.BR "/bin/mount.fuse \-t fuse.sshfs" ).
  
- The command \fBmount\fR does not pass the mount options
- .BR unbindable ,
-diff --git a/sys-utils/pivot_root.8 b/sys-utils/pivot_root.8
-index ea98f3b..35096af 100644
---- a/sys-utils/pivot_root.8
-+++ b/sys-utils/pivot_root.8
-@@ -61,7 +61,7 @@ mount \-o ro 10.0.0.1:/my_root /mnt
+-**/sbin/mount.**__suffix__ _spec dir_ [*-sfnv*] [*-N* _namespace_] [*-o* _options_] [*-t* __type__**.**_subtype_]
++**/bin/mount.**__suffix__ _spec dir_ [*-sfnv*] [*-N* _namespace_] [*-o* _options_] [*-t* __type__**.**_subtype_]
+ 
+-where the _suffix_ is the filesystem type and the *-sfnvoN* options have the same meaning as the normal mount options. The *-t* option is used for filesystems with subtypes support (for example */sbin/mount.fuse -t fuse.sshfs*).
++where the _suffix_ is the filesystem type and the *-sfnvoN* options have the same meaning as the normal mount options. The *-t* option is used for filesystems with subtypes support (for example */bin/mount.fuse -t fuse.sshfs*).
+ 
+ The command *mount* does not pass the mount options *unbindable*, *runbindable*, *private*, *rprivate*, *slave*, *rslave*, *shared*, *rshared*, *auto*, *noauto*, *comment*, *x-**, *loop*, *offset* and *sizelimit* to the mount.<suffix> helpers. All other options are used in a comma-separated list as an argument to the *-o* option.
+ 
+diff --git a/sys-utils/pivot_root.8.adoc b/sys-utils/pivot_root.8.adoc
+index c486d34..85c9a1c 100644
+--- a/sys-utils/pivot_root.8.adoc
++++ b/sys-utils/pivot_root.8.adoc
+@@ -60,7 +60,7 @@ mount -o ro 10.0.0.1:/my_root /mnt
  killall portmap   # portmap keeps old root busy
  cd /mnt
  pivot_root . old_root
--exec chroot . sh \-c 'umount /old_root; exec /sbin/init' \\
-+exec chroot . sh \-c 'umount /old_root; exec /bin/init' \\
+-exec chroot . sh -c 'umount /old_root; exec /sbin/init' \
++exec chroot . sh -c 'umount /old_root; exec /bin/init' \
    <dev/console >dev/console 2>&1
- .fi
- .SH SEE ALSO
-diff --git a/sys-utils/readprofile.8 b/sys-utils/readprofile.8
-index b987abb..e48526d 100644
---- a/sys-utils/readprofile.8
-+++ b/sys-utils/readprofile.8
-@@ -41,7 +41,7 @@ only the decimal number is printed.
- .TP
- \fB\-m\fR, \fB\-\-mapfile\fR \fImapfile\fR
- Specify a mapfile, which by default is
--.IR /usr/src/linux/System.map .
-+.IR /lib/src/linux/System.map .
- You should specify the map file on cmdline if your current kernel
- isn't the last one you compiled, or if you keep System.map elsewhere.
- If the name of the map file ends with `.gz' it is decompressed on the
-@@ -92,8 +92,8 @@ Display help text and exit.
- .SH FILES
- .nf
- /proc/profile              A binary snapshot of the profiling buffer.
--/usr/src/linux/System.map  The symbol table for the kernel.
--/usr/src/linux/*           The program being profiled :-)
-+/lib/src/linux/System.map  The symbol table for the kernel.
-+/lib/src/linux/*           The program being profiled :-)
- .fi
- .SH BUGS
- .B readprofile
-diff --git a/sys-utils/rtcwake.8 b/sys-utils/rtcwake.8
-index 0972ff7..d2af1da 100644
---- a/sys-utils/rtcwake.8
-+++ b/sys-utils/rtcwake.8
-@@ -119,7 +119,7 @@ management.  This state operates similarly to Suspend-to-RAM, but includes a
- final step of writing memory contents to disk.
- .TP
- .B off
--ACPI state S5 (Poweroff).  This is done by calling '/sbin/shutdown'.
-+ACPI state S5 (Poweroff).  This is done by calling '/bin/shutdown'.
- Not officially supported by ACPI, but it usually works.
- .TP
- .B no
-@@ -167,7 +167,7 @@ Some PC systems can't currently exit sleep states such as \fBmem\fP
- using only the kernel code accessed by this driver.
- They need help from userspace code to make the framebuffer work again.
- .SH FILES
--.I /etc/adjtime
-+.I /var/lib/adjtime
- .SH HISTORY
- The program was posted several times on LKML and other lists
- before appearing in kernel commit message for Linux 2.6 in the GIT
-diff --git a/sys-utils/rtcwake.8.in b/sys-utils/rtcwake.8.in
-index 6891f3a..ac0da04 100644
---- a/sys-utils/rtcwake.8.in
-+++ b/sys-utils/rtcwake.8.in
-@@ -119,7 +119,7 @@ management.  This state operates similarly to Suspend-to-RAM, but includes a
- final step of writing memory contents to disk.
- .TP
- .B off
--ACPI state S5 (Poweroff).  This is done by calling '/sbin/shutdown'.
-+ACPI state S5 (Poweroff).  This is done by calling '/bin/shutdown'.
- Not officially supported by ACPI, but it usually works.
- .TP
- .B no
-diff --git a/sys-utils/setpriv.1 b/sys-utils/setpriv.1
-index 42d1a2f..3f23e77 100644
---- a/sys-utils/setpriv.1
-+++ b/sys-utils/setpriv.1
-@@ -189,8 +189,7 @@ to fail at AppArmor's whim.
- .TP
- .B \-\-reset\-env
- Clears all the environment variables except TERM; initializes the environment variables HOME, SHELL, USER, LOGNAME
--according to the user's passwd entry; sets PATH to \fI/usr/local/bin:/bin:/usr/bin\fR for a regular user and to
--\fI/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\fR for root.
-+according to the user's passwd entry; sets PATH to \fI/bin\fR.
- .sp
- The environment variable PATH may be different on systems where
- .I /bin
-diff --git a/sys-utils/tunelp.8 b/sys-utils/tunelp.8
-index 35287bc..7691098 100644
---- a/sys-utils/tunelp.8
-+++ b/sys-utils/tunelp.8
-@@ -34,7 +34,7 @@ irq is handled by the parport driver.  You can change the parport irq for
- example via
- .IR /proc/parport/*/irq .
- Read
--.I /usr/src/linux/Documentation/admin-guide/parport.rst
-+.I /lib/src/linux/Documentation/admin-guide/parport.rst
- for more details on parport.
- .TP
- \fB\-t\fR, \fB\-\-time\fR \fImilliseconds\fR
-diff --git a/sys-utils/umount.8 b/sys-utils/umount.8
-index a66d119..25499a2 100644
---- a/sys-utils/umount.8
-+++ b/sys-utils/umount.8
-@@ -92,7 +92,7 @@ mount point.
- For more details about this option see the
- .BR mount (8)
- man page. Note that \fBumount\fR does not pass this option to the
--.BI /sbin/umount. type
-+.BI /bin/umount. type
- helpers.
- .TP
- .BR \-d , " \-\-detach\-loop"
-@@ -118,7 +118,7 @@ It's strongly recommended to use absolute paths without symlinks to avoid
- unwanted readlink and stat system calls on unreachable NFS in umount.
- .TP
- .BR \-i , " \-\-internal\-only"
--Do not call the \fB/sbin/umount.\fIfilesystem\fR helper even if it exists.
-+Do not call the \fB/bin/umount.\fIfilesystem\fR helper even if it exists.
- By default such a helper program is called if it exists.
- .TP
- .BR \-l , " \-\-lazy"
-@@ -267,7 +267,7 @@ a mountpoint that is not defined in \fI/etc/fstab\fR
- .PP
- A \fBhelper=\fItype\fR marker in the mtab file will redirect
- all unmount requests
--to the \fB/sbin/umount.\fItype\fR helper independently of UID.
-+to the \fB/bin/umount.\fItype\fR helper independently of UID.
- .PP
- Note that \fI/etc/mtab\fR is currently deprecated and helper= and other
- userspace mount options are maintained by libmount.
-diff --git a/term-utils/agetty.8 b/term-utils/agetty.8
-index 9029141..cec3eaa 100644
---- a/term-utils/agetty.8
-+++ b/term-utils/agetty.8
-@@ -312,7 +312,7 @@ for the other fields.  See \fIinittab(5)\fP for more details.
+ ....
+ 
+diff --git a/sys-utils/readprofile.8.adoc b/sys-utils/readprofile.8.adoc
+index a334d0e..1a511e5 100644
+--- a/sys-utils/readprofile.8.adoc
++++ b/sys-utils/readprofile.8.adoc
+@@ -34,7 +34,7 @@ Print individual histogram-bin counts.
+ Info. This makes *readprofile* only print the profiling step used by the kernel. The profiling step is the resolution of the profiling buffer, and is chosen during kernel configuration (through *make config*), or in the kernel's command line. If the *-t* (terse) switch is used together with *-i* only the decimal number is printed.
+ 
+ *-m*, *--mapfile* _mapfile_::
+-Specify a mapfile, which by default is _/usr/src/linux/System.map_. You should specify the map file on cmdline if your current kernel isn't the last one you compiled, or if you keep System.map elsewhere. If the name of the map file ends with _.gz_ it is decompressed on the fly.
++Specify a mapfile, which by default is _/lib/src/linux/System.map_. You should specify the map file on cmdline if your current kernel isn't the last one you compiled, or if you keep System.map elsewhere. If the name of the map file ends with _.gz_ it is decompressed on the fly.
+ 
+ *-M*, *--multiplier* _multiplier_::
+ On some architectures it is possible to alter the frequency at which the kernel delivers profiling interrupts to each CPU. This option allows you to set the frequency, as a multiplier of the system clock frequency, HZ. Linux 2.6.16 dropped multiplier support for most systems. This option also resets the profiling buffer, and requires superuser privileges.
+@@ -62,10 +62,10 @@ Display help text and exit.
+ _/proc/profile_::
+ A binary snapshot of the profiling buffer.
+ 
+-_/usr/src/linux/System.map_::
++_/lib/src/linux/System.map_::
+ The symbol table for the kernel.
+ 
+-_/usr/src/linux/*_::
++_/lib/src/linux/*_::
+ The program being profiled :-)
+ 
+ == BUGS
+diff --git a/sys-utils/rtcwake.8.adoc b/sys-utils/rtcwake.8.adoc
+index 73960ec..ee42587 100644
+--- a/sys-utils/rtcwake.8.adoc
++++ b/sys-utils/rtcwake.8.adoc
+@@ -76,7 +76,7 @@ ACPI state S3 (Suspend-to-RAM). This state offers significant power savings as e
+ ACPI state S4 (Suspend-to-disk). This state offers the greatest power savings, and can be used even in the absence of low-level platform support for power management. This state operates similarly to Suspend-to-RAM, but includes a final step of writing memory contents to disk.
+ 
+ *off*;;
+-ACPI state S5 (Poweroff). This is done by calling '/sbin/shutdown'. Not officially supported by ACPI, but it usually works.
++ACPI state S5 (Poweroff). This is done by calling '/bin/shutdown'. Not officially supported by ACPI, but it usually works.
+ 
+ *no*;;
+ Don't suspend, only set the RTC wakeup time.
+diff --git a/sys-utils/setpriv.1.adoc b/sys-utils/setpriv.1.adoc
+index 32904dc..ae931c3 100644
+--- a/sys-utils/setpriv.1.adoc
++++ b/sys-utils/setpriv.1.adoc
+@@ -85,7 +85,7 @@ Request a particular SELinux transition (using a transition on exec, not dyntran
+ Request a particular AppArmor profile (using a transition on exec). This will fail and cause *setpriv* to abort if AppArmor is not in use, and the transition may be ignored or cause *execve*(2) to fail at AppArmor's whim.
+ 
+ *--reset-env*::
+-Clears all the environment variables except *TERM*; initializes the environment variables *HOME*, *SHELL*, *USER*, *LOGNAME* according to the user's passwd entry; sets *PATH* to _/usr/local/bin:/bin:/usr/bin_ for a regular user and to _/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin_ for root.
++Clears all the environment variables except *TERM*; initializes the environment variables *HOME*, *SHELL*, *USER*, *LOGNAME* according to the user's passwd entry; sets *PATH* to _/bin_.
+ +
+ The environment variable *PATH* may be different on systems where _/bin_ and _/sbin_ are merged into _/usr_. The environment variable *SHELL* defaults to */bin/sh* if none is given in the user's passwd entry.
+ 
+diff --git a/sys-utils/tunelp.8.adoc b/sys-utils/tunelp.8.adoc
+index 37140b3..d06ceea 100644
+--- a/sys-utils/tunelp.8.adoc
++++ b/sys-utils/tunelp.8.adoc
+@@ -23,7 +23,7 @@ tunelp - set various parameters for the lp device
+ *-i*, *--irq* _argument_::
+ specifies the IRQ to use for the parallel port in question. If this is set to something non-zero, *-t* and *-c* have no effect. If your port does not use interrupts, this option will make printing stop. The command *tunelp -i 0* restores non-interrupt driven (polling) action, and your printer should work again. If your parallel port does support interrupts, interrupt-driven printing should be somewhat faster and efficient, and will probably be desirable.
+ +
+-*NOTE*: This option will have no effect with kernel 2.1.131 or later since the irq is handled by the parport driver. You can change the parport irq for example via _/proc/parport/*/irq_. Read _/usr/src/linux/Documentation/admin-guide/parport.rst_ for more details on parport.
++*NOTE*: This option will have no effect with kernel 2.1.131 or later since the irq is handled by the parport driver. You can change the parport irq for example via _/proc/parport/*/irq_. Read _/lib/src/linux/Documentation/admin-guide/parport.rst_ for more details on parport.
+ 
+ *-t*, *--time* _milliseconds_::
+ is the amount of time in jiffies that the driver waits if the printer doesn't take a character for the number of tries dictated by the *-c* parameter. 10 is the default value. If you want fastest possible printing, and don't care about system load, you may set this to 0. If you don't care how fast your printer goes, or are printing text on a slow printer with a buffer, then 500 (5 seconds) should be fine, and will give you very low system load. This value generally should be lower for printing graphics than text, by a factor of approximately 10, for best performance.
+diff --git a/sys-utils/umount.8.adoc b/sys-utils/umount.8.adoc
+index a76a0bb..3428fec 100644
+--- a/sys-utils/umount.8.adoc
++++ b/sys-utils/umount.8.adoc
+@@ -62,7 +62,7 @@ Do not canonicalize paths. The paths canonicalization is based on *stat*(2) and
+ +
+ This option is silently ignored by *umount* for non-root users.
+ +
+-For more details about this option see the *mount*(8) man page. Note that *umount* does not pass this option to the **/sbin/umount.**__type__ helpers.
++For more details about this option see the *mount*(8) man page. Note that *umount* does not pass this option to the **/bin/umount.**__type__ helpers.
+ 
+ *-d*, *--detach-loop*::
+ When the unmounted device was a loop device, also free this loop device. This option is unnecessary for devices initialized by *mount*(8), in this case "autoclear" functionality is enabled by default.
+@@ -76,7 +76,7 @@ Force an unmount (in case of an unreachable NFS system).
+ Note that this option does not guarantee that umount command does not hang. It's strongly recommended to use absolute paths without symlinks to avoid unwanted readlink and stat system calls on unreachable NFS in *umount*.
+ 
+ *-i*, *--internal-only*::
+-Do not call the **/sbin/umount.**__filesystem__ helper even if it exists. By default such a helper program is called if it exists.
++Do not call the **/bin/umount.**__filesystem__ helper even if it exists. By default such a helper program is called if it exists.
+ 
+ *-l*, *--lazy*::
+ Lazy unmount. Detach the filesystem from the file hierarchy now, and clean up all references to this filesystem as soon as it is not busy anymore.
+@@ -147,7 +147,7 @@ ____
+ 
+ A **uhelper=**__something__ marker (unprivileged helper) can appear in the _/etc/mtab_ file when ordinary users need to be able to unmount a mountpoint that is not defined in _/etc/fstab_ (for example for a device that was mounted by *udisks*(1)).
+ 
+-A **helper=**__type__ marker in the mtab file will redirect all unmount requests to the **/sbin/umount.**__type__ helper independently of UID.
++A **helper=**__type__ marker in the mtab file will redirect all unmount requests to the **/bin/umount.**__type__ helper independently of UID.
+ 
+ Note that _/etc/mtab_ is currently deprecated and *helper=* and other userspace mount options are maintained by libmount.
+ 
+diff --git a/term-utils/agetty.8.adoc b/term-utils/agetty.8.adoc
+index 371811a..a492fc9 100644
+--- a/term-utils/agetty.8.adoc
++++ b/term-utils/agetty.8.adoc
+@@ -193,25 +193,25 @@ This section shows examples for the process field of an entry in the _/etc/initt
  For a hardwired line or a console tty:
  
- .RS
--.B /sbin/agetty\ 9600\ ttyS1
-+.B /bin/agetty\ 9600\ ttyS1
- .RE
+ ____
+-*/sbin/agetty 9600 ttyS1*
++*/bin/agetty 9600 ttyS1*
+ ____
  
- For a directly connected terminal without proper carrier-detect wiring
-@@ -320,13 +320,13 @@ For a directly connected terminal without proper carrier-detect wiring
- prompt):
+ For a directly connected terminal without proper carrier-detect wiring (try this if your terminal just sleeps instead of giving you a password: prompt):
  
- .RS
--.B /sbin/agetty\ \-\-local\-line\ 9600\ ttyS1\ vt100
-+.B /bin/agetty\ \-\-local\-line\ 9600\ ttyS1\ vt100
- .RE
+ ____
+-*/sbin/agetty --local-line 9600 ttyS1 vt100*
++*/bin/agetty --local-line 9600 ttyS1 vt100*
+ ____
  
  For an old-style dial-in line with a 9600/2400/1200 baud modem:
  
- .RS
--.B /sbin/agetty\ \-\-extract\-baud\ \-\-timeout\ 60\ ttyS1\ 9600,2400,1200
-+.B /bin/agetty\ \-\-extract\-baud\ \-\-timeout\ 60\ ttyS1\ 9600,2400,1200
- .RE
+ ____
+-*/sbin/agetty --extract-baud --timeout 60 ttyS1 9600,2400,1200*
++*/bin/agetty --extract-baud --timeout 60 ttyS1 9600,2400,1200*
+ ____
  
- For a Hayes modem with a fixed 115200 bps interface to the machine
-@@ -336,7 +336,7 @@ disconnection, and turns on auto-answer after 1 ring):
+ For a Hayes modem with a fixed 115200 bps interface to the machine (the example init string turns off modem echo and result codes, makes modem/computer DCD track modem/modem DCD, makes a DTR drop cause a disconnection, and turns on auto-answer after 1 ring):
  
- .ie n .RS 0
- .el .RS
--.B /sbin/agetty\ \-\-wait\-cr\ \-\-init\-string\ 'ATE0Q1&D2&C1S0=1\\015'\ 115200\ ttyS1
-+.B /bin/agetty\ \-\-wait\-cr\ \-\-init\-string\ 'ATE0Q1&D2&C1S0=1\\015'\ 115200\ ttyS1
- .RE
+ ____
+-*/sbin/agetty --wait-cr --init-string 'ATE0Q1&D2&C1S0=1\015' 115200 ttyS1*
++*/bin/agetty --wait-cr --init-string 'ATE0Q1&D2&C1S0=1\015' 115200 ttyS1*
+ ____
  
- .SH SECURITY NOTICE
-@@ -364,9 +364,9 @@ messages independently on the primary system \fI/etc/issue\fP file.
- Since version 2.35 additional locations for issue file and directory are
- supported. If the default \fI/etc/issue\fP does not exist than agetty checks
- for \fI/run/issue\fP and \fI/run/issue.d\fP, thereafter for
--\fI/usr/lib/issue\fP and \fI/usr/lib/issue.d\fP.  The directory /etc is
-+\fI/lib/issue\fP and \fI/lib/issue.d\fP.  The directory /etc is
- expected for host specific configuration, /run is expected for generated stuff
--and /usr/lib for static distribution maintained configuration.
-+and /lib for static distribution maintained configuration.
+ == SECURITY NOTICE
+@@ -224,7 +224,7 @@ Some programs use "--" to indicate that the rest of the command line should not
  
- The default path maybe overridden by \fB\-\-issue\-file\fP option. In this case
- specified path has to be file or directory and all the default issue file and
-@@ -412,7 +412,7 @@ See also the \\S escape code.
- .TP
- S or S{VARIABLE}
- Insert the VARIABLE data from \fI/etc/os-release\fP.  If this file does not exist
--then fall back to \fI/usr/lib/os-release\fP.  If the VARIABLE argument is not
-+then fall back to \fI/lib/os-release\fP.  If the VARIABLE argument is not
- specified, then use PRETTY_NAME from the file or the system name (see \\s).
- This escape code can be used to keep \fI/etc/issue\fP distribution and release
- independent.  Note that \\S{ANSI_COLOR} is converted to the real terminal
-@@ -475,7 +475,7 @@ the system status file.
- .I /etc/issue
+ The default issue file is _/etc/issue_. If the file exists, then *agetty* also checks for _/etc/issue.d_ directory. The directory is optional extension to the default issue file and content of the directory is printed after _/etc/issue_ content. If the _/etc/issue_ does not exist, then the directory is ignored. All files *with .issue extension* from the directory are printed in version-sort order. The directory can be used to maintain 3rd-party messages independently on the primary system _/etc/issue_ file.
+ 
+-Since version 2.35 additional locations for issue file and directory are supported. If the default _/etc/issue_ does not exist, then *agetty* checks for _/run/issue_ and _/run/issue.d_, thereafter for _/usr/lib/issue_ and _/usr/lib/issue.d_. The directory _/etc_ is expected for host specific configuration, _/run_ is expected for generated stuff and _/usr/lib_ for static distribution maintained configuration.
++Since version 2.35 additional locations for issue file and directory are supported. If the default _/etc/issue_ does not exist, then *agetty* checks for _/run/issue_ and _/run/issue.d_, thereafter for _/lib/issue_ and _/lib/issue.d_. The directory _/etc_ is expected for host specific configuration, _/run_ is expected for generated stuff and _/lib_ for static distribution maintained configuration.
+ 
+ The default path maybe overridden by *--issue-file* option. In this case specified path has to be file or directory and all the default issue file and directory locations are ignored.
+ 
+@@ -253,7 +253,7 @@ s::
+ Insert the system name (the name of the operating system). Same as 'uname -s'. See also the \S escape code.
+ 
+ S or S{VARIABLE}::
+-Insert the VARIABLE data from _/etc/os-release_. If this file does not exist then fall back to _/usr/lib/os-release_. If the VARIABLE argument is not specified, then use PRETTY_NAME from the file or the system name (see \s). This escape code can be used to keep _/etc/issue_ distribution and release independent. Note that \S{ANSI_COLOR} is converted to the real terminal escape sequence.
++Insert the VARIABLE data from _/etc/os-release_. If this file does not exist then fall back to _/lib/os-release_. If the VARIABLE argument is not specified, then use PRETTY_NAME from the file or the system name (see \s). This escape code can be used to keep _/etc/issue_ distribution and release independent. Note that \S{ANSI_COLOR} is converted to the real terminal escape sequence.
+ 
+ l::
+ Insert the name of the current tty line.
+@@ -305,7 +305,7 @@ the system status file.
+ _/etc/issue_::
  printed before the login prompt.
- .TP
--.I /etc/os-release /usr/lib/os-release
-+.I /etc/os-release /lib/os-release
+ 
+-_/etc/os-release /usr/lib/os-release_::
++_/etc/os-release /lib/os-release_::
  operating system identification data.
- .TP
- .I /dev/console
+ 
+ _/dev/console_::
