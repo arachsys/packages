@@ -1,8 +1,8 @@
 diff --git a/ell/dbus-service.c b/ell/dbus-service.c
-index e60eafc..5f4329c 100644
+index 587ddd9..8e7018e 100644
 --- a/ell/dbus-service.c
 +++ b/ell/dbus-service.c
-@@ -1114,7 +1114,7 @@ void _dbus_object_tree_signals_flush(struct l_dbus *dbus, const char *path)
+@@ -1113,7 +1113,7 @@ void _dbus_object_tree_signals_flush(struct l_dbus *dbus, const char *path)
  	struct emit_signals_data data;
  	bool all_done = true;
  
@@ -11,7 +11,7 @@ index e60eafc..5f4329c 100644
  		return;
  
  	tree->flushing = true;
-@@ -1164,7 +1164,7 @@ static void schedule_emit_signals(struct l_dbus *dbus)
+@@ -1163,7 +1163,7 @@ static void schedule_emit_signals(struct l_dbus *dbus)
  {
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  
@@ -20,7 +20,7 @@ index e60eafc..5f4329c 100644
  		return;
  
  	tree->emit_signals_work = l_idle_create(emit_signals, dbus, NULL);
-@@ -1193,6 +1193,9 @@ bool _dbus_object_tree_property_changed(struct l_dbus *dbus,
+@@ -1192,6 +1192,9 @@ bool _dbus_object_tree_property_changed(struct l_dbus *dbus,
  	struct _dbus_property *property;
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  
@@ -30,7 +30,7 @@ index e60eafc..5f4329c 100644
  	object = l_hashmap_lookup(tree->objects, path);
  	if (!object)
  		return false;
-@@ -1296,6 +1299,9 @@ static struct l_dbus_message *old_set_property(struct l_dbus *dbus,
+@@ -1295,6 +1298,9 @@ static struct l_dbus_message *old_set_property(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	l_dbus_property_complete_cb_t complete_cb;
  
@@ -40,7 +40,7 @@ index e60eafc..5f4329c 100644
  	interface = l_hashmap_lookup(tree->interfaces,
  					l_dbus_message_get_interface(message));
  	/* If we got here the interface must exist */
-@@ -1345,6 +1351,9 @@ static struct l_dbus_message *old_get_properties(struct l_dbus *dbus,
+@@ -1344,6 +1350,9 @@ static struct l_dbus_message *old_get_properties(struct l_dbus *dbus,
  	struct l_dbus_message_builder *builder;
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  
@@ -50,7 +50,7 @@ index e60eafc..5f4329c 100644
  	interface = l_hashmap_lookup(tree->interfaces,
  					l_dbus_message_get_interface(message));
  	/* If we got here the interface must exist */
-@@ -1817,6 +1826,9 @@ static struct l_dbus_message *properties_get(struct l_dbus *dbus,
+@@ -1839,6 +1848,9 @@ static struct l_dbus_message *properties_get(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	struct l_dbus_message_builder *builder;
  
@@ -60,7 +60,7 @@ index e60eafc..5f4329c 100644
  	if (!l_dbus_message_get_arguments(message, "ss", &interface_name,
  						&property_name))
  		return l_dbus_message_new_error(message,
-@@ -1887,6 +1899,9 @@ static struct l_dbus_message *properties_set(struct l_dbus *dbus,
+@@ -1909,6 +1921,9 @@ static struct l_dbus_message *properties_set(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	l_dbus_property_complete_cb_t complete_cb;
  
@@ -70,7 +70,7 @@ index e60eafc..5f4329c 100644
  	if (!l_dbus_message_get_arguments(message, "ssv", &interface_name,
  						&property_name, &variant))
  		return l_dbus_message_new_error(message,
-@@ -1955,6 +1970,9 @@ static struct l_dbus_message *properties_get_all(struct l_dbus *dbus,
+@@ -1977,6 +1992,9 @@ static struct l_dbus_message *properties_get_all(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	struct l_dbus_message_builder *builder;
  
@@ -80,7 +80,7 @@ index e60eafc..5f4329c 100644
  	if (!l_dbus_message_get_arguments(message, "s", &interface_name))
  		return l_dbus_message_new_error(message,
  						"org.freedesktop.DBus.Error."
-@@ -2111,7 +2129,7 @@ static struct l_dbus_message *get_managed_objects(struct l_dbus *dbus,
+@@ -2133,7 +2151,7 @@ static struct l_dbus_message *get_managed_objects(struct l_dbus *dbus,
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  	const char *path = l_dbus_message_get_path(message);
  
@@ -90,7 +90,7 @@ index e60eafc..5f4329c 100644
  
  static void object_manager_setup_func(struct l_dbus_interface *interface)
 diff --git a/ell/dbus.c b/ell/dbus.c
-index fb520e2..80de83b 100644
+index 0b02605..e015d93 100644
 --- a/ell/dbus.c
 +++ b/ell/dbus.c
 @@ -1420,7 +1420,7 @@ int _dbus_get_fd(struct l_dbus *dbus)
@@ -213,10 +213,10 @@ index fb520e2..80de83b 100644
  						replace_existing, queue,
  						callback, user_data);
 diff --git a/src/main.c b/src/main.c
-index 3216f50..32aaa31 100644
+index b67c74d..8eb14fc 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -490,17 +490,20 @@ int main(int argc, char *argv[])
+@@ -530,14 +530,16 @@ int main(int argc, char *argv[])
  		l_netlink_set_debug(rtnl, do_debug, "[RTNL] ", NULL);
  
  	dbus = l_dbus_new_default(L_DBUS_SYSTEM_BUS);
@@ -224,12 +224,6 @@ index 3216f50..32aaa31 100644
 -		l_error("Failed to initialize D-Bus");
 -		goto failed_dbus;
 -	}
-+	if (!dbus)
-+		l_info("Running in embedded mode without D-Bus");
- 
--	if (enable_dbus_debug)
-+	if (dbus && enable_dbus_debug)
- 		l_dbus_set_debug(dbus, do_debug, "[DBUS] ", NULL);
  
 -	l_dbus_set_ready_handler(dbus, dbus_ready, dbus, NULL);
 -	l_dbus_set_disconnect_handler(dbus, dbus_disconnected, NULL, NULL);
@@ -239,13 +233,14 @@ index 3216f50..32aaa31 100644
 +		l_dbus_set_disconnect_handler(dbus, dbus_disconnected, NULL, NULL);
 +		dbus_init(dbus);
 +	} else {
++		l_info("Running in embedded mode without D-Bus");
 +		l_genl_request_family(genl, NL80211_GENL_NAME, nl80211_appeared,
 +					NULL, NULL);
 +	}
  
  	exit_status = l_main_run_with_signal(signal_handler, NULL);
  
-@@ -509,7 +512,6 @@ int main(int argc, char *argv[])
+@@ -545,7 +547,6 @@ int main(int argc, char *argv[])
  	dbus_exit();
  	l_dbus_destroy(dbus);
  

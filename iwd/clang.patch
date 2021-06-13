@@ -1,33 +1,41 @@
-diff --git a/ell/cert.c b/ell/cert.c
-index 14631b2..9123276 100644
---- a/ell/cert.c
-+++ b/ell/cert.c
-@@ -435,6 +435,11 @@ static struct l_key *cert_try_link(struct l_cert *cert, struct l_keyring *ring)
- 	return NULL;
- }
+diff --git a/ell/useful.h b/ell/useful.h
+index e2eaadb..33bff54 100644
+--- a/ell/useful.h
++++ b/ell/useful.h
+@@ -59,10 +59,24 @@ static inline unsigned char bit_field(const unsigned char oct,
+ 	_x / _d;					\
+ })
  
-+static void cert_keyring_cleanup(struct l_keyring **p)
+-#define __AUTODESTRUCT(var, func)			\
+-	void cleanup_ ## var(void *ptr)			\
+-	{ func(*(void **) ptr); }			\
+-	__attribute((cleanup(cleanup_ ## var)))
++static void *__autodestruct_value = 0;
++static void (*__autodestruct_func)(void *) = 0;
++
++static inline void __autodestruct_save_func(void **func)
 +{
-+	l_keyring_free(*p);
++	__autodestruct_func= *func;
++	__autodestruct_func(__autodestruct_value);
 +}
 +
- #define RETURN_ERROR(msg, args...)	\
- 	do {	\
- 		if (error) {	\
-@@ -449,7 +454,7 @@ LIB_EXPORT bool l_certchain_verify(struct l_certchain *chain,
- 					const char **error)
- {
- 	struct l_keyring *ca_ring = NULL;
--	_auto_(l_keyring_free) struct l_keyring *verify_ring = NULL;
-+	struct l_keyring *verify_ring __attribute__((cleanup(cert_keyring_cleanup))) = NULL;
- 	struct l_cert *cert;
- 	struct l_key *prev_key = NULL;
- 	int verified = 0;
++static inline void __autodestruct_save_value(void *value)
++{
++         __autodestruct_value = *((void **) value);
++}
++
++#define __AUTODESTRUCT(var, func)					\
++	__attribute((cleanup(__autodestruct_save_func)))		\
++		void *cleanup_ ## var = (void (*)(void *))(func);	\
++	__attribute((cleanup(__autodestruct_save_value)))
+ 
+ #define _AUTODESTRUCT(var, func)			\
+ 	__AUTODESTRUCT(var, func)
 diff --git a/src/eap.c b/src/eap.c
-index bef46e0..9a7e067 100644
+index 0645be4..7656b1a 100644
 --- a/src/eap.c
 +++ b/src/eap.c
-@@ -389,6 +389,9 @@ static const char *eap_type_to_str(enum eap_type type, uint32_t vendor_id,
+@@ -416,6 +416,9 @@ static const char *eap_type_to_str(enum eap_type type, uint32_t vendor_id,
  #define IS_EXPANDED_RESPONSE(id, t) \
  	(type == EAP_TYPE_EXPANDED && vendor_id == (id) && vendor_type == (t))
  
@@ -37,7 +45,7 @@ index bef46e0..9a7e067 100644
  static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
  				size_t len)
  {
-@@ -401,14 +404,6 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+@@ -428,14 +431,6 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
  				eap->method->vendor_id[2];
  	uint32_t our_vendor_type = eap->method->vendor_type;
  
@@ -52,7 +60,7 @@ index bef46e0..9a7e067 100644
  	if (len < 1)
  		/* Invalid packets to be ignored */
  		return;
-@@ -434,7 +429,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+@@ -461,7 +456,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
  			return;
  	}
  
@@ -61,7 +69,7 @@ index bef46e0..9a7e067 100644
  		l_debug("EAP peer not configured for method: %s",
  			eap_type_to_str(our_type, our_vendor_id,
  							our_vendor_type));
-@@ -473,7 +468,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+@@ -500,7 +495,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
  	 */
  
  	if (!eap->identity) {
@@ -70,7 +78,7 @@ index bef46e0..9a7e067 100644
  			goto unsupported_method;
  
  		/*
-@@ -501,7 +496,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+@@ -528,7 +523,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
  	 * (with the exception of the Nak)
  	 */
  	if (our_type != EAP_TYPE_EXPANDED) {
