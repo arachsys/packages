@@ -2,12 +2,12 @@ mode autotools
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/readline/readline-8.1.tar.gz
-  # set https://ftp.gnu.org/gnu/readline/readline-8.0-patches/readline80-{001..004}
-  # while [[ $# -gt 0 ]]; do
-  #   apply -p 0 readline-8.0.${1##*-*(0)}.patch $1
-  #   shift
-  # done
-  tree 158a94a252e8d331e022acc5a6b054632852c533fdd4d2e161aee577b656960b
+  set https://ftp.gnu.org/gnu/readline/readline-8.1-patches/readline81-{001..001}
+  while [[ $# -gt 0 ]]; do
+    apply -p 0 readline-8.1.${1##*-*(0)}.patch $1
+    shift
+  done
+  tree 0cc0a1995f00ebfa3e874ae2804ec0ee9d02a8554e3e68c022f7cdac966cab81
 }
 
 config-extra --disable-install-examples
