@@ -1,0 +1,359 @@
+diff --git a/fscryptctl.c b/fscryptctl.c
+index 7d9883c..94216c5 100644
+--- a/fscryptctl.c
++++ b/fscryptctl.c
+@@ -22,6 +22,7 @@
+ 
+ #define _GNU_SOURCE  // For O_CLOEXEC
+ 
++#include <err.h>
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <getopt.h>
+@@ -90,21 +91,20 @@ enum {
+ /* util-linux style usage */
+ static void __attribute__((__noreturn__)) usage(FILE *out) {
+   fputs(
+-      "\nUsage:\n"
+-      "  fscryptctl <command> [arguments] [options]\n"
++      "\nUsage: fscryptctl <command> [<arg>]... [<option>]...\n"
+       "\nCommands:\n"
+-      "  fscryptctl add_key <mountpoint>\n"
++      "  fscryptctl add-key <mountpoint>\n"
+       "    Read a key from stdin, add it to the specified mounted filesystem,\n"
+       "    and print its identifier.\n"
+-      "  fscryptctl remove_key <key identifier> <mountpoint>\n"
++      "  fscryptctl remove-key <key identifier> <mountpoint>\n"
+       "    Remove the key with the specified identifier from the specified\n"
+       "    mounted filesystem.\n"
+-      "  fscryptctl key_status <key identifier> <mountpoint>\n"
++      "  fscryptctl key-status <key identifier> <mountpoint>\n"
+       "    Get the status of the key with the specified identifier on the\n"
+       "    specified mounted filesystem.\n"
+-      "  fscryptctl get_policy <file or directory>\n"
++      "  fscryptctl get-policy <file or directory>\n"
+       "    Print out the encryption policy for the specified path.\n"
+-      "  fscryptctl set_policy <key identifier> <directory>\n"
++      "  fscryptctl set-policy <key identifier> <directory>\n"
+       "    Set up an encryption policy on the specified directory with the\n"
+       "    specified key identifier.\n"
+       "\nOptions:\n"
+@@ -112,10 +112,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
+       "        print this help screen\n"
+       "    -v, --version\n"
+       "        print the version of fscrypt\n"
+-      "    remove_key\n"
++      "    remove-key\n"
+       "        --all-users\n"
+       "            force-remove all users' claims to the key (requires root)\n"
+-      "    set_policy\n"
++      "    set-policy\n"
+       "        --contents=<mode>\n"
+       "            contents encryption mode (default: AES-256-XTS)\n"
+       "        --filenames=<mode>\n"
+@@ -130,8 +130,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
+       "            optimize for eMMC inline crypto hardware (not recommended)\n"
+       "\nNotes:\n"
+       "  Keys are identified by 32-character hex strings (key identifiers).\n"
+-      "\n"
+-      "  Raw keys are given on stdin in binary and usually must be 64 bytes.\n",
++      "  Raw keys are given on stdin in binary and are usually 64 bytes.\n",
+       out);
+ 
+   exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
+@@ -155,12 +154,9 @@ static void handle_no_options(int *argc, char *const *argv[]) {
+ static const char *describe_fscrypt_error(int errno_val) {
+   switch (errno_val) {
+     case ENOTTY:
+-      return "your kernel is too old to support filesystem encryption, or the "
+-             "filesystem you are using does not support encryption";
++      return "Filesystem encryption not supported";
+     case EOPNOTSUPP:
+-      return "filesystem encryption has been disabled in the kernel config, or "
+-             "you need to enable encryption on your filesystem (see the README "
+-             "for more detailed instructions).";
++      return "Filesystem encryption disabled";
+     default:
+       return strerror(errno_val);
+   }
+@@ -170,10 +166,10 @@ static const char *describe_fscrypt_error(int errno_val) {
+ static const char *describe_get_policy_error(int errno_val) {
+   switch (errno_val) {
+     case ENODATA:
+-      return "file or directory not encrypted";
++      return "File or directory not encrypted";
+     case EINVAL:
+     case EOVERFLOW:
+-      return "file or directory uses an unrecognized encryption policy version";
++      return "Unrecognized encryption policy version";
+     default:
+       return describe_fscrypt_error(errno_val);
+   }
+@@ -183,9 +179,9 @@ static const char *describe_get_policy_error(int errno_val) {
+ static const char *describe_set_policy_error(int errno_val) {
+   switch (errno_val) {
+     case EEXIST:
+-      return "file or directory already encrypted";
++      return "File or directory already encrypted";
+     case EINVAL:
+-      return "invalid encryption options provided";
++      return "Invalid encryption options";
+     default:
+       return describe_fscrypt_error(errno_val);
+   }
+@@ -201,8 +197,7 @@ static const char *describe_fscrypt_v2_error(int errno_val) {
+ 
+     if (uname(&u) == 0 && sscanf(u.release, "%d.%d", &major, &minor) == 2 &&
+         (major < 5 || (major == 5 && minor < 4))) {
+-      return "ioctl not implemented.  Your kernel may be too old to support "
+-             "all the fscrypt ioctls.  Please upgrade to Linux 5.4 or later.";
++      return "fscrypt ioctl not implemented";
+     }
+   }
+   return describe_fscrypt_error(errno_val);
+@@ -272,7 +267,7 @@ static bool build_key_specifier(const char *identifier_hex,
+   memset(key_spec, 0, sizeof(*key_spec));
+   if (!hex_to_bytes(identifier_hex, key_spec->u.identifier,
+                     FSCRYPT_KEY_IDENTIFIER_SIZE)) {
+-    fprintf(stderr, "error: invalid key identifier: %s\n", identifier_hex);
++    warnx("Invalid key identifier: %s", identifier_hex);
+     return false;
+   }
+   key_spec->type = FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER;
+@@ -309,14 +304,12 @@ static size_t read_key(uint8_t raw_key[FSCRYPT_MAX_KEY_SIZE]) {
+     goto cleanup;
+   }
+   if (ret < FSCRYPT_MIN_KEY_SIZE) {
+-    fprintf(stderr, "error: key was too short; it must be at least %d bytes\n",
+-            FSCRYPT_MIN_KEY_SIZE);
++    warnx("Key must be at least %d bytes", FSCRYPT_MIN_KEY_SIZE);
+     ret = 0;
+     goto cleanup;
+   }
+   if (ret > FSCRYPT_MAX_KEY_SIZE) {
+-    fprintf(stderr, "error: key was too long; it can be at most %d bytes\n",
+-            FSCRYPT_MAX_KEY_SIZE);
++    warnx("Key can be at most %d bytes", FSCRYPT_MAX_KEY_SIZE);
+     ret = 0;
+     goto cleanup;
+   }
+@@ -330,7 +323,7 @@ static bool get_policy(const char *path,
+                        struct fscrypt_get_policy_ex_arg *arg) {
+   int fd = open(path, O_RDONLY | O_CLOEXEC);
+   if (fd < 0) {
+-    fprintf(stderr, "error: opening %s: %s\n", path, strerror(errno));
++    warn("opening %s", path);
+     return false;
+   }
+ 
+@@ -339,7 +332,7 @@ static bool get_policy(const char *path,
+   close(fd);
+ 
+   if (ret != 0) {
+-    fprintf(stderr, "error: getting policy for %s: %s\n", path,
++    warnx("getting policy for %s: %s", path,
+             describe_get_policy_error(errno));
+     return false;
+   }
+@@ -350,7 +343,7 @@ static bool set_policy(const char *path,
+                        const struct fscrypt_policy_v2 *policy) {
+   int fd = open(path, O_RDONLY | O_CLOEXEC);
+   if (fd < 0) {
+-    fprintf(stderr, "error: opening %s: %s\n", path, strerror(errno));
++    warn("opening %s", path);
+     return false;
+   }
+ 
+@@ -358,7 +351,7 @@ static bool set_policy(const char *path,
+   close(fd);
+ 
+   if (ret != 0) {
+-    fprintf(stderr, "error: setting policy for %s: %s\n", path,
++    warnx("setting policy for %s: %s", path,
+             describe_set_policy_error(errno));
+     return false;
+   }
+@@ -372,16 +365,14 @@ static bool set_policy(const char *path,
+ static int cmd_add_key(int argc, char *const argv[]) {
+   handle_no_options(&argc, &argv);
+   if (argc != 1) {
+-    fputs("error: must specify a single mountpoint\n", stderr);
+-    return EXIT_FAILURE;
++    errx(EXIT_FAILURE, "A single mountpoint must be specified");
+   }
+   const char *mountpoint = argv[0];
+ 
+   struct fscrypt_add_key_arg *arg =
+       calloc(sizeof(*arg) + FSCRYPT_MAX_KEY_SIZE, 1);
+   if (!arg) {
+-    fputs("error: failed to allocate memory\n", stderr);
+-    return EXIT_FAILURE;
++    err(EXIT_FAILURE, "calloc");
+   }
+ 
+   int status = EXIT_FAILURE;
+@@ -393,11 +384,11 @@ static int cmd_add_key(int argc, char *const argv[]) {
+ 
+   int fd = open(mountpoint, O_RDONLY | O_CLOEXEC);
+   if (fd < 0) {
+-    fprintf(stderr, "error: opening %s: %s\n", mountpoint, strerror(errno));
++    warn("opening %s", mountpoint);
+     goto cleanup;
+   }
+   if (ioctl(fd, FS_IOC_ADD_ENCRYPTION_KEY, arg) != 0) {
+-    fprintf(stderr, "error: adding key to %s: %s\n", mountpoint,
++    warnx("adding key to %s: %s", mountpoint,
+             describe_fscrypt_v2_error(errno));
+     close(fd);
+     goto cleanup;
+@@ -434,8 +425,7 @@ static int cmd_remove_key(int argc, char *const argv[]) {
+   argc -= optind;
+   argv += optind;
+   if (argc != 2) {
+-    fputs("error: must specify a key identifier and a mountpoint\n", stderr);
+-    return EXIT_FAILURE;
++    errx(EXIT_FAILURE, "Key and mountpoint must both be specified");
+   }
+   const char *key_identifier = argv[0];
+   const char *mountpoint = argv[1];
+@@ -447,22 +437,20 @@ static int cmd_remove_key(int argc, char *const argv[]) {
+ 
+   int fd = open(mountpoint, O_RDONLY | O_CLOEXEC);
+   if (fd < 0) {
+-    fprintf(stderr, "error: opening %s: %s\n", mountpoint, strerror(errno));
+-    return EXIT_FAILURE;
++    err(EXIT_FAILURE, "opening %s", mountpoint);
+   }
+   int ret = ioctl(fd, ioc, &arg);
+   close(fd);
+   if (ret != 0) {
+-    fprintf(stderr, "error: removing key: %s\n",
++    errx(EXIT_FAILURE, "removing key: %s",
+             describe_fscrypt_v2_error(errno));
+-    return EXIT_FAILURE;
+   }
+ 
+   if (arg.removal_status_flags & FSCRYPT_KEY_REMOVAL_STATUS_FLAG_OTHER_USERS) {
+-    printf("warning: other users still have this key added\n");
++    warnx("warning: Other users still have this key added");
+   } else if (arg.removal_status_flags &
+              FSCRYPT_KEY_REMOVAL_STATUS_FLAG_FILES_BUSY) {
+-    printf("warning: some files using this key are still in-use\n");
++    warnx("warning: Some files using this key are in use");
+   }
+   return EXIT_SUCCESS;
+ }
+@@ -470,8 +458,7 @@ static int cmd_remove_key(int argc, char *const argv[]) {
+ static int cmd_key_status(int argc, char *const argv[]) {
+   handle_no_options(&argc, &argv);
+   if (argc != 2) {
+-    fputs("error: must specify a key identifier and a mountpoint\n", stderr);
+-    return EXIT_FAILURE;
++    errx(EXIT_FAILURE, "Key and mountpoint must both be specified");
+   }
+   const char *key_identifier = argv[0];
+   const char *mountpoint = argv[1];
+@@ -483,8 +470,7 @@ static int cmd_key_status(int argc, char *const argv[]) {
+ 
+   int fd = open(mountpoint, O_RDONLY | O_CLOEXEC);
+   if (fd < 0) {
+-    fprintf(stderr, "error: opening %s: %s\n", mountpoint, strerror(errno));
+-    return EXIT_FAILURE;
++    err(EXIT_FAILURE, "opening %s", mountpoint);
+   }
+   int ret = ioctl(fd, FS_IOC_GET_ENCRYPTION_KEY_STATUS, &arg);
+   close(fd);
+@@ -584,8 +570,7 @@ static void show_v2_encryption_policy(const struct fscrypt_policy_v2 *policy) {
+ static int cmd_get_policy(int argc, char *const argv[]) {
+   handle_no_options(&argc, &argv);
+   if (argc != 1) {
+-    fputs("error: must specify a single file or directory\n", stderr);
+-    return EXIT_FAILURE;
++    errx(EXIT_FAILURE, "A single file or directory must be specified");
+   }
+   const char *path = argv[0];
+ 
+@@ -632,21 +617,18 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+     switch (ch) {
+       case OPT_CONTENTS:
+         if (!string_to_mode(optarg, &contents_encryption_mode)) {
+-          fprintf(stderr, "error: invalid contents mode: %s\n", optarg);
+-          return EXIT_FAILURE;
++          errx(EXIT_FAILURE, "Invalid contents mode: %s", optarg);
+         }
+         break;
+       case OPT_FILENAMES:
+         if (!string_to_mode(optarg, &filenames_encryption_mode)) {
+-          fprintf(stderr, "error: invalid filenames mode: %s\n", optarg);
+-          return EXIT_FAILURE;
++          errx(EXIT_FAILURE, "Invalid filenames mode: %s", optarg);
+         }
+         break;
+       case OPT_PADDING:
+         padding_flag = string_to_padding_flag(optarg);
+         if (padding_flag < 0) {
+-          fprintf(stderr, "error: invalid padding: %s\n", optarg);
+-          return EXIT_FAILURE;
++          errx(EXIT_FAILURE, "Invalid padding: %s", optarg);
+         }
+         flags &= ~FSCRYPT_POLICY_FLAGS_PAD_MASK;
+         flags |= padding_flag;
+@@ -658,7 +640,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+         flags |= FSCRYPT_POLICY_FLAG_IV_INO_LBLK_64;
+         break;
+       case OPT_IV_INO_LBLK_32:
+-        printf("warning: --iv-ino-lblk-32 should normally not be used\n");
++        warnx("warning: --iv-ino-lblk-32 should normally not be used");
+         flags |= FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32;
+         break;
+       default:
+@@ -668,8 +650,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+   argc -= optind;
+   argv += optind;
+   if (argc != 2) {
+-    fputs("error: must specify a key and a directory\n", stderr);
+-    return EXIT_FAILURE;
++    errx(EXIT_FAILURE, "Key and directory must both be specified");
+   }
+   const char *key_identifier = argv[0];
+   const char *path = argv[1];
+@@ -678,8 +659,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+   struct fscrypt_policy_v2 policy = {.version = FSCRYPT_POLICY_V2};
+   if (!hex_to_bytes(key_identifier, policy.master_key_identifier,
+                     FSCRYPT_KEY_IDENTIFIER_SIZE)) {
+-    fprintf(stderr, "error: invalid key identifier: %s\n", key_identifier);
+-    return EXIT_FAILURE;
++    errx(EXIT_FAILURE, "Invalid key identifier: %s", key_identifier);
+   }
+   policy.contents_encryption_mode = contents_encryption_mode;
+   policy.filenames_encryption_mode = filenames_encryption_mode;
+@@ -701,9 +681,9 @@ static const struct {
+   const char *name;
+   int (*func)(int argc, char *const argv[]);
+ } commands[] = {
+-    {"add_key", cmd_add_key},       {"remove_key", cmd_remove_key},
+-    {"key_status", cmd_key_status}, {"get_policy", cmd_get_policy},
+-    {"set_policy", cmd_set_policy},
++    {"add-key", cmd_add_key},       {"remove-key", cmd_remove_key},
++    {"key-status", cmd_key_status}, {"get-policy", cmd_get_policy},
++    {"set-policy", cmd_set_policy},
+ };
+ 
+ int main(int argc, char *const argv[]) {
+@@ -722,7 +702,7 @@ int main(int argc, char *const argv[]) {
+   }
+ 
+   if (argc < 2) {
+-    fputs("error: no command specified\n", stderr);
++    warnx("No command specified");
+     usage(stderr);
+   }
+   const char *command = argv[1];
+@@ -733,6 +713,6 @@ int main(int argc, char *const argv[]) {
+     }
+   }
+ 
+-  fprintf(stderr, "error: invalid command: %s\n", command);
++  warnx("Invalid command: %s", command);
+   usage(stderr);
+ }
