@@ -1,6 +1,6 @@
 prepare() {
-  unpack https://github.com/gavinhoward/bc/releases/download/4.0.0/bc-4.0.0.tar.xz
-  tree 61003eaefbdce0b510e5ed7a24095e571cae4e2b3b07acadb9ba7c478487cf69
+  unpack https://github.com/gavinhoward/bc/releases/download/4.0.2/bc-4.0.2.tar.xz
+  tree c5ba106ac8fe783168debecf3d053795592f8db9946f9e5153ac087ac0e15e9d
 }
 
 build() {
