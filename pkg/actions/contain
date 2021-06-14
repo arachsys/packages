@@ -16,6 +16,7 @@ trap 'umount -l "$1"' EXIT
 [[ -d $1/run ]] && mount -B --make-slave "$1/run" "$1/run"
 [[ -d $1/src ]] && mount -R --make-rslave "${SRC:-$1/src}" "$1/src"
 [[ -d $1/sys ]] && mount -R --make-rslave /sys "$1/sys"
+[[ -d $1/tmp ]] && mount -B --make-slave "$1/tmp" "$1/tmp"
 [[ -d $1/var ]] && mount -B --make-slave "$1/var" "$1/var"
 
 if [[ -d $1/var/cache ]] && [[ -n $CACHEDIR ]]; then

@@ -2,7 +2,7 @@ prepare() {
   unpack https://musl.libc.org/releases/musl-1.2.2.tar.gz
   apply paths.patch
   apply usage.patch
-  tree 289d3855e5772cd4ac0633d505250be50091a9127c4bc7b143f8499aeb5de838
+  tree 2ab1ba916097cb3fde055a6770b20c4fdf4d6266fff08154f30d26485057171d
 }
 
 build() {

@@ -1,0 +1,12 @@
+diff --git a/src/closures.c b/src/closures.c
+index 5120021..da77f7a 100644
+--- a/src/closures.c
++++ b/src/closures.c
+@@ -667,7 +667,6 @@ static struct
+ } open_temp_exec_file_opts[] = {
+   { open_temp_exec_file_env, "TMPDIR", 0 },
+   { open_temp_exec_file_dir, "/tmp", 0 },
+-  { open_temp_exec_file_dir, "/var/tmp", 0 },
+   { open_temp_exec_file_dir, "/dev/shm", 0 },
+   { open_temp_exec_file_env, "HOME", 0 },
+ #ifdef HAVE_MNTENT

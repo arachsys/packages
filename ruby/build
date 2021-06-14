@@ -1,4 +1,5 @@
 mode autotools
+require libffi
 
 prepare() {
   unpack https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.1.tar.gz
@@ -14,4 +15,5 @@ config-extra --disable-install-doc  --disable-rpath --enable-shared \
 
 post-install() {
   rm -f /dst/lib/include/rb_mjit_min_header-*.h
+  echo libffi >>/dst/requirements
 }

@@ -326,7 +326,7 @@ index 770f72c..70cf90e 100644
                           r'c:\temp', r'c:\tmp', r'\temp', r'\tmp' ])
      else:
 -        dirlist.extend([ '/tmp', '/var/tmp', '/usr/tmp' ])
-+        dirlist.extend([ '/tmp', '/var/tmp' ])
++        dirlist.extend([ '/tmp' ])
  
      # As a last resort, the current directory.
      try:

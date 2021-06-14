@@ -5,7 +5,7 @@ prepare() {
   unpack https://golang.org/dl/go1.16.5.src.tar.gz
   apply fmt.patch
   apply paths.patch
-  tree aa817f6cd58493c5f3421dc09368ebed77c8b0fd6dc0065a9646de1bf8bf0e3e
+  tree 8d04b5c1f8e50ac8fd2c5105afed51533286dc7c5ca9624fe3c68063acce56c3
 }
 
 build() {

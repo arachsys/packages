@@ -8,7 +8,7 @@ prepare() {
   apply fakepkg.patch
   apply musl.patch
   apply paths.patch
-  tree 26def2a1668443118cabaed8463e6805212be6c9f8729004d1a08b2eaae3b511
+  tree 79cd2e8199bf87e45ab343317e6dfb96bb51a2d0258d8a8a10e9b3bf310788ec
 }
 
 config-extra --enable-{ipv6,optimizations,shared} --with-ensurepip=install \

@@ -8,7 +8,7 @@ prepare() {
     shift
   done
   apply paths.patch
-  tree 43b1d4e7cccc5bdef33db97edbe14162096f38b495905498665eb4a6bfc2dba7
+  tree a2683eb67387565c1b6fbf1a5d7de74db8677b4be6d962061842ca83ad6c2f67
 }
 
 config-extra --without-bash-malloc --with-installed-readline

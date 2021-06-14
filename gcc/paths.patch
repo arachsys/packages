@@ -1,8 +1,8 @@
 diff --git a/gcc/gcc.c b/gcc/gcc.c
-index 4f57765..84deeaa 100644
+index 783755395..5ea28f84d 100644
 --- a/gcc/gcc.c
 +++ b/gcc/gcc.c
-@@ -1468,10 +1468,10 @@ static const char *gcc_libexec_prefix;
+@@ -1586,10 +1586,10 @@ static const char *gcc_libexec_prefix;
  /* Default prefixes to attach to command names.  */
  
  #ifndef STANDARD_STARTFILE_PREFIX_1
@@ -15,7 +15,7 @@ index 4f57765..84deeaa 100644
  #endif
  
  #ifdef CROSS_DIRECTORY_STRUCTURE  /* Don't use these prefixes for a cross compiler.  */
-@@ -7155,10 +7155,14 @@ is_directory (const char *path1, bool linker)
+@@ -7811,10 +7811,14 @@ is_directory (const char *path1, bool linker)
        && IS_DIR_SEPARATOR (path[0])
        && ((cp - path == 6
  	   && filename_ncmp (path + 1, "lib", 3) == 0)
@@ -23,43 +23,69 @@ index 4f57765..84deeaa 100644
 -	      && filename_ncmp (path + 1, "usr", 3) == 0
 -	      && IS_DIR_SEPARATOR (path[4])
 -	      && filename_ncmp (path + 5, "lib", 3) == 0)))
-+         || (cp - path == 13
-+             && filename_ncmp (path + 1, "lib", 3) == 0
-+             && IS_DIR_SEPARATOR (path[4])
-+             && filename_ncmp (path + 5, "static", 6) == 0)
-+         || (cp - path == 13
-+             && filename_ncmp (path + 1, "lib", 3) == 0
-+             && IS_DIR_SEPARATOR (path[4])
-+             && filename_ncmp (path + 5, "shared", 6) == 0)))
++	 || (cp - path == 13
++	     && filename_ncmp (path + 1, "lib", 3) == 0
++	     && IS_DIR_SEPARATOR (path[4])
++	     && filename_ncmp (path + 5, "static", 6) == 0)
++	 || (cp - path == 13
++	     && filename_ncmp (path + 1, "lib", 3) == 0
++	     && IS_DIR_SEPARATOR (path[4])
++	     && filename_ncmp (path + 5, "shared", 6) == 0)))
      return 0;
  
    return (stat (path, &st) >= 0 && S_ISDIR (st.st_mode));
+diff --git a/ld/elf-hints-local.h b/ld/elf-hints-local.h
+index 02dd019d4..cf67f9e68 100644
+--- a/ld/elf-hints-local.h
++++ b/ld/elf-hints-local.h
+@@ -41,6 +41,6 @@ struct elfhints_hdr
+ 
+ #define ELFHINTS_MAGIC	0x746e6845
+ 
+-#define _PATH_ELF_HINTS	"/var/run/ld-elf.so.hints"
++#define _PATH_ELF_HINTS	"/run/ld-elf.so.hints"
+ 
+ #endif /* !_ELF_HINTS_H_ */
+diff --git a/libffi/src/closures.c b/libffi/src/closures.c
+index 721ff00ea..63564bde1 100644
+--- a/libffi/src/closures.c
++++ b/libffi/src/closures.c
+@@ -392,7 +392,6 @@ static struct
+ } open_temp_exec_file_opts[] = {
+   { open_temp_exec_file_env, "TMPDIR", 0 },
+   { open_temp_exec_file_dir, "/tmp", 0 },
+-  { open_temp_exec_file_dir, "/var/tmp", 0 },
+   { open_temp_exec_file_dir, "/dev/shm", 0 },
+   { open_temp_exec_file_env, "HOME", 0 },
+ #ifdef HAVE_MNTENT
 diff --git a/libiberty/make-temp-file.c b/libiberty/make-temp-file.c
-index 7b74f81..74c9f84 100644
+index 7465cec5e..86f105c47 100644
 --- a/libiberty/make-temp-file.c
 +++ b/libiberty/make-temp-file.c
-@@ -82,8 +82,6 @@ try_dir (const char *dir, const char *base)
+@@ -81,10 +81,6 @@ try_dir (const char *dir, const char *base)
  }
  
  static const char tmp[] = { DIR_SEPARATOR, 't', 'm', 'p', 0 };
 -static const char usrtmp[] =
 -{ DIR_SEPARATOR, 'u', 's', 'r', DIR_SEPARATOR, 't', 'm', 'p', 0 };
- static const char vartmp[] =
- { DIR_SEPARATOR, 'v', 'a', 'r', DIR_SEPARATOR, 't', 'm', 'p', 0 };
+-static const char vartmp[] =
+-{ DIR_SEPARATOR, 'v', 'a', 'r', DIR_SEPARATOR, 't', 'm', 'p', 0 };
  
-@@ -130,9 +128,8 @@ choose_tmpdir (void)
+ #endif
+ 
+@@ -129,9 +125,7 @@ choose_tmpdir (void)
  	base = try_dir (P_tmpdir, base);
  #endif
  
 -      /* Try /var/tmp, /usr/tmp, then /tmp.  */
-+      /* Try /var/tmp then /tmp.  */
-       base = try_dir (vartmp, base);
+-      base = try_dir (vartmp, base);
 -      base = try_dir (usrtmp, base);
++      /* Try /tmp.  */
        base = try_dir (tmp, base);
- 
+       
        /* If all else fails, use the current directory!  */
 diff --git a/libiberty/tmpnam.c b/libiberty/tmpnam.c
-index cc34333..a1e65ab 100644
+index cc3433366..a1e65abe1 100644
 --- a/libiberty/tmpnam.c
 +++ b/libiberty/tmpnam.c
 @@ -18,7 +18,7 @@ not be used in new projects.  Use @code{mkstemp} instead.
@@ -72,10 +98,10 @@ index cc34333..a1e65ab 100644
  
  static char tmpnam_buffer[L_tmpnam];
 diff --git a/libtool.m4 b/libtool.m4
-index 797468f..95b19d9 100644
+index 17f8e5f30..43788ec95 100644
 --- a/libtool.m4
 +++ b/libtool.m4
-@@ -2455,7 +2455,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu)
+@@ -2452,7 +2452,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu | gnu* | uclinuxfdpiceabi)
    need_version=no
    library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major $libname${shared_ext}'
    soname_spec='${libname}${release}${shared_ext}$major'

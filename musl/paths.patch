@@ -40,9 +40,10 @@ index 67de6b3..760ba6b 100644
  #define	_PATH_TMP	"/tmp/"
 -#define	_PATH_VARDB	"/var/lib/misc/"
 -#define	_PATH_VARRUN	"/var/run/"
+-#define	_PATH_VARTMP	"/var/tmp/"
 +#define	_PATH_VARDB	"/var/lib/"
 +#define	_PATH_VARRUN	"/run/"
- #define	_PATH_VARTMP	"/var/tmp/"
++#define	_PATH_VARTMP	"/tmp/"
  
  #endif
 diff --git a/ldso/dynlink.c b/ldso/dynlink.c
@@ -71,6 +72,19 @@ index 79784bd..ea9e9ee 100644
  	memcpy(buf+9, name, p-name+1);
  	return buf;
  }
+diff --git a/src/passwd/nscd_query.c b/src/passwd/nscd_query.c
+index d38e371..c610863 100644
+--- a/src/passwd/nscd_query.c
++++ b/src/passwd/nscd_query.c
+@@ -12,7 +12,7 @@ static const struct {
+ 	char sun_path[21];
+ } addr = {
+ 	AF_UNIX,
+-	"/var/run/nscd/socket"
++	"/run/nscd/socket"
+ };
+ 
+ FILE *__nscd_query(int32_t req, const char *key, int32_t *buf, size_t len, int *swap)
 diff --git a/src/thread/sem_open.c b/src/thread/sem_open.c
 index de8555c..966b25f 100644
 --- a/src/thread/sem_open.c

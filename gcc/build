@@ -15,7 +15,7 @@ prepare() {
   apply pure64.patch
   apply rpath.patch
 
-  tree 9d9a645592bf6b47190977a7d45874f411f1dceec90803f59efbedb4197b24f1
+  tree ce41811cae699b2be033fd3a131967411c944772096d64648582033f968090ae
 }
 
 config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \

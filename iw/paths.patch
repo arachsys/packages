@@ -1,0 +1,29 @@
+diff --git a/Makefile b/Makefile
+index 8bd5457..0b1529b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,8 +1,8 @@
+ MAKEFLAGS += --no-print-directory
+ 
+-PREFIX ?= /usr
+-SBINDIR ?= $(PREFIX)/sbin
+-MANDIR ?= $(PREFIX)/share/man
++PREFIX ?=
++SBINDIR ?= $(PREFIX)/bin
++MANDIR ?= $(PREFIX)/lib/man
+ PKG_CONFIG ?= pkg-config
+ 
+ MKDIR ?= mkdir -p
+diff --git a/phy.c b/phy.c
+index 716677e..3365c7e 100644
+--- a/phy.c
++++ b/phy.c
+@@ -510,7 +510,7 @@ COMMAND(set, retry, "[short <limit>] [long <limit>]",
+ 	"Set retry limit.");
+ 
+ #ifndef NETNS_RUN_DIR
+-#define NETNS_RUN_DIR "/var/run/netns"
++#define NETNS_RUN_DIR "/run/netns"
+ #endif
+ static int netns_get_fd(const char *name)
+ {

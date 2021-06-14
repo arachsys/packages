@@ -14,6 +14,19 @@ index 56b44a1..4a78528 100644
  	vers := string(bytes.Split(out, []byte("("))[0])
  	subvers := strings.Split(vers, ".")
  	if len(subvers) != 3 {
+diff --git a/src/log/syslog/syslog_unix.go b/src/log/syslog/syslog_unix.go
+index a64eed2..c6867f3 100644
+--- a/src/log/syslog/syslog_unix.go
++++ b/src/log/syslog/syslog_unix.go
+@@ -16,7 +16,7 @@ import (
+ 
+ func unixSyslog() (conn serverConn, err error) {
+ 	logTypes := []string{"unixgram", "unix"}
+-	logPaths := []string{"/dev/log", "/var/run/syslog", "/var/run/log"}
++	logPaths := []string{"/dev/log"}
+ 	for _, network := range logTypes {
+ 		for _, path := range logPaths {
+ 			conn, err := net.Dial(network, path)
 diff --git a/src/net/http/cgi/host.go b/src/net/http/cgi/host.go
 index 58e9f71..4d9cde1 100644
 --- a/src/net/http/cgi/host.go
