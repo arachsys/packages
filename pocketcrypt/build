@@ -1,0 +1,9 @@
+prepare() {
+  unpack pocketcrypt-130fad95.tar.gz \
+    https://github.com/arachsys/pocketcrypt/archive/130fad95.tar.gz
+  tree 70aae20bda9950215e4d86aca96b54c532eccd6cf019dea2142df9c24231ae29
+}
+
+build() {
+  make install-static install-tools DESTDIR=/dst INCDIR=/lib/include
+}
