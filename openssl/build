@@ -1,0 +1,16 @@
+require perl
+
+prepare() {
+  unpack https://www.openssl.org/source/openssl-3.0.0-beta1.tar.gz
+  tree 2ff52fbf6cfa03b1f9ead2deebd421cb93bd28985ecd6c8799ba5a275a912165
+}
+
+build() {
+  perl Configure --prefix=/ --libdir=/lib --openssldir=/etc/ssl \
+    no-async no-comp no-{ec2m,seed,sm2,sm4} no-engine no-legacy \
+    no-module no-ssl3 no-zlib
+  make build_sw CC=cc DESTDIR=/dst {ENGINES,MODULES}DIR=/lib/openssl
+  make install_sw CC=cc DESTDIR=/dst {ENGINES,MODULES}DIR=/lib/openssl
+  mv -f /dst/include /dst/lib/
+  rm -f /dst/bin/c_rehash
+}
