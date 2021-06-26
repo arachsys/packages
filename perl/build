@@ -32,10 +32,5 @@ build() {
     sed -i "2,4 { /^#!/d; /^[[:blank:]]*eval 'exec /!b; N; d }" "$FILE"
   done
 
-  # Prune the installed files into the perl-base package:
-  set -- "/dst"
-  while read PATTERN; do
-    set -- "$@" -path "/dst/$PATTERN" -prune -or
-  done < <(sed -n -e 's/#.*//' -e '/\S/p' /pkg/whitelist)
-  find "$@" -type f -exec rm {} +
+  rm -f /dst/bin/!(perl) /dst/lib/perl/**/{.packlist,*.a,*.e2x,*.pod}
 }
