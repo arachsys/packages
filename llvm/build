@@ -1,8 +1,8 @@
 require python
 
 prepare() {
-  unpack llvm-project-12.0.0.tar.xz \
-    https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/llvm-project-12.0.0.src.tar.xz
+  unpack llvm-project-12.0.1.tar.xz \
+    https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-project-12.0.1.src.tar.xz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.19.6/cmake-3.19.6.tar.gz
   apply distro.patch
@@ -10,7 +10,7 @@ prepare() {
   apply prune.patch
   apply sanitizer.patch
   apply tools.patch
-  tree a81ed804ef52b81e35d4d65322ec0b550808c494a71adda93276b4f5106e3859
+  tree 74201da729f14df42c2239c3a36d1052430b20c6ee0a013b38eeaedfa99f86b8
 }
 
 build() {
@@ -63,11 +63,28 @@ build() {
   make compiler-rt
   make install DESTDIR=/dst
 
+  CLANGDIR=/dst/lib/clang/$(bin/llvm-config --version)
   LLVMDIR=/dst/lib/llvm/$(bin/llvm-config --version)
   mkdir -p $LLVMDIR/bin $LLVMDIR/include $LLVMDIR/lib
   cp bin/llvm-config $LLVMDIR/bin/
   cp $(bin/llvm-config --libfiles) $LLVMDIR/lib/
   cp -R include/llvm ../llvm/include/{llvm,llvm-c} $LLVMDIR/include/
+
+  for TARGET in wasm32 wasm64; do
+    mkdir -p /src/build-$TARGET $CLANGDIR/lib/$TARGET-wasi
+    cd /src/build-$TARGET
+    /src/cmake/bin/cmake -W no-dev \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_C_COMPILER_WORKS=Yes \
+      -DLLVM_CONFIG_PATH=../build/bin/llvm-config \
+      -DCOMPILER_RT_BAREMETAL_BUILD=Yes \
+      -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE=$TARGET-wasi \
+      ../compiler-rt/lib/builtins
+    make compiler-rt
+    cp lib/*/libclang_rt.builtins-$TARGET.a \
+      $CLANGDIR/lib/$TARGET-wasi/libclang_rt.builtins.a
+  done
+
   find $LLVMDIR/include -type d -or -name '*.def' -or -name '*.h' \
     -or -name '*.inc' -or -name '*.td' -or -delete
   rm -f -r $LLVMDIR/include/**/{CMakeFiles,config.h}
