@@ -2,5 +2,20 @@ mkdir -p "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 
+unset SRC
+while getopts :s: OPTION; do
+  case $OPTION in
+    s)
+      if [[ -d $OPTARG ]]; then
+        mkdir -p "$ROOT/src"
+        SRC=$OPTARG
+      else
+        die "Source tree $OPTARG not found"
+      fi
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
 populate "$ROOT" base "$@"
-pkg contain "$ROOT" bash -l
+SRC=$SRC pkg contain "$ROOT" bash -l
