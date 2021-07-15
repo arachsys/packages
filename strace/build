@@ -5,7 +5,7 @@ prepare() {
   tree d095c0a0350f0feed61ee61dcdc62a4b3b25c7ed38499b3f2e520da7c5db81b7
 }
 
-config-extra --disable-mpers
+config-extra --disable-gcc-Werror --disable-mpers
 
 post-install() {
   rm -f /dst/bin/strace-{graph,log-merge}
