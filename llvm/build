@@ -74,11 +74,12 @@ build() {
     mkdir -p /src/build-$TARGET $CLANGDIR/lib/$TARGET-wasi
     cd /src/build-$TARGET
     /src/cmake/bin/cmake -W no-dev \
+      -DCMAKE_{ASM,C}_COMPILER_TARGET=$TARGET-wasi \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_COMPILER_WORKS=Yes \
       -DLLVM_CONFIG_PATH=../build/bin/llvm-config \
       -DCOMPILER_RT_BAREMETAL_BUILD=Yes \
-      -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE=$TARGET-wasi \
+      -DCOMPILER_RT_DEFAULT_TARGET_ONLY=Yes \
       ../compiler-rt/lib/builtins
     make compiler-rt
     cp lib/*/libclang_rt.builtins-$TARGET.a \
