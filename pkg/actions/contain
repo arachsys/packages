@@ -1,5 +1,7 @@
-if [[ $# -lt 2 ]] || [[ ! -d "$1" ]]; then
-  die "${0##*/} contain is [for internal use only"
+if [[ $# -lt 1 ]] || [[ ! -d "$1" ]]; then
+  die "${0##*/} contain is for internal use only"
+elif [[ $# -lt 2 ]]; then
+  set -- "$1" bash -l
 fi
 
 if [[ /proc/self/ns/mnt -ef /proc/$PPID/ns/mnt ]]; then
