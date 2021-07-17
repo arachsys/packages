@@ -18,7 +18,7 @@ build() {
      --disable-rpath --enable-extended --enable-local-rust \
      --enable-locked-deps --enable-use-libcxx --enable-vendor \
      --dist-compression-formats=gz --llvm-libunwind=system \
-     --llvm-config=/lib/llvm/12.0.0/bin/llvm-config --local-rust-root= \
+     --llvm-config=$(echo /lib/llvm/*/bin/llvm-config) --local-rust-root= \
      --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
