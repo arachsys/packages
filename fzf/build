@@ -1,0 +1,14 @@
+require go
+
+prepare() {
+  unpack fzf-0.27.2.tar.gz \
+    https://github.com/junegunn/fzf/archive/refs/tags/0.27.2.tar.gz
+  GOPATH=/tmp/go go mod vendor
+  tree 013a1c024dc0acf0f8078c10f90dae832327d7996353c75a2155f6a8ce5447f7
+}
+
+build() {
+  GOPATH=/tmp/go HOME=/tmp go build \
+    -ldflags "-s -w -X main.version=0.27.2 -X main.revision=arachsys"
+  install -D fzf /dst/bin/fzf
+}
