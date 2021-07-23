@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://strace.io/files/5.12/strace-5.12.tar.xz
-  tree d095c0a0350f0feed61ee61dcdc62a4b3b25c7ed38499b3f2e520da7c5db81b7
+  unpack https://strace.io/files/5.13/strace-5.13.tar.xz
+  tree a19a33c81be2577d1a32e2c40fc7bdca4827eeaa5e07bf555979022f6ec95360
 }
 
 config-extra --disable-gcc-Werror --disable-mpers
