@@ -1,11 +1,10 @@
 prepare() {
-  unpack kakoune-2020.09.01.tar.gz \
-    https://github.com/mawww/kakoune/archive/v2020.09.01.tar.gz
-  apply escape.patch
+  unpack kakoune-2021.07.20.tar.gz \
+    https://github.com/mawww/kakoune/archive/15aa4fe1379c4cddb2e548bad0c1cd99f7fbf90e.tar.gz
   apply paths.patch
-  tree 71d3b4ab5f85f85c4c31a165995153bafef310556ccacac4be23964d0061ac34
+  tree 1eea5ad8227f481d0f5c3f1c66ce9fcceb38b7b9ec0fe81befbcbbaebddb5385
 }
 
 build() {
-  make install CXX=c++ DESTDIR=/dst PREFIX=
+  make install CXX=c++ DESTDIR=/dst PREFIX= version=2021.07.20
 }

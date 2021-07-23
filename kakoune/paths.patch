@@ -1,8 +1,8 @@
 diff --git a/README.asciidoc b/README.asciidoc
-index 0ca788a..f38aef9 100644
+index 3409d3e..4465775 100644
 --- a/README.asciidoc
 +++ b/README.asciidoc
-@@ -291,7 +291,7 @@ Configuration
+@@ -312,7 +312,7 @@ Configuration
  
  There are two directories containing Kakoune's scripts:
  
@@ -11,7 +11,7 @@ index 0ca788a..f38aef9 100644
    contains the system scripts, installed with Kakoune.
  * `userconf`: located in `$XDG_CONFIG_HOME/kak/`, which will fallback
    to `$HOME/.config/kak/` if `$XDG_CONFIG_HOME` is not set, containing
-@@ -698,27 +698,27 @@ Kakrc
+@@ -719,27 +719,27 @@ Kakrc
  ~~~~~
  
  If not launched with the `-n` switch, Kakoune will source the
@@ -44,23 +44,32 @@ index 0ca788a..f38aef9 100644
  color schemes. If a scheme is duplicated in userspace, it will take
  precedence.
 diff --git a/doc/kak.1 b/doc/kak.1
-index bd09f43..639d5a2 100644
+index be8b6ad..6cb6ecb 100644
 --- a/doc/kak.1
 +++ b/doc/kak.1
-@@ -168,7 +168,7 @@ Path to the user session sockets, defaults to \fI$TMPDIR/kakoune\fR if unset.
- 
- In the paths documented below, \fI<rtdir>\fR refers to the runtime directory,
- whose value is determined in relation to the path to the \fBkak\fR binary:
--\fI<rtdir>\fR = \fI<path_to_kak_binary>/../share/kak\fR.
-+\fI<rtdir>\fR = \fI<path_to_kak_binary>/../lib/kak\fR.
- 
- If not started with the \fB\-n\fR switch, Kakoune will first load
- \fI<rtdir>/kakrc\fR, which will in turn load the following additional files:
+@@ -76,7 +76,7 @@ Display Kakoune version and quit.
+ .
+ .It Fl n
+ Do not load the system's kakrc.
+-.Pq often, Pa /usr/share/kak/kakrc
++.Pq often, Pa /lib/kak/kakrc
+ .
+ .It Fl l
+ List existing sessions.
+@@ -187,7 +187,7 @@ to the path to
+ binary location:
+ .Pa <rtdir>
+ =
+-.Pa <path_to_kak_binary>/../share/kak .
++.Pa <path_to_kak_binary>/../lib/kak .
+ .
+ .Pp
+ If not started with the
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
-index 9ee4504..4e77d28 100644
+index 14d1b6d..15a5ab9 100644
 --- a/doc/pages/options.asciidoc
 +++ b/doc/pages/options.asciidoc
-@@ -223,7 +223,7 @@ are exclusively available to built-in options.
+@@ -245,7 +245,7 @@ are exclusively available to built-in options.
      actions should hook on this option changing for activation/deactivation
  
  *path* `str-list`::
@@ -70,10 +79,10 @@ index 9ee4504..4e77d28 100644
      `%/` represents the current buffer directory
  
 diff --git a/rc/tools/man.kak b/rc/tools/man.kak
-index 54960a2..86fefba 100644
+index 5e57dc0..2d4d28a 100644
 --- a/rc/tools/man.kak
 +++ b/rc/tools/man.kak
-@@ -58,7 +58,7 @@ define-command -hidden -params ..3 man-impl %{ evaluate-commands %sh{
+@@ -63,7 +63,7 @@ define-command -hidden -params ..3 man-impl %{ evaluate-commands %sh{
  
  define-command -params ..1 \
      -shell-script-candidates %{
@@ -83,32 +92,24 @@ index 54960a2..86fefba 100644
      -docstring %{
          man [<page>]: manpage viewer wrapper
 diff --git a/src/Makefile b/src/Makefile
-index 1d1bc0e..9b56f2b 100644
+index 659b865..678c8c5 100644
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -55,9 +55,9 @@ PREFIX ?= /usr/local
+@@ -52,10 +52,10 @@ PREFIX ?= /usr/local
  DESTDIR ?= # root dir
  
  bindir := $(DESTDIR)$(PREFIX)/bin
+-libexecdir := $(DESTDIR)$(PREFIX)/libexec/kak
 -sharedir := $(DESTDIR)$(PREFIX)/share/kak
 -docdir := $(DESTDIR)$(PREFIX)/share/doc/kak
 -mandir := $(DESTDIR)$(PREFIX)/share/man/man1
++libexecdir := $(DESTDIR)$(PREFIX)/lib/kak
 +sharedir := $(DESTDIR)$(PREFIX)/lib/kak
 +docdir := $(DESTDIR)$(PREFIX)/lib/doc/kak
 +mandir := $(DESTDIR)$(PREFIX)/lib/man/man1
  
  os := $(shell uname)
  
-@@ -72,6 +72,9 @@ else ifeq ($(os),FreeBSD)
-     LDFLAGS += -L/usr/local/lib
- else ifeq ($(os),Haiku)
-     LIBS += -lncursesw -lnetwork -lbe
-+else ifeq ($(os),Linux)
-+    LIBS += -lncursesw
-+    LDFLAGS += -rdynamic
- else ifeq ($(os),OpenBSD)
-     LIBS += -lncursesw
-     CPPFLAGS += -D'KAK_BIN_PATH="$(bindir)/kak"' -I/usr/local/include
 diff --git a/src/assert.cc b/src/assert.cc
 index 91abba8..604abef 100644
 --- a/src/assert.cc
@@ -131,12 +132,12 @@ index 91abba8..604abef 100644
  
  void on_assert_failed(const char* message)
 diff --git a/src/main.cc b/src/main.cc
-index de454cb..6e60b97 100644
+index d04a85a..daaae84 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -145,12 +145,12 @@ inline void write_stderr(StringView str) { try { write(STDERR_FILENO, str); } ca
- String runtime_directory()
- {
+@@ -158,12 +158,12 @@ String runtime_directory()
+         return runtime_directory;
+ 
      char relpath[PATH_MAX+1];
 -    format_to(relpath, "{}../share/kak", split_path(get_kak_binary_path()).first);
 +    format_to(relpath, "{}../lib/kak", split_path(get_kak_binary_path()).first);
@@ -149,7 +150,7 @@ index de454cb..6e60b97 100644
  }
  
  String config_directory()
-@@ -502,7 +502,7 @@ void register_options()
+@@ -515,7 +515,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -158,7 +159,7 @@ index de454cb..6e60b97 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1245,7 +1245,7 @@ asm(R"(
+@@ -1250,7 +1250,7 @@ asm(R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"
