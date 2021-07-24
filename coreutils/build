@@ -12,5 +12,5 @@ enabled docs && require perl
 # We disable xattr support in cp to avoid legacy libattr dependency.
 
 config-extra --disable-{acl,libcap,xattr} \
-  --enable-no-install-program=kill,pinky,uptime,users,who \
-  --enable-install-program=arch,hostname FORCE_UNSAFE_CONFIGURE=1
+  --enable-no-install-program=hostid,kill,pinky,uptime,users,who \
+  --enable-install-program=hostname FORCE_UNSAFE_CONFIGURE=1
