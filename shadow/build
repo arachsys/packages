@@ -2,10 +2,10 @@ mode autotools
 enable setuid setgid
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/4.8.1/shadow-4.8.1.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/v4.9/shadow-4.9.tar.xz
   apply bcrypt.patch
   apply paths.patch
-  tree 7bcae65e891ddfbe749861099e63c5711ada9697c6b6d5875d87a0ff788b4810
+  tree 037fa7042d8ba8a691bc88e0226090b7046525842eb021cf9d7589318a6e6944
 }
 
 config-extra --without-audit --with-bcrypt --without-libpam
