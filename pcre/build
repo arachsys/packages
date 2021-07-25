@@ -1,9 +1,9 @@
 mode autotools
 
 prepare() {
-  unpack https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.bz2
+  unpack https://ftp.pcre.org/pub/pcre/pcre-8.45.tar.bz2
   apply paths.patch
-  tree bb1ab757d099c96b68b2536d8a65141f8307b14a0bafa7c366ccad4ca0fc20f1
+  tree 923e68bdd1150b7cc2f2360a2fe133dabb3711eb3bca375dd485de273c26b0b6
 }
 
 config-extra --enable-utf8
