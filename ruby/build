@@ -2,10 +2,10 @@ mode autotools
 require libffi
 
 prepare() {
-  unpack https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.1.tar.gz
+  unpack https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.2.tar.gz
   apply paths.patch
   apply plain.patch
-  tree 03615999728b6a89c798c760be248c7e1a75d09f6045e5cc23193a9d5b8fae39
+  tree 2fbad26977661da5816f381e25fbd9451c5166a925be50ad00ecfb1fe4d2e1f7
 }
 
 config-extra --disable-install-doc  --disable-rpath --enable-shared \
