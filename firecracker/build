@@ -2,11 +2,11 @@ require rust
 [[ $CHOST == aarch64-* ]] && require dtc
 
 prepare() {
-  unpack firecracker-0.24.4.tar.gz \
-    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v0.24.4.tar.gz
+  unpack firecracker-0.24.5.tar.gz \
+    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v0.24.5.tar.gz
   apply aarch64.patch
   HOME=/tmp cargo fetch --target=$CHOST
-  tree e15e8b6711f66e7efbb4d715d0f6607102381c5a0126a02b7da82bacfa58f1a9
+  tree c556612a5208086cd47f7faf277abb300cd60e8d60c91cafe4a3f65a79304bf5
 }
 
 build() {
