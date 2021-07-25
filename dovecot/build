@@ -2,9 +2,9 @@ mode autotools
 enable rpaths
 
 prepare() {
-  unpack https://dovecot.org/releases/2.3/dovecot-2.3.14.tar.gz
+  unpack https://dovecot.org/releases/2.3/dovecot-2.3.15.tar.gz
   apply paths.patch
-  tree e7c1bc193e22a7b7e27eb5742dad2d41107647f06693c17d8cea0444b5da2a9f
+  tree b75a3e357cb330661b880f73f836b83de77591d7f6c785f1dc33be5941e8399e
 }
 
 config-extra --with-moduledir=/lib/dovecot/modules --with-rundir=/run/dovecot
