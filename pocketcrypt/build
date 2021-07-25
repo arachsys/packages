@@ -1,7 +1,7 @@
 prepare() {
-  unpack pocketcrypt-130fad95.tar.gz \
-    https://github.com/arachsys/pocketcrypt/archive/130fad95.tar.gz
-  tree 70aae20bda9950215e4d86aca96b54c532eccd6cf019dea2142df9c24231ae29
+  unpack pocketcrypt-20210705-f9c8ceb2.tar.gz \
+    https://github.com/arachsys/pocketcrypt/archive/f9c8ceb26571374da5c313f3b1f0c0fb433d0d07.tar.gz
+  tree edefaa0558d2d478bd72c7329358125b31e909d3c5f134364e44a4192bec8e0d
 }
 
 build() {
