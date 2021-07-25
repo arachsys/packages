@@ -2,8 +2,8 @@ mode autotools
 require libpcap
 
 prepare() {
-  unpack https://www.tcpdump.org/release/tcpdump-4.99.0.tar.gz
-  tree 68820d59cf4c41d689a66c99de179ab151dd4321aea1043d0bfa5f37d4ef8817
+  unpack https://www.tcpdump.org/release/tcpdump-4.99.1.tar.gz
+  tree 0c60439a0201f39010dd5b8a2a537b3fa9941fdd5d677e562d914fcebfc62533
 }
 
 post-install() {
