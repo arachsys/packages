@@ -1,7 +1,7 @@
 prepare() {
-  unpack totp-20200527-ba35bfb6.tar.gz \
-    https://github.com/arachsys/totp/archive/ba35bfb68b6148fd772c0b94d87bcb377ebdf676.tar.gz
-  tree 0094dd66c980fe16a18f7fe974056f59b52084c2adc75b9abdb44fcc4ed32e9f
+  unpack totp-20210313-7cf00a65.tar.gz \
+    https://github.com/arachsys/totp/archive/7cf00a65fcbdccb78517f96cee07bf19329c03bd.tar.gz
+  tree c67467eb7262840a752b29ae6a9e1d2eadb4b580c42ec58f7ad0683f0f029b82
 }
 
 build() {
