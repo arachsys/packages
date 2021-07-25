@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://github.com/dosfstools/dosfstools/releases/download/v4.1/dosfstools-4.1.tar.xz
-  tree e39a46b081fde8bd74b2c8c0d12f5ac31fd01b1b8f6248ac1313a623dd1a81fd
+  unpack https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz
+  tree 7a8e801b524158678f759e53872b96d2c8355089e198f89bbfb12fc28396e2a8
 }
 
 post-install() {
