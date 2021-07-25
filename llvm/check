@@ -4,4 +4,4 @@ version 12.0.1
 
 url https://github.com/Kitware/CMake/releases
 match 'cmake-([0-9.]+)\.tar'
-version 3.19.6 cmake
+version 3.21.0 cmake
