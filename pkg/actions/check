@@ -1,0 +1,40 @@
+match() {
+  exec < <(PATTERN=$1 REPLACE=${2:-\\1} gawk -e '{
+    while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
+      print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
+        substr($0, RSTART, RLENGTH));
+      $0 = substr($0, RSTART + RLENGTH);
+    }
+  }')
+}
+
+url() {
+  exec < <(curl -f -s -L -- "$1" || die "${PKG##*/}: failed to get $1")
+}
+
+version() {
+  set -- "$(sort -V | tail -n 1)" "$@"
+  if [[ -z $1 ]]; then
+    echo "${PKG##*/}: ${3:-version} not found"
+  elif [[ $1 != $2 ]]; then
+    echo "${PKG##*/}: ${3:-version} $1 available"
+  fi
+}
+
+if [[ $# -eq 0 ]]; then
+  for PKG in "$PKGDIR"/*/build; do
+    PKG=${PKG%/build}
+    if [[ -f $PKG/check ]]; then
+      source "$PKG/check" < /dev/null
+    fi
+  done
+else
+  for PKG in "$@"; do
+    PKG=$(locate "$PKGDIR" "$PKG")
+    if [[ -f $PKG/check ]]; then
+      source "$PKG/check" < /dev/null
+    else
+      echo "${PKG##*/}: check script not found"
+    fi
+  done
+fi

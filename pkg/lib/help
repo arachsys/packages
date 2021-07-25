@@ -13,6 +13,10 @@ pkg build [-d] [-s SRC] PKG [FEATURE]...
   which leaves the build chroot in place for inspection whether or not the
   build succeeds, and does not install the new image in $IMGDIR.
 
+pkg check [PKG]...
+  Check for upstream updates of each package PKG using PKG/check. If no
+  arguments are given, check every package in $PKGDIR.
+
 pkg hashtree [DIR [EXCLUDE]...]
   Generate a hash of the source code in directory DIR, skipping paths which
   match any EXCLUDE pattern. When DIR is unspecified, the current directory
