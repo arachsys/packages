@@ -1,8 +1,8 @@
 mode autotools
 
 prepare() {
-  unpack https://www.nano-editor.org/dist/v5/nano-5.7.tar.xz
-  tree fb8dd87bc638fb3e701ab6d4a2d90d7183753b53c9d0da232e183811d9b1eaae
+  unpack https://www.nano-editor.org/dist/v5/nano-5.8.tar.xz
+  tree 4acd81b2ce99c35604bcab58570deb6180b1dbe99bf6f30f9d9cb63280573949
 }
 
 post-install() {
