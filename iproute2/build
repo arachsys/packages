@@ -1,9 +1,9 @@
 require bison flex
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.12.0.tar.xz
+  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.13.0.tar.xz
   apply paths.patch
-  tree 0e1362dccdb80d9fafc4340d763007f7e1fc248df43106c41ff01d39244878f7
+  tree 3f9eb802d042d0c929039fc380ca4012c780d0b3fe90814cf270e9bab81593f3
 }
 
 build() {
