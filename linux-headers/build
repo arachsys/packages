@@ -1,10 +1,10 @@
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.13.tar.xz
-  tree 48737cd816a93816d227f2ee36235e314f25ff707c878da1b6338a70e167a2f1
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.13.5.tar.xz
+  tree f87f3f23a26d01ee630d4f7de6448fc488934132c411197376592382f00ac179
 }
 
 build() {
-  make headers HOSTCC=cc
+  make headers CC=cc HOSTCC=cc
   find usr/include -type f -name '*.h' -exec cp -t /dst --parents {} +
   find usr/include -type l -exec cp -d -t /dst --parents {} +
   mv /dst/usr /dst/lib
