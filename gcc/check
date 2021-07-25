@@ -12,7 +12,7 @@ version 6.2.1 gmp
 
 url http://isl.gforge.inria.fr/
 match 'isl-([0-9.]+)\.tar'
-version 0.23 isl
+version 0.24 isl
 
 url https://ftp.gnu.org/gnu/mpc/
 match 'mpc-([0-9.]+)\.tar'
