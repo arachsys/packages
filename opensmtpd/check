@@ -1,6 +1,6 @@
 url https://www.opensmtpd.org/archives/
 match 'opensmtpd-([0-9.]+p[0-9]+)\.tar'
-version 6.7.1p1
+version 6.8.0p2
 
 url https://github.com/pullmoll/musl-fts/releases
 match 'tags/v([0-9.]+)\.tar'
