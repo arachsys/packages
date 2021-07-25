@@ -3,10 +3,10 @@ require bison flex
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
-  unpack $NFP/nftables/files/nftables-0.9.8.tar.bz2
+  unpack $NFP/nftables/files/nftables-0.9.9.tar.bz2
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.4.tar.bz2
-  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.1.9.tar.bz2
-  tree 5d5790745af932edbe60729a011dd59b2b3cfea32128297d6ddb7235ea2520de
+  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.0.tar.bz2
+  tree 4ecc07a2d281c901a9fddefd9b3ac7beac6511a4f5226771e83d64af1c10793d
 }
 
 pre-config() {
