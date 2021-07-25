@@ -1,11 +1,11 @@
-git --diff a/gdb/gdbsupport/signals.c b/gdb/gdbsupport/signals.c
-index b364d15..9539c61 100644
---- a/gdb/gdbsupport/signals.c
-+++ b/gdb/gdbsupport/signals.c
-@@ -31,6 +31,13 @@
+diff --git a/gdbsupport/signals.cc b/gdbsupport/signals.cc
+index 99d58e4..5a0caad 100644
+--- a/gdbsupport/signals.cc
++++ b/gdbsupport/signals.cc
+@@ -31,6 +31,13 @@ struct gdbarch;
     _available_ realtime signal, not the lowest supported; glibc takes
     several for its own use.  */
-
+ 
 +#ifndef __SIGRTMIN
 +# define __SIGRTMIN 32
 +#endif
