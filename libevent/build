@@ -1,9 +1,9 @@
 mode autotools
 
 prepare() {
-  unpack libevent-2.1.11.tar.gz \
-    https://github.com/libevent/libevent/releases/download/release-2.1.11-stable/libevent-2.1.11-stable.tar.gz
-  tree cddbd34d5e749adb293be4847073952a680fa414a1ea449ce6d8046529efb194
+  unpack libevent-2.1.12.tar.gz \
+    https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+  tree abfcd9d7c2f6a107ba06b69cb49818f19c53a09baf263cbd723745d70e16811a
 }
 
 pre-config() {

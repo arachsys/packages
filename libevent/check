@@ -1,3 +1,3 @@
 url https://github.com/libevent/libevent/releases
 match 'libevent-([0-9.]+)-stable\.tar'
-version 2.1.11
+version 2.1.12
