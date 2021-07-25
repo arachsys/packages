@@ -133,19 +133,12 @@ hashtree() {
 }
 
 locate() {
-  if [[ $2 == ?(.|..)/* ]]; then
-    if [[ ! -f $2/build ]]; then
-      die "Package $2 not found"
-    fi
+  if [[ $2 == ?(.|..)/* ]] && [[ -f $2/build ]]; then
     printf '%s\n' "$2"
+  elif [[ $2 != ?(.|..)/* ]] && [[ -f $1/$2/build ]]; then
+    printf '%s\n' "$1/$2"
   else
-    declare -a PKG=("$1"/**/"$2/build")
-    if [[ ${#PKG[@]} -lt 1 ]]; then
-      die "Package $2 not found"
-    elif [[ ${#PKG[@]} -gt 1 ]]; then
-      die "Ambiguous package $2: ${PKG[*]}"
-    fi
-    printf '%s\n' "${PKG%/build}"
+    die "Package $2 not found"
   fi
 }
 
