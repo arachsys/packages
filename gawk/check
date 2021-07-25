@@ -1,0 +1,3 @@
+url https://ftp.gnu.org/gnu/gawk/
+match 'gawk-([0-9.]+)\.tar'
+version 5.1.0

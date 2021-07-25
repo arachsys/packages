@@ -1,0 +1,3 @@
+url https://github.com/westes/flex/releases
+match 'flex-([0-9.]+)\.tar'
+version 2.6.4

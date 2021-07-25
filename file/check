@@ -1,0 +1,3 @@
+url http://ftp.astron.com/pub/file/
+match 'file-([0-9.]+)\.tar'
+version 5.40

@@ -1,0 +1,3 @@
+url https://sourceforge.net/projects/dtach/files/
+match 'dtach-([0-9.]+)\.tar'
+version 0.9

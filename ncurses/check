@@ -1,0 +1,3 @@
+url https://ftp.gnu.org/gnu/ncurses/
+match 'ncurses-([0-9.]+)\.tar'
+version 6.2

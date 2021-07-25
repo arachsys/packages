@@ -1,0 +1,3 @@
+url https://golang.org/dl/
+match 'go([0-9.]+)\.src\.tar'
+version 1.16.6

@@ -1,0 +1,3 @@
+url https://ftp.gnu.org/gnu/grep/
+match 'grep-([0-9.]+)\.tar'
+version 3.6

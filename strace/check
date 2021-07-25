@@ -1,0 +1,3 @@
+url https://github.com/strace/strace/releases
+match 'strace-([0-9.]+)\.tar'
+version 5.13

@@ -1,0 +1,3 @@
+url https://github.com/libexpat/libexpat/releases
+match 'expat-([0-9.]+)\.tar'
+version 2.3.0

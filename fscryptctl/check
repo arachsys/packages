@@ -1,0 +1,3 @@
+url https://github.com/google/fscryptctl/releases
+match 'tags/v([0-9.]+)\.tar'
+version 1.0.0

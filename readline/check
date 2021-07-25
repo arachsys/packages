@@ -1,0 +1,3 @@
+url https://git.savannah.gnu.org/cgit/readline.git/log/
+match 'Readline-([0-9.]+) patch ([0-9]+)' '\1.\2'
+version 8.1.1

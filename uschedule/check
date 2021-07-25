@@ -1,0 +1,3 @@
+url https://www.ohse.de/uwe/uschedule/install.html
+match 'uschedule-([0-9.]+)\.tar'
+version 0.7.1

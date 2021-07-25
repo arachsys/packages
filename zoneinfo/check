@@ -1,0 +1,3 @@
+url https://data.iana.org/time-zones/releases/
+match 'tzdb-([0-9]+[a-z]+)\.tar'
+version 2021a

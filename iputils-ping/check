@@ -1,0 +1,3 @@
+url https://github.com/iputils/iputils/releases
+match 'tags/([0-9.]+)\.tar'
+version s20190709

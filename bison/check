@@ -1,0 +1,3 @@
+url https://ftp.gnu.org/gnu/bison/
+match 'bison-([0-9.]+)\.tar'
+version 3.5.4

@@ -1,0 +1,3 @@
+url https://ftp.gnu.org/gnu/diffutils/
+match 'diffutils-([0-9.]+)\.tar'
+version 3.7

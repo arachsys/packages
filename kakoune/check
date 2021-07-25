@@ -1,0 +1,3 @@
+url https://github.com/mawww/kakoune/releases
+match 'tags/v([0-9.]+)\.tar'
+version 2020.09.01

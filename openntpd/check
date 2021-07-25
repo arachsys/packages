@@ -1,0 +1,3 @@
+url https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/
+match 'openntpd-([0-9.]+p[0-9]+)\.tar'
+version 6.8p1

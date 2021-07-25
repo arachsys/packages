@@ -1,0 +1,3 @@
+url https://github.com/arachsys/init/releases
+match 'init-([0-9.]+)\.tar'
+version 2.0

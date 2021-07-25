@@ -1,0 +1,3 @@
+url https://bird.network.cz/download/
+match 'bird-([0-9.]+)\.tar'
+version 2.0.8

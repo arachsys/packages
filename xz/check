@@ -1,0 +1,3 @@
+url https://tukaani.org/xz/
+match 'xz-([0-9.]+)\.tar'
+version 5.2.5

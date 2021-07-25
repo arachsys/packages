@@ -1,0 +1,3 @@
+url https://ftp.gnu.org/gnu/coreutils/
+match 'coreutils-([0-9.]+)\.tar'
+version 8.32

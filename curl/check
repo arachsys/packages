@@ -1,0 +1,7 @@
+url https://curl.haxx.se/download/
+match 'curl-([0-9.]+)\.tar'
+version 7.78.0
+
+url https://github.com/nghttp2/nghttp2/releases
+match 'nghttp2-([0-9.]+)\.tar'
+version 1.44.0 nghttp2

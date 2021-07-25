@@ -1,0 +1,3 @@
+url https://github.com/gavinhoward/bc/releases
+match 'bc-([0-9.]+)\.tar'
+version 4.0.2

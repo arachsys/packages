@@ -1,0 +1,3 @@
+url https://git.savannah.gnu.org/cgit/bash.git/log/
+match 'Bash-([0-9.]+) patch ([0-9]+)' '\1.\2'
+version 5.1.8
