@@ -1,7 +1,7 @@
 prepare() {
-  unpack https://www.lua.org/ftp/lua-5.4.2.tar.gz
+  unpack https://www.lua.org/ftp/lua-5.4.3.tar.gz
   apply paths.patch
-  tree 3cf8caa33334134828a36a886c22dfafcc430015299d7bb5ebc278305ea506b0
+  tree 4361aa1a2e7538f6bdcc0872f6d42e3621d48f39778628e53a8644c1822b18b8
 }
 
 build() {
