@@ -1,16 +1,16 @@
 enable setuid
 
 prepare() {
-  unpack iputils-s20190709.tar.gz \
-    https://github.com/iputils/iputils/archive/s20190709.tar.gz
-  tree 1f98b2b142cf642c89488f0807957839564dc7eb86cd27bdab4ef86720d58e88
+  unpack iputils-20210705.tar.gz \
+    https://github.com/iputils/iputils/archive/refs/tags/20210722.tar.gz
+  tree 4cb233ff1c7bc3f89e8f8f85ea37e4fd33343e1eacf29f0ec33295b23782905f
 }
 
 build() {
   echo '#define PACKAGE_NAME "iputils"' >config.h
-  sed 's/@VCS_TAG@/s20190709/' git-version.h.meson >>config.h
-  cc -Os -Wall -D_GNU_SOURCE -include config.h iputils_common.c \
-    ping_common.c ping6_common.c ping.c -lm -lresolv -o ping
+  sed 's/@VCS_TAG@/20210705/' git-version.h.meson >>config.h
+  cc -Os -Wall -D_GNU_SOURCE -I. -include config.h iputils_common.c \
+    md5.c ping/*.c -lm -lresolv -o ping/ping
   mkdir -p /dst/bin
-  install -m 4755 -o root -g root -s ping /dst/bin
+  install -m 4755 -o root -g root -s ping/ping /dst/bin
 }
