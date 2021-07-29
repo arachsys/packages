@@ -19,78 +19,104 @@ index 2fc9ab29f..15d5175f7 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/compiler/rustc_target/src/spec/linux_musl_base.rs b/compiler/rustc_target/src/spec/linux_musl_base.rs
-index 5038a967d..25d634a1e 100644
+index 5038a967d..5ac2ce0aa 100644
 --- a/compiler/rustc_target/src/spec/linux_musl_base.rs
 +++ b/compiler/rustc_target/src/spec/linux_musl_base.rs
-@@ -1,16 +1,12 @@
+@@ -1,16 +1,7 @@
 -use crate::spec::crt_objects::{self, CrtObjectsFallback};
  use crate::spec::TargetOptions;
  
  pub fn opts() -> TargetOptions {
      let mut base = super::linux_base::opts();
- 
+-
      base.env = "musl".to_string();
 -    base.pre_link_objects_fallback = crt_objects::pre_musl_fallback();
 -    base.post_link_objects_fallback = crt_objects::post_musl_fallback();
 -    base.crt_objects_fallback = Some(CrtObjectsFallback::Musl);
- 
-     // These targets statically link libc by default
+-
+-    // These targets statically link libc by default
 -    base.crt_static_default = true;
-+    base.crt_static_default = false;
- 
+-
      base
  }
-diff --git a/library/unwind/src/lib.rs b/library/unwind/src/lib.rs
-index be5e56c71..8e72aaed4 100644
---- a/library/unwind/src/lib.rs
-+++ b/library/unwind/src/lib.rs
-@@ -38,7 +38,7 @@ cfg_if::cfg_if! {
- 
- #[cfg(target_env = "musl")]
- #[link(name = "unwind", kind = "static", cfg(target_feature = "crt-static"))]
--#[link(name = "gcc_s", cfg(not(target_feature = "crt-static")))]
-+#[link(name = "unwind", cfg(not(target_feature = "crt-static")))]
- extern "C" {}
- 
- // When building with crt-static, we get `gcc_eh` from the `libc` crate, since
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index 9398f2117..d3b3c3658 100644
+index 112a6ea93..e5ae4648c 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -183,7 +183,7 @@ fn copy_self_contained_objects(
-     // to using gcc from a glibc-targeting toolchain for linking.
-     // To do that we have to distribute musl startup objects as a part of Rust toolchain
-     // and link with them manually in the self-contained mode.
+@@ -178,35 +178,7 @@ fn copy_self_contained_objects(
+     t!(fs::create_dir_all(&libdir_self_contained));
+     let mut target_deps = vec![];
+ 
+-    // Copies the CRT objects.
+-    //
+-    // rustc historically provides a more self-contained installation for musl targets
+-    // not requiring the presence of a native musl toolchain. For example, it can fall back
+-    // to using gcc from a glibc-targeting toolchain for linking.
+-    // To do that we have to distribute musl startup objects as a part of Rust toolchain
+-    // and link with them manually in the self-contained mode.
 -    if target.contains("musl") {
-+    if false && target.contains("musl") {
-         let srcdir = builder.musl_libdir(target).unwrap_or_else(|| {
-             panic!("Target {:?} does not have a \"musl-libdir\" key", target.triple)
-         });
-@@ -1098,7 +1098,7 @@ impl Step for Assemble {
-         // Similarly, copy `llvm-dwp` into libdir for Split DWARF. Only copy it when the LLVM
-         // backend is used to avoid unnecessarily building LLVM and because LLVM is not checked
-         // out by default when the LLVM backend is not enabled.
+-        let srcdir = builder.musl_libdir(target).unwrap_or_else(|| {
+-            panic!("Target {:?} does not have a \"musl-libdir\" key", target.triple)
+-        });
+-        for &obj in &["crt1.o", "Scrt1.o", "rcrt1.o", "crti.o", "crtn.o"] {
+-            copy_and_stamp(
+-                builder,
+-                &libdir_self_contained,
+-                &srcdir,
+-                obj,
+-                &mut target_deps,
+-                DependencyType::TargetSelfContained,
+-            );
+-        }
+-        let crt_path = builder.ensure(native::CrtBeginEnd { target });
+-        for &obj in &["crtbegin.o", "crtbeginS.o", "crtend.o", "crtendS.o"] {
+-            let src = crt_path.join(obj);
+-            let target = libdir_self_contained.join(obj);
+-            builder.copy(&src, &target);
+-            target_deps.push((target, DependencyType::TargetSelfContained));
+-        }
+-    } else if target.ends_with("-wasi") {
++    if target.ends_with("-wasi") {
+         let srcdir = builder
+             .wasi_root(target)
+             .unwrap_or_else(|| {
+@@ -1117,20 +1089,6 @@ impl Step for Assemble {
+             );
+         }
+ 
+-        // Similarly, copy `llvm-dwp` into libdir for Split DWARF. Only copy it when the LLVM
+-        // backend is used to avoid unnecessarily building LLVM and because LLVM is not checked
+-        // out by default when the LLVM backend is not enabled.
 -        if builder.config.rust_codegen_backends.contains(&INTERNER.intern_str("llvm")) {
-+        if false && builder.config.rust_codegen_backends.contains(&INTERNER.intern_str("llvm")) {
-             let src_exe = exe("llvm-dwp", target_compiler.host);
-             let dst_exe = exe("rust-llvm-dwp", target_compiler.host);
-             let llvm_config_bin = builder.ensure(native::Llvm { target: target_compiler.host });
+-            let src_exe = exe("llvm-dwp", target_compiler.host);
+-            let dst_exe = exe("rust-llvm-dwp", target_compiler.host);
+-            let llvm_config_bin = builder.ensure(native::Llvm { target: target_compiler.host });
+-            if !builder.config.dry_run {
+-                let llvm_bin_dir = output(Command::new(llvm_config_bin).arg("--bindir"));
+-                let llvm_bin_dir = Path::new(llvm_bin_dir.trim());
+-                builder.copy(&llvm_bin_dir.join(&src_exe), &libdir_bin.join(&dst_exe));
+-            }
+-        }
+-
+         // Ensure that `libLLVM.so` ends up in the newly build compiler directory,
+         // so that it can be found when the newly built `rustc` is run.
+         dist::maybe_install_llvm_runtime(builder, target_compiler.host, &sysroot);
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 78b1d9054..a28dc58fb 100644
+index 16d148db6..05492164c 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -405,8 +405,8 @@ impl Step for Rustc {
+@@ -408,10 +408,6 @@ impl Step for Rustc {
+                 builder.copy(&src_dir.join(&exe), &gcc_lld_dir.join(&exe));
              }
  
-             // Copy over llvm-dwp if it's there
+-            // Copy over llvm-dwp if it's there
 -            let exe = exe("rust-llvm-dwp", compiler.host);
 -            builder.copy(&src_dir.join(&exe), &dst_dir.join(&exe));
-+            // let exe = exe("rust-llvm-dwp", compiler.host);
-+            // builder.copy(&src_dir.join(&exe), &dst_dir.join(&exe));
- 
+-
              // Man pages
              t!(fs::create_dir_all(image.join("share/man/man1")));
-@@ -988,7 +988,7 @@ impl Step for Cargo {
+             let man_src = builder.src.join("src/doc/man");
+@@ -992,7 +988,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -100,20 +126,40 @@ index 78b1d9054..a28dc58fb 100644
          }
  
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index ed0cbdf97..ab0fc8716 100644
+index a28762ac4..bf52ff0ae 100644
 --- a/src/bootstrap/sanity.rs
 +++ b/src/bootstrap/sanity.rs
-@@ -183,7 +183,7 @@ pub fn check(build: &mut Build) {
+@@ -183,28 +183,6 @@ pub fn check(build: &mut Build) {
+             }
          }
  
-         // Make sure musl-root is valid
+-        // Make sure musl-root is valid
 -        if target.contains("musl") {
-+        if false && target.contains("musl") {
-             // If this is a native target (host is also musl) and no musl-root is given,
-             // fall back to the system toolchain in /usr before giving up
-             if build.musl_root(*target).is_none() && build.config.build == *target {
+-            // If this is a native target (host is also musl) and no musl-root is given,
+-            // fall back to the system toolchain in /usr before giving up
+-            if build.musl_root(*target).is_none() && build.config.build == *target {
+-                let target = build.config.target_config.entry(*target).or_default();
+-                target.musl_root = Some("/usr".into());
+-            }
+-            match build.musl_libdir(*target) {
+-                Some(libdir) => {
+-                    if fs::metadata(libdir.join("libc.a")).is_err() {
+-                        panic!("couldn't find libc.a in musl libdir: {}", libdir.display());
+-                    }
+-                }
+-                None => panic!(
+-                    "when targeting MUSL either the rust.musl-root \
+-                            option or the target.$TARGET.musl-root option must \
+-                            be specified in config.toml"
+-                ),
+-            }
+-        }
+-
+         if need_cmake && target.contains("msvc") {
+             // There are three builds of cmake on windows: MSVC, MinGW, and
+             // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/tools/cargo/src/cargo/ops/registry/auth.rs b/src/tools/cargo/src/cargo/ops/registry/auth.rs
-index 660daa40d..34d7beda7 100644
+index d10b1988e..9cc4aa014 100644
 --- a/src/tools/cargo/src/cargo/ops/registry/auth.rs
 +++ b/src/tools/cargo/src/cargo/ops/registry/auth.rs
 @@ -223,7 +223,7 @@ fn sysroot_credential(
