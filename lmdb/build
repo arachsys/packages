@@ -1,0 +1,13 @@
+prepare() {
+  unpack -p 3 lmdb-0.9.29.tar.gz \
+    https://github.com/LMDB/lmdb/archive/refs/tags/LMDB_0.9.29.tar.gz
+}
+
+build() {
+  make CC=cc liblmdb.a liblmdb.so
+  mkdir -p /dst/lib/include
+  cp lmdb.h /dst/lib/include/lmdb.h
+  cp liblmdb.a /dst/lib/liblmdb.a
+  cp liblmdb.so /dst/lib/liblmdb.so.0
+  ln -s liblmdb.so.0 /dst/lib/liblmdb.so
+}
