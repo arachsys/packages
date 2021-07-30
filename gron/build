@@ -1,0 +1,13 @@
+require go
+
+prepare() {
+  unpack gron-0.6.1.tar.gz \
+    https://github.com/tomnomnom/gron/archive/refs/tags/v0.6.1.tar.gz
+  GOPATH=/tmp/go go mod vendor
+  tree 04b5674c3d41cf44a4e0d55d8255f3f806f19f4291f76d4d92c01e73d9447438
+}
+
+build() {
+  GOPATH=/tmp/go HOME=/tmp go build
+  install -D gron /dst/bin/gron
+}

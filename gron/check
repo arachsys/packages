@@ -1,0 +1,3 @@
+url https://github.com/tomnomnom/gron/releases
+match 'tags/v([0-9.]+)\.tar'
+version 0.6.1
