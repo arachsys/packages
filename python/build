@@ -1,5 +1,5 @@
 mode autotools
-require libffi
+require libffi sqlite
 
 prepare() {
   unpack python-3.9.5.tar.xz \
