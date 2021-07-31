@@ -1,9 +1,9 @@
 mode autotools
 
 prepare() {
-  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.46.2/e2fsprogs-1.46.2.tar.xz
+  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.46.3/e2fsprogs-1.46.3.tar.xz
   apply paths.patch
-  tree 9b1d49f5b721ee7cf7a9dadc9af701a29d6e2b9db1d6dee28e68badb3d2ab7d9
+  tree c296d0ab3cf68a7b050c6968f782cbcbcc8b3d37279f6fd0782d84f4c77a4e9c
 }
 
 config-extra --libexecdir='${prefix}/bin' --disable-libblkid \
