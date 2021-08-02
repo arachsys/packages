@@ -1,14 +1,14 @@
 mode autotools
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.15.tar.xz
+  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.16.tar.xz
   apply clang.patch
   apply dbus.patch
   apply ipv6.patch
   apply paths.patch
   apply resolve.patch
   apply syslog.patch
-  tree 59ef02e97c028a96a071f54f4afb0e99302efe7e94f69190bab8f1c14b352094
+  tree 807ef68875187f06dfaf14bee3c1a6efc87a4ed43594ff17abda39525919fbac
 }
 
 config-extra --disable-dbus-policy --disable-systemd-service \
