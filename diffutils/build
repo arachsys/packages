@@ -1,6 +1,6 @@
 mode autotools
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/diffutils/diffutils-3.7.tar.xz
-  tree 2b7b59f7443d8ea8a4ac3f6624c929f218520b43e6988df31131021cc17d9a4e
+  unpack https://ftp.gnu.org/gnu/diffutils/diffutils-3.8.tar.xz
+  tree f4a22820986823215a1dd92ebcdb059ea953dde8f1f8cd825e64b3efd51a67be
 }
