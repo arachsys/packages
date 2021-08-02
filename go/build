@@ -1,6 +1,11 @@
 enable unstripped
 require go
 
+check() {
+  url https://golang.org/dl/
+  match version 1.16.6 'go([0-9.]+)\.src\.tar'
+}
+
 prepare() {
   unpack https://golang.org/dl/go1.16.6.src.tar.gz
   apply fmt.patch

@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://sourceware.org/pub/libffi/
+  match version 3.3 'libffi-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack ftp://sourceware.org/pub/libffi/libffi-3.3.tar.gz
   apply paths.patch

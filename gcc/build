@@ -1,5 +1,25 @@
 mode autotools
 
+check() {
+  url https://ftp.gnu.org/gnu/gcc/
+  match gcc 11.2.0 'gcc-([0-9.]+)/'
+
+  url https://ftp.gnu.org/gnu/binutils/
+  match binutils 2.36.1 'binutils-([0-9.]+)\.tar'
+
+  url https://ftp.gnu.org/gnu/gmp/
+  match gmp 6.2.1 'gmp-([0-9.]+)\.tar'
+
+  url http://isl.gforge.inria.fr/
+  match isl 0.24 'isl-([0-9.]+)\.tar'
+
+  url https://ftp.gnu.org/gnu/mpc/
+  match mpc 1.2.1 'mpc-([0-9.]+)\.tar'
+
+  url https://ftp.gnu.org/gnu/mpfr/
+  match mpfr 4.1.0 'mpfr-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.xz
   unpack https://ftp.gnu.org/gnu/gcc/gcc-11.2.0/gcc-11.2.0.tar.xz

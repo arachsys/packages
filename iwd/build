@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://mirrors.edge.kernel.org/pub/linux/network/wireless/
+  match version 1.16 'iwd-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.16.tar.xz
   apply clang.patch

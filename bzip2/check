@@ -1,3 +1,0 @@
-url https://fossies.org/linux/misc/
-match 'bzip2-([0-9.]+)\.tar'
-version 1.0.8

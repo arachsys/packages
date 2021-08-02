@@ -1,6 +1,11 @@
 mode autotools
 require expat
 
+check() {
+  url https://nlnetlabs.nl/downloads/unbound/
+  match version 1.13.1 'unbound-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.13.1.tar.gz
   tree 3834a60ef547e8438d2c85e709519b75847e3c98bfcf1220e85c52aee4e3e04a

@@ -1,6 +1,11 @@
 mode autotools
 enable setuid
 
+check() {
+  url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
+  match version 8.6p1 'openssh-([0-9.]+p[0-9]+)\.tar'
+}
+
 prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.6p1.tar.gz
   apply askpass.patch

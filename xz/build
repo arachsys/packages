@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://tukaani.org/xz/
+  match version 5.2.5 'xz-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://tukaani.org/xz/xz-5.2.5.tar.xz
   tree 4eeace06cd49e07e985366ef2f1e079e0b943ff7b6ffbd619e24ff8b41c4da85

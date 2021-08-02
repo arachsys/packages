@@ -1,5 +1,10 @@
 require bison flex m4
 
+check() {
+  url https://github.com/dgibson/dtc/releases
+  match version 1.6.1 'tags/v([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://github.com/dgibson/dtc/archive/refs/tags/v1.6.1.tar.gz
   apply tidy.patch

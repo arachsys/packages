@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/
+  match version 3.3.3 'libressl-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.3.3.tar.gz
   tree 555e4b0dba050ec2e4a1c24e775498a1a2ce75c34bfc4fa1d184ffd245bf0017

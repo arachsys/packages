@@ -1,3 +1,0 @@
-url https://ftp.gnu.org/gnu/findutils/
-match 'findutils-([0-9.]+)\.tar'
-version 4.8.0

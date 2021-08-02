@@ -1,3 +1,0 @@
-url https://ftp.gnu.org/gnu/gdb/
-match 'gdb-([0-9.]+)\.tar'
-version 10.2

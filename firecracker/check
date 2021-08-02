@@ -1,3 +1,0 @@
-url https://github.com/firecracker-microvm/firecracker/releases
-match 'tags/v([0-9.]+)\.tar'
-version 0.24.5

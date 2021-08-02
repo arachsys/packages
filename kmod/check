@@ -1,3 +1,0 @@
-url https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/
-match 'kmod-([0-9.]+)\.tar'
-version 29

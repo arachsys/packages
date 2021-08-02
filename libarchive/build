@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://www.libarchive.org/downloads/
+  match version 3.5.1 'libarchive-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.libarchive.org/downloads/libarchive-3.5.1.tar.xz
   tree da7833b7698cb46ab7f181e8bdb7e92fed68be047ab5f39bccce2ca79272e81e

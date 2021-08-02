@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://github.com/libevent/libevent/releases
+  match version 2.1.12 'libevent-([0-9.]+)-stable\.tar'
+}
+
 prepare() {
   unpack libevent-2.1.12.tar.gz \
     https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz

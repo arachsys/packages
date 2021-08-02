@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://git.savannah.gnu.org/cgit/bash.git/log/
+  match version 5.1.8 'Bash-([0-9.]+) patch ([0-9]+)' '\1.\2'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/bash/bash-5.1.tar.gz
   set https://ftp.gnu.org/gnu/bash/bash-5.1-patches/bash51-{001..008}

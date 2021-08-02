@@ -1,6 +1,17 @@
 mode autotools
 require bison flex
 
+check() {
+  url https://www.netfilter.org/projects/nftables/files/
+  match nftables 0.9.9 'nftables-([0-9]+\.[1-9][0-9.]*)\.tar'
+
+  url https://www.netfilter.org/projects/libmnl/files/
+  match libmnl 1.0.4 'libmnl-([0-9.]+)\.tar'
+
+  url https://www.netfilter.org/projects/libnftnl/files/
+  match libnftnl 1.2.0 'libnftnl-([0-9.]+)\.tar'
+}
+
 prepare() {
   local NFP=https://www.netfilter.org/projects
   unpack $NFP/nftables/files/nftables-0.9.9.tar.bz2

@@ -1,3 +1,0 @@
-url https://sourceware.org/pub/libffi/
-match 'libffi-([0-9.]+)\.tar'
-version 3.3

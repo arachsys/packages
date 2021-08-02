@@ -1,3 +1,0 @@
-url https://ftp.gnu.org/gnu/m4/
-match 'm4-([0-9.]+)\.tar'
-version 1.4.19

@@ -1,3 +1,8 @@
+check() {
+  url https://zlib.net/
+  match version 1.2.11 'zlib-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://zlib.net/zlib-1.2.11.tar.xz
   tree 548e6b78f7312b1d35262fb06c996e701a0211586b65cda73ed0281f69ebeb4e

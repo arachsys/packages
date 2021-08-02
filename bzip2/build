@@ -1,3 +1,8 @@
+check() {
+  url https://fossies.org/linux/misc/
+  match version 1.0.8 'bzip2-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://fossies.org/linux/misc/bzip2-1.0.8.tar.gz
   apply makefile.patch

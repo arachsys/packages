@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://ftp.gnu.org/gnu/m4/
+  match version 1.4.19 'm4-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.xz
   #apply gnulib.patch

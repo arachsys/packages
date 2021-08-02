@@ -1,5 +1,10 @@
 require go
 
+check() {
+  url https://github.com/junegunn/fzf/releases
+  match version 0.27.2 'tags/([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack fzf-0.27.2.tar.gz \
     https://github.com/junegunn/fzf/archive/refs/tags/0.27.2.tar.gz

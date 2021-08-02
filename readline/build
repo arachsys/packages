@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://git.savannah.gnu.org/cgit/readline.git/log/
+  match version 8.1.1 'Readline-([0-9.]+) patch ([0-9]+)' '\1.\2'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/readline/readline-8.1.tar.gz
   set https://ftp.gnu.org/gnu/readline/readline-8.1-patches/readline81-{001..001}

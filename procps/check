@@ -1,3 +1,0 @@
-url https://sourceforge.net/projects/procps-ng/files/Production/
-match 'procps-ng-([0-9.]+)\.tar'
-version 3.3.17

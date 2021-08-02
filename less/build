@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url http://www.greenwoodsoftware.com/less/download.html
+  match version 590 'less-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack http://www.greenwoodsoftware.com/less/less-590.tar.gz
   tree 4b165b9858f779a27bc49b67fcf9b6db9a5c8bfa1d6afdbc648c622f24a6a6ed

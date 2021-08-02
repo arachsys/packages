@@ -1,3 +1,8 @@
+check() {
+  url https://github.com/google/fscryptctl/releases
+  match version 1.0.0 'tags/v([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack fscryptctl-1.0.0.tar.gz \
     https://github.com/google/fscryptctl/archive/refs/tags/v1.0.0.tar.gz

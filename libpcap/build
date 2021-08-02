@@ -1,6 +1,11 @@
 mode autotools
 require bison flex
 
+check() {
+  url https://www.tcpdump.org/release/
+  match version 1.10.1 'libpcap-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.tcpdump.org/release/libpcap-1.10.1.tar.gz
   tree a95beebfeaea163cc3d7ef5f193baf052624c3978ac006a46f3943a3bb5b534c

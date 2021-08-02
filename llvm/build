@@ -1,5 +1,13 @@
 require python
 
+check() {
+  url https://github.com/llvm/llvm-project/releases
+  match llvm 12.0.1 'llvm-project-([0-9.]+)\.src\.tar'
+
+  url https://github.com/Kitware/CMake/releases
+  match cmake 3.21.0 'cmake-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack llvm-project-12.0.1.tar.xz \
     https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-project-12.0.1.src.tar.xz

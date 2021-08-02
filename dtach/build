@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://sourceforge.net/projects/dtach/files/
+  match version 0.9 'dtach-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://downloads.sourceforge.net/sourceforge/dtach/dtach-0.9.tar.gz
   apply winch.patch

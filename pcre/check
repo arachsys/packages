@@ -1,3 +1,0 @@
-url https://ftp.pcre.org/pub/pcre/
-match 'pcre-([0-9.]+)\.tar'
-version 8.45

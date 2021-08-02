@@ -2,6 +2,11 @@ mode autotools
 require expat python
 enable vpath
 
+check() {
+  url https://ftp.gnu.org/gnu/gdb/
+  match version 10.2 'gdb-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz
   apply signals.patch

@@ -1,3 +1,0 @@
-url https://www.nano-editor.org/dist/latest/
-match 'nano-([0-9.]+)\.tar'
-version 5.8

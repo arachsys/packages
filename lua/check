@@ -1,3 +1,0 @@
-url https://www.lua.org/ftp/
-match 'lua-([0-9.]+)\.tar'
-version 5.4.3

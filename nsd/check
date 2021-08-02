@@ -1,3 +1,0 @@
-url https://www.nlnetlabs.nl/downloads/nsd/
-match 'nsd-([0-9.]+)\.tar'
-version 4.3.7

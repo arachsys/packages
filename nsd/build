@@ -1,6 +1,11 @@
 mode autotools
 require libevent
 
+check() {
+  url https://www.nlnetlabs.nl/downloads/nsd/
+  match version 4.3.7 'nsd-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.nlnetlabs.nl/downloads/nsd/nsd-4.3.7.tar.gz
   tree 2a713f963386d010f93ed82201fae59739fa1e5a9c96d2fb0f2ec1d909f816c2

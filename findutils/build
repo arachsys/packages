@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://ftp.gnu.org/gnu/findutils/
+  match version 4.8.0 'findutils-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/findutils/findutils-4.8.0.tar.xz
   apply paths.patch

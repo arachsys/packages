@@ -1,3 +1,0 @@
-url https://www.kernel.org/pub/linux/utils/net/iproute2/
-match 'iproute2-([0-9.]+)\.tar'
-version 5.13.0

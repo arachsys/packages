@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/
+  match version 29 'kmod-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-29.tar.xz
   tree 191d974cc91aff535d0fdfd78b37449ffa00101302f6d4c29c551ecb9dab5fa5

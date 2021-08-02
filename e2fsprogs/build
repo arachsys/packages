@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/refs/
+  match version 1.46.3 'e2fsprogs-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.46.3/e2fsprogs-1.46.3.tar.xz
   apply paths.patch

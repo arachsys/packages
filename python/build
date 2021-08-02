@@ -1,6 +1,11 @@
 mode autotools
 require libffi sqlite
 
+check() {
+  url https://www.python.org/downloads/source/
+  match version 3.9.6 'Python-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack python-3.9.5.tar.xz \
     https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz

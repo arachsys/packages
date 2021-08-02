@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://ftp.gnu.org/gnu/make/
+  match version 4.3 'make-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/make/make-4.3.tar.gz
   apply paths.patch

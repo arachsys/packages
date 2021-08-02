@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://github.com/strace/strace/releases
+  match version 5.13 'strace-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://strace.io/files/5.13/strace-5.13.tar.xz
   tree a19a33c81be2577d1a32e2c40fc7bdca4827eeaa5e07bf555979022f6ec95360

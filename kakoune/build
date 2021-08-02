@@ -1,3 +1,8 @@
+check() {
+  url https://github.com/mawww/kakoune/releases
+  match version 2020.09.01 'tags/v([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack kakoune-2021.07.20.tar.gz \
     https://github.com/mawww/kakoune/archive/15aa4fe1379c4cddb2e548bad0c1cd99f7fbf90e.tar.gz

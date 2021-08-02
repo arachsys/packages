@@ -1,3 +1,0 @@
-url https://github.com/shadow-maint/shadow/releases
-match 'shadow-([0-9.]+)\.tar'
-version 4.9

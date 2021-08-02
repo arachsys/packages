@@ -1,3 +1,8 @@
+check() {
+  url https://www.ohse.de/uwe/uschedule/install.html
+  match version 0.7.1 'uschedule-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack -p 3 http://www.ohse.de/uwe/uschedule/uschedule-0.7.1.tar.gz
   apply tidy.patch

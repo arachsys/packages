@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://ftp.gnu.org/gnu/gzip/
+  match version 1.10 'gzip-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/gzip/gzip-1.10.tar.xz
   tree 465d77c51b69db0f2341364ffba90067951dbe2c2ebc24ab99e3b361e2401b75

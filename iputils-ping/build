@@ -1,5 +1,10 @@
 enable setuid
 
+check() {
+  url https://github.com/iputils/iputils/releases
+  match iputils 20210722 'tags/([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack iputils-20210705.tar.gz \
     https://github.com/iputils/iputils/archive/refs/tags/20210722.tar.gz

@@ -1,3 +1,0 @@
-url https://github.com/dosfstools/dosfstools/releases
-match 'dosfstools-([0-9.]+)\.tar'
-version 4.2

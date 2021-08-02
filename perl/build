@@ -1,3 +1,8 @@
+check() {
+  url http://www.cpan.org/src/5.0/
+  match version 5.34.0 'perl-(5.[0-9]*[02468].[0-9.]+)\.tar'
+}
+
 prepare() {
   unpack http://www.cpan.org/src/5.0/perl-5.34.0.tar.xz
   tree 66cb68de2f421baff8f1474112110955e1d55283ad6b26a3c248378bf162d983

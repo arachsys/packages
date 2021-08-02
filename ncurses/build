@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://ftp.gnu.org/gnu/ncurses/
+  match version 6.2 'ncurses-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/ncurses/ncurses-6.2.tar.gz
   sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src

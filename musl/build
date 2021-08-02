@@ -1,3 +1,8 @@
+check() {
+  url https://musl.libc.org/releases/
+  match version 1.2.2 'musl-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://musl.libc.org/releases/musl-1.2.2.tar.gz
   apply paths.patch

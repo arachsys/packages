@@ -1,5 +1,10 @@
 require perl
 
+check() {
+  url https://www.openssl.org/source/
+  match version 1.1.1k 'openssl-([0-9.]+[a-z]*)\.tar'
+}
+
 prepare() {
   unpack https://www.openssl.org/source/openssl-3.0.0-beta1.tar.gz
   tree 2ff52fbf6cfa03b1f9ead2deebd421cb93bd28985ecd6c8799ba5a275a912165

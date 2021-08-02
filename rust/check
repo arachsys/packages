@@ -1,3 +1,0 @@
-url https://github.com/rust-lang/rust/releases
-match 'tags/([0-9.]+)\.tar'
-version 1.54.0

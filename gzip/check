@@ -1,3 +1,0 @@
-url https://ftp.gnu.org/gnu/gzip/
-match 'gzip-([0-9.]+)\.tar'
-version 1.10

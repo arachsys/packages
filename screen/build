@@ -1,6 +1,11 @@
 mode autotools
 enable setuid
 
+check() {
+  url https://ftp.gnu.org/gnu/screen/
+  match version 4.8.0 'screen-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.gnu.org/gnu/screen/screen-4.8.0.tar.gz
   tree ffe486abec27ee1e614c439ead1e470cb7991d3fd844ba3b8fd901edf69c6258

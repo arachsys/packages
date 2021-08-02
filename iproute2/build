@@ -1,5 +1,10 @@
 require bison flex
 
+check() {
+  url https://www.kernel.org/pub/linux/utils/net/iproute2/
+  match version 5.13.0 'iproute2-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.13.0.tar.xz
   apply paths.patch

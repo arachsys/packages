@@ -1,6 +1,11 @@
 mode autotools
 require bison flex
 
+check() {
+  url https://bird.network.cz/download/
+  match version 2.0.8 'bird-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://bird.network.cz/download/bird-2.0.8.tar.gz
   tree 87105f651f7d867d7ffec2025f10e79aa3cbe378cf026095c449d3ded3cf8709

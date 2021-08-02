@@ -1,7 +1,0 @@
-url https://mirrors.edge.kernel.org/pub/software/network/iw/
-match 'iw-([0-9.]+)\.tar'
-version 5.9
-
-url http://www.infradead.org/~tgr/libnl/files/
-match 'libnl-([0-9.]+)\.tar'
-version 3.2.25 libnl

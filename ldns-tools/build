@@ -1,3 +1,8 @@
+check() {
+  url https://www.nlnetlabs.nl/downloads/ldns/
+  match ldns 1.7.1 'ldns-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.nlnetlabs.nl/downloads/ldns/ldns-1.7.1.tar.gz
   fetch https://raw.githubusercontent.com/freebsd/freebsd/d999889ee922b31e8c404b857f1151952a443bc8/contrib/ldns-host/ldns-host.c >ldns-host.c

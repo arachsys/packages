@@ -1,40 +1,31 @@
+check() { :; }
+
 match() {
-  exec < <(PATTERN=$1 REPLACE=${2:-\\1} gawk -e '{
+  PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
     while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
       print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
         substr($0, RSTART, RLENGTH));
       $0 = substr($0, RSTART + RLENGTH);
     }
-  }')
+  }' | sort -V | tail -n 1 | if ! read VERSION; then
+    echo "${PKG##*/}: $1 not found"
+  elif [[ $2 != $VERSION ]]; then
+    echo "${PKG##*/}: $1 $VERSION available"
+  fi
 }
 
 url() {
   exec < <(curl -f -s -L -- "$1" || die "${PKG##*/}: failed to get $1")
 }
 
-version() {
-  set -- "$(sort -V | tail -n 1)" "$@"
-  if [[ -z $1 ]]; then
-    echo "${PKG##*/}: ${3:-version} not found"
-  elif [[ $1 != $2 ]]; then
-    echo "${PKG##*/}: ${3:-version} $1 available"
-  fi
-}
-
 if [[ $# -eq 0 ]]; then
-  for PKG in "$PKGDIR"/*/build; do
-    PKG=${PKG%/build}
-    if [[ -f $PKG/check ]]; then
-      source "$PKG/check" < /dev/null
-    fi
+  for BUILD in "$PKGDIR"/*/build; do
+    PKG=${BUILD%/build}
+    ( source "$PKG/build" && check </dev/null )
   done
 else
   for PKG in "$@"; do
     PKG=$(locate "$PKGDIR" "$PKG")
-    if [[ -f $PKG/check ]]; then
-      source "$PKG/check" < /dev/null
-    else
-      echo "${PKG##*/}: check script not found"
-    fi
+    ( source "$PKG/build" && check </dev/null )
   done
 fi

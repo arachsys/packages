@@ -1,3 +1,0 @@
-url https://ftp.gnu.org/gnu/patch/
-match 'patch-([0-9.]+)\.tar'
-version 2.7.6

@@ -1,6 +1,11 @@
 mode autotools
 enable setuid setgid
 
+check() {
+  url https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/refs/
+  match version 2.37.1 'util-linux-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.37/util-linux-2.37.1.tar.xz
   apply logger.patch

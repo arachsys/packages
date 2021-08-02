@@ -1,3 +1,0 @@
-url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
-match 'openssh-([0-9.]+p[0-9]+)\.tar'
-version 8.6p1

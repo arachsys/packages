@@ -1,3 +1,8 @@
+check() {
+  url https://www.kernel.org/
+  match linux 5.13.5 'linux-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.13.5.tar.xz
   tree f87f3f23a26d01ee630d4f7de6448fc488934132c411197376592382f00ac179

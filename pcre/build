@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://ftp.pcre.org/pub/pcre/
+  match version 8.45 'pcre-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://ftp.pcre.org/pub/pcre/pcre-8.45.tar.bz2
   apply paths.patch

@@ -1,5 +1,10 @@
 require go
 
+check() {
+  url https://github.com/tomnomnom/gron/releases
+  match version 0.6.1 'tags/v([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack gron-0.6.1.tar.gz \
     https://github.com/tomnomnom/gron/archive/refs/tags/v0.6.1.tar.gz

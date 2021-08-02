@@ -1,5 +1,10 @@
 mode autotools
 
+check() {
+  url https://download.samba.org/pub/rsync/
+  match version 3.2.3 'rsync-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://download.samba.org/pub/rsync/rsync-3.2.3.tar.gz
   apply paths.patch

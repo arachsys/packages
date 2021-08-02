@@ -1,6 +1,11 @@
 mode autotools
 enable setuid
 
+check() {
+  url https://www.bitwizard.nl/mtr/files/
+  match version 0.94 'mtr-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.bitwizard.nl/mtr/files/mtr-0.94.tar.gz
   apply align.patch

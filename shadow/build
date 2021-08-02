@@ -1,6 +1,11 @@
 mode autotools
 enable setuid setgid
 
+check() {
+  url https://github.com/shadow-maint/shadow/releases
+  match version 4.9 'shadow-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://github.com/shadow-maint/shadow/releases/download/v4.9/shadow-4.9.tar.xz
   apply bcrypt.patch

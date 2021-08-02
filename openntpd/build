@@ -1,6 +1,11 @@
 mode autotools
 require bison
 
+check() {
+  url https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/
+  match version 6.8p1 'openntpd-([0-9.]+p[0-9]+)\.tar'
+}
+
 prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.8p1.tar.gz
   apply paths.patch

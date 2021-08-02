@@ -1,6 +1,11 @@
 enabled nls && require gettext
 enabled perl && require perl
 
+check() {
+  url https://www.kernel.org/pub/software/scm/git/
+  match version 2.32.0 'git-([0-9.]+)\.tar'
+}
+
 prepare() {
   unpack https://www.kernel.org/pub/software/scm/git/git-2.32.0.tar.xz
   apply add-i.patch

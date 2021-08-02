@@ -1,3 +1,0 @@
-url http://www.greenwoodsoftware.com/less/download.html
-match 'less-([0-9.]+)\.tar'
-version 590
