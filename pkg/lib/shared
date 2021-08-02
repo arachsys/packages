@@ -35,6 +35,8 @@ build() {
   die "Package neither declares mode nor defines build()"
 }
 
+check() { :; }
+
 die() {
   if [[ $# -gt 0 ]]; then
     printf '%s\n' "$@" >&2

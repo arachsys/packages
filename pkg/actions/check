@@ -1,31 +1,18 @@
-check() { :; }
+mkdir -p "$CACHEDIR" "$IMGDIR"
+ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
+trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 
-match() {
-  PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
-    while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
-      print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
-        substr($0, RSTART, RLENGTH));
-      $0 = substr($0, RSTART + RLENGTH);
-    }
-  }' | sort -V | tail -n 1 | if ! read VERSION; then
-    echo "${PKG##*/}: $1 not found"
-  elif [[ $2 != $VERSION ]]; then
-    echo "${PKG##*/}: $1 $VERSION available"
-  fi
-}
-
-url() {
-  exec < <(curl -f -s -L -- "$1" || die "${PKG##*/}: failed to get $1")
-}
+populate "$ROOT" base
+mkdir -p "$ROOT/pkg"
 
 if [[ $# -eq 0 ]]; then
-  for BUILD in "$PKGDIR"/*/build; do
-    PKG=${BUILD%/build}
-    ( source "$PKG/build" && check </dev/null )
+  for PKGBUILD in "$PKGDIR"/*/build; do
+    PKG=${PKGBUILD%/build}
+    PKG=$PKG pkg contain "$ROOT" pkg helper check "${PKG##*/}"
   done
 else
   for PKG in "$@"; do
     PKG=$(locate "$PKGDIR" "$PKG")
-    ( source "$PKG/build" && check </dev/null )
+    PKG=$PKG pkg contain "$ROOT" pkg helper check "${PKG##*/}"
   done
 fi

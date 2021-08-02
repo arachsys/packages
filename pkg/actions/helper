@@ -10,6 +10,26 @@ if [[ $1 == requirements ]]; then
   if [[ ${#REQUIREMENTS[@]} -gt 0 ]]; then
     printf '%s\n' "${!REQUIREMENTS[@]}"
   fi
+elif [[ $1 == check ]]; then
+  match() {
+    PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
+      while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
+        print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
+          substr($0, RSTART, RLENGTH));
+        $0 = substr($0, RSTART + RLENGTH);
+      }
+    }' | sort -V | tail -n 1 | if ! read VERSION; then
+      warn "$PKGNAME: $1 not found"
+    elif [[ $2 != $VERSION ]]; then
+      echo "$PKGNAME: $1 $VERSION available"
+    fi
+  }
+
+  url() {
+    exec < <(curl -f -m 30 -s -L -- "$1" || die "$PKGNAME: failed to get $1")
+  }
+
+  cd /pkg && PKGNAME=$2 check "${@:2}" </dev/null
 elif [[ $1 == prepare ]] && [[ -d /src ]]; then
   if ( set -- /src/* && [[ $# -ne 0 ]] ); then
     die "Cannot unpack sources: directory is not empty"
