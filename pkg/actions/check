@@ -1,3 +1,17 @@
+unset JOBS
+while getopts :p: OPTION; do
+  case $OPTION in
+    p)
+      if [[ $OPTARG == [1-9]*([0-9]) ]]; then
+        JOBS=$OPTARG
+      else
+        die "Invalid parallel job limit: $OPTARG"
+      fi
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
 mkdir -p "$CACHEDIR" "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
@@ -5,14 +19,19 @@ trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 populate "$ROOT" base
 mkdir -p "$ROOT/pkg"
 
+check() {
+  while set -- "$1" $(jobs -p) && [[ $# -gt ${JOBS:-16} ]]; do
+    wait -n
+  done
+  PKG=$1 pkg contain "$ROOT" pkg helper check "${1##*/}" &
+}
+
 if [[ $# -eq 0 ]]; then
   for PKGBUILD in "$PKGDIR"/*/build; do
-    PKG=${PKGBUILD%/build}
-    PKG=$PKG pkg contain "$ROOT" pkg helper check "${PKG##*/}"
+    check "${PKGBUILD%/build}"
   done
 else
   for PKG in "$@"; do
-    PKG=$(locate "$PKGDIR" "$PKG")
-    PKG=$PKG pkg contain "$ROOT" pkg helper check "${PKG##*/}"
+    check "$(locate "$PKGDIR" "$PKG")"
   done
-fi
+fi | sort -k 1 -t :
