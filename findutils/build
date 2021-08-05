@@ -11,5 +11,4 @@ prepare() {
   tree 3827368db69f3e09e6f1ab45d6ff2c70d302b1b8d3b5c752475eebc018d2e276
 }
 
-config-extra --libexecdir='${prefix}/lib/findutils' \
-  --localstatedir=/var/lib/misc
+config-extra --libexecdir='${prefix}/bin' --localstatedir=/var/lib/misc
