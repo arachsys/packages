@@ -9,3 +9,7 @@ prepare() {
   unpack https://github.com/libexpat/libexpat/releases/download/R_2_4_1/expat-2.4.1.tar.xz
   tree 4c50de40eceb6d191402e9d11f65f316311df26990b98c2542acb4f5fc8bdb47
 }
+
+post-install() {
+  rm -f -r /dst/lib/cmake
+}
