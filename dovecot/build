@@ -3,13 +3,13 @@ enable rpaths
 
 check() {
   url https://dovecot.org/download
-  match version 2.3.15 'dovecot-([0-9.]+)\.tar'
+  match version 2.3.16 'dovecot-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dovecot.org/releases/2.3/dovecot-2.3.15.tar.gz
+  unpack https://dovecot.org/releases/2.3/dovecot-2.3.16.tar.gz
   apply paths.patch
-  tree b75a3e357cb330661b880f73f836b83de77591d7f6c785f1dc33be5941e8399e
+  tree c8eb47891f40e8be00c5135efa272fec3d6a7fa09580e82285d8a33711037906
 }
 
 config-extra --with-moduledir=/lib/dovecot/modules --with-rundir=/run/dovecot
