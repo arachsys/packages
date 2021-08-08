@@ -1,0 +1,13 @@
+diff --git a/src/libfdt-bindings/build.rs b/src/libfdt-bindings/build.rs
+index 03e2be9..de2d6de 100644
+--- a/src/libfdt-bindings/build.rs
++++ b/src/libfdt-bindings/build.rs
+@@ -20,7 +20,7 @@ fn get_ld_search_dirs() -> Vec<String> {
+     // SEARCH_DIR("=/usr/aarch64-linux-gnu/lib")
+     // ```
+     let cmd = r#"
+-        ld --verbose | grep -oP '(?<=SEARCH_DIR\(\"=)[^"]+(?=\"\);)'
++        cc -print-search-dirs | sed -n 's/^libraries: *= *//p' | tr : '\n'
+     "#;
+ 
+     Command::new("sh")
