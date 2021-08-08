@@ -10,9 +10,12 @@ prepare() {
   unpack firecracker-0.25-20210805.tar.gz \
     https://github.com/firecracker-microvm/firecracker/archive/4f28f888f27bb333c64b499cf5d328bbc317781d.tar.gz
   apply libfdt.patch
+  apply seccomp.patch
+  ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
+  ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
   rm -f .cargo/config
   HOME=/tmp cargo fetch --target=$CHOST
-  tree c45e8c6e9f924d34188da12c605bac32e349c310e79ad7ae73f568fabe762b41
+  tree fcd242189d225b070d05a72c9a861744db708eef37d0899997e23c20559d05ff
 }
 
 build() {
