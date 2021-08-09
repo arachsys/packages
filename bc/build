@@ -1,11 +1,11 @@
 check() {
   url https://github.com/gavinhoward/bc/releases
-  match version 4.0.2 'bc-([0-9.]+)\.tar'
+  match version 5.0.0 'bc-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/gavinhoward/bc/releases/download/4.0.2/bc-4.0.2.tar.xz
-  tree c5ba106ac8fe783168debecf3d053795592f8db9946f9e5153ac087ac0e15e9d
+  unpack https://github.com/gavinhoward/bc/releases/download/5.0.0/bc-5.0.0.tar.xz
+  tree 62df6b7e04416b9775712c35e163d2930eafdab67029890f4b41c580f585894e
 }
 
 build() {
