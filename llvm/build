@@ -5,20 +5,20 @@ check() {
   match llvm 12.0.1 'llvm-project-([0-9.]+)\.src\.tar'
 
   url https://github.com/Kitware/CMake/releases
-  match cmake 3.21.0 'cmake-([0-9.]+)\.tar'
+  match cmake 3.21.1 'cmake-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-project-12.0.1.tar.xz \
     https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-project-12.0.1.src.tar.xz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1.tar.gz
   apply distro.patch
   apply paths.patch
   apply prune.patch
   apply sanitizer.patch
   apply tools.patch
-  tree 98f447cd5f846342d52c787bce17fca00edb4361767a90916cdad12988f91356
+  tree e3de62607d96a33c4f68d15352eff27c7911024f482de23cf9998d1b1fbb7ed8
 }
 
 build() {
