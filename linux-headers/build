@@ -1,11 +1,11 @@
 check() {
   url https://www.kernel.org/
-  match linux 5.13.7 'linux-([0-9.]+)\.tar'
+  match linux 5.13.9 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.13.7.tar.xz
-  tree 2e26eca970e2dbdc797c9fa6d1d8af874d69985bf491bc96426ec18a3957722b
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.13.9.tar.xz
+  tree 3bef6a9cabc7f9fd15dcdc04a08d1d3201783318ec4a4e264eee349593432f2b
 }
 
 build() {
