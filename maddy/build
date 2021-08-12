@@ -1,0 +1,24 @@
+require go sqlite
+
+check() {
+  url https://github.com/foxcpp/maddy/releases
+  match version 0.5.0 'tags/v([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack maddy-0.5.0.tar.zstd \
+    https://github.com/foxcpp/maddy/releases/download/v0.5.0/maddy-0.5.0-src.tar.zst
+  apply paths.patch
+  GOPATH=/tmp/go go mod vendor
+  tree d93c1a1557ce7081f5596bc49bb5c5139e7baa736ce084232e9c4ed9f4805a56
+}
+
+build() {
+  for CMD in maddy maddyctl; do
+    GOPATH=/tmp/go HOME=/tmp go build -tags libsqlite3 -trimpath \
+      -ldflags "-X \"github.com/foxcpp/maddy.Version=$(< .version)\"" \
+      -o $CMD /src/cmd/$CMD
+    install -D $CMD /dst/bin/$CMD
+  done
+  echo sqlite >>/dst/requirements
+}
