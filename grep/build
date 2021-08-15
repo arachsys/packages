@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/grep/
-  match version 3.6 'grep-([0-9.]+)\.tar'
+  match version 3.7 'grep-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/grep/grep-3.6.tar.xz
-  tree 42bc328ede3e279cb137d59c19cfaf0dbbcc859375ffe8e2383426fe4f4e7452
+  unpack https://ftp.gnu.org/gnu/grep/grep-3.7.tar.xz
+  tree b1e72eaf6b4e6b6d8b2ceadd3c00c534aeb30a0665af7ebe537e338d35d339dc
 }
 
 config-extra --enable-perl-regexp
