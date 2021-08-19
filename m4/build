@@ -7,6 +7,5 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.xz
-  #apply gnulib.patch
   tree 813718c173f9e6c39831babf258421a2269b30a4a2e32407935cb6c2b8ed84a0
 }
