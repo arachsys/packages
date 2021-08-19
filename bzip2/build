@@ -1,10 +1,10 @@
 check() {
-  url https://fossies.org/linux/misc/
+  url https://sourceware.org/pub/bzip2/
   match version 1.0.8 'bzip2-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://fossies.org/linux/misc/bzip2-1.0.8.tar.gz
+  unpack https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
   apply makefile.patch
   apply scripts.patch
   tree efd3f2120ae749c578d733a542aad3b46a11f7d1d571ab9c2f77e2bfe77cc001
