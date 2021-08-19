@@ -17,8 +17,3 @@ prepare() {
 
 config-extra --disable-install-examples
 compile-extra SHLIB_LIBS=-lncurses
-
-post-config() {
-  # In the absence of working configure support for --disable-rpath:
-  sed -i 's/ -Wl,-rpath,\$(libdir) / /' /src/shlib/Makefile
-}
