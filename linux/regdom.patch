@@ -1,0 +1,13 @@
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 912977bf3..eb84b2029 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -7760,7 +7760,7 @@ static int nl80211_get_reg_do(struct sk_buff *skb, struct genl_info *info)
+ 		regdom = get_wiphy_regdom(wiphy);
+ 
+ 		/* a self-managed-reg device must have a private regdom */
+-		if (WARN_ON(!regdom && self_managed)) {
++		if (!regdom && self_managed) {
+ 			nlmsg_free(msg);
+ 			rtnl_unlock();
+ 			return -EINVAL;

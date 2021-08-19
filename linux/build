@@ -1,0 +1,19 @@
+check() {
+  url https://www.kernel.org/
+  match linux 5.13.12 'linux-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.13.12.tar.xz
+  apply llvm.patch
+  apply ncurses.patch
+  apply regdom.patch
+  tree 864fdf3b9a8166bbc6c6410c5753a6f796af7fd62b177d0f25d3cc8ad85ec222
+}
+
+build() {
+  make headers
+  mkdir -p /dst/img/linux-headers/lib/include
+  cd usr/include && find . -xtype f -name '*.h' \
+    -exec cp -d -t /dst/img/linux-headers/lib/include --parents {} +
+}
