@@ -3,7 +3,7 @@ require bison flex
 
 check() {
   url https://www.netfilter.org/projects/nftables/files/
-  match nftables 0.9.9 'nftables-([0-9]+\.[1-9][0-9.]*)\.tar'
+  match nftables 1.0.0 'nftables-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libmnl/files/
   match libmnl 1.0.4 'libmnl-([0-9.]+)\.tar'
@@ -14,10 +14,10 @@ check() {
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
-  unpack $NFP/nftables/files/nftables-0.9.9.tar.bz2
+  unpack $NFP/nftables/files/nftables-1.0.0.tar.bz2
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.4.tar.bz2
   unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.0.tar.bz2
-  tree 4ecc07a2d281c901a9fddefd9b3ac7beac6511a4f5226771e83d64af1c10793d
+  tree bd133c0d17257081bb699baa879fede2bbee7bf018a042eaeba1495a640c59e6
 }
 
 pre-config() {
