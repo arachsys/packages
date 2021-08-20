@@ -8,8 +8,9 @@ check() {
 prepare() {
   unpack gron-0.6.1.tar.gz \
     https://github.com/tomnomnom/gron/archive/refs/tags/v0.6.1.tar.gz
+  apply mod.diff
   GOPATH=/tmp/go go mod vendor
-  tree 5d7c64c13c6e40090c3816b2257616e9d05f4034274ebbccb7b4ef63cc035915
+  tree aea7e54505b7710577644ab3c695833b3a60fbcf5c822ac59ee1df1f23878905
 }
 
 build() {
