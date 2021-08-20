@@ -1,0 +1,23 @@
+mode autotools
+
+check() {
+  url https://sourceware.org/ftp/lvm2/
+  match lvm2 2.03.13 'LVM2.([0-9.]+).tgz'
+}
+
+prepare() {
+  unpack lvm2-2.03.13.tar.gz \
+    https://sourceware.org/ftp/lvm2/LVM2.2.03.13.tgz
+  apply static.patch
+  apply tidy.patch
+  tree 838a4a3cbc8ff94ba090811f8136c1d76b0bedd14814e3406b111cb426626614
+}
+
+config-extra --enable-{static-link,dmfilemapd} --without-{cache,thin,vdo}
+
+build() {
+  filter-defaults && /src/configure "${CONFIGARGS[@]}"
+  make device-mapper
+  make -C libdm/dm-tools dmsetup dmfilemapd
+  install -t /dst/bin -D libdm/dm-tools/{dmsetup,dmfilemapd}
+}
