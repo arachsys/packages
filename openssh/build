@@ -3,15 +3,15 @@ enable setuid
 
 check() {
   url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
-  match version 8.6p1 'openssh-([0-9.]+p[0-9]+)\.tar'
+  match version 8.7p1 'openssh-([0-9.]+p[0-9]+)\.tar'
 }
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.6p1.tar.gz
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.7p1.tar.gz
   apply askpass.patch
   apply dnssegv.patch
   apply sftp.patch
-  tree bc657556e8b229fb943fbc39680b26db8f1bdcf78e0a0240e2f4f7a1bf3009b6
+  tree c2b196637f00087645f834717c4d0eae3413100d1667320b933b257fe7e74e4e
 }
 
 config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
