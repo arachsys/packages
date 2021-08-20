@@ -9,7 +9,7 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz
-  apply signals.patch
+  apply signals.diff
   tree 00b04bd6df775ad411d82a03876b2a96840519b5e564348828827d5d9b6e8dd3
 }
 

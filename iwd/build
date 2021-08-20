@@ -7,12 +7,12 @@ check() {
 
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.16.tar.xz
-  apply clang.patch
-  apply dbus.patch
-  apply ipv6.patch
-  apply paths.patch
-  apply resolve.patch
-  apply syslog.patch
+  apply clang.diff
+  apply dbus.diff
+  apply ipv6.diff
+  apply paths.diff
+  apply resolve.diff
+  apply syslog.diff
   tree 807ef68875187f06dfaf14bee3c1a6efc87a4ed43594ff17abda39525919fbac
 }
 

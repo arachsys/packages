@@ -11,7 +11,7 @@ check() {
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-5.9.tar.xz
   unpack -d libnl http://www.infradead.org/~tgr/libnl/files/libnl-3.2.25.tar.gz
-  apply paths.patch
+  apply paths.diff
   tree fb2ce9108503d93a3ae800dac0f500cdd8acb1838af6bddd35cf5707bbf3a535
 }
 

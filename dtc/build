@@ -7,7 +7,7 @@ check() {
 
 prepare() {
   unpack https://github.com/dgibson/dtc/archive/refs/tags/v1.6.1.tar.gz
-  apply tidy.patch
+  apply tidy.diff
   tree ab4be763d8ffb773716f70d7b35c05d823b1a4b8821ecf1924ce0b11e36a55f9
 }
 

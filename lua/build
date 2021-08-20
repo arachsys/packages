@@ -5,7 +5,7 @@ check() {
 
 prepare() {
   unpack https://www.lua.org/ftp/lua-5.4.3.tar.gz
-  apply paths.patch
+  apply paths.diff
   tree 4361aa1a2e7538f6bdcc0872f6d42e3621d48f39778628e53a8644c1822b18b8
 }
 

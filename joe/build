@@ -7,7 +7,7 @@ check() {
 
 prepare() {
   unpack https://downloads.sourceforge.net/joe-editor/joe-4.6.tar.gz
-  apply shell.patch
+  apply shell.diff
   tree 2469822c8e9c5bd90b40822a4c6104b58a28353912a0555feb84ce62576cc7d7
 }
 

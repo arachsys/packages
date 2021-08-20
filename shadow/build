@@ -8,8 +8,8 @@ check() {
 
 prepare() {
   unpack https://github.com/shadow-maint/shadow/releases/download/v4.9/shadow-4.9.tar.xz
-  apply bcrypt.patch
-  apply paths.patch
+  apply bcrypt.diff
+  apply paths.diff
   tree 037fa7042d8ba8a691bc88e0226090b7046525842eb021cf9d7589318a6e6944
 }
 

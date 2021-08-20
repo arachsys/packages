@@ -8,9 +8,9 @@ check() {
 
 prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.7p1.tar.gz
-  apply askpass.patch
-  apply dnssegv.patch
-  apply sftp.patch
+  apply askpass.diff
+  apply dnssegv.diff
+  apply sftp.diff
   tree c2b196637f00087645f834717c4d0eae3413100d1667320b933b257fe7e74e4e
 }
 

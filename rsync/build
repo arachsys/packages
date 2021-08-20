@@ -7,7 +7,7 @@ check() {
 
 prepare() {
   unpack https://download.samba.org/pub/rsync/rsync-3.2.3.tar.gz
-  apply paths.patch
+  apply paths.diff
   tree 9609210e692a5c07b6460171a7bb9fe225cd81d0df4d6504cde58c1a134cea92
 }
 

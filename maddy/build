@@ -8,7 +8,7 @@ check() {
 prepare() {
   unpack maddy-0.5.0.tar.zstd \
     https://github.com/foxcpp/maddy/releases/download/v0.5.0/maddy-0.5.0-src.tar.zst
-  apply paths.patch
+  apply paths.diff
   GOPATH=/tmp/go go mod vendor
   tree d93c1a1557ce7081f5596bc49bb5c5139e7baa736ce084232e9c4ed9f4805a56
 }

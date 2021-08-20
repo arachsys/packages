@@ -8,9 +8,9 @@ check() {
 
 prepare() {
   unpack https://www.kernel.org/pub/software/scm/git/git-2.33.0.tar.xz
-  apply add-i.patch
-  apply filter-branch.patch
-  apply usage.patch
+  apply add-i.diff
+  apply filter-branch.diff
+  apply usage.diff
   tree d93fc383ea676775d3bd08fb36e65e4983b7f253bba1e9f0199a1563dfb15c4e
 }
 

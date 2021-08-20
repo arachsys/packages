@@ -9,10 +9,10 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/bash/bash-5.1.tar.gz
   set https://ftp.gnu.org/gnu/bash/bash-5.1-patches/bash51-{001..008}
   while [[ $# -gt 0 ]]; do
-    apply -p 0 bash-5.1.${1##*-*(0)}.patch $1
+    apply -p 0 bash-5.1.${1##*-*(0)}.diff $1
     shift
   done
-  apply paths.patch
+  apply paths.diff
   tree a2683eb67387565c1b6fbf1a5d7de74db8677b4be6d962061842ca83ad6c2f67
 }
 

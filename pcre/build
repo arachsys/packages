@@ -7,7 +7,7 @@ check() {
 
 prepare() {
   unpack https://ftp.pcre.org/pub/pcre/pcre-8.45.tar.bz2
-  apply paths.patch
+  apply paths.diff
   tree 923e68bdd1150b7cc2f2360a2fe133dabb3711eb3bca375dd485de273c26b0b6
 }
 

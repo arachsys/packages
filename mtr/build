@@ -8,7 +8,7 @@ check() {
 
 prepare() {
   unpack https://www.bitwizard.nl/mtr/files/mtr-0.94.tar.gz
-  apply align.patch
+  apply align.diff
   tree 7b4b3e0aa020d1a324b77178f866d2dd357146c50133609960377e1f2e924f08
 }
 

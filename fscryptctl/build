@@ -6,7 +6,7 @@ check() {
 prepare() {
   unpack fscryptctl-1.0.0.tar.gz \
     https://github.com/google/fscryptctl/archive/refs/tags/v1.0.0.tar.gz
-  apply cosmetic.patch
+  apply cosmetic.diff
   tree decfb5d312ec9c4bdd8bd4f96bc658976f13945692604405cbbb6d46ba6860dd
 }
 

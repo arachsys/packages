@@ -7,7 +7,7 @@ check() {
 
 prepare() {
   unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.46.4/e2fsprogs-1.46.4.tar.xz
-  apply paths.patch
+  apply paths.diff
   tree 25d12e8ed5694116ca62d252312367ef03b8570f4bd5e70741f3ce09828dad20
 }
 

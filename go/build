@@ -8,8 +8,8 @@ check() {
 
 prepare() {
   unpack https://golang.org/dl/go1.17.src.tar.gz
-  apply fmt.patch
-  apply paths.patch
+  apply fmt.diff
+  apply paths.diff
   tree 46e86afd8f05506a7707d64664a4de075c11ac983743bbc84a1bbd67891f20bc
 }
 

@@ -5,8 +5,8 @@ check() {
 
 prepare() {
   unpack https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
-  apply makefile.patch
-  apply scripts.patch
+  apply makefile.diff
+  apply scripts.diff
   tree efd3f2120ae749c578d733a542aad3b46a11f7d1d571ab9c2f77e2bfe77cc001
 }
 

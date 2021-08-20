@@ -13,11 +13,11 @@ prepare() {
     https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-project-12.0.1.src.tar.xz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1.tar.gz
-  apply distro.patch
-  apply paths.patch
-  apply prune.patch
-  apply sanitizer.patch
-  apply tools.patch
+  apply distro.diff
+  apply paths.diff
+  apply prune.diff
+  apply sanitizer.diff
+  apply tools.diff
   tree e3de62607d96a33c4f68d15352eff27c7911024f482de23cf9998d1b1fbb7ed8
 }
 

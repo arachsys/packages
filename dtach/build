@@ -7,7 +7,7 @@ check() {
 
 prepare() {
   unpack https://downloads.sourceforge.net/sourceforge/dtach/dtach-0.9.tar.gz
-  apply winch.patch
+  apply winch.diff
   tree 00438cb66906a73e4a247934c7513bbd4ac3e48cb82cae37083236efa3da3c18
 }
 

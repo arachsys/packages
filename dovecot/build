@@ -8,7 +8,7 @@ check() {
 
 prepare() {
   unpack https://dovecot.org/releases/2.3/dovecot-2.3.16.tar.gz
-  apply paths.patch
+  apply paths.diff
   tree c8eb47891f40e8be00c5135efa272fec3d6a7fa09580e82285d8a33711037906
 }
 

@@ -7,6 +7,6 @@ check() {
 
 prepare() {
   unpack ftp://sourceware.org/pub/libffi/libffi-3.3.tar.gz
-  apply paths.patch
+  apply paths.diff
   tree 0a4fd737627550f182660183a48543c9f1727434c545bb2d936e6eedc0c7784b
 }

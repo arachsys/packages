@@ -5,7 +5,7 @@ check() {
 
 prepare() {
   unpack -p 3 http://www.ohse.de/uwe/uschedule/uschedule-0.7.1.tar.gz
-  apply tidy.patch
+  apply tidy.diff
   tree e9883e3d86e2f00173fafb2eb3ef86f944c06bac9509bfbc3707022410262c25
 }
 

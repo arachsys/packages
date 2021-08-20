@@ -7,11 +7,11 @@ check() {
 
 prepare() {
   unpack https://static.rust-lang.org/dist/rustc-1.54.0-src.tar.gz
-  apply curl.patch
-  apply libressl.patch
-  apply nocred.patch
-  apply system.patch
-  apply target.patch
+  apply curl.diff
+  apply libressl.diff
+  apply nocred.diff
+  apply system.diff
+  apply target.diff
   sed -i 's/\("files":{\)[^}]*/\1/' \
     vendor/{curl-sys,openssl-sys}/.cargo-checksum.json
   tree aa2c8732aa7232f7d3467850547e358932a36d216ae7e171ff12920b2a1fe994

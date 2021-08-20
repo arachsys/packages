@@ -7,7 +7,7 @@ check() {
 
 prepare() {
   unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.13.0.tar.xz
-  apply paths.patch
+  apply paths.diff
   tree 3f9eb802d042d0c929039fc380ca4012c780d0b3fe90814cf270e9bab81593f3
 }
 

@@ -9,10 +9,10 @@ check() {
 prepare() {
   unpack python-3.9.5.tar.xz \
     https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz
-  apply getpath.patch
-  apply fakepkg.patch
-  apply musl.patch
-  apply paths.patch
+  apply getpath.diff
+  apply fakepkg.diff
+  apply musl.diff
+  apply paths.diff
   tree 79cd2e8199bf87e45ab343317e6dfb96bb51a2d0258d8a8a10e9b3bf310788ec
 }
 

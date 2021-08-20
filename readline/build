@@ -9,7 +9,7 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/readline/readline-8.1.tar.gz
   set https://ftp.gnu.org/gnu/readline/readline-8.1-patches/readline81-{001..001}
   while [[ $# -gt 0 ]]; do
-    apply -p 0 readline-8.1.${1##*-*(0)}.patch $1
+    apply -p 0 readline-8.1.${1##*-*(0)}.diff $1
     shift
   done
   tree 0cc0a1995f00ebfa3e874ae2804ec0ee9d02a8554e3e68c022f7cdac966cab81

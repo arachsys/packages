@@ -5,9 +5,9 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/coreutils/coreutils-8.32.tar.xz
-  apply fmt.patch
-  apply getdents64.patch
-  apply uname.patch
+  apply fmt.diff
+  apply getdents64.diff
+  apply uname.diff
   tree c144ab043caade79dd477282001d99304db1da53b259928d0b4afe18bffcad95
 }
 

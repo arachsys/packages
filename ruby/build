@@ -8,8 +8,8 @@ check() {
 
 prepare() {
   unpack https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.2.tar.gz
-  apply paths.patch
-  apply plain.patch
+  apply paths.diff
+  apply plain.diff
   tree 2fbad26977661da5816f381e25fbd9451c5166a925be50ad00ecfb1fe4d2e1f7
 }
 

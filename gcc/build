@@ -28,12 +28,12 @@ prepare() {
   unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz
   unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.1.0.tar.xz
 
-  apply execinfo.patch
-  apply isl.patch
-  apply no-toollib.patch
-  apply paths.patch
-  apply pure64.patch
-  apply rpath.patch
+  apply execinfo.diff
+  apply isl.diff
+  apply no-toollib.diff
+  apply paths.diff
+  apply pure64.diff
+  apply rpath.diff
 
   tree 8482adb28b73649ec2e445db8217273a1d9d5b815a32c96e1cedbb64611492af
 }
