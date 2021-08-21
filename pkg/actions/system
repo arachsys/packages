@@ -1,0 +1,33 @@
+if [[ $# -lt 1 ]]; then
+  die "$(< $LIBRARY/help)"
+elif [[ -e "$1" ]]; then
+  die "Cannot construct system image: $1 already exists"
+fi
+
+mkdir -p "$IMGDIR"
+ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
+trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+
+chmod 0755 "$ROOT"
+mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,run,sys,var,var/lib,var/log}
+mkdir -m 0755 -p "$ROOT"/{home,home/root,home/root/img,home/root/pkg}
+mkdir -m 1777 -p "$ROOT"/{run/shm,tmp}
+
+cp -t "$ROOT/etc" -L -R /etc/{protocols,services,ssl} \
+  "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"
+
+maybe cp -t "$ROOT/home/root/pkg" -- "$PKGDIR"/@(COPYING|README|base)
+for PKGBUILD in "$PKGDIR"/*/build; do
+  cp -t "$ROOT/home/root/pkg" -R "${PKGBUILD%/build}"
+done
+
+resolve base "${@:2}" | while read IMG; do
+  maybe cp -a -l -t "$ROOT" -- "$IMGDIR/$IMG"/!(requirements)
+  cp -a -l -t "$ROOT/home/root/img" "$IMGDIR/$IMG"
+done
+
+if [[ $1 == *.tar?(.gz|.bz2|.xz|.zstd) ]]; then
+  tar -a -c -f "$1" -C "$ROOT" --numeric-owner --strip-components=1 .
+else
+  mv -T "$ROOT" "$1"
+fi

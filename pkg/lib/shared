@@ -157,34 +157,12 @@ mode() {
 }
 
 populate() {
-  local FILE
-  declare -A IMAGES=()
-
   mkdir -m 0755 -p "$1"/{bin,dev,etc,lib,proc,run,sys,var,var/cache}
   mkdir -m 1777 -p "$1"/{run/shm,tmp}
-
-  for FILE in /etc/{protocols,resolv.conf,services,ssl} \
-      "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"; do
-    if [[ ! -e $1/${FILE##*/} ]]; then
-      cp -L -R "$FILE" "$1/etc/"
-    fi
-  done
-
-  while [[ $# -gt 1 ]]; do
-    declare -a REQUIRED=()
-    if [[ -n $2 ]] && ! let "IMAGES[$2]++"; then
-      if [[ -f $IMGDIR/$2 ]]; then
-        mapfile -t REQUIRED < "$IMGDIR/$2"
-      elif [[ -d $IMGDIR/$2 ]]; then
-        maybe cp -a -l -t "$1" -- "$IMGDIR/$2"/!(requirements)
-        if [[ -f $IMGDIR/$2/requirements ]]; then
-          mapfile -t REQUIRED < "$IMGDIR/$2/requirements"
-        fi
-      else
-        die "Required image $2 not found in $IMGDIR"
-      fi
-    fi
-    set -- "$1" "${REQUIRED[@]}" "${@:3}"
+  cp -n -t "$1/etc" -L -R /etc/{protocols,resolv.conf,services,ssl} \
+    "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"
+  resolve "${@:2}" | while read IMG; do
+    maybe cp -a -l -t "$1" -- "$IMGDIR/$IMG"/!(requirements)
   done
 }
 
@@ -196,6 +174,26 @@ require() {
   while [[ $# -gt 0 ]]; do
     REQUIREMENTS[$1]=1
     shift
+  done
+}
+
+resolve() {
+  declare -A IMAGES=()
+  while [[ $# -gt 0 ]]; do
+    declare -a REQUIRED=()
+    if [[ -n $1 ]] && ! let "IMAGES[$1]++"; then
+      if [[ -f $IMGDIR/$1 ]]; then
+        mapfile -t REQUIRED < "$IMGDIR/$1"
+      elif [[ -d $IMGDIR/$1 ]]; then
+        printf '%s\n' "$1"
+        if [[ -f $IMGDIR/$1/requirements ]]; then
+          mapfile -t REQUIRED < "$IMGDIR/$1/requirements"
+        fi
+      else
+        die "Required image $1 not found in $IMGDIR"
+      fi
+    fi
+    set -- "${REQUIRED[@]}" "${@:2}"
   done
 }
 
