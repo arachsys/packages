@@ -20,7 +20,7 @@ declare -A -g DEFAULTARGS=(
   [--sysconfdir]='--sysconfdir=/etc'
 )
 declare -A -g COMPILEARGS=()
-declare -A -g INSTALLARGS=( [install]='install' [DESTDIR]="DESTDIR=/dst" )
+declare -A -g INSTALLARGS=( [install]='install' [DESTDIR]='DESTDIR=/dst' )
 
 if NLS=$(feature nls); then
   if [[ $NLS == ?(all) ]]; then
@@ -101,7 +101,7 @@ install-reset() {
 filter-defaults() {
   local ARG HELP
 
-  if HELP=$("/src/configure" --help 2>&1); then
+  if HELP=$(/src/configure --help 2>&1); then
     for ARG in "${!DEFAULTARGS[@]}"; do
       if [[ $HELP == *[[:space:],]$ARG?([[:space:]=,]*) ]]; then
         continue
@@ -133,12 +133,12 @@ filter-defaults() {
 
 build() {
   if enabled vpath; then
-    cd $(mktemp -d "/src/build-XXXXXX")
+    cd $(mktemp -d /src/build-XXXXXX)
   fi
 
   pre-config
   filter-defaults
-  "/src/configure" "${CONFIGARGS[@]}"
+  /src/configure "${CONFIGARGS[@]}"
   post-config
 
   pre-compile
