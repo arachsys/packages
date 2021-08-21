@@ -244,21 +244,15 @@ tidy() {
           echo "$FILE has been incorrectly compiled with an RPATH"
         fi
         if ! enabled unstripped; then
-          TMP=$(mktemp "$FILE.XXXXXX")
-          strip -o "$TMP" --strip-unneeded "$FILE"
-          cp "$TMP" "$FILE"
-          rm -f "$TMP"
+          strip --strip-unneeded "$FILE"
         fi
       elif [[ $(hexdump -e '/1 "%02x"' -n 2 -v "$FILE") == 2321 ]]; then
         # Script with '#!' magic
-        TMP=$(mktemp "$FILE.XXXXXX")
         sed -e '1s:^#! *//*:#!/:' \
             -e '1s:^#!/usr/local/:#!/:' \
             -e '1s:^#!/usr/:#!/:' \
             -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
-            "$FILE" > "$TMP"
-        cp "$TMP" "$FILE"
-        rm -f "$TMP"
+            -i "$FILE"
       else
         chmod u=rw,go=r "$FILE"
       fi
@@ -286,6 +280,7 @@ tidy() {
   } | [[ -z $(tee /dev/stderr) ]]
 
   find . -depth -type d -empty -delete -or -exec touch -r . {} +
+  hardlink -q -t .
 }
 
 tree() {
