@@ -13,9 +13,8 @@ prepare() {
   apply seccomp.diff
   ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
   ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
-  rm -f .cargo/config
-  HOME=/tmp cargo fetch --target=$CHOST
-  tree 812a84a114a2fb3021ff48b62eb3d9296b792926c5b1300e67385a7d8f0a5d57
+  mkdir -p .cargo && HOME=/tmp cargo vendor >.cargo/config
+  tree 7d52c73d6801abea3026619b424bd076d11970c0e562f61c7bbcc3c1d4bdafb8
 }
 
 build() {
