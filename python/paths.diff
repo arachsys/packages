@@ -31,7 +31,7 @@ index 1e880e5..83a6667 100755
  """Support module for CGI (Common Gateway Interface) scripts.
  
 diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
-index 0c2510e..268fbfd 100644
+index cb772f3..d62bc70 100644
 --- a/Lib/ctypes/util.py
 +++ b/Lib/ctypes/util.py
 @@ -90,7 +90,7 @@ elif sys.platform.startswith("aix"):
@@ -188,7 +188,7 @@ index 92c2a47..d5fe4dd 100644
  
  inited = False
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index ecb4e5a..3ad1737 100644
+index af2814b..3ad1737 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -200,19 +200,20 @@ index ecb4e5a..3ad1737 100644
  altsep = None
  devnull = '/dev/null'
  
-@@ -347,11 +347,6 @@ def normpath(path):
+@@ -347,12 +347,6 @@ def normpath(path):
      if path == empty:
          return dot
      initial_slashes = path.startswith(sep)
 -    # POSIX allows one or two initial slashes, but treats three or more
 -    # as single slash.
+-    # (see http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_13)
 -    if (initial_slashes and
 -        path.startswith(sep*2) and not path.startswith(sep*3)):
 -        initial_slashes = 2
      comps = path.split(sep)
      new_comps = []
      for comp in comps:
-@@ -365,7 +360,7 @@ def normpath(path):
+@@ -366,7 +360,7 @@ def normpath(path):
      comps = new_comps
      path = sep.join(comps)
      if initial_slashes:
@@ -250,7 +251,7 @@ index 9e617af..de82d33 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index e3f79bf..7f0ac12 100644
+index e3f79bf..cdfde68 100644
 --- a/Lib/sysconfig.py
 +++ b/Lib/sysconfig.py
 @@ -25,14 +25,14 @@ _ALWAYS_STR = {
@@ -313,12 +314,12 @@ index e3f79bf..7f0ac12 100644
 +        'platstdlib': '{userbase}/{platlibdir}/python',
 +        'purelib': '{userbase}/lib/python/site-packages',
 +        'platlib': '{userbase}/{platlibdir}/python/site-packages',
-+        'include': '{userbase}/include/python',
++        'include': '{userbase}/lib/include/python',
          'scripts': '{userbase}/bin',
          'data': '{userbase}',
          },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index 770f72c..70cf90e 100644
+index 770f72c..047d840 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
 @@ -165,7 +165,7 @@ def _candidate_tempdir_list():
@@ -343,7 +344,7 @@ index 5ae0a3e..43c286e 100644
          if executable is None:
              return None
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 3137d93..52507cd 100644
+index 6ce7a61..652377a 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -142,16 +142,16 @@ BINDIR=		@bindir@
@@ -368,10 +369,10 @@ index 3137d93..52507cd 100644
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index 4035819..9f05289 100644
+index 1ed9cc2..3053954 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
-@@ -1461,7 +1461,7 @@ calculate_init(PyCalculatePath *calculate, const PyConfig *config)
+@@ -1465,7 +1465,7 @@ calculate_init(PyCalculatePath *calculate, const PyConfig *config)
      }
  
      // <platlibdir> / "pythonX.Y"
@@ -381,10 +382,10 @@ index 4035819..9f05289 100644
          return DECODE_LOCALE_ERR("VERSION macro", len);
      }
 diff --git a/configure b/configure
-index c7a7291..5630cfe 100755
+index f4e525c..30e9686 100755
 --- a/configure
 +++ b/configure
-@@ -15401,7 +15401,7 @@ fi
+@@ -15430,7 +15430,7 @@ fi
  
  
  
@@ -393,7 +394,7 @@ index c7a7291..5630cfe 100755
  
  
  # Check for --with-platlibdir
-@@ -15437,9 +15437,9 @@ fi
+@@ -15466,9 +15466,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then
@@ -406,10 +407,10 @@ index c7a7291..5630cfe 100755
  
  
 diff --git a/setup.py b/setup.py
-index d42eb9d..4ccf083 100644
+index 54d4b94..fb6d278 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -644,9 +644,11 @@ class PyBuildExt(build_ext):
+@@ -647,9 +647,11 @@ class PyBuildExt(build_ext):
  
          if multiarch_path_component != '':
              add_dir_to_list(self.compiler.library_dirs,
@@ -423,7 +424,7 @@ index d42eb9d..4ccf083 100644
              return
  
          if not find_executable('dpkg-architecture'):
-@@ -665,9 +667,11 @@ class PyBuildExt(build_ext):
+@@ -668,9 +670,11 @@ class PyBuildExt(build_ext):
                  with open(tmpfile) as fp:
                      multiarch_path_component = fp.readline().strip()
                  add_dir_to_list(self.compiler.library_dirs,
@@ -437,7 +438,7 @@ index d42eb9d..4ccf083 100644
          finally:
              os.unlink(tmpfile)
  
-@@ -750,8 +754,8 @@ class PyBuildExt(build_ext):
+@@ -753,8 +757,8 @@ class PyBuildExt(build_ext):
              add_dir_to_list(self.compiler.include_dirs,
                              sysconfig.get_config_var("INCLUDEDIR"))
  
@@ -448,7 +449,7 @@ index d42eb9d..4ccf083 100644
          # lib_dirs and inc_dirs are used to search for files;
          # if a file is found in one of those directories, it can
          # be assumed that no additional -I,-L directives are needed.
-@@ -1039,11 +1043,11 @@ class PyBuildExt(build_ext):
+@@ -1042,11 +1046,11 @@ class PyBuildExt(build_ext):
              elif curses_library:
                  readline_libs.append(curses_library)
              elif self.compiler.find_library_file(self.lib_dirs +
@@ -462,7 +463,7 @@ index d42eb9d..4ccf083 100644
                                 extra_link_args=readline_extra_link_args,
                                 libraries=readline_libs))
          else:
-@@ -1057,7 +1061,7 @@ class PyBuildExt(build_ext):
+@@ -1060,7 +1064,7 @@ class PyBuildExt(build_ext):
          if curses_library == 'ncursesw':
              curses_defines.append(('HAVE_NCURSESW', '1'))
              if not CROSS_COMPILING:
@@ -471,7 +472,7 @@ index d42eb9d..4ccf083 100644
              # Bug 1464056: If _curses.so links with ncursesw,
              # _curses_panel.so must link with panelw.
              panel_library = 'panelw'
-@@ -1186,33 +1190,17 @@ class PyBuildExt(build_ext):
+@@ -1189,33 +1193,17 @@ class PyBuildExt(build_ext):
          # construct a list of paths to look for the header file in on
          # top of the normal inc_dirs.
          db_inc_paths = [
@@ -481,7 +482,7 @@ index d42eb9d..4ccf083 100644
 -            '/usr/include/db3',
 -            '/usr/local/include/db3',
 -            '/opt/sfw/include/db3',
--            # Fink defaults (http://fink.sourceforge.net/)
+-            # Fink defaults (https://www.finkproject.org/)
 -            '/sw/include/db4',
 -            '/sw/include/db3',
 +            '/lib/include/db4',
@@ -495,7 +496,7 @@ index d42eb9d..4ccf083 100644
 -            db_inc_paths.append('/usr/local/include/db4%d' % x)
 -            db_inc_paths.append('/pkg/db-4.%d/include' % x)
 -            db_inc_paths.append('/opt/db-4.%d/include' % x)
--            # MacPorts default (http://www.macports.org/)
+-            # MacPorts default (https://www.macports.org/)
 -            db_inc_paths.append('/opt/local/include/db4%d' % x)
 +            db_inc_paths.append('/lib/include/db4%d' % x)
 +            db_inc_paths.append('/lib/include/db4.%d' % x)
@@ -511,7 +512,7 @@ index d42eb9d..4ccf083 100644
  
          if CROSS_COMPILING:
              db_inc_paths = []
-@@ -1440,12 +1428,9 @@ class PyBuildExt(build_ext):
+@@ -1443,12 +1431,9 @@ class PyBuildExt(build_ext):
          # We hunt for #define SQLITE_VERSION "n.n.n"
          # We need to find >= sqlite version 3.3.9, for sqlite3_prepare_v2
          sqlite_incdir = sqlite_libdir = None
@@ -527,7 +528,7 @@ index d42eb9d..4ccf083 100644
                               ]
          if CROSS_COMPILING:
              sqlite_inc_paths = []
-@@ -1763,7 +1748,7 @@ class PyBuildExt(build_ext):
+@@ -1768,7 +1753,7 @@ class PyBuildExt(build_ext):
  
      def detect_uuid(self):
          # Build the _uuid module if possible
