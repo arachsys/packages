@@ -343,6 +343,32 @@ index 5ae0a3e..43c286e 100644
          executable = shutil.which(command, path=os.pathsep.join(path_dirs))
          if executable is None:
              return None
+diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
+index 8009deb..ec9dbfa 100644
+--- a/Lib/venv/__init__.py
++++ b/Lib/venv/__init__.py
+@@ -125,19 +125,11 @@ class EnvBuilder:
+             libpath = os.path.join(env_dir, 'Lib', 'site-packages')
+         else:
+             binname = 'bin'
+-            incpath = 'include'
+-            libpath = os.path.join(env_dir, 'lib',
+-                                   'python%d.%d' % sys.version_info[:2],
+-                                   'site-packages')
++            incpath = os.path.join('lib', 'include')
++            libpath = os.path.join(env_dir, 'lib', 'python', 'site-packages')
+         context.inc_path = path = os.path.join(env_dir, incpath)
+         create_if_needed(path)
+         create_if_needed(libpath)
+-        # Issue 21197: create lib64 as a symlink to lib on 64-bit non-OS X POSIX
+-        if ((sys.maxsize > 2**32) and (os.name == 'posix') and
+-            (sys.platform != 'darwin')):
+-            link_path = os.path.join(env_dir, 'lib64')
+-            if not os.path.exists(link_path):   # Issue #21643
+-                os.symlink('lib', link_path)
+         context.bin_path = binpath = os.path.join(env_dir, binname)
+         context.bin_name = binname
+         context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
 index 6ce7a61..652377a 100644
 --- a/Makefile.pre.in

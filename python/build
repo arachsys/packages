@@ -13,7 +13,7 @@ prepare() {
   apply fakepkg.diff
   apply musl.diff
   apply paths.diff
-  tree ff9e2a9eba56fc42b218b0c68966253e5349a87fb7bdb93ff895176c62cfc080
+  tree 55132273ed1510c51a56b90164ed60826d49c82c965e8c1ab89da7aeca2f712b
 }
 
 config-extra --enable-{ipv6,optimizations,shared} --with-ensurepip=install \
@@ -22,17 +22,19 @@ config-extra --enable-{ipv6,optimizations,shared} --with-ensurepip=install \
   LDFLAGS="$LDFLAGS -fno-semantic-interposition"
 
 post-install() {
-  rm -f -r /dst/lib/python*/{,*/}{test,tests}/ \
-    /dst/lib/python*/{__phello__.foo.py,dbm,ensurepip,idlelib} \
-    /dst/lib/python*/{turtle*,tkinter,__pycache__/turtle.*,LICENSE.txt} \
+  rm -f -r /dst/lib/python/{,*/}{test,tests}/ \
+    /dst/lib/python/{__phello__.foo.py,dbm,idlelib,LICENSE.txt} \
+    /dst/lib/python/{turtle*,tkinter,__pycache__/turtle.*} \
+    /dst/lib/python/venv/scripts/*/!(activate) \
     /dst/bin/{2to3,easy_install*,idle*,pip3,pydoc3,python3,python*-config}
+  mv /dst/lib/python/venv/scripts/common/activate{,.sh}
   mv /dst/bin/2to3-3.9 /dst/bin/2to3
   mv /dst/bin/pip3.9 /dst/bin/pip
   mv /dst/bin/pydoc3.9 /dst/bin/pydoc
   mv /dst/bin/python3.9 /dst/bin/python3
   ln -s python3 /dst/bin/python
   sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/2to3 /dst/bin/pip \
-    /dst/bin/pydoc /dst/lib/python*/config-3*/python-config.py
+    /dst/bin/pydoc /dst/lib/python/config-3*/python-config.py
 
   sed -i '/^disable_pip_version_check/,/^)/s/default=False/default=True/' \
     /dst/lib/python/site-packages/pip/_internal/cli/cmdoptions.py
