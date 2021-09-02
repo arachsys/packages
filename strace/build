@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://github.com/strace/strace/releases
-  match version 5.13 'strace-([0-9.]+)\.tar'
+  match version 5.14 'strace-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://strace.io/files/5.13/strace-5.13.tar.xz
-  tree a19a33c81be2577d1a32e2c40fc7bdca4827eeaa5e07bf555979022f6ec95360
+  unpack https://strace.io/files/5.14/strace-5.14.tar.xz
+  tree ca62bd9200454028ff01e0205f2c7019dca051154555625dfef95a885473d35c
 }
 
 config-extra --disable-gcc-Werror --disable-mpers
