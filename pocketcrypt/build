@@ -11,5 +11,10 @@ prepare() {
 }
 
 build() {
-  make install-static install-tools DESTDIR=/dst INCDIR=/lib/include
+  if [[ $CHOST == aarch64-* ]]; then
+    make install-static install-tools DESTDIR=/dst INCDIR=/lib/include \
+      CFLAGS='-mcpu=native -O3 -Wall -Wfatal-errors'
+  else
+    make install-static install-tools DESTDIR=/dst INCDIR=/lib/include
+  fi
 }
