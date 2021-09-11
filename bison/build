@@ -3,12 +3,12 @@ require m4
 
 check() {
   url https://ftp.gnu.org/gnu/bison/
-  match version 3.8 'bison-([0-9.]+)\.tar'
+  match version 3.8.1 'bison-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/bison/bison-3.8.tar.xz
-  tree d513c8dc3c3a61f5471c403b3cae6a7a563b41b79ea5c57a79771699fc8923c9
+  unpack https://ftp.gnu.org/gnu/bison/bison-3.8.1.tar.xz
+  tree 83e2aa89cfabc00987700ed395aa5b861695cb24cbcd49258c27f6e6fe22570a
 }
 
 post-install() {
