@@ -1,5 +1,5 @@
 diff --git a/ell/log.c b/ell/log.c
-index e6e6545..46e8091 100644
+index 05af3e5..3c621e5 100644
 --- a/ell/log.c
 +++ b/ell/log.c
 @@ -31,6 +31,7 @@
@@ -21,10 +21,10 @@ index e6e6545..46e8091 100644
  					log_ident, (unsigned long) log_pid);
  
 diff --git a/src/main.c b/src/main.c
-index c1f4934..61df550 100644
+index 8e530a1..6ad2cac 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -423,7 +423,8 @@ int main(int argc, char *argv[])
+@@ -463,7 +463,8 @@ int main(int argc, char *argv[])
  		return EXIT_FAILURE;
  	}
  

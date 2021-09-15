@@ -1,8 +1,55 @@
+diff --git a/ell/dbus-filter.c b/ell/dbus-filter.c
+index fd61b7c..b9522b5 100644
+--- a/ell/dbus-filter.c
++++ b/ell/dbus-filter.c
+@@ -309,8 +309,6 @@ unsigned int _dbus_filter_add_rule(struct _dbus_filter *filter,
+ 
+ 		}
+ 
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 		/*
+ 		 * Mark the condition used.  We do this by setting
+ 		 * condition->type to an invalid value unless it is the
+@@ -332,7 +330,6 @@ _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 		 * have yet created an AddMatch rule on the server.
+ 		 */
+ 		remote_rule |= node->match.remote_rule;
+-_Pragma("GCC diagnostic pop")
+ 	}
+ 
+ 	node = l_new(struct filter_node, 1);
+@@ -349,11 +346,8 @@ _Pragma("GCC diagnostic pop")
+ 						rule, rule_len))
+ 			goto err;
+ 
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 		parent->id = node->id;
+ 		parent->match.remote_rule = true;
+-_Pragma("GCC diagnostic pop")
+ 	}
+ 
+ 	return node->id;
+diff --git a/ell/missing.h b/ell/missing.h
+index 2a3e647..b5b6f89 100644
+--- a/ell/missing.h
++++ b/ell/missing.h
+@@ -71,9 +71,6 @@ static inline void explicit_bzero(void *s, size_t n)
+ #ifndef HAVE_RAWMEMCHR
+ static inline void *rawmemchr(const void *s, int c)
+ {
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wstringop-overflow=\"")
+ 	return memchr(s, c, (size_t) -1);
+-_Pragma("GCC diagnostic pop")
+ }
+ #endif
 diff --git a/ell/useful.h b/ell/useful.h
-index e2eaadb..33bff54 100644
+index b4783ce..66db795 100644
 --- a/ell/useful.h
 +++ b/ell/useful.h
-@@ -59,10 +59,24 @@ static inline unsigned char bit_field(const unsigned char oct,
+@@ -59,10 +59,25 @@ static inline unsigned char bit_field(const unsigned char oct,
  	_x / _d;					\
  })
  
@@ -26,6 +73,7 @@ index e2eaadb..33bff54 100644
 +
 +#define __AUTODESTRUCT(var, func)					\
 +	__attribute((cleanup(__autodestruct_save_func)))		\
++	__attribute((unused))						\
 +		void *cleanup_ ## var = (void (*)(void *))(func);	\
 +	__attribute((cleanup(__autodestruct_save_value)))
  
@@ -87,3 +135,52 @@ index 0645be4..7656b1a 100644
  			goto handle_response;
  	} else if (IS_EXPANDED_RESPONSE(our_vendor_id, our_vendor_type))
  		goto handle_response;
+diff --git a/src/eapol.c b/src/eapol.c
+index 5a3ef7a..765f4bc 100644
+--- a/src/eapol.c
++++ b/src/eapol.c
+@@ -1033,7 +1033,7 @@ static void eapol_set_key_timeout(struct eapol_sm *sm,
+  * around this by dropping to O0 for this function when old GCC versions
+  * are used
+  */
+-#if __GNUC__ < 9
++#if __GNUC__ < 9 && !defined(__clang__)
+ #pragma GCC optimize ("O0")
+ #endif
+ 
+@@ -1080,7 +1080,7 @@ static void eapol_send_ptk_1_of_4(struct eapol_sm *sm)
+ 	eapol_sm_write(sm, (struct eapol_frame *) ek, false);
+ }
+ 
+-#if __GNUC__ < 9
++#if __GNUC__ < 9 && !defined(__clang__)
+ #pragma GCC reset_options
+ #endif
+ 
+diff --git a/src/missing.h b/src/missing.h
+index 2cc80ae..cdbc727 100644
+--- a/src/missing.h
++++ b/src/missing.h
+@@ -31,9 +31,6 @@ static inline void explicit_bzero(void *s, size_t n)
+ #ifndef HAVE_RAWMEMCHR
+ static inline void *rawmemchr(const void *s, int c)
+ {
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wstringop-overflow=\"")
+ 	return memchr(s, c, (size_t) -1);
+-_Pragma("GCC diagnostic pop")
+ }
+ #endif
+diff --git a/src/p2p.c b/src/p2p.c
+index 3328271..e3db8f1 100644
+--- a/src/p2p.c
++++ b/src/p2p.c
+@@ -902,7 +902,7 @@ static void p2p_group_event(enum ap_event_type type, const void *event_data,
+ 	{
+ 		const struct ap_event_station_added_data *data = event_data;
+ 		L_AUTO_FREE_VAR(uint8_t *, wfd_data) = NULL;
+-		ssize_t wfd_data_len;
++		ssize_t wfd_data_len = 0;
+ 		struct p2p_association_req req_info;
+ 		int r;
+ 
