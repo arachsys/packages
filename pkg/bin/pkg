@@ -15,7 +15,7 @@ source "$LIBRARY/shared"
 if [[ -z ${HOME%%+(/)} ]]; then
   CACHEDIR=${CACHEDIR:-/var/cache}
 else
-  CACHEDIR=${CACHEDIR:-$HOME/cache}
+  CACHEDIR=${CACHEDIR:-$HOME/.cache/pkg}
 fi
 
 IMGDIR=${IMGDIR:-${HOME%%+(/)}/img}
