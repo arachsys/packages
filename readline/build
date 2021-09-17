@@ -12,7 +12,8 @@ prepare() {
     apply -p 0 readline-8.1.${1##*-*(0)}.diff $1
     shift
   done
-  tree 0cc0a1995f00ebfa3e874ae2804ec0ee9d02a8554e3e68c022f7cdac966cab81
+  apply config.diff
+  tree 43363519d7ab199b3350bb990a9e17eeab68fa6807538b74b7da9b7005213585
 }
 
 config-extra --disable-install-examples

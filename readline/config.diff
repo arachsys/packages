@@ -1,0 +1,33 @@
+diff --git a/bind.c b/bind.c
+index 7610378..a7ede69 100644
+--- a/bind.c
++++ b/bind.c
+@@ -954,8 +954,9 @@ rl_re_read_init_file (int count, int ignore)
+    to the first non-null filename from this list:
+      1. the filename used for the previous call
+      2. the value of the shell variable `INPUTRC'
+-     3. ~/.inputrc
+-     4. /etc/inputrc
++     3. ~/.config/readline/inputrc
++     4. ~/.inputrc
++     5. /etc/inputrc
+    If the file existed and could be opened and read, 0 is returned,
+    otherwise errno is returned. */
+ int
+@@ -968,10 +969,15 @@ rl_read_init_file (const char *filename)
+     filename = sh_get_env_value ("INPUTRC");
+   if (filename == 0 || *filename == 0)
+     {
++      /* Try to read ~/.config/readline/inputrc */
++      filename = "~/.config/readline/inputrc";
++      if (_rl_read_init_file (filename, 0) == 0)
++	return 0;
++      /* On failure try to read DEFAULT_INPUTRC */
+       filename = DEFAULT_INPUTRC;
+-      /* Try to read DEFAULT_INPUTRC; fall back to SYS_INPUTRC on failure */
+       if (_rl_read_init_file (filename, 0) == 0)
+ 	return 0;
++      /* Fall back to SYS_INPUTRC as last resort */
+       filename = SYS_INPUTRC;
+     }
+ 

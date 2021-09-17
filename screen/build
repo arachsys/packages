@@ -8,7 +8,8 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/screen/screen-4.8.0.tar.gz
-  tree ffe486abec27ee1e614c439ead1e470cb7991d3fd844ba3b8fd901edf69c6258
+  apply config.diff
+  tree 39c2bcff500246e1f3a0756f2eabce91e2647d7a7321b8eebee62d6feece8f79
 }
 
 config-extra CFLAGS=-DNONETHACK --enable-{colors256,locale,rxvt_osc,telnet}

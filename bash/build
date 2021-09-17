@@ -12,8 +12,9 @@ prepare() {
     apply -p 0 bash-5.1.${1##*-*(0)}.diff $1
     shift
   done
+  apply config.diff
   apply paths.diff
-  tree a2683eb67387565c1b6fbf1a5d7de74db8677b4be6d962061842ca83ad6c2f67
+  tree 7480e7821b6159aed54907cb32246cb3e94f81c2544d87a6e1f09f55d848912e
 }
 
 config-extra --without-bash-malloc --with-installed-readline
