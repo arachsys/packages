@@ -8,9 +8,10 @@ check() {
 
 prepare() {
   unpack https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.2.tar.gz
+  apply irb.diff
   apply paths.diff
   apply plain.diff
-  tree 2fbad26977661da5816f381e25fbd9451c5166a925be50ad00ecfb1fe4d2e1f7
+  tree e58ce7d5773a866a5364076069cda16dd4068c023ab82653de44b04c54308b2a
 }
 
 config-extra --disable-install-doc  --disable-rpath --enable-shared \
