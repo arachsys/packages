@@ -136,11 +136,11 @@ hashtree() {
 
 locate() {
   if [[ $2 == ?(.|..)/* ]] && [[ -f $2/build ]]; then
-    printf '%s\n' "$2"
+    printf '%s\n' "${2%%*(/)}"
   elif [[ $2 != ?(.|..)/* ]] && [[ -f $1/$2/build ]]; then
-    printf '%s\n' "$1/$2"
+    printf '%s\n' "$1/${2%%*(/)}"
   else
-    die "Package $2 not found"
+    die "Package ${2%%*(/)} not found"
   fi
 }
 
