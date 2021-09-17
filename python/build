@@ -11,9 +11,10 @@ prepare() {
     https://www.python.org/ftp/python/3.9.7/Python-3.9.7.tar.xz
   apply getpath.diff
   apply fakepkg.diff
+  apply history.diff
   apply musl.diff
   apply paths.diff
-  tree 55132273ed1510c51a56b90164ed60826d49c82c965e8c1ab89da7aeca2f712b
+  tree 960c174db78ebd322a8d3d39117c4dcca7129eb446ee206cf310d5a5e1a77741
 }
 
 config-extra --enable-{ipv6,optimizations,shared} --with-ensurepip=install \
