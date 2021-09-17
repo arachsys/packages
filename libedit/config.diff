@@ -1,0 +1,13 @@
+diff --git a/src/el.c b/src/el.c
+index 4faf1cf..b1084cf 100644
+--- a/src/el.c
++++ b/src/el.c
+@@ -566,7 +566,7 @@ el_source(EditLine *el, const char *fname)
+ 		/* because of the defines above which take into account issetugid, */
+ 		/* secure_getenv and __secure_getenv availability. */
+ 		if ((fname = secure_getenv("EDITRC")) == NULL) {
+-			static const char elpath[] = "/.editrc";
++			static const char elpath[] = "/.config/libedit/editrc";
+ 			size_t plen = sizeof(elpath);
+ 
+ 			if ((ptr = secure_getenv("HOME")) == NULL)

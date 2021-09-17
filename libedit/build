@@ -1,0 +1,18 @@
+mode autotools
+
+check() {
+  url https://thrysoee.dk/editline/
+  match version 20210910-3.1 'libedit-([-0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://thrysoee.dk/editline/libedit-20210910-3.1.tar.gz
+  apply config.diff
+  tree 8e36334b05d2925d1293555388460cf1dcb218d890557efbace5a9c28c364ea9
+}
+
+compile-extra CFLAGS='-O2 -D__STDC_ISO_10646__=201103L'
+
+post-install() {
+  rm -f /dst/lib/include/editline/readline.h
+}
