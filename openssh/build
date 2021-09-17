@@ -1,5 +1,6 @@
 mode autotools
 enable setuid
+require libedit
 
 check() {
   url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
@@ -16,11 +17,12 @@ prepare() {
 
 config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
   --disable-lastlog --disable-{u,w}tmp{,x} --with-4in6 \
-  --with-default-path=/bin --with-pid-dir=/run \
+  --with-default-path=/bin --with-libedit --with-pid-dir=/run \
   --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth
 
 install-reset install-nokeys DESTDIR=/dst
 
 post-install() {
   chmod u+rw,go+r /dst/lib/openssh/*
+  echo libedit >>/dst/requirements
 }
