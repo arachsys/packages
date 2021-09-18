@@ -1,24 +1,25 @@
-require python
+require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/releases
   match llvm 12.0.1 'llvm-project-([0-9.]+)\.src\.tar'
 
   url https://github.com/Kitware/CMake/releases
-  match cmake 3.21.1 'cmake-([0-9.]+)\.tar'
+  match cmake 3.21.2 'cmake-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-project-12.0.1.tar.xz \
     https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-project-12.0.1.src.tar.xz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.21.2/cmake-3.21.2.tar.gz
+  apply config.diff
   apply distro.diff
   apply paths.diff
   apply prune.diff
   apply sanitizer.diff
   apply tools.diff
-  tree e3de62607d96a33c4f68d15352eff27c7911024f482de23cf9998d1b1fbb7ed8
+  tree bb6cae900efe3745087899df2282a4d029de5050482cb6a894093c644b906f37
 }
 
 build() {
@@ -49,7 +50,7 @@ build() {
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=Yes \
-    -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld" \
+    -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld;lldb" \
     -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi" \
     -DLLVM_HOST_TRIPLE=$CHOST \
     -DLLVM_INSTALL_BINUTILS_SYMLINKS=Yes \
@@ -67,6 +68,8 @@ build() {
     -DCLANG_INSTALL_SCAN{BUILD,VIEW}=No \
     -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
     -DLLD_SYMLINKS_TO_CREATE="ld;wasm-ld" \
+    -DLibEdit_INCLUDE_DIRS=/lib/include \
+    -DLibEdit_LIBRARIES=-ledit \
     "${CONFIG[@]}" ../llvm
   make compiler-rt
   make install DESTDIR=/dst
@@ -108,4 +111,10 @@ build() {
     rm -f /dst/lib/libunwind.so
     echo "INPUT ( $UNWIND ..${RUNTIME#/dst/lib} )" >/dst/lib/libunwind.so
   fi
+
+  mkdir -p /dst/img/{llvm,lldb/bin,lldb/lib}
+  mv /dst/bin/lldb* /dst/img/lldb/bin/
+  mv /dst/lib/liblldb* /dst/img/lldb/lib/
+  mv /dst/bin /dst/lib /dst/img/llvm/
+  echo libedit >>/dst/img/lldb/requirements
 }

@@ -1,0 +1,55 @@
+diff --git a/lldb/source/Host/common/Editline.cpp b/lldb/source/Host/common/Editline.cpp
+index 026a05da4..e57effe1f 100644
+--- a/lldb/source/Host/common/Editline.cpp
++++ b/lldb/source/Host/common/Editline.cpp
+@@ -213,14 +213,10 @@ private:
+       FileSystem::Instance().GetHomeDirectory(lldb_history_file);
+       llvm::sys::path::append(lldb_history_file, ".lldb");
+ 
+-      // LLDB stores its history in ~/.lldb/. If for some reason this directory
+-      // isn't writable or cannot be created, history won't be available.
+-      if (!llvm::sys::fs::create_directory(lldb_history_file)) {
+-#if LLDB_EDITLINE_USE_WCHAR
+-        std::string filename = m_prefix + "-widehistory";
+-#else
++      // LLDB stores its history in ~/.lldb/. If this directory doesn't
++      // already exist, assume the user doesn't want to persist history.
++      if (llvm::sys::fs::is_directory(lldb_history_file)) {
+         std::string filename = m_prefix + "-history";
+-#endif
+         llvm::sys::path::append(lldb_history_file, filename);
+         m_path = std::string(lldb_history_file.str());
+       }
+@@ -1110,9 +1106,7 @@ void Editline::ConfigureEditor(bool multiline) {
+   ApplyTerminalSizeChange();
+ 
+   if (m_history_sp && m_history_sp->IsValid()) {
+-    if (!m_history_sp->Load()) {
+-        fputs("Could not load history file\n.", m_output_file);
+-    }
++    m_history_sp->Load();
+     el_wset(m_editline, EL_HIST, history, m_history_sp->GetHistoryPtr());
+   }
+   el_set(m_editline, EL_CLIENTDATA, this);
+diff --git a/lldb/source/Interpreter/CommandInterpreter.cpp b/lldb/source/Interpreter/CommandInterpreter.cpp
+index fb503fe0a..dfbd1126c 100644
+--- a/lldb/source/Interpreter/CommandInterpreter.cpp
++++ b/lldb/source/Interpreter/CommandInterpreter.cpp
+@@ -2072,7 +2072,7 @@ int CommandInterpreter::GetOptionArgumentPosition(const char *in_string) {
+ 
+ static void GetHomeInitFile(llvm::SmallVectorImpl<char> &init_file,
+                             llvm::StringRef suffix = {}) {
+-  std::string init_file_name = ".lldbinit";
++  std::string init_file_name = ".config/lldb/init";
+   if (!suffix.empty()) {
+     init_file_name.append("-");
+     init_file_name.append(suffix.str());
+@@ -2093,7 +2093,7 @@ static void GetHomeREPLInitFile(llvm::SmallVectorImpl<char> &init_file) {
+     return;
+ 
+   std::string init_file_name =
+-      (llvm::Twine(".lldbinit-") +
++      (llvm::Twine(".config/lldb/init-") +
+        llvm::Twine(Language::GetNameForLanguageType(language)) +
+        llvm::Twine("-repl"))
+           .str();
