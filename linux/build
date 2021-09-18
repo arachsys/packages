@@ -1,14 +1,14 @@
 check() {
   url https://www.kernel.org/
-  match linux 5.14.1 'linux-([0-9.]+)\.tar'
+  match linux 5.14.6 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.14.1.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.14.6.tar.xz
   apply llvm.diff
   apply ncurses.diff
   apply regdom.diff
-  tree d5c2d29c84a668519a42376dfba4e0fa86a7724f28695ccbb0a1e769129d1ddb
+  tree 8f5623278c3340a9504dddcfa5b8a8797d5c4c4d7d22352f46bc89af61e92bee
 }
 
 build() {
