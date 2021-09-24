@@ -1,21 +1,21 @@
-check() {
-  url https://ftp.gnu.org/gnu/coreutils/
-  match version 8.32 'coreutils-([0-9.]+)\.tar'
-}
-
-prepare() {
-  unpack https://ftp.gnu.org/gnu/coreutils/coreutils-8.32.tar.xz
-  apply fmt.diff
-  apply getdents64.diff
-  apply uname.diff
-  tree c144ab043caade79dd477282001d99304db1da53b259928d0b4afe18bffcad95
-}
-
 mode autotools
 enabled docs && require perl
 
-# We disable xattr support in cp to avoid legacy libattr dependency.
+check() {
+  url https://ftp.gnu.org/gnu/coreutils/
+  match version 9.0 'coreutils-([0-9.]+)\.tar'
+}
 
-config-extra --disable-{acl,libcap,xattr} \
-  --enable-no-install-program=hostid,kill,pinky,uptime,users,who \
+prepare() {
+  unpack https://ftp.gnu.org/gnu/coreutils/coreutils-9.0.tar.xz
+  apply chmod.diff
+  apply fmt.diff
+  tree 2db9ffdc1cfe04e57c0c32b2d8a0237cb499dd63a2b0c553b8f80e05a0d33e88
+}
+
+config-extra --enable-no-install-program=hostid,kill,pinky,uptime,users,who \
   --enable-install-program=hostname FORCE_UNSAFE_CONFIGURE=1
+
+if ! enabled docs; then
+  compile-extra run_help2man=/src/man/dummy-man
+fi
