@@ -1,8 +1,11 @@
 mode autotools
 
 check() {
-  url https://git.savannah.gnu.org/cgit/bash.git/log/
-  match version 5.1.8 'Bash-([0-9.]+) patch ([0-9]+)' '\1.\2'
+  url https://ftp.gnu.org/gnu/bash/
+  match version 5.1 'bash-([0-9]+\.[0-9]+)\.tar\.gz'
+
+  url https://ftp.gnu.org/gnu/bash/bash-5.1-patches/
+  match version 5.1.8 'bash51-0*([0-9]+)' '5.1.\1'
 }
 
 prepare() {
