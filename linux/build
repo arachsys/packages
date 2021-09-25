@@ -1,14 +1,20 @@
 check() {
   url https://www.kernel.org/
-  match linux 5.14.6 'linux-([0-9.]+)\.tar'
+  match linux 5.14.7 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.14.6.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.14.7.tar.xz
   apply llvm.diff
   apply ncurses.diff
   apply regdom.diff
-  tree 8f5623278c3340a9504dddcfa5b8a8797d5c4c4d7d22352f46bc89af61e92bee
+
+  find . -type f -executable -exec sed -e '1s:^#! *//*:#!/:' \
+    -e '1s:^#!/usr/local/:#!/:' -e '1s:^#!/usr/:#!/:' \
+    -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
+    -i {} +
+
+  tree e670f463cc1bdeac590eca7ae2fe7e20155fbfcdaced3cbe8888616f39a61ed8
 }
 
 build() {
