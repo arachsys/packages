@@ -2,7 +2,7 @@ mode autotools
 
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match lvm2 2.03.13 'LVM2.([0-9.]+).tgz'
+  match lvm2 2.03.13 'LVM2\.([0-9.]+)\.tgz'
 }
 
 prepare() {
