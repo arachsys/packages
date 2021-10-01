@@ -1,8 +1,25 @@
+diff --git a/clang/tools/CMakeLists.txt b/clang/tools/CMakeLists.txt
+index c929f6e66..47d9e5b4b 100644
+--- a/clang/tools/CMakeLists.txt
++++ b/clang/tools/CMakeLists.txt
+@@ -31,9 +31,9 @@ endif()
+ if(CLANG_ENABLE_STATIC_ANALYZER)
+   add_clang_subdirectory(clang-check)
+   add_clang_subdirectory(clang-extdef-mapping)
+-  add_clang_subdirectory(scan-build)
+-  add_clang_subdirectory(scan-build-py)
+-  add_clang_subdirectory(scan-view)
++  # add_clang_subdirectory(scan-build)
++  # add_clang_subdirectory(scan-build-py)
++  # add_clang_subdirectory(scan-view)
+ endif()
+ 
+ # We support checking out the clang-tools-extra repository into the 'extra'
 diff --git a/llvm/cmake/modules/AddLLVM.cmake b/llvm/cmake/modules/AddLLVM.cmake
-index 97c9980c7de3..51a91b54604e 100644
+index 29e40f45f..367ce7030 100644
 --- a/llvm/cmake/modules/AddLLVM.cmake
 +++ b/llvm/cmake/modules/AddLLVM.cmake
-@@ -1174,6 +1174,7 @@ endfunction()
+@@ -1192,6 +1192,7 @@ endfunction()
  if(NOT LLVM_TOOLCHAIN_TOOLS)
    set (LLVM_TOOLCHAIN_TOOLS
      llvm-ar
@@ -10,16 +27,7 @@ index 97c9980c7de3..51a91b54604e 100644
      llvm-cov
      llvm-cxxfilt
      llvm-ranlib
-@@ -1182,6 +1183,8 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
-     llvm-objcopy
-     llvm-objdump
-     llvm-rc
-+    llvm-readelf
-+    llvm-readobj
-     llvm-size
-     llvm-strings
-     llvm-strip
-@@ -1191,11 +1194,13 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
+@@ -1211,6 +1212,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
      # LLVM_INSTALL_BINUTILS_SYMLINKS.
      addr2line
      ar
@@ -27,14 +35,8 @@ index 97c9980c7de3..51a91b54604e 100644
      c++filt
      ranlib
      nm
-     objcopy
-     objdump
-+    readelf
-     size
-     strings
-     strip
 diff --git a/llvm/tools/llvm-as/CMakeLists.txt b/llvm/tools/llvm-as/CMakeLists.txt
-index 3a157a3d4098..d9917d9e1906 100644
+index 3a157a3d4..d9917d9e1 100644
 --- a/llvm/tools/llvm-as/CMakeLists.txt
 +++ b/llvm/tools/llvm-as/CMakeLists.txt
 @@ -11,3 +11,7 @@ add_llvm_tool(llvm-as

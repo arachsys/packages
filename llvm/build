@@ -2,24 +2,24 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/releases
-  match llvm 12.0.1 'llvm-project-([0-9.]+)\.src\.tar'
+  match llvm 13.0.0 'llvm-project-([0-9.]+)\.src\.tar'
 
   url https://github.com/Kitware/CMake/releases
-  match cmake 3.21.2 'cmake-([0-9.]+)\.tar'
+  match cmake 3.21.3 'cmake-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-project-12.0.1.tar.xz \
-    https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-project-12.0.1.src.tar.xz
+  unpack llvm-project-13.0.0.tar.xz \
+    https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/llvm-project-13.0.0.src.tar.xz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.21.2/cmake-3.21.2.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3.tar.gz
   apply config.diff
   apply distro.diff
   apply paths.diff
   apply prune.diff
   apply sanitizer.diff
   apply tools.diff
-  tree bb6cae900efe3745087899df2282a4d029de5050482cb6a894093c644b906f37
+  tree 459fc41401eb3f1d235b3f3fdc2e7614ac484cae39213d84f7076710b7aedb9f
 }
 
 build() {
@@ -43,6 +43,12 @@ build() {
     CONFIG+=( -DCOMPILER_RT_BUILD_XRAY=No )
   fi
 
+  if TARGETS=$(feature targets); then
+    CONFIG+=( -DLLVM_TARGETS_TO_BUILD="Native;${TARGETS//,/;}" )
+  else
+    CONFIG+=( -DLLVM_TARGETS_TO_BUILD="Native;BPF;WebAssembly" )
+  fi
+
   mkdir -p /src/build
   cd /src/build
   /src/cmake/bin/cmake -W no-dev \
@@ -55,7 +61,6 @@ build() {
     -DLLVM_HOST_TRIPLE=$CHOST \
     -DLLVM_INSTALL_BINUTILS_SYMLINKS=Yes \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=Yes \
-    -DLLVM_TARGETS_TO_BUILD="Native;BPF;WebAssembly" \
     -DLIBUNWIND_USE_COMPILER_RT=Yes \
     -DLIBCXXABI_USE_COMPILER_RT=Yes \
     -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
@@ -65,7 +70,6 @@ build() {
     -DLIBCXX_USE_COMPILER_RT=Yes \
     -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
     -DCLANG_DEFAULT_RTLIB=compiler-rt \
-    -DCLANG_INSTALL_SCAN{BUILD,VIEW}=No \
     -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
     -DLLD_SYMLINKS_TO_CREATE="ld;wasm-ld" \
     -DLibEdit_INCLUDE_DIRS=/lib/include \
