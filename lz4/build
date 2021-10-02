@@ -1,0 +1,14 @@
+check() {
+  url https://github.com/lz4/lz4/releases
+  match version 1.9.3 'tags/v([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://github.com/lz4/lz4/archive/refs/tags/v1.9.3.tar.gz
+  tree 033f26a7e30d6a5b2b03efdff1855073b925b79b63a514f04bde98a521722a10
+}
+
+build() {
+  make install DESTDIR=/dst PREFIX= INCLUDEDIR=/lib/include MANDIR=/lib/man
+  rm -f /dst/bin/lz4c
+}
