@@ -1,0 +1,16 @@
+check() {
+  url https://people.redhat.com/~dhowells/keyutils/
+  match version 1.6.1 'keyutils-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://people.redhat.com/~dhowells/keyutils/keyutils-1.6.1.tar.bz2
+  tree 0aa9537866a1b215710d22ef9bb6986761bab60d392e6cf6e378d8302278c204
+}
+
+build() {
+  make install CFLAGS=-O2 DESTDIR=/dst INCLUDEDIR=/lib/include \
+    {,USR}LIBDIR=/lib MANDIR=/lib/man SBINDIR=/bin SHAREDIR=/lib/keyutils
+  ln -f -s libkeyutils.so.1 /dst/lib/libkeyutils.so
+  rm -f /dst/bin/key.dns_resolver /dst/lib/keyutils/*.sh
+}
