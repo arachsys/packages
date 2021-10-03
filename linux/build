@@ -1,10 +1,10 @@
 check() {
   url https://www.kernel.org/
-  match linux 5.14.7 'linux-([0-9.]+)\.tar'
+  match linux 5.14.9 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.14.7.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.14.9.tar.xz
   apply llvm.diff
   apply ncurses.diff
   apply regdom.diff
@@ -15,11 +15,11 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree 3fdae61f4fafb3860695f5895261a37c38c3a4f4bd4f5e5c389059b8023381b1
+  tree 96f4d24c8c7c2f4e7bc4f893c3763378949bf9b6f223fef2eaad69f51e8a0f81
 
   if enabled bcachefs; then
     apply bcachefs-20211001.diff
-    tree 08b7eae09ee3c89fd05107e25d10f47e01bc1134e849bffc8d6038fc5b886e64
+    tree 2f96747af96743567f619dcf17bb52628d124b9cf15685a19c43e259db8d5bea
   fi
 }
 
