@@ -16,6 +16,11 @@ prepare() {
     -i {} +
 
   tree 3fdae61f4fafb3860695f5895261a37c38c3a4f4bd4f5e5c389059b8023381b1
+
+  if enabled bcachefs; then
+    apply bcachefs-20211001.diff
+    tree 08b7eae09ee3c89fd05107e25d10f47e01bc1134e849bffc8d6038fc5b886e64
+  fi
 }
 
 build() {
