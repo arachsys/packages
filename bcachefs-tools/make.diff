@@ -1,0 +1,63 @@
+diff --git a/Makefile b/Makefile
+index 23e0508..52bd38d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,5 +1,4 @@
+ PREFIX?=/usr/local
+-PKG_CONFIG?=pkg-config
+ INSTALL=install
+ PYTEST=pytest-3
+ CFLAGS+=-std=gnu89 -O2 -g -MMD -Wall				\
+@@ -32,25 +31,13 @@ CFLAGS+=$(call cc-disable-warning, zero-length-array)
+ CFLAGS+=$(call cc-disable-warning, shift-overflow)
+ CFLAGS+=$(call cc-disable-warning, enum-conversion)
+ 
+-PKGCONFIG_LIBS="blkid uuid liburcu libsodium zlib liblz4 libzstd libudev"
+ ifdef BCACHEFS_FUSE
+-	PKGCONFIG_LIBS+="fuse3 >= 3.7"
++	LDLIBS+=-lfuse
+ 	CFLAGS+=-DBCACHEFS_FUSE
+ endif
+ 
+-PKGCONFIG_CFLAGS:=$(shell $(PKG_CONFIG) --cflags $(PKGCONFIG_LIBS))
+-ifeq (,$(PKGCONFIG_CFLAGS))
+-    $(error pkg-config error, command: $(PKG_CONFIG) --cflags $(PKGCONFIG_LIBS))
+-endif
+-PKGCONFIG_LDLIBS:=$(shell $(PKG_CONFIG) --libs   $(PKGCONFIG_LIBS))
+-ifeq (,$(PKGCONFIG_LDLIBS))
+-    $(error pkg-config error, command: $(PKG_CONFIG) --libs $(PKGCONFIG_LIBS))
+-endif
+-
+-CFLAGS+=$(PKGCONFIG_CFLAGS)
+-LDLIBS+=$(PKGCONFIG_LDLIBS)
+-
+-LDLIBS+=-lm -lpthread -lrt -lscrypt -lkeyutils -laio -ldl
++LDLIBS+=-Wl,-Bstatic -laio -lkeyutils -lurcu -lsodium -llz4
++LDLIBS+=-Wl,-Bdynamic -lblkid -luuid -lz -lzstd -lm -lpthread -lrt -ldl
+ LDLIBS+=$(EXTRA_LDLIBS)
+ 
+ ifeq ($(PREFIX),/usr)
+@@ -73,10 +60,6 @@ endif
+ 
+ undefine var
+ 
+-ifeq (,$(RST2MAN))
+-	@echo "WARNING: no RST2MAN found!"
+-endif
+-
+ .PHONY: all
+ all: bcachefs bcachefs.5
+ 
+diff --git a/tools-util.c b/tools-util.c
+index 3cc0de4..a264fe9 100644
+--- a/tools-util.c
++++ b/tools-util.c
+@@ -14,7 +14,7 @@
+ #include <sys/types.h>
+ #include <unistd.h>
+ 
+-#include <blkid.h>
++#include <blkid/blkid.h>
+ #include <uuid/uuid.h>
+ 
+ #include "libbcachefs/bcachefs_ioctl.h"

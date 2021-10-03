@@ -1,0 +1,46 @@
+diff --git a/crypto.c b/crypto.c
+index 7f7fbd5..31b03d1 100644
+--- a/crypto.c
++++ b/crypto.c
+@@ -12,7 +12,7 @@
+ 
+ #include <keyutils.h>
+ #include <linux/random.h>
+-#include <libscrypt.h>
++#include <sodium/crypto_pwhash_scryptsalsa208sha256.h>
+ #include <uuid/uuid.h>
+ 
+ #include "libbcachefs/checksum.h"
+@@ -84,12 +84,13 @@ struct bch_key derive_passphrase(struct bch_sb_field_crypt *crypt,
+ 
+ 	switch (BCH_CRYPT_KDF_TYPE(crypt)) {
+ 	case BCH_KDF_SCRYPT:
+-		ret = libscrypt_scrypt((void *) passphrase, strlen(passphrase),
+-				       salt, sizeof(salt),
+-				       1ULL << BCH_KDF_SCRYPT_N(crypt),
+-				       1ULL << BCH_KDF_SCRYPT_R(crypt),
+-				       1ULL << BCH_KDF_SCRYPT_P(crypt),
+-				       (void *) &key, sizeof(key));
++		ret = crypto_pwhash_scryptsalsa208sha256_ll(
++			(void *) passphrase, strlen(passphrase),
++			salt, sizeof(salt),
++			1ULL << BCH_KDF_SCRYPT_N(crypt),
++			1ULL << BCH_KDF_SCRYPT_R(crypt),
++			1ULL << BCH_KDF_SCRYPT_P(crypt),
++			(void *) &key, sizeof(key));
+ 		if (ret)
+ 			die("scrypt error: %i", ret);
+ 		break;
+@@ -170,9 +171,9 @@ void bch_sb_crypt_init(struct bch_sb *sb,
+ 	if (passphrase) {
+ 
+ 		SET_BCH_CRYPT_KDF_TYPE(crypt, BCH_KDF_SCRYPT);
+-		SET_BCH_KDF_SCRYPT_N(crypt, ilog2(SCRYPT_N));
+-		SET_BCH_KDF_SCRYPT_R(crypt, ilog2(SCRYPT_r));
+-		SET_BCH_KDF_SCRYPT_P(crypt, ilog2(SCRYPT_p));
++		SET_BCH_KDF_SCRYPT_N(crypt, ilog2(16384 /* SCRYPT_N */));
++		SET_BCH_KDF_SCRYPT_R(crypt, ilog2(8 /* SCRYPT_r */));
++		SET_BCH_KDF_SCRYPT_P(crypt, ilog2(16 /* SCRYPT_p */));
+ 
+ 		struct bch_key passphrase_key = derive_passphrase(crypt, passphrase);
+ 

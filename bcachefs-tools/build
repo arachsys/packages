@@ -1,0 +1,21 @@
+require keyutils libaio libsodium liburcu lz4
+
+check() {
+  url https://api.github.com/repos/koverstreet/bcachefs-tools
+  match snapshot 20211001 \
+    '"pushed_at": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
+}
+
+prepare() {
+  unpack bcachefs-tools-20211001-37850436.tar.gz \
+    https://github.com/koverstreet/bcachefs-tools/archive/37850436dd7dfbe67738749c4d4a2506ffff1ec3.tar.gz
+  apply cosmetic.diff
+  apply make.diff
+  apply scrypt.diff
+  tree 2495514894200f4a257fcb5e8c806f859144a61060472cbd698a587e4b98b6d0
+}
+
+build() {
+  make bcachefs VERSION=20211001-37850436
+  install -s -t /dst/bin -D bcachefs
+}

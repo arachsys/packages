@@ -1,0 +1,1246 @@
+diff --git a/bcachefs.c b/bcachefs.c
+index 1a06c17..797f37b 100644
+--- a/bcachefs.c
++++ b/bcachefs.c
+@@ -28,7 +28,7 @@
+ static void usage(void)
+ {
+ 	puts("bcachefs - tool for managing bcachefs filesystems\n"
+-	     "usage: bcachefs <command> [<args>]\n"
++	     "Usage: bcachefs COMMAND [ARG]...\n"
+ 	     "\n"
+ 	     "Superblock commands:\n"
+ 	     "  format                   Format a new filesystem\n"
+@@ -36,19 +36,19 @@ static void usage(void)
+ 	     "\n"
+ 	     "Repair:\n"
+ 	     "  fsck                     Check an existing filesystem for errors\n"
++#if 0
+ 	     "\n"
+ 	     "Startup/shutdown, assembly of multi device filesystems:\n"
+-#if 0
+ 	     "  assemble                 Assemble an existing multi device filesystem\n"
+ 	     "  incremental              Incrementally assemble an existing multi device filesystem\n"
+ 	     "  run                      Start a partially assembled filesystem\n"
+ 	     "  stop	                 Stop a running filesystem\n"
+ #endif
+ 	     "\n"
+-	     "Commands for managing a running filesystem:\n"
++	     "Manage a running filesystem:\n"
+ 	     "  fs usage                 Show disk usage\n"
+ 	     "\n"
+-	     "Commands for managing devices within a running filesystem:\n"
++	     "Manage devices within a running filesystem:\n"
+ 	     "  device add               Add a new device to an existing filesystem\n"
+ 	     "  device remove            Remove a device from an existing filesystem\n"
+ 	     "  device online            Re-add an existing member to a filesystem\n"
+@@ -58,12 +58,12 @@ static void usage(void)
+ 	     "  device resize            Resize filesystem on a device\n"
+ 	     "  device journal-resize    Resize journal on a device\n"
+ 	     "\n"
+-	     "Commands for managing subvolumes and snapshots:\n"
+-	     "  subvolume create     Create a new subvolume\n"
+-	     "  subvolume delete     Delete an existing subvolume\n"
+-	     "  subvolume snapshot   Create a snapshot\n"
++	     "Manage subvolumes and snapshots:\n"
++	     "  subvolume create         Create a new subvolume\n"
++	     "  subvolume delete         Delete an existing subvolume\n"
++	     "  subvolume snapshot       Create a snapshot\n"
+ 	     "\n"
+-	     "Commands for managing filesystem data:\n"
++	     "Manage filesystem data:\n"
+ 	     "  data rereplicate         Rereplicate degraded data\n"
+ 	     "  data job                 Kick off low level data jobs\n"
+ 	     "\n"
+@@ -72,17 +72,17 @@ static void usage(void)
+ 	     "  set-passphrase           Change passphrase on an existing (unmounted) filesystem\n"
+ 	     "  remove-passphrase        Remove passphrase on an existing (unmounted) filesystem\n"
+ 	     "\n"
+-	     "Migrate:\n"
++	     "Migration:\n"
+ 	     "  migrate                  Migrate an existing filesystem to bcachefs, in place\n"
+ 	     "  migrate-superblock       Add default superblock, after bcachefs migrate\n"
+ 	     "\n"
+-	     "Commands for operating on files in a bcachefs filesystem:\n"
++	     "Operate on files in a running filesystem:\n"
+ 	     "  setattr                  Set various per file attributes\n"
+-	     "Debug:\n"
+-	     "These commands work on offline, unmounted filesystems\n"
++	     "\n"
++	     "Debug an offline, unmounted filesystem:\n"
+ 	     "  dump                     Dump filesystem metadata to a qcow2 image\n"
+ 	     "  list                     List filesystem metadata in textual form\n"
+-	     "  list_journal             List contents of journal\n"
++	     "  list-journal             List contents of journal\n"
+ 	     "\n"
+ 	     "Miscellaneous:\n"
+ 	     "  version                  Display the version of the invoked bcachefs tool\n");
+@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
+ 		return cmd_dump(argc, argv);
+ 	if (!strcmp(cmd, "list"))
+ 		return cmd_list(argc, argv);
+-	if (!strcmp(cmd, "list_journal"))
++	if (!strcmp(cmd, "list-journal"))
+ 		return cmd_list_journal(argc, argv);
+ 
+ 	if (!strcmp(cmd, "setattr"))
+diff --git a/cmd_attr.c b/cmd_attr.c
+index 736554c..34921e9 100644
+--- a/cmd_attr.c
++++ b/cmd_attr.c
+@@ -72,7 +72,7 @@ static void do_setattr(char *path, struct bch_opt_strs opts)
+ 
+ 	int dirfd = open(path, O_RDONLY);
+ 	if (dirfd < 0)
+-		die("error opening %s: %m", path);
++		die("Error opening %s: %m", path);
+ 
+ 	propagate_recurse(dirfd);
+ 	close(dirfd);
+@@ -81,7 +81,7 @@ static void do_setattr(char *path, struct bch_opt_strs opts)
+ static void setattr_usage(void)
+ {
+ 	puts("bcachefs setattr - set attributes on files in a bcachefs filesystem\n"
+-	     "Usage: bcachefs setattr [OPTIONS]... <files>\n"
++	     "Usage: bcachefs setattr [OPTION]... FILE...\n"
+ 	     "\n"
+ 	     "Options:");
+ 
+diff --git a/cmd_data.c b/cmd_data.c
+index 25a2dcb..0b30e24 100644
+--- a/cmd_data.c
++++ b/cmd_data.c
+@@ -12,7 +12,7 @@
+ static void data_rereplicate_usage(void)
+ {
+ 	puts("bcachefs data rereplicate\n"
+-	     "Usage: bcachefs data rereplicate filesystem\n"
++	     "Usage: bcachefs data rereplicate FILESYSTEM\n"
+ 	     "\n"
+ 	     "Walks existing data in a filesystem, writing additional copies\n"
+ 	     "of any degraded data\n"
+@@ -39,7 +39,7 @@ int cmd_data_rereplicate(int argc, char *argv[])
+ 		die("Please supply a filesystem");
+ 
+ 	if (argc)
+-		die("too many arguments");
++		die("Too many arguments");
+ 
+ 	return bchu_data(bcache_fs_open(fs_path), (struct bch_ioctl_data) {
+ 		.op		= BCH_DATA_OP_REREPLICATE,
+@@ -53,16 +53,16 @@ int cmd_data_rereplicate(int argc, char *argv[])
+ static void data_job_usage(void)
+ {
+ 	puts("bcachefs data job\n"
+-	     "Usage: bcachefs data job [job} filesystem\n"
++	     "Usage: bcachefs data job JOB FILESYSTEM\n"
+ 	     "\n"
+ 	     "Kick off a data job and report progress\n"
+ 	     "\n"
+-	     "job: one of scrub, rereplicate, migrate, or rewrite_old_nodes\n"
++	     "JOB is one of scrub, rereplicate, migrate or rewrite_old_nodes\n"
+ 	     "\n"
+ 	     "Options:\n"
+-	     "  -b btree                    btree to operate on\n"
+-	     "  -s inode:offset       start position\n"
+-	     "  -e inode:offset       end position\n"
++	     "  -b BTREE                    btree to operate on\n"
++	     "  -s INODE:OFFSET             start position\n"
++	     "  -e INODE:OFFSET             end position\n"
+ 	     "  -h, --help                  display this help and exit\n"
+ 	     "Report bugs to <linux-bcache@vger.kernel.org>");
+ 	exit(EXIT_SUCCESS);
+@@ -106,19 +106,19 @@ int cmd_data_job(int argc, char *argv[])
+ 
+ 	char *job = arg_pop();
+ 	if (!job)
+-		die("please specify which type of job");
++		die("Please specify which type of job");
+ 
+ 	op.op = read_string_list_or_die(job, data_jobs, "bad job type");
+ 
+ 	if (op.op == BCH_DATA_OP_SCRUB)
+-		die("scrub not implemented yet");
++		die("Scrub not implemented yet");
+ 
+ 	char *fs_path = arg_pop();
+ 	if (!fs_path)
+ 		fs_path = ".";
+ 
+ 	if (argc)
+-		die("too many arguments");
++		die("Too many arguments");
+ 
+ 	return bchu_data(bcache_fs_open(fs_path), op);
+ }
+diff --git a/cmd_debug.c b/cmd_debug.c
+index aee19fb..1a43120 100644
+--- a/cmd_debug.c
++++ b/cmd_debug.c
+@@ -23,10 +23,10 @@
+ static void dump_usage(void)
+ {
+ 	puts("bcachefs dump - dump filesystem metadata\n"
+-	     "Usage: bcachefs dump [OPTION]... <devices>\n"
++	     "Usage: bcachefs dump [OPTION]... DEVICE...\n"
+ 	     "\n"
+ 	     "Options:\n"
+-	     "  -o output     Output qcow2 image(s)\n"
++	     "  -o FILE       Output qcow2 image(s)\n"
+ 	     "  -f            Force; overwrite when needed\n"
+ 	     "  -h            Display this help and exit\n"
+ 	     "Report bugs to <linux-bcache@vger.kernel.org>");
+@@ -145,7 +145,7 @@ int cmd_dump(int argc, char *argv[])
+ 
+ 	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
+ 	if (IS_ERR(c))
+-		die("error opening %s: %s", argv[0], strerror(-PTR_ERR(c)));
++		die("Error opening %s: %s", argv[0], strerror(-PTR_ERR(c)));
+ 
+ 	down_read(&c->gc_lock);
+ 
+@@ -294,13 +294,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
+ 			i = &n_ondisk->keys;
+ 
+ 			if (!bch2_checksum_type_valid(c, BSET_CSUM_TYPE(i)))
+-				die("unknown checksum type");
++				die("Unknown checksum type");
+ 
+ 			nonce = btree_nonce(i, offset << 9);
+ 			csum = csum_vstruct(c, BSET_CSUM_TYPE(i), nonce, n_ondisk);
+ 
+ 			if (bch2_crc_cmp(csum, n_ondisk->csum))
+-				die("invalid checksum\n");
++				die("Invalid checksum\n");
+ 
+ 			bset_encrypt(c, i, offset << 9);
+ 
+@@ -314,13 +314,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
+ 				break;
+ 
+ 			if (!bch2_checksum_type_valid(c, BSET_CSUM_TYPE(i)))
+-				die("unknown checksum type");
++				die("Unknown checksum type");
+ 
+ 			nonce = btree_nonce(i, offset << 9);
+ 			csum = csum_vstruct(c, BSET_CSUM_TYPE(i), nonce, bne);
+ 
+ 			if (bch2_crc_cmp(csum, bne->csum))
+-				die("invalid checksum");
++				die("Invalid checksum");
+ 
+ 			bset_encrypt(c, i, offset << 9);
+ 
+@@ -404,14 +404,14 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
+ static void list_keys_usage(void)
+ {
+ 	puts("bcachefs list - list filesystem metadata to stdout\n"
+-	     "Usage: bcachefs list [OPTION]... <devices>\n"
++	     "Usage: bcachefs list [OPTION]... DEVICE...\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -b (extents|inodes|dirents|xattrs)    Btree to list from\n"
+-	     "  -l level                              Btree depth to descend to (0 == leaves)\n"
+-	     "  -s inode:offset                       Start position to list from\n"
+-	     "  -e inode:offset                       End position\n"
+-	     "  -i inode                              List keys for a given inode number\n"
++	     "  -l LEVEL                              Btree depth to descend to (0 == leaves)\n"
++	     "  -s INODE:OFFSET                       Start position to list from\n"
++	     "  -e INODE:OFFSET                       End position\n"
++	     "  -i INODE                              List keys for a given inode number\n"
+ 	     "  -m (keys|formats|nodes|nodes_ondisk|nodes_keys)\n"
+ 	     "                                        List mode\n"
+ 	     "  -f                                    Check (fsck) the filesystem first\n"
+@@ -465,7 +465,7 @@ int cmd_list(int argc, char *argv[])
+ 			break;
+ 		case 'l':
+ 			if (kstrtouint(optarg, 10, &level) || level >= BTREE_MAX_DEPTH)
+-				die("invalid level");
++				die("Invalid level");
+ 			break;
+ 		case 's':
+ 			start	= bpos_parse(optarg);
+@@ -475,7 +475,7 @@ int cmd_list(int argc, char *argv[])
+ 			break;
+ 		case 'i':
+ 			if (kstrtoull(optarg, 10, &inum))
+-				die("invalid inode %s", optarg);
++				die("Invalid inode %s", optarg);
+ 			start	= POS(inum, 0);
+ 			end	= POS(inum + 1, 0);
+ 			break;
+@@ -501,7 +501,7 @@ int cmd_list(int argc, char *argv[])
+ 
+ 	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
+ 	if (IS_ERR(c))
+-		die("error opening %s: %s", argv[0], strerror(-PTR_ERR(c)));
++		die("Error opening %s: %s", argv[0], strerror(-PTR_ERR(c)));
+ 
+ 
+ 	for (btree_id = btree_id_start;
+@@ -534,8 +534,8 @@ int cmd_list(int argc, char *argv[])
+ 
+ static void list_journal_usage(void)
+ {
+-	puts("bcachefs list_journal - print contents of journal\n"
+-	     "Usage: bcachefs list_journal [OPTION]... <devices>\n"
++	puts("bcachefs list-journal - print contents of journal\n"
++	     "Usage: bcachefs list-journal [OPTION]... <devices>\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -a            Read entire journal, not just dirty entries\n"
+@@ -571,7 +571,7 @@ int cmd_list_journal(int argc, char *argv[])
+ 
+ 	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
+ 	if (IS_ERR(c))
+-		die("error opening %s: %s", argv[0], strerror(-PTR_ERR(c)));
++		die("Error opening %s: %s", argv[0], strerror(-PTR_ERR(c)));
+ 
+ 	struct journal_replay *p;
+ 	struct jset_entry *entry;
+diff --git a/cmd_device.c b/cmd_device.c
+index 3bdb281..771c05b 100644
+--- a/cmd_device.c
++++ b/cmd_device.c
+@@ -24,13 +24,13 @@
+ static void device_add_usage(void)
+ {
+ 	puts("bcachefs device add - add a device to an existing filesystem\n"
+-	     "Usage: bcachefs device add [OPTION]... filesystem device\n"
++	     "Usage: bcachefs device add [OPTION]... FILESYSTEM DEVICE\n"
+ 	     "\n"
+ 	     "Options:\n"
+-	     "  -S, --fs_size=size          Size of filesystem on device\n"
+-	     "  -B, --bucket=size           Bucket size\n"
++	     "  -S, --fs_size=SIZE          Size of filesystem on device\n"
++	     "  -B, --bucket=SIZE           Bucket size\n"
+ 	     "  -D, --discard               Enable discards\n"
+-	     "  -g, --group=group           Disk group\n"
++	     "  -g, --group=GROUP           Disk group\n"
+ 	     "  -f, --force                 Use device even if it appears to already be formatted\n"
+ 	     "  -h, --help                  Display this help and exit\n"
+ 	     "\n"
+@@ -58,7 +58,7 @@ int cmd_device_add(int argc, char *argv[])
+ 		switch (opt) {
+ 		case 'S':
+ 			if (bch2_strtoull_h(optarg, &dev_opts.size))
+-				die("invalid filesystem size");
++				die("Invalid filesystem size");
+ 
+ 			dev_opts.size >>= 9;
+ 			break;
+@@ -90,7 +90,7 @@ int cmd_device_add(int argc, char *argv[])
+ 		die("Please supply a device");
+ 
+ 	if (argc)
+-		die("too many arguments");
++		die("Too many arguments");
+ 
+ 	struct bchfs_handle fs = bcache_fs_open(fs_path);
+ 
+@@ -121,9 +121,9 @@ int cmd_device_add(int argc, char *argv[])
+ 
+ static void device_remove_usage(void)
+ {
+-	puts("bcachefs device_remove - remove a device from a filesystem\n"
++	puts("bcachefs device remove - remove a device from a filesystem\n"
+ 	     "Usage:\n"
+-	     "  bcachefs device remove <device>|<devid> <path>\n"
++	     "  bcachefs device remove DEVICE|DEVID PATH\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -f, --force		    Force removal, even if some data\n"
+@@ -193,7 +193,7 @@ int cmd_device_remove(int argc, char *argv[])
+ static void device_online_usage(void)
+ {
+ 	puts("bcachefs device online - readd a device to a running filesystem\n"
+-	     "Usage: bcachefs device online [OPTION]... device\n"
++	     "Usage: bcachefs device online [OPTION]... DEVICE\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -h, --help                  Display this help and exit\n"
+@@ -218,7 +218,7 @@ int cmd_device_online(int argc, char *argv[])
+ 		die("Please supply a device");
+ 
+ 	if (argc)
+-		die("too many arguments");
++		die("Too many arguments");
+ 
+ 	int dev_idx;
+ 	struct bchfs_handle fs = bchu_fs_open_by_dev(dev, &dev_idx);
+@@ -229,7 +229,7 @@ int cmd_device_online(int argc, char *argv[])
+ static void device_offline_usage(void)
+ {
+ 	puts("bcachefs device offline - take a device offline, without removing it\n"
+-	     "Usage: bcachefs device offline [OPTION]... device\n"
++	     "Usage: bcachefs device offline [OPTION]... DEVICE\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -f, --force		    Force, if data redundancy will be degraded\n"
+@@ -263,7 +263,7 @@ int cmd_device_offline(int argc, char *argv[])
+ 		die("Please supply a device");
+ 
+ 	if (argc)
+-		die("too many arguments");
++		die("Too many arguments");
+ 
+ 	int dev_idx;
+ 	struct bchfs_handle fs = bchu_fs_open_by_dev(dev, &dev_idx);
+@@ -274,7 +274,7 @@ int cmd_device_offline(int argc, char *argv[])
+ static void device_evacuate_usage(void)
+ {
+ 	puts("bcachefs device evacuate - move data off of a given device\n"
+-	     "Usage: bcachefs device evacuate [OPTION]... device\n"
++	     "Usage: bcachefs device evacuate [OPTION]... DEVICE\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -h, --help                  Display this help and exit\n"
+@@ -299,7 +299,7 @@ int cmd_device_evacuate(int argc, char *argv[])
+ 		die("Please supply a device");
+ 
+ 	if (argc)
+-		die("too many arguments");
++		die("Too many arguments");
+ 
+ 	int dev_idx;
+ 	struct bchfs_handle fs = bchu_fs_open_by_dev(dev_path, &dev_idx);
+@@ -324,10 +324,10 @@ int cmd_device_evacuate(int argc, char *argv[])
+ static void device_set_state_usage(void)
+ {
+ 	puts("bcachefs device set-state\n"
+-	     "Usage: bcachefs device set-state <new-state> <device>|<devid> <path>\n"
++	     "Usage: bcachefs device set-state NEW-STATE DEVICE|DEVID PATH\n"
+ 	     "\n"
+-	     "<new-state>: one of rw, ro, failed or spare\n"
+-	     "<path>: path to mounted filesystem, optional unless specifying device by id\n"
++	     "NEW-STATE is one of rw, ro, failed or spare\n"
++	     "PATH is the filesystem mount-point, optional unless specifying device by id\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -f, --force		    Force, if data redundancy will be degraded\n"
+@@ -394,7 +394,7 @@ int cmd_device_set_state(int argc, char *argv[])
+ 
+ 		int ret = bch2_read_super(dev_str, &opts, &sb);
+ 		if (ret)
+-			die("error opening %s: %s", dev_str, strerror(-ret));
++			die("Error opening %s: %s", dev_str, strerror(-ret));
+ 
+ 		struct bch_member *m = bch2_sb_get_members(sb.sb)->members + sb.sb->dev_idx;
+ 
+@@ -431,7 +431,7 @@ int cmd_device_set_state(int argc, char *argv[])
+ static void device_resize_usage(void)
+ {
+ 	puts("bcachefs device resize \n"
+-	     "Usage: bcachefs device resize device [ size ]\n"
++	     "Usage: bcachefs device resize DEVICE [SIZE]\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -h, --help                  display this help and exit\n"
+@@ -465,7 +465,7 @@ int cmd_device_resize(int argc, char *argv[])
+ 	if (!size_arg)
+ 		size = get_size(dev, dev_fd);
+ 	else if (bch2_strtoull_h(size_arg, &size))
+-		die("invalid size");
++		die("Invalid size");
+ 
+ 	size >>= 9;
+ 
+@@ -477,7 +477,7 @@ int cmd_device_resize(int argc, char *argv[])
+ 	struct mntent *mount = dev_to_mount(dev);
+ 	if (mount) {
+ 		if (!S_ISBLK(dev_stat.st_mode))
+-			die("%s is mounted but isn't a block device?!", dev);
++			die("%s is mounted but isn't a block device", dev);
+ 
+ 		printf("Doing online resize of %s\n", dev);
+ 
+@@ -487,11 +487,11 @@ int cmd_device_resize(int argc, char *argv[])
+ 
+ 		struct bch_sb *sb = bchu_read_super(fs, -1);
+ 		if (idx >= sb->nr_devices)
+-			die("error reading superblock: dev idx >= sb->nr_devices");
++			die("Error reading superblock: dev idx >= sb->nr_devices");
+ 
+ 		struct bch_sb_field_members *mi = bch2_sb_get_members(sb);
+ 		if (!mi)
+-			die("error reading superblock: no member info");
++			die("Error reading superblock: no member info");
+ 
+ 		/* could also just read this out of sysfs... meh */
+ 		struct bch_member *m = mi->members + idx;
+@@ -508,14 +508,14 @@ int cmd_device_resize(int argc, char *argv[])
+ 
+ 		struct bch_fs *c = bch2_fs_open(&dev, 1, bch2_opts_empty());
+ 		if (IS_ERR(c))
+-			die("error opening %s: %s", dev, strerror(-PTR_ERR(c)));
++			die("Error opening %s: %s", dev, strerror(-PTR_ERR(c)));
+ 
+ 		struct bch_dev *ca, *resize = NULL;
+ 		unsigned i;
+ 
+ 		for_each_online_member(ca, c, i) {
+ 			if (resize)
+-				die("confused: more than one online device?");
++				die("Confused: more than one online device?");
+ 			resize = ca;
+ 			percpu_ref_get(&resize->io_ref);
+ 		}
+@@ -539,7 +539,7 @@ int cmd_device_resize(int argc, char *argv[])
+ static void device_resize_journal_usage(void)
+ {
+ 	puts("bcachefs device resize-journal \n"
+-	     "Usage: bcachefs device resize-journal device [ size ]\n"
++	     "Usage: bcachefs device resize-journal DEVICE [SIZE]\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -h, --help                  display this help and exit\n"
+@@ -573,7 +573,7 @@ int cmd_device_resize_journal(int argc, char *argv[])
+ 	if (!size_arg)
+ 		size = get_size(dev, dev_fd);
+ 	else if (bch2_strtoull_h(size_arg, &size))
+-		die("invalid size");
++		die("Invalid size");
+ 
+ 	size >>= 9;
+ 
+@@ -585,7 +585,7 @@ int cmd_device_resize_journal(int argc, char *argv[])
+ 	struct mntent *mount = dev_to_mount(dev);
+ 	if (mount) {
+ 		if (!S_ISBLK(dev_stat.st_mode))
+-			die("%s is mounted but isn't a block device?!", dev);
++			die("%s is mounted but isn't a block device", dev);
+ 
+ 		struct bchfs_handle fs = bcache_fs_open(mount->mnt_dir);
+ 
+@@ -593,11 +593,11 @@ int cmd_device_resize_journal(int argc, char *argv[])
+ 
+ 		struct bch_sb *sb = bchu_read_super(fs, -1);
+ 		if (idx >= sb->nr_devices)
+-			die("error reading superblock: dev idx >= sb->nr_devices");
++			die("Error reading superblock: dev idx >= sb->nr_devices");
+ 
+ 		struct bch_sb_field_members *mi = bch2_sb_get_members(sb);
+ 		if (!mi)
+-			die("error reading superblock: no member info");
++			die("Error reading superblock: no member info");
+ 
+ 		/* could also just read this out of sysfs... meh */
+ 		struct bch_member *m = mi->members + idx;
+@@ -611,14 +611,14 @@ int cmd_device_resize_journal(int argc, char *argv[])
+ 
+ 		struct bch_fs *c = bch2_fs_open(&dev, 1, bch2_opts_empty());
+ 		if (IS_ERR(c))
+-			die("error opening %s: %s", dev, strerror(-PTR_ERR(c)));
++			die("Error opening %s: %s", dev, strerror(-PTR_ERR(c)));
+ 
+ 		struct bch_dev *ca, *resize = NULL;
+ 		unsigned i;
+ 
+ 		for_each_online_member(ca, c, i) {
+ 			if (resize)
+-				die("confused: more than one online device?");
++				die("Confused: more than one online device?");
+ 			resize = ca;
+ 			percpu_ref_get(&resize->io_ref);
+ 		}
+diff --git a/cmd_format.c b/cmd_format.c
+index 3f96f5d..53a8278 100644
+--- a/cmd_format.c
++++ b/cmd_format.c
+@@ -51,7 +51,7 @@ x('h',	help,			no_argument)
+ static void usage(void)
+ {
+ 	puts("bcachefs format - create a new bcachefs filesystem on one or more devices\n"
+-	     "Usage: bcachefs format [OPTION]... <devices>\n"
++	     "Usage: bcachefs format [OPTION]... DEVICE...\n"
+ 	     "\n"
+ 	     "Options:");
+ 
+@@ -61,15 +61,15 @@ static void usage(void)
+ 	     "      --replicas=#            Sets both data and metadata replicas\n"
+ 	     "      --encrypted             Enable whole filesystem encryption (chacha20/poly1305)\n"
+ 	     "      --no_passphrase         Don't encrypt master encryption key\n"
+-	     "  -L, --label=label\n"
+-	     "  -U, --uuid=uuid\n"
+-	     "      --superblock_size=size\n"
++	     "  -L, --label=LABEL\n"
++	     "  -U, --uuid=UUID\n"
++	     "      --superblock_size=SIZE\n"
+ 	     "\n"
+ 	     "Device specific options:");
+ 
+ 	bch2_opts_usage(OPT_DEVICE);
+ 
+-	puts("  -g, --group=label           Disk group\n"
++	puts("  -g, --group=LABEL           Disk group\n"
+ 	     "\n"
+ 	     "  -f, --force\n"
+ 	     "  -q, --quiet                 Only print errors\n"
+@@ -136,7 +136,7 @@ int cmd_format(int argc, char *argv[])
+ 			if (kstrtouint(optarg, 10, &v) ||
+ 			    !v ||
+ 			    v > BCH_REPLICAS_MAX)
+-				die("invalid replicas");
++				die("Invalid replicas");
+ 
+ 			opt_set(fs_opts, metadata_replicas, v);
+ 			opt_set(fs_opts, data_replicas, v);
+@@ -162,13 +162,13 @@ int cmd_format(int argc, char *argv[])
+ 			break;
+ 		case O_fs_size:
+ 			if (bch2_strtoull_h(optarg, &dev_opts.size))
+-				die("invalid filesystem size");
++				die("Invalid filesystem size");
+ 
+ 			dev_opts.size >>= 9;
+ 			break;
+ 		case O_superblock_size:
+ 			if (bch2_strtouint_h(optarg, &opts.superblock_size))
+-				die("invalid filesystem size");
++				die("Invalid filesystem size");
+ 
+ 			opts.superblock_size >>= 9;
+ 			break;
+@@ -191,11 +191,11 @@ int cmd_format(int argc, char *argv[])
+ 		case O_durability:
+ 			if (kstrtouint(optarg, 10, &dev_opts.durability) ||
+ 			    dev_opts.durability > BCH_REPLICAS_MAX)
+-				die("invalid durability");
++				die("Invalid durability");
+ 			break;
+ 		case O_version:
+ 			if (kstrtouint(optarg, 10, &opts.version))
+-				die("invalid version");
++				die("Invalid version");
+ 			break;
+ 		case O_no_initialize:
+ 			initialize = false;
+@@ -258,7 +258,7 @@ int cmd_format(int argc, char *argv[])
+ 						darray_size(device_paths),
+ 						bch2_opts_empty());
+ 		if (IS_ERR(c))
+-			die("error opening %s: %s", device_paths.item,
++			die("Error opening %s: %s", device_paths.item,
+ 			    strerror(-PTR_ERR(c)));
+ 
+ 		bch2_fs_stop(c);
+@@ -272,10 +272,10 @@ int cmd_format(int argc, char *argv[])
+ static void show_super_usage(void)
+ {
+ 	puts("bcachefs show-super \n"
+-	     "Usage: bcachefs show-super [OPTION].. device\n"
++	     "Usage: bcachefs show-super [OPTION]... DEVICE\n"
+ 	     "\n"
+ 	     "Options:\n"
+-	     "  -f, --fields=(fields)       list of sections to print\n"
++	     "  -f, --fields=FIELDS         list of sections to print\n"
+ 	     "  -l, --layout                print superblock layout\n"
+ 	     "  -h, --help                  display this help and exit\n"
+ 	     "Report bugs to <linux-bcache@vger.kernel.org>");
+@@ -313,9 +313,9 @@ int cmd_show_super(int argc, char *argv[])
+ 
+ 	char *dev = arg_pop();
+ 	if (!dev)
+-		die("please supply a device");
++		die("Please supply a device");
+ 	if (argc)
+-		die("too many arguments");
++		die("Too many arguments");
+ 
+ 	struct bch_opts opts = bch2_opts_empty();
+ 
+diff --git a/cmd_fsck.c b/cmd_fsck.c
+index 247e207..80bba3e 100644
+--- a/cmd_fsck.c
++++ b/cmd_fsck.c
+@@ -9,7 +9,7 @@
+ static void usage(void)
+ {
+ 	puts("bcachefs fsck - filesystem check and repair\n"
+-	     "Usage: bcachefs fsck [OPTION]... <devices>\n"
++	     "Usage: bcachefs fsck [OPTION]... DEVICE...\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -p                     Automatic repair (no questions)\n"
+diff --git a/cmd_fusemount.c b/cmd_fusemount.c
+index 216094f..784d0d3 100644
+--- a/cmd_fusemount.c
++++ b/cmd_fusemount.c
+@@ -1172,7 +1172,7 @@ static void tokenize_devices(struct bf_context *ctx)
+ 
+ static void usage(char *argv[])
+ {
+-	printf("Usage: %s fusemount [options] <dev>[:dev2:...] <mountpoint>\n",
++	printf("Usage: %s fusemount [OPTION]... DEV[:DEV]... MOUNTPOINT\n",
+ 	       argv[0]);
+ 	printf("\n");
+ }
+@@ -1215,7 +1215,7 @@ int cmd_fusemount(int argc, char *argv[])
+ 	}
+ 	if (!ctx.devices_str) {
+ 		usage(argv);
+-		printf("Please specify a device or device1:device2:...\n");
++		printf("Please specify a device or devices\n");
+ 		ret = 1;
+ 		goto out;
+ 	}
+@@ -1228,7 +1228,7 @@ int cmd_fusemount(int argc, char *argv[])
+ 
+ 	c = bch2_fs_open(ctx.devices, ctx.nr_devices, bch_opts);
+ 	if (IS_ERR(c))
+-		die("error opening %s: %s", ctx.devices_str,
++		die("Error opening %s: %s", ctx.devices_str,
+ 		    strerror(-PTR_ERR(c)));
+ 
+ 	/* Fuse */
+diff --git a/cmd_key.c b/cmd_key.c
+index 6052cb0..f89a0fd 100644
+--- a/cmd_key.c
++++ b/cmd_key.c
+@@ -10,7 +10,7 @@
+ static void unlock_usage(void)
+ {
+ 	puts("bcachefs unlock - unlock an encrypted filesystem so it can be mounted\n"
+-	     "Usage: bcachefs unlock [OPTION] device\n"
++	     "Usage: bcachefs unlock [OPTION] DEVICE\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -c                     Check if a device is encrypted\n"
+@@ -102,7 +102,7 @@ int cmd_set_passphrase(int argc, char *argv[])
+ 
+ 	if (bch2_chacha_encrypt_key(&passphrase_key, __bch2_sb_key_nonce(c->disk_sb.sb),
+ 				    &new_key, sizeof(new_key)))
+-		die("error encrypting key");
++		die("Error encrypting key");
+ 	crypt->key = new_key;
+ 
+ 	bch2_write_super(c);
+diff --git a/cmd_migrate.c b/cmd_migrate.c
+index 41cfe5d..e7c04b5 100644
+--- a/cmd_migrate.c
++++ b/cmd_migrate.c
+@@ -58,7 +58,7 @@ static char *dev_t_to_path(dev_t dev)
+ 
+ 	p = strrchr(link, '/');
+ 	if (!p)
+-		die("error looking up device name");
++		die("Error looking up device name");
+ 	p++;
+ 
+ 	return mprintf("/dev/%s", p);
+@@ -126,7 +126,7 @@ static void update_inode(struct bch_fs *c,
+ 	ret = bch2_btree_insert(c, BTREE_ID_inodes, &packed.inode.k_i,
+ 				NULL, NULL, 0);
+ 	if (ret)
+-		die("error updating inode: %s", strerror(-ret));
++		die("Error updating inode: %s", strerror(-ret));
+ }
+ 
+ static void create_link(struct bch_fs *c,
+@@ -142,7 +142,7 @@ static void create_link(struct bch_fs *c,
+ 				(subvol_inum) { 1, parent->bi_inum }, &parent_u,
+ 				(subvol_inum) { 1, inum }, &inode, &qstr));
+ 	if (ret)
+-		die("error creating hardlink: %s", strerror(-ret));
++		die("Error creating hardlink: %s", strerror(-ret));
+ }
+ 
+ static struct bch_inode_unpacked create_file(struct bch_fs *c,
+@@ -161,7 +161,7 @@ static struct bch_inode_unpacked create_file(struct bch_fs *c,
+ 				  uid, gid, mode, rdev, NULL, NULL,
+ 				  (subvol_inum) {}, 0));
+ 	if (ret)
+-		die("error creating file: %s", strerror(-ret));
++		die("Error creating file: %s", strerror(-ret));
+ 
+ 	return new_inode;
+ }
+@@ -222,7 +222,7 @@ static void copy_xattrs(struct bch_fs *c, struct bch_inode_unpacked *dst,
+ 		ssize_t val_size = lgetxattr(src, attr, val, sizeof(val));
+ 
+ 		if (val_size < 0)
+-			die("error getting xattr val: %m");
++			die("Error getting xattr val: %m");
+ 
+ 		const struct xattr_handler *h = xattr_resolve_name(&attr);
+ 
+@@ -232,7 +232,7 @@ static void copy_xattrs(struct bch_fs *c, struct bch_inode_unpacked *dst,
+ 					       &hash_info, attr,
+ 					       val, val_size, h->flags, 0));
+ 		if (ret < 0)
+-			die("error creating xattr: %s", strerror(-ret));
++			die("Error creating xattr: %s", strerror(-ret));
+ 	}
+ }
+ 
+@@ -264,7 +264,7 @@ static void write_data(struct bch_fs *c,
+ 	int ret = bch2_disk_reservation_get(c, &o.op.res, len >> 9,
+ 					    c->opts.data_replicas, 0);
+ 	if (ret)
+-		die("error reserving space in new filesystem: %s", strerror(-ret));
++		die("Error reserving space in new filesystem: %s", strerror(-ret));
+ 
+ 	closure_call(&o.op.cl, bch2_write, NULL, &cl);
+ 	closure_sync(&cl);
+@@ -328,7 +328,7 @@ static void link_data(struct bch_fs *c, struct bch_inode_unpacked *dst,
+ 		ret = bch2_disk_reservation_get(c, &res, sectors, 1,
+ 						BCH_DISK_RESERVATION_NOFAIL);
+ 		if (ret)
+-			die("error reserving space in new filesystem: %s",
++			die("Error reserving space in new filesystem: %s",
+ 			    strerror(-ret));
+ 
+ 		bch2_mark_bkey_replicas(c, extent_i_to_s_c(e).s_c);
+@@ -336,7 +336,7 @@ static void link_data(struct bch_fs *c, struct bch_inode_unpacked *dst,
+ 		ret = bch2_btree_insert(c, BTREE_ID_extents, &e->k_i,
+ 					&res, NULL, 0);
+ 		if (ret)
+-			die("btree insert error %s", strerror(-ret));
++			die("Btree insert error %s", strerror(-ret));
+ 
+ 		bch2_disk_reservation_put(c, &res);
+ 
+@@ -576,7 +576,7 @@ static void copy_fs(struct bch_fs *c, int src_fd, const char *src_path,
+ 	int ret = bch2_inode_find_by_inum(c, (subvol_inum) { 1, BCACHEFS_ROOT_INO },
+ 					  &root_inode);
+ 	if (ret)
+-		die("error looking up root directory: %s", strerror(-ret));
++		die("Error looking up root directory: %s", strerror(-ret));
+ 
+ 	if (fchdir(src_fd))
+ 		die("chdir error: %m");
+@@ -792,8 +792,8 @@ static void migrate_superblock_usage(void)
+ 	     "Usage: bcachefs migrate-superblock [OPTION]...\n"
+ 	     "\n"
+ 	     "Options:\n"
+-	     "  -d device     Device to create superblock for\n"
+-	     "  -o offset     Offset of existing superblock\n"
++	     "  -d DEVICE     Device to create superblock for\n"
++	     "  -o OFFSET     Offset of existing superblock\n"
+ 	     "  -h            Display this help and exit\n"
+ 	     "Report bugs to <linux-bcache@vger.kernel.org>");
+ }
+diff --git a/cmd_subvolume.c b/cmd_subvolume.c
+index ee4eb75..95c2f22 100644
+--- a/cmd_subvolume.c
++++ b/cmd_subvolume.c
+@@ -22,7 +22,7 @@
+ static void subvolume_create_usage(void)
+ {
+ 	puts("bcachefs subvolume create - create a new subvolume\n"
+-	     "Usage: bcachefs subvolume create [OPTION]... path\n"
++	     "Usage: bcachefs subvolume create [OPTION]... PATH\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -h, --help                  Display this help and exit\n"
+@@ -68,7 +68,7 @@ int cmd_subvolume_create(int argc, char *argv[])
+ static void subvolume_delete_usage(void)
+ {
+ 	puts("bcachefs subvolume delete - delete an existing subvolume\n"
+-	     "Usage: bcachefs subvolume delete [OPTION]... path\n"
++	     "Usage: bcachefs subvolume delete [OPTION]... PATH\n"
+ 	     "\n"
+ 	     "Options:\n"
+ 	     "  -h, --help                  Display this help and exit\n"
+@@ -114,12 +114,12 @@ int cmd_subvolume_delete(int argc, char *argv[])
+ static void snapshot_create_usage(void)
+ {
+ 	puts("bcachefs subvolume snapshot - create a snapshot \n"
+-	     "Usage: bcachefs subvolume snapshot [OPTION]... <source> <dest>\n"
++	     "Usage: bcachefs subvolume snapshot [OPTION]... [SOURCE] DEST\n"
+ 	     "\n"
+-	     "Create a snapshot of <source> at <dest>. If specified, <source> must be a subvolume;\n"
+-	     "if not specified the snapshot will be of the subvolme containing <dest>.\n"
++	     "Create a snapshot of SOURCE at DEST. If specified, SOURCE must be a subvolume;\n"
++	     "if not specified, the snapshot will be of the subvolume containing DEST.\n"
+ 	     "Options:\n"
+-	     "  -r                          Make snapshot read only\n"
++	     "  -r                          Make snapshot read-only\n"
+ 	     "  -h, --help                  Display this help and exit\n"
+ 	     "\n"
+ 	     "Report bugs to <linux-bcachefs@vger.kernel.org>");
+diff --git a/crypto.c b/crypto.c
+index 31b03d1..37af21c 100644
+--- a/crypto.c
++++ b/crypto.c
+@@ -31,12 +31,12 @@ char *read_passphrase(const char *prompt)
+ 		fflush(stderr);
+ 
+ 		if (tcgetattr(STDIN_FILENO, &old))
+-			die("error getting terminal attrs");
++			die("Error getting terminal attrs");
+ 
+ 		new = old;
+ 		new.c_lflag &= ~ECHO;
+ 		if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &new))
+-			die("error setting terminal attrs");
++			die("Error setting terminal attrs");
+ 
+ 		len = getline(&buf, &buflen, stdin);
+ 
+@@ -47,7 +47,7 @@ char *read_passphrase(const char *prompt)
+ 	}
+ 
+ 	if (len < 0)
+-		die("error reading passphrase");
++		die("Error reading passphrase");
+ 	if (len && buf[len - 1] == '\n')
+ 		buf[len - 1] = '\0';
+ 
+@@ -95,7 +95,7 @@ struct bch_key derive_passphrase(struct bch_sb_field_crypt *crypt,
+ 			die("scrypt error: %i", ret);
+ 		break;
+ 	default:
+-		die("unknown kdf type %llu", BCH_CRYPT_KDF_TYPE(crypt));
++		die("Unknown kdf type %llu", BCH_CRYPT_KDF_TYPE(crypt));
+ 	}
+ 
+ 	return key;
+@@ -115,22 +115,22 @@ void bch2_passphrase_check(struct bch_sb *sb, const char *passphrase,
+ {
+ 	struct bch_sb_field_crypt *crypt = bch2_sb_get_crypt(sb);
+ 	if (!crypt)
+-		die("filesystem is not encrypted");
++		die("Filesystem is not encrypted");
+ 
+ 	*sb_key = crypt->key;
+ 
+ 	if (!bch2_key_is_encrypted(sb_key))
+-		die("filesystem does not have encryption key");
++		die("Filesystem does not have encryption key");
+ 
+ 	*passphrase_key = derive_passphrase(crypt, passphrase);
+ 
+ 	/* Check if the user supplied the correct passphrase: */
+ 	if (bch2_chacha_encrypt_key(passphrase_key, __bch2_sb_key_nonce(sb),
+ 				    sb_key, sizeof(*sb_key)))
+-		die("error encrypting key");
++		die("Error encrypting key");
+ 
+ 	if (bch2_key_is_encrypted(sb_key))
+-		die("incorrect passphrase");
++		die("Incorrect passphrase");
+ }
+ 
+ void bch2_add_key(struct bch_sb *sb, const char *passphrase)
+@@ -181,7 +181,7 @@ void bch_sb_crypt_init(struct bch_sb *sb,
+ 
+ 		if (bch2_chacha_encrypt_key(&passphrase_key, __bch2_sb_key_nonce(sb),
+ 					   &crypt->key, sizeof(crypt->key)))
+-			die("error encrypting key");
++			die("Error encrypting key");
+ 
+ 		assert(bch2_key_is_encrypted(&crypt->key));
+ 
+diff --git a/include/linux/log2.h b/include/linux/log2.h
+index f031ea1..6ce8591 100644
+--- a/include/linux/log2.h
++++ b/include/linux/log2.h
+@@ -194,7 +194,7 @@ unsigned long __rounddown_pow_of_two(unsigned long n)
+ 	__rounddown_pow_of_two(n)		\
+  )
+ 
+-static inline __attribute_const__
++static inline __attribute__((const))
+ int __order_base_2(unsigned long n)
+ {
+ 	return n > 1 ? ilog2(n - 1) + 1 : 0;
+@@ -274,7 +274,7 @@ int __bits_per(unsigned long n)
+  *
+  * The result is undefined if the size is 0.
+  */
+-static inline __attribute_const__ int get_order(unsigned long size)
++static inline __attribute__((const)) int get_order(unsigned long size)
+ {
+ 	if (__builtin_constant_p(size)) {
+ 		if (!size)
+diff --git a/libbcachefs.c b/libbcachefs.c
+index 34246dc..1c8c009 100644
+--- a/libbcachefs.c
++++ b/libbcachefs.c
+@@ -59,7 +59,7 @@ static void init_layout(struct bch_sb_layout *l,
+ 	}
+ 
+ 	if (sb_start >= sb_end)
+-		die("insufficient space for superblocks");
++		die("Insufficient space for superblocks");
+ }
+ 
+ void bch2_pick_bucket_size(struct bch_opts opts, struct dev_opts *dev)
+@@ -69,7 +69,7 @@ void bch2_pick_bucket_size(struct bch_opts opts, struct dev_opts *dev)
+ 
+ 	if (!dev->bucket_size) {
+ 		if (dev->size < min_size(opts.block_size))
+-			die("cannot format %s, too small (%llu sectors, min %llu)",
++			die("Cannot format %s, too small (%llu sectors, min %llu)",
+ 			    dev->path, dev->size, min_size(opts.block_size));
+ 
+ 		/* Bucket size must be >= block size: */
+@@ -155,7 +155,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+ 	if (!opt_defined(fs_opts, block_size)) {
+ 		opt_set(fs_opts, block_size, max_dev_block_size);
+ 	} else if (fs_opts.block_size < max_dev_block_size)
+-		die("blocksize too small: %u, must be greater than device blocksize %u",
++		die("Blocksize too small: %u, must be greater than device blocksize %u",
+ 		    fs_opts.block_size, max_dev_block_size);
+ 
+ 	/* calculate bucket sizes: */
+@@ -174,16 +174,16 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+ 	}
+ 
+ 	if (!is_power_of_2(fs_opts.block_size))
+-		die("block size must be power of 2");
++		die("Block size must be power of 2");
+ 
+ 	if (!is_power_of_2(fs_opts.btree_node_size))
+-		die("btree node size must be power of 2");
++		die("Btree node size must be power of 2");
+ 
+ 	if (uuid_is_null(opts.uuid.b))
+ 		uuid_generate(opts.uuid.b);
+ 
+ 	if (bch2_sb_realloc(&sb, 0))
+-		die("insufficient memory");
++		die("Insufficient memory");
+ 
+ 	sb.sb->version		= le16_to_cpu(opts.version);
+ 	sb.sb->version_min	= le16_to_cpu(opts.version);
+@@ -223,7 +223,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+ 
+ 	struct timespec now;
+ 	if (clock_gettime(CLOCK_REALTIME, &now))
+-		die("error getting current time: %m");
++		die("Error getting current time: %m");
+ 
+ 	sb.sb->time_base_lo	= cpu_to_le64(now.tv_sec * NSEC_PER_SEC + now.tv_nsec);
+ 	sb.sb->time_precision	= cpu_to_le32(1);
+@@ -257,7 +257,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+ 
+ 		idx = bch2_disk_path_find_or_create(&sb, i->group);
+ 		if (idx < 0)
+-			die("error creating disk path: %s", idx);
++			die("Error creating disk path: %s", idx);
+ 
+ 		SET_BCH_MEMBER_GROUP(m,	idx + 1);
+ 	}
+@@ -350,7 +350,7 @@ struct bch_sb *__bch2_super_read(int fd, u64 sector)
+ 	xpread(fd, &sb, sizeof(sb), sector << 9);
+ 
+ 	if (memcmp(&sb.magic, &BCACHE_MAGIC, sizeof(sb.magic)))
+-		die("not a bcachefs superblock");
++		die("Not a bcachefs superblock");
+ 
+ 	size_t bytes = vstruct_bytes(&sb);
+ 
+@@ -903,7 +903,7 @@ struct bchfs_handle bcache_fs_open(const char *path)
+ 
+ 		struct bch_ioctl_query_uuid uuid;
+ 		if (ioctl(ret.ioctl_fd, BCH_IOCTL_QUERY_UUID, &uuid) < 0)
+-			die("error opening %s: not a bcachefs filesystem", path);
++			die("Error opening %s: not a bcachefs filesystem", path);
+ 
+ 		ret.uuid = uuid.uuid;
+ 
+@@ -940,7 +940,7 @@ struct bchfs_handle bchu_fs_open_by_dev(const char *path, int *idx)
+ 	if (len > 0) {
+ 		char *p = strrchr(buf, '/');
+ 		if (!p || sscanf(p + 1, "dev-%u", idx) != 1)
+-			die("error parsing sysfs");
++			die("Error parsing sysfs");
+ 
+ 		*p = '\0';
+ 		p = strrchr(buf, '/');
+@@ -985,7 +985,7 @@ int bchu_data(struct bchfs_handle fs, struct bch_ioctl_data cmd)
+ 		struct bch_ioctl_data_event e;
+ 
+ 		if (read(progress_fd, &e, sizeof(e)) != sizeof(e))
+-			die("error reading from progress fd %m");
++			die("Error reading from progress fd %m");
+ 
+ 		if (e.type)
+ 			continue;
+diff --git a/libbcachefs/opts.h b/libbcachefs/opts.h
+index d39d6a5..f68554b 100644
+--- a/libbcachefs/opts.h
++++ b/libbcachefs/opts.h
+@@ -82,12 +82,12 @@ enum opt_type {
+ 	  OPT_FORMAT,							\
+ 	  OPT_SECTORS(1, 128),						\
+ 	  BCH_SB_BLOCK_SIZE,		8,				\
+-	  "size",	NULL)						\
++	  "SIZE",	NULL)						\
+ 	x(btree_node_size,		u16,				\
+ 	  OPT_FORMAT,							\
+ 	  OPT_SECTORS(1, 512),						\
+ 	  BCH_SB_BTREE_NODE_SIZE,	512,				\
+-	  "size",	"Btree node size, default 256k")		\
++	  "SIZE",	"Btree node size, default 256k")		\
+ 	x(errors,			u8,				\
+ 	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,				\
+ 	  OPT_STR(bch2_error_actions),					\
+@@ -142,22 +142,22 @@ enum opt_type {
+ 	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME|OPT_INODE,			\
+ 	  OPT_FN(bch2_opt_target),					\
+ 	  BCH_SB_METADATA_TARGET,	0,				\
+-	  "(target)",	"Device or disk group for metadata writes")	\
++	  "TARGET",	"Device or disk group for metadata writes")	\
+ 	x(foreground_target,		u16,				\
+ 	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME|OPT_INODE,			\
+ 	  OPT_FN(bch2_opt_target),					\
+ 	  BCH_SB_FOREGROUND_TARGET,	0,				\
+-	  "(target)",	"Device or disk group for foreground writes")	\
++	  "TARGET",	"Device or disk group for foreground writes")	\
+ 	x(background_target,		u16,				\
+ 	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME|OPT_INODE,			\
+ 	  OPT_FN(bch2_opt_target),					\
+ 	  BCH_SB_BACKGROUND_TARGET,	0,				\
+-	  "(target)",	"Device or disk group to move data to in the background")\
++	  "TARGET",	"Device or disk group to move data to in the background")\
+ 	x(promote_target,		u16,				\
+ 	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME|OPT_INODE,			\
+ 	  OPT_FN(bch2_opt_target),					\
+ 	  BCH_SB_PROMOTE_TARGET,	0,				\
+-	  "(target)",	"Device or disk group to promote data to on read")\
++	  "TARGET",	"Device or disk group to promote data to on read")\
+ 	x(erasure_code,			u16,				\
+ 	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME|OPT_INODE,			\
+ 	  OPT_BOOL(),							\
+@@ -306,7 +306,7 @@ enum opt_type {
+ 	  OPT_MOUNT,							\
+ 	  OPT_UINT(0, S64_MAX),						\
+ 	  NO_SB_OPT,			BCH_SB_SECTOR,			\
+-	  "offset",	"Sector offset of superblock")			\
++	  "OFFSET",	"Sector offset of superblock")			\
+ 	x(read_only,			u8,				\
+ 	  0,								\
+ 	  OPT_BOOL(),							\
+@@ -337,18 +337,18 @@ enum opt_type {
+ 	  OPT_DEVICE,							\
+ 	  OPT_SECTORS(0, S64_MAX),					\
+ 	  NO_SB_OPT,			0,				\
+-	  "size",	"Size of filesystem on device")			\
++	  "SIZE",	"Size of filesystem on device")			\
+ 	x(bucket,			u32,				\
+ 	  OPT_DEVICE,							\
+ 	  OPT_SECTORS(0, S64_MAX),					\
+ 	  NO_SB_OPT,			0,				\
+-	  "size",	"Size of filesystem on device")			\
++	  "SIZE",	"Size of filesystem on device")			\
+ 	x(durability,			u8,				\
+ 	  OPT_DEVICE,							\
+ 	  OPT_UINT(0, BCH_REPLICAS_MAX),				\
+ 	  NO_SB_OPT,			1,				\
+-	  "n",		"Data written to this device will be considered\n"\
+-			"to have already been replicated n times")
++	  "N",		"Data written to this device will be considered\n"\
++			"to have already been replicated N times")
+ 
+ struct bch_opts {
+ #define x(_name, _bits, ...)	unsigned _name##_defined:1;
+diff --git a/tests/test_helper.c b/tests/test_helper.c
+index c7604f0..72da973 100644
+--- a/tests/test_helper.c
++++ b/tests/test_helper.c
+@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
+ 	int i;
+ 
+ 	if (argc != 2) {
+-		fprintf(stderr, "Usage: test_helper <test>\n");
++		fprintf(stderr, "Usage: test_helper TEST\n");
+ 		exit(1);
+ 	}
+ 
+diff --git a/tools-util.c b/tools-util.c
+index a264fe9..f7e2643 100644
+--- a/tools-util.c
++++ b/tools-util.c
+@@ -45,7 +45,7 @@ char *mprintf(const char *fmt, ...)
+ 	va_end(args);
+ 
+ 	if (ret < 0)
+-		die("insufficient memory");
++		die("Insufficient memory");
+ 
+ 	return str;
+ }
+@@ -55,7 +55,7 @@ void *xcalloc(size_t count, size_t size)
+ 	void *p = calloc(count, size);
+ 
+ 	if (!p)
+-		die("insufficient memory");
++		die("Insufficient memory");
+ 
+ 	return p;
+ }
+@@ -65,7 +65,7 @@ void *xmalloc(size_t size)
+ 	void *p = malloc(size);
+ 
+ 	if (!p)
+-		die("insufficient memory");
++		die("Insufficient memory");
+ 
+ 	memset(p, 0, size);
+ 	return p;
+@@ -75,7 +75,7 @@ void *xrealloc(void *p, size_t size)
+ {
+ 	p = realloc(p, size);
+ 	if (!p)
+-		die("insufficient memory");
++		die("Insufficient memory");
+ 
+ 	return p;
+ }
+@@ -308,7 +308,7 @@ bool ask_yn(void)
+ 	fflush(stdout);
+ 
+ 	if (getline(&buf, &buflen, stdin) < 0)
+-		die("error reading from standard input");
++		die("Error reading from standard input");
+ 
+ 	ret = strchr(short_yes, buf[0]);
+ 	free(buf);
+@@ -406,7 +406,7 @@ unsigned hatoi_validate(const char *s, const char *msg)
+ 	u64 v;
+ 
+ 	if (bch2_strtoull_h(s, &v))
+-		die("bad %s %s", msg, s);
++		die("Bad %s %s", msg, s);
+ 
+ 	v /= 512;
+ 
+@@ -583,7 +583,7 @@ char *dev_to_name(dev_t dev)
+ 
+ 	FILE *f = fopen("/proc/partitions", "r");
+ 	if (!f)
+-		die("error opening /proc/partitions: %m");
++		die("Error opening /proc/partitions: %m");
+ 
+ 	while (getline(&line, &n, f) != -1) {
+ 		unsigned ma, mi;
+@@ -621,7 +621,7 @@ struct mntent *dev_to_mount(char *dev)
+ 	struct mntent *mnt, *ret = NULL;
+ 	FILE *f = setmntent("/proc/mounts", "r");
+ 	if (!f)
+-		die("error opening /proc/mounts: %m");
++		die("Error opening /proc/mounts: %m");
+ 
+ 	struct stat d1 = xstat(dev);
+ 
+@@ -673,14 +673,14 @@ struct bpos bpos_parse(char *buf)
+ 
+ 	if (!(field = strsep(&s, ":")) ||
+ 	    kstrtoull(field, 10, &inode_v))
+-		die("invalid bpos %s", buf);
++		die("Invalid bpos %s", buf);
+ 
+ 	if ((field = strsep(&s, ":")) &&
+ 	    kstrtoull(field, 10, &offset_v))
+-		die("invalid bpos %s", buf);
++		die("Invalid bpos %s", buf);
+ 
+ 	if (s)
+-		die("invalid bpos %s", buf);
++		die("Invalid bpos %s", buf);
+ 
+ 	return (struct bpos) { .inode = inode_v, .offset = offset_v };
+ }
