@@ -19,7 +19,7 @@ prepare() {
 
 config-extra --enable-{ipv6,optimizations,shared} --with-ensurepip=install \
   --with-{computed-gotos,dbmliborder=,lto} PKG_CONFIG=/src/fake-pkg-config \
-  CFLAGS="$CFLAGS -fno-semantic-interposition" \
+  CFLAGS="$CFLAGS -fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
   LDFLAGS="$LDFLAGS -fno-semantic-interposition"
 
 post-install() {
