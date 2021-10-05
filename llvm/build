@@ -15,11 +15,12 @@ prepare() {
     https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3.tar.gz
   apply config.diff
   apply distro.diff
+  apply multiarch.diff
   apply paths.diff
   apply prune.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 459fc41401eb3f1d235b3f3fdc2e7614ac484cae39213d84f7076710b7aedb9f
+  tree 9dd3dd0966951467723eb1c20dae59892e0c37d17a2d11508f42d57593d8d686
 }
 
 build() {
