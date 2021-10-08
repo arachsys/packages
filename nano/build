@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://www.nano-editor.org/dist/latest/
-  match version 5.8 'nano-([0-9.]+)\.tar'
+  match version 5.9 'nano-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.nano-editor.org/dist/v5/nano-5.8.tar.xz
-  tree 4acd81b2ce99c35604bcab58570deb6180b1dbe99bf6f30f9d9cb63280573949
+  unpack https://www.nano-editor.org/dist/v5/nano-5.9.tar.xz
+  tree e9bee5046578507ff36bd588e351b98d3eb03f1a9cb2d5c2894766a11cc11f3b
 }
 
 post-install() {
