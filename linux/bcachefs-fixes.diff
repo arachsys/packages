@@ -1,0 +1,75 @@
+diff --git a/fs/bcachefs/Kconfig b/fs/bcachefs/Kconfig
+index 27742ce27..b70951511 100644
+--- a/fs/bcachefs/Kconfig
++++ b/fs/bcachefs/Kconfig
+@@ -1,6 +1,6 @@
+ 
+ config BCACHEFS_FS
+-	tristate "bcachefs filesystem support"
++	tristate "Bcachefs filesystem support"
+ 	depends on BLOCK
+ 	select EXPORTFS
+ 	select CLOSURES
+@@ -23,21 +23,21 @@ config BCACHEFS_FS
+ 	select XXHASH
+ 	select SRCU
+ 	help
+-	The bcachefs filesystem - a modern, copy on write filesystem, with
++	Bcachefs is a modern, copy on write filesystem, with
+ 	support for multiple devices, compression, checksumming, etc.
+ 
+ config BCACHEFS_QUOTA
+-	bool "bcachefs quota support"
++	bool "Bcachefs quota support"
+ 	depends on BCACHEFS_FS
+ 	select QUOTACTL
+ 
+ config BCACHEFS_POSIX_ACL
+-	bool "bcachefs POSIX ACL support"
++	bool "Bcachefs POSIX ACL support"
+ 	depends on BCACHEFS_FS
+ 	select FS_POSIX_ACL
+ 
+ config BCACHEFS_DEBUG
+-	bool "bcachefs debugging"
++	bool "Bcachefs debugging"
+ 	depends on BCACHEFS_FS
+ 	help
+ 	Enables many extra debugging checks and assertions.
+@@ -46,7 +46,7 @@ config BCACHEFS_DEBUG
+ 	probably shouldn't select this option unless you're a developer.
+ 
+ config BCACHEFS_TESTS
+-	bool "bcachefs unit and performance tests"
++	bool "Bcachefs unit and performance tests"
+ 	depends on BCACHEFS_FS
+ 	help
+ 	Include some unit and performance tests for the core btree code
+diff --git a/fs/bcachefs/fs-io.c b/fs/bcachefs/fs-io.c
+index c07755c69..8bf792888 100644
+--- a/fs/bcachefs/fs-io.c
++++ b/fs/bcachefs/fs-io.c
+@@ -1509,8 +1509,8 @@ static int __bch2_buffered_write(struct bch_inode_info *inode,
+ 		unsigned pg_offset = (offset + copied) & (PAGE_SIZE - 1);
+ 		unsigned pg_len = min_t(unsigned, len - copied,
+ 					PAGE_SIZE - pg_offset);
+-		unsigned pg_copied = iov_iter_copy_from_user_atomic(page,
+-						iter, pg_offset, pg_len);
++		unsigned pg_copied = copy_page_from_iter_atomic(page,
++						pg_offset, pg_len, iter);
+ 
+ 		if (!pg_copied)
+ 			break;
+@@ -1519,11 +1519,11 @@ static int __bch2_buffered_write(struct bch_inode_info *inode,
+ 		    pg_copied != PAGE_SIZE &&
+ 		    pos + copied + pg_copied < inode->v.i_size) {
+ 			zero_user(page, 0, PAGE_SIZE);
++			iov_iter_revert(iter, pg_copied);
+ 			break;
+ 		}
+ 
+ 		flush_dcache_page(page);
+-		iov_iter_advance(iter, pg_copied);
+ 		copied += pg_copied;
+ 
+ 		if (pg_copied != pg_len)

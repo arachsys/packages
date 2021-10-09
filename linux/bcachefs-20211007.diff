@@ -194,13 +194,13 @@ index f98f3e691..7c144e67e 100644
  obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
 diff --git a/fs/bcachefs/Kconfig b/fs/bcachefs/Kconfig
 new file mode 100644
-index 000000000..b70951511
+index 000000000..27742ce27
 --- /dev/null
 +++ b/fs/bcachefs/Kconfig
 @@ -0,0 +1,52 @@
 +
 +config BCACHEFS_FS
-+	tristate "Bcachefs filesystem support"
++	tristate "bcachefs filesystem support"
 +	depends on BLOCK
 +	select EXPORTFS
 +	select CLOSURES
@@ -223,21 +223,21 @@ index 000000000..b70951511
 +	select XXHASH
 +	select SRCU
 +	help
-+	Bcachefs is a modern, copy on write filesystem, with
++	The bcachefs filesystem - a modern, copy on write filesystem, with
 +	support for multiple devices, compression, checksumming, etc.
 +
 +config BCACHEFS_QUOTA
-+	bool "Bcachefs quota support"
++	bool "bcachefs quota support"
 +	depends on BCACHEFS_FS
 +	select QUOTACTL
 +
 +config BCACHEFS_POSIX_ACL
-+	bool "Bcachefs POSIX ACL support"
++	bool "bcachefs POSIX ACL support"
 +	depends on BCACHEFS_FS
 +	select FS_POSIX_ACL
 +
 +config BCACHEFS_DEBUG
-+	bool "Bcachefs debugging"
++	bool "bcachefs debugging"
 +	depends on BCACHEFS_FS
 +	help
 +	Enables many extra debugging checks and assertions.
@@ -246,7 +246,7 @@ index 000000000..b70951511
 +	probably shouldn't select this option unless you're a developer.
 +
 +config BCACHEFS_TESTS
-+	bool "Bcachefs unit and performance tests"
++	bool "bcachefs unit and performance tests"
 +	depends on BCACHEFS_FS
 +	help
 +	Include some unit and performance tests for the core btree code
@@ -17246,10 +17246,10 @@ index 000000000..0f20224e2
 +#endif /* _BCACHEFS_BTREE_IO_H */
 diff --git a/fs/bcachefs/btree_iter.c b/fs/bcachefs/btree_iter.c
 new file mode 100644
-index 000000000..b5484d770
+index 000000000..18d2733e6
 --- /dev/null
 +++ b/fs/bcachefs/btree_iter.c
-@@ -0,0 +1,2860 @@
+@@ -0,0 +1,2880 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -17417,10 +17417,19 @@ index 000000000..b5484d770
 +{
 +	struct btree *b = path->l[level].b;
 +
-+	EBUG_ON(btree_lock_want(path, level) != BTREE_NODE_INTENT_LOCKED);
-+
 +	if (!is_btree_node(path, level))
 +		return false;
++
++	switch (btree_lock_want(path, level)) {
++	case BTREE_NODE_UNLOCKED:
++		BUG_ON(btree_node_locked(path, level));
++		return true;
++	case BTREE_NODE_READ_LOCKED:
++		BUG_ON(btree_node_intent_locked(path, level));
++		return bch2_btree_node_relock(trans, path, level);
++	case BTREE_NODE_INTENT_LOCKED:
++		break;
++	}
 +
 +	if (btree_node_intent_locked(path, level))
 +		return true;
@@ -17616,7 +17625,8 @@ index 000000000..b5484d770
 +	unsigned l;
 +
 +	if (!path->nodes_locked) {
-+		BUG_ON(path->uptodate == BTREE_ITER_UPTODATE);
++		BUG_ON(path->uptodate == BTREE_ITER_UPTODATE &&
++		       btree_path_node(path, path->level));
 +		return;
 +	}
 +
@@ -18603,7 +18613,8 @@ index 000000000..b5484d770
 +
 +		EBUG_ON(!(trans->paths_allocated & (1ULL << path->idx)));
 +
-+		if (path->nodes_locked)
++		if (path->nodes_locked ||
++		    !btree_path_node(path, path->level))
 +			i++;
 +	}
 +
@@ -19118,13 +19129,14 @@ index 000000000..b5484d770
 +
 +struct btree *bch2_btree_iter_peek_node(struct btree_iter *iter)
 +{
++	struct btree_trans *trans = iter->trans;
 +	struct btree *b = NULL;
 +	int ret;
 +
 +	EBUG_ON(iter->path->cached);
 +	bch2_btree_iter_verify(iter);
 +
-+	ret = bch2_btree_path_traverse(iter->trans, iter->path, iter->flags);
++	ret = bch2_btree_path_traverse(trans, iter->path, iter->flags);
 +	if (ret)
 +		goto out;
 +
@@ -19136,7 +19148,11 @@ index 000000000..b5484d770
 +
 +	bkey_init(&iter->k);
 +	iter->k.p = iter->pos = b->key.k.p;
++
++	iter->path = btree_path_set_pos(trans, iter->path, b->key.k.p,
++					iter->flags & BTREE_ITER_INTENT);
 +	iter->path->should_be_locked = true;
++	BUG_ON(iter->path->uptodate);
 +out:
 +	bch2_btree_iter_verify_entry_exit(iter);
 +	bch2_btree_iter_verify(iter);
@@ -19201,7 +19217,11 @@ index 000000000..b5484d770
 +
 +	bkey_init(&iter->k);
 +	iter->k.p = iter->pos = b->key.k.p;
++
++	iter->path = btree_path_set_pos(trans, iter->path, b->key.k.p,
++					iter->flags & BTREE_ITER_INTENT);
 +	iter->path->should_be_locked = true;
++	BUG_ON(iter->path->uptodate);
 +out:
 +	bch2_btree_iter_verify_entry_exit(iter);
 +	bch2_btree_iter_verify(iter);
@@ -22366,10 +22386,10 @@ index 000000000..4d0ece342
 +#endif /* _BCACHEFS_BTREE_UPDATE_H */
 diff --git a/fs/bcachefs/btree_update_interior.c b/fs/bcachefs/btree_update_interior.c
 new file mode 100644
-index 000000000..c54e6b46a
+index 000000000..98c05bb03
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_interior.c
-@@ -0,0 +1,2169 @@
+@@ -0,0 +1,2178 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -24317,8 +24337,15 @@ index 000000000..c54e6b46a
 +{
 +	struct bch_fs *c = trans->c;
 +	struct btree *new_hash = NULL;
++	struct btree_path *path = iter->path;
 +	struct closure cl;
 +	int ret = 0;
++
++	if (!btree_node_intent_locked(path, b->c.level) &&
++	    !bch2_btree_path_upgrade(trans, path, b->c.level + 1)) {
++		btree_trans_restart(trans);
++		return -EINTR;
++	}
 +
 +	closure_init_stack(&cl);
 +
@@ -24338,8 +24365,10 @@ index 000000000..c54e6b46a
 +		new_hash = bch2_btree_node_mem_alloc(c);
 +	}
 +
++	path->intent_ref++;
 +	ret = __bch2_btree_node_update_key(trans, iter, b, new_hash,
 +					   new_key, skip_triggers);
++	--path->intent_ref;
 +
 +	if (new_hash) {
 +		mutex_lock(&c->btree_cache.lock);
@@ -32054,10 +32083,10 @@ index 000000000..0b86736e5
 +#endif /* _BCACHEFS_DEBUG_H */
 diff --git a/fs/bcachefs/dirent.c b/fs/bcachefs/dirent.c
 new file mode 100644
-index 000000000..8653a1068
+index 000000000..c7344ac87
 --- /dev/null
 +++ b/fs/bcachefs/dirent.c
-@@ -0,0 +1,518 @@
+@@ -0,0 +1,499 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -32251,34 +32280,15 @@ index 000000000..8653a1068
 +	if (likely(d.v->d_type != DT_SUBVOL)) {
 +		*inum = le64_to_cpu(d.v->d_inum);
 +	} else {
-+		struct btree_iter iter;
-+		struct bkey_s_c k;
-+		struct bkey_s_c_subvolume s;
++		struct bch_subvolume s;
 +		int ret;
 +
 +		*subvol = le64_to_cpu(d.v->d_inum);
-+		bch2_trans_iter_init(trans, &iter, BTREE_ID_subvolumes,
-+				     POS(0, *subvol),
-+				     BTREE_ITER_CACHED);
-+		k = bch2_btree_iter_peek_slot(&iter);
-+		ret = bkey_err(k);
-+		if (ret)
-+			goto err;
 +
-+		if (k.k->type != KEY_TYPE_subvolume) {
-+			ret = -ENOENT;
-+			goto err;
-+		}
++		ret = bch2_subvolume_get(trans, *subvol, !is_fsck, BTREE_ITER_CACHED, &s);
 +
-+		s = bkey_s_c_to_subvolume(k);
-+		*snapshot	= le32_to_cpu(s.v->snapshot);
-+		*inum		= le64_to_cpu(s.v->inode);
-+err:
-+		if (ret == -ENOENT && !is_fsck)
-+			bch2_fs_inconsistent(trans->c, "pointer to missing subvolume %u",
-+					     *subvol);
-+
-+		bch2_trans_iter_exit(trans, &iter);
++		*snapshot	= le32_to_cpu(s.snapshot);
++		*inum		= le64_to_cpu(s.inode);
 +	}
 +
 +	return ret;
@@ -38276,10 +38286,10 @@ index 000000000..cdb272708
 +#endif /* _BCACHEFS_FIFO_H */
 diff --git a/fs/bcachefs/fs-common.c b/fs/bcachefs/fs-common.c
 new file mode 100644
-index 000000000..3e8e3c5bf
+index 000000000..00c7ba17f
 --- /dev/null
 +++ b/fs/bcachefs/fs-common.c
-@@ -0,0 +1,505 @@
+@@ -0,0 +1,493 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -38349,26 +38359,14 @@ index 000000000..3e8e3c5bf
 +
 +		if (!snapshot_src.inum) {
 +			/* Inode wasn't specified, just snapshot: */
-+			struct btree_iter subvol_iter;
-+			struct bkey_s_c k;
++			struct bch_subvolume s;
 +
-+			bch2_trans_iter_init(trans, &subvol_iter, BTREE_ID_subvolumes,
-+					     POS(0, snapshot_src.subvol), 0);
-+			k = bch2_btree_iter_peek_slot(&subvol_iter);
-+
-+			ret = bkey_err(k);
-+			if (!ret && k.k->type != KEY_TYPE_subvolume) {
-+				bch_err(c, "subvolume %u not found",
-+					snapshot_src.subvol);
-+				ret = -ENOENT;
-+			}
-+
-+			if (!ret)
-+				snapshot_src.inum = le64_to_cpu(bkey_s_c_to_subvolume(k).v->inode);
-+			bch2_trans_iter_exit(trans, &subvol_iter);
-+
++			ret = bch2_subvolume_get(trans, snapshot_src.subvol, true,
++						 BTREE_ITER_CACHED, &s);
 +			if (ret)
 +				goto err;
++
++			snapshot_src.inum = le64_to_cpu(s.inode);
 +		}
 +
 +		ret = bch2_inode_peek(trans, &inode_iter, new_inode, snapshot_src,
@@ -38836,7 +38834,7 @@ index 000000000..9bb0a9676
 +#endif /* _BCACHEFS_FS_COMMON_H */
 diff --git a/fs/bcachefs/fs-io.c b/fs/bcachefs/fs-io.c
 new file mode 100644
-index 000000000..8bf792888
+index 000000000..c07755c69
 --- /dev/null
 +++ b/fs/bcachefs/fs-io.c
 @@ -0,0 +1,3304 @@
@@ -40351,8 +40349,8 @@ index 000000000..8bf792888
 +		unsigned pg_offset = (offset + copied) & (PAGE_SIZE - 1);
 +		unsigned pg_len = min_t(unsigned, len - copied,
 +					PAGE_SIZE - pg_offset);
-+		unsigned pg_copied = copy_page_from_iter_atomic(page,
-+						pg_offset, pg_len, iter);
++		unsigned pg_copied = iov_iter_copy_from_user_atomic(page,
++						iter, pg_offset, pg_len);
 +
 +		if (!pg_copied)
 +			break;
@@ -40361,11 +40359,11 @@ index 000000000..8bf792888
 +		    pg_copied != PAGE_SIZE &&
 +		    pos + copied + pg_copied < inode->v.i_size) {
 +			zero_user(page, 0, PAGE_SIZE);
-+			iov_iter_revert(iter, pg_copied);
 +			break;
 +		}
 +
 +		flush_dcache_page(page);
++		iov_iter_advance(iter, pg_copied);
 +		copied += pg_copied;
 +
 +		if (pg_copied != pg_len)
@@ -44749,10 +44747,10 @@ index 000000000..48fc504e2
 +#endif /* _BCACHEFS_FS_H */
 diff --git a/fs/bcachefs/fsck.c b/fs/bcachefs/fsck.c
 new file mode 100644
-index 000000000..3622fb4d1
+index 000000000..208bf6df8
 --- /dev/null
 +++ b/fs/bcachefs/fsck.c
-@@ -0,0 +1,2169 @@
+@@ -0,0 +1,2154 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -44858,29 +44856,14 @@ index 000000000..3622fb4d1
 +static int __subvol_lookup(struct btree_trans *trans, u32 subvol,
 +			   u32 *snapshot, u64 *inum)
 +{
-+	struct btree_iter iter;
-+	struct bkey_s_c k;
++	struct bch_subvolume s;
 +	int ret;
 +
-+	bch2_trans_iter_init(trans, &iter, BTREE_ID_subvolumes,
-+			     POS(0, subvol), 0);
-+	k = bch2_btree_iter_peek_slot(&iter);
-+	ret = bkey_err(k);
-+	if (ret)
-+		goto err;
++	ret = bch2_subvolume_get(trans, subvol, false, 0, &s);
 +
-+	if (k.k->type != KEY_TYPE_subvolume) {
-+		bch_err(trans->c, "subvolume %u not fonud", subvol);
-+		ret = -ENOENT;
-+		goto err;
-+	}
-+
-+	*snapshot = le32_to_cpu(bkey_s_c_to_subvolume(k).v->snapshot);
-+	*inum = le64_to_cpu(bkey_s_c_to_subvolume(k).v->inode);
-+err:
-+	bch2_trans_iter_exit(trans, &iter);
++	*snapshot = le32_to_cpu(s.snapshot);
++	*inum = le64_to_cpu(s.inode);
 +	return ret;
-+
 +}
 +
 +static int subvol_lookup(struct btree_trans *trans, u32 subvol,
@@ -55970,10 +55953,10 @@ index 000000000..4b3ff7d8a
 +#endif /* _BCACHEFS_KEYLIST_TYPES_H */
 diff --git a/fs/bcachefs/migrate.c b/fs/bcachefs/migrate.c
 new file mode 100644
-index 000000000..7c764ee4e
+index 000000000..9f9eb7993
 --- /dev/null
 +++ b/fs/bcachefs/migrate.c
-@@ -0,0 +1,179 @@
+@@ -0,0 +1,182 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Code for moving data off a device.
@@ -56027,7 +56010,8 @@ index 000000000..7c764ee4e
 +			     BTREE_ITER_PREFETCH|
 +			     BTREE_ITER_ALL_SNAPSHOTS);
 +
-+	while ((k = bch2_btree_iter_peek(&iter)).k &&
++	while ((bch2_trans_begin(&trans),
++		(k = bch2_btree_iter_peek(&iter)).k) &&
 +	       !(ret = bkey_err(k))) {
 +		if (!bch2_bkey_has_device(k, dev_idx)) {
 +			bch2_btree_iter_advance(&iter);
@@ -56047,8 +56031,6 @@ index 000000000..7c764ee4e
 +		 * KEY_TYPE_error key, or just a discard if it was a cached extent)
 +		 */
 +		bch2_extent_normalize(c, bkey_i_to_s(sk.k));
-+
-+		bch2_btree_iter_set_pos(&iter, bkey_start_pos(&sk.k->k));
 +
 +		ret   = bch2_btree_iter_traverse(&iter) ?:
 +			bch2_trans_update(&trans, &iter, sk.k,
@@ -56101,12 +56083,14 @@ index 000000000..7c764ee4e
 +	closure_init_stack(&cl);
 +
 +	for (id = 0; id < BTREE_ID_NR; id++) {
-+		for_each_btree_node(&trans, iter, id, POS_MIN,
-+				    BTREE_ITER_PREFETCH, b) {
-+retry:
++		bch2_trans_node_iter_init(&trans, &iter, id, POS_MIN, 0, 0,
++					  BTREE_ITER_PREFETCH);
++
++		while (bch2_trans_begin(&trans),
++		       (b = bch2_btree_iter_peek_node(&iter))) {
 +			if (!bch2_bkey_has_device(bkey_i_to_s_c(&b->key),
 +						  dev_idx))
-+				continue;
++				goto next;
 +
 +			bch2_bkey_buf_copy(&k, c, &b->key);
 +
@@ -56119,14 +56103,16 @@ index 000000000..7c764ee4e
 +
 +			ret = bch2_btree_node_update_key(&trans, &iter, b, k.k, false);
 +			if (ret == -EINTR) {
-+				b = bch2_btree_iter_peek_node(&iter);
 +				ret = 0;
-+				goto retry;
++				continue;
 +			}
++
 +			if (ret) {
 +				bch_err(c, "Error updating btree node key: %i", ret);
 +				break;
 +			}
++next:
++			bch2_btree_iter_next_node(&iter);
 +		}
 +		bch2_trans_iter_exit(&trans, &iter);
 +
@@ -56168,10 +56154,10 @@ index 000000000..027efaa0d
 +#endif /* _BCACHEFS_MIGRATE_H */
 diff --git a/fs/bcachefs/move.c b/fs/bcachefs/move.c
 new file mode 100644
-index 000000000..44a61818d
+index 000000000..fddf7e822
 --- /dev/null
 +++ b/fs/bcachefs/move.c
-@@ -0,0 +1,1119 @@
+@@ -0,0 +1,1122 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -57057,9 +57043,11 @@ index 000000000..44a61818d
 +	     id++) {
 +		stats->btree_id = id;
 +
-+		for_each_btree_node(&trans, iter, id,
-+				    id == start_btree_id ? start_pos : POS_MIN,
-+				    BTREE_ITER_PREFETCH, b) {
++		bch2_trans_node_iter_init(&trans, &iter, id, POS_MIN, 0, 0,
++					  BTREE_ITER_PREFETCH);
++
++		while (bch2_trans_begin(&trans),
++		       (b = bch2_btree_iter_peek_node(&iter))) {
 +			if (kthread && kthread_should_stop())
 +				break;
 +
@@ -57085,6 +57073,7 @@ index 000000000..44a61818d
 +					b->data->keys.seq, 0) ?: ret;
 +next:
 +			bch2_trans_cond_resched(&trans);
++			bch2_btree_iter_next_node(&iter);
 +		}
 +		bch2_trans_iter_exit(&trans, &iter);
 +
@@ -63921,10 +63910,10 @@ index 000000000..6486e709b
 +#endif /* _BCACHEFS_STR_HASH_H */
 diff --git a/fs/bcachefs/subvolume.c b/fs/bcachefs/subvolume.c
 new file mode 100644
-index 000000000..ff3b4d2d8
+index 000000000..d1c111050
 --- /dev/null
 +++ b/fs/bcachefs/subvolume.c
-@@ -0,0 +1,981 @@
+@@ -0,0 +1,974 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -64016,23 +64005,6 @@ index 000000000..ff3b4d2d8
 +	return 0;
 +}
 +
-+static int subvol_lookup(struct btree_trans *trans, unsigned id, struct bch_subvolume *s)
-+{
-+	struct btree_iter iter;
-+	struct bkey_s_c k;
-+	int ret;
-+
-+	bch2_trans_iter_init(trans, &iter, BTREE_ID_subvolumes, POS(0, id), 0);
-+	k = bch2_btree_iter_peek_slot(&iter);
-+	ret = bkey_err(k) ?: k.k->type == KEY_TYPE_subvolume ? 0 : -ENOENT;
-+
-+	if (!ret)
-+		*s = *bkey_s_c_to_subvolume(k).v;
-+
-+	bch2_trans_iter_exit(trans, &iter);
-+	return ret;
-+}
-+
 +static int snapshot_lookup(struct btree_trans *trans, u32 id,
 +			   struct bch_snapshot *s)
 +{
@@ -64122,7 +64094,7 @@ index 000000000..ff3b4d2d8
 +	int ret;
 +
 +	id = le32_to_cpu(s.v->subvol);
-+	ret = lockrestart_do(trans, subvol_lookup(trans, id, &subvol));
++	ret = lockrestart_do(trans, bch2_subvolume_get(trans, id, 0, false, &subvol));
 +	if (ret == -ENOENT)
 +		bch_err(trans->c, "snapshot node %llu has nonexistent subvolume %u",
 +			s.k->p.offset, id);
@@ -64725,31 +64697,41 @@ index 000000000..ff3b4d2d8
 +	       le32_to_cpu(s.v->snapshot));
 +}
 +
-+int bch2_subvolume_get_snapshot(struct btree_trans *trans, u32 subvol,
-+				u32 *snapid)
++int bch2_subvolume_get(struct btree_trans *trans, unsigned subvol,
++		       bool inconsistent_if_not_found,
++		       int iter_flags,
++		       struct bch_subvolume *s)
 +{
 +	struct btree_iter iter;
 +	struct bkey_s_c k;
 +	int ret;
 +
-+	bch2_trans_iter_init(trans, &iter, BTREE_ID_subvolumes,
-+			     POS(0, subvol),
-+			     BTREE_ITER_CACHED|
-+			     BTREE_ITER_WITH_UPDATES);
++	bch2_trans_iter_init(trans, &iter, BTREE_ID_subvolumes, POS(0, subvol),
++			     iter_flags);
 +	k = bch2_btree_iter_peek_slot(&iter);
-+	ret = bkey_err(k);
-+	if (ret)
-+		goto err;
++	ret = bkey_err(k) ?: k.k->type == KEY_TYPE_subvolume ? 0 : -ENOENT;
 +
-+	if (k.k->type != KEY_TYPE_subvolume) {
++	if (ret == -ENOENT && inconsistent_if_not_found)
 +		bch2_fs_inconsistent(trans->c, "missing subvolume %u", subvol);
-+		ret = -EIO;
-+		goto err;
-+	}
++	if (!ret)
++		*s = *bkey_s_c_to_subvolume(k).v;
 +
-+	*snapid = le32_to_cpu(bkey_s_c_to_subvolume(k).v->snapshot);
-+err:
 +	bch2_trans_iter_exit(trans, &iter);
++	return ret;
++}
++
++int bch2_subvolume_get_snapshot(struct btree_trans *trans, u32 subvol,
++				u32 *snapid)
++{
++	struct bch_subvolume s;
++	int ret;
++
++	ret = bch2_subvolume_get(trans, subvol, true,
++				 BTREE_ITER_CACHED|
++				 BTREE_ITER_WITH_UPDATES,
++				 &s);
++
++	*snapid = le32_to_cpu(s.snapshot);
 +	return ret;
 +}
 +
@@ -64908,10 +64890,10 @@ index 000000000..ff3b4d2d8
 +}
 diff --git a/fs/bcachefs/subvolume.h b/fs/bcachefs/subvolume.h
 new file mode 100644
-index 000000000..0740c7b7f
+index 000000000..ed02b982f
 --- /dev/null
 +++ b/fs/bcachefs/subvolume.h
-@@ -0,0 +1,115 @@
+@@ -0,0 +1,117 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_SUBVOLUME_H
 +#define _BCACHEFS_SUBVOLUME_H
@@ -65018,6 +65000,8 @@ index 000000000..0740c7b7f
 +	.val_to_text	= bch2_subvolume_to_text,		\
 +}
 +
++int bch2_subvolume_get(struct btree_trans *, unsigned,
++		       bool, int, struct bch_subvolume *);
 +int bch2_subvolume_get_snapshot(struct btree_trans *, u32, u32 *);
 +
 +int bch2_subvolume_delete(struct btree_trans *, u32, int);
@@ -66380,10 +66364,10 @@ index 000000000..b64ac2fbb
 +#endif /* _BCACHEFS_SUPER_IO_H */
 diff --git a/fs/bcachefs/super.c b/fs/bcachefs/super.c
 new file mode 100644
-index 000000000..1feb7dee2
+index 000000000..bb633e3df
 --- /dev/null
 +++ b/fs/bcachefs/super.c
-@@ -0,0 +1,2085 @@
+@@ -0,0 +1,2088 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * bcachefs setup/teardown code, and some metadata io - read a superblock and
@@ -67838,15 +67822,18 @@ index 000000000..1feb7dee2
 +	bch2_trans_init(&trans, c, 0, 0);
 +
 +	for (i = 0; i < ca->mi.nbuckets; i++) {
-+		ret = bch2_btree_key_cache_flush(&trans,
-+				BTREE_ID_alloc, POS(ca->dev_idx, i));
++		ret = lockrestart_do(&trans,
++			bch2_btree_key_cache_flush(&trans,
++				BTREE_ID_alloc, POS(ca->dev_idx, i)));
 +		if (ret)
 +			break;
 +	}
 +	bch2_trans_exit(&trans);
 +
-+	if (ret)
++	if (ret) {
++		bch_err(c, "error %i removing dev alloc info", ret);
 +		return ret;
++	}
 +
 +	return bch2_btree_delete_range(c, BTREE_ID_alloc,
 +				       POS(ca->dev_idx, 0),
@@ -70843,10 +70830,10 @@ index 000000000..59e8dfa3d
 +#include <trace/events/bcachefs.h>
 diff --git a/fs/bcachefs/util.c b/fs/bcachefs/util.c
 new file mode 100644
-index 000000000..463260c04
+index 000000000..9f21f68e8
 --- /dev/null
 +++ b/fs/bcachefs/util.c
-@@ -0,0 +1,903 @@
+@@ -0,0 +1,908 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * random utiility code, for bcache but in theory not specific to bcache
@@ -71736,8 +71723,13 @@ index 000000000..463260c04
 + */
 +u64 *bch2_acc_percpu_u64s(u64 __percpu *p, unsigned nr)
 +{
-+	u64 *ret = this_cpu_ptr(p);
++	u64 *ret;
 +	int cpu;
++
++	/* access to pcpu vars has to be blocked by other locking */
++	preempt_disable();
++	ret = this_cpu_ptr(p);
++	preempt_enable();
 +
 +	for_each_possible_cpu(cpu) {
 +		u64 *i = per_cpu_ptr(p, cpu);
@@ -76083,10 +76075,10 @@ index 5c9c0687f..adede4145 100644
  	bool
  	depends on !NO_IOMEM
 diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 5ddd57515..a42cadc24 100644
+index ffd22e499..742ad0c40 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
-@@ -1635,6 +1635,15 @@ config DEBUG_NOTIFIERS
+@@ -1634,6 +1634,15 @@ config DEBUG_NOTIFIERS
  	  This is a relatively cheap check but if you care about maximum
  	  performance, say N.
  
