@@ -2,15 +2,15 @@ require go sqlite
 
 check() {
   url https://github.com/foxcpp/maddy/releases
-  match version 0.5.1 'tags/v([0-9.]+)\.tar'
+  match version 0.5.2 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack maddy-0.5.1.tar.zstd \
-    https://github.com/foxcpp/maddy/releases/download/v0.5.1/maddy-0.5.1-src.tar.zst
+  unpack maddy-0.5.2.tar.zstd \
+    https://github.com/foxcpp/maddy/releases/download/v0.5.2/maddy-0.5.2-src.tar.zst
   apply paths.diff
   GOPATH=/tmp/go go mod vendor
-  tree 0b591d0cdf75fdf60d39ccb6965851ba913be1c4d5be0f2715bd24365d38d312
+  tree c29feaee6f412fa459c1b69f59b9ec9a588cd3a7bed3c545f6580093f86966f8
 }
 
 build() {
