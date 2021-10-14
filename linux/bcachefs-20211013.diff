@@ -1,5 +1,5 @@
 diff --git a/block/bio.c b/block/bio.c
-index d95e3456b..eaa17784b 100644
+index 52548c487..2acc3d238 100644
 --- a/block/bio.c
 +++ b/block/bio.c
 @@ -493,20 +493,20 @@ struct bio *bio_kmalloc(gfp_t gfp_mask, unsigned short nr_iovecs)
@@ -12812,10 +12812,10 @@ index 000000000..402cec180
 +#endif /* _BCACHEFS_BTREE_CACHE_H */
 diff --git a/fs/bcachefs/btree_gc.c b/fs/bcachefs/btree_gc.c
 new file mode 100644
-index 000000000..079424227
+index 000000000..236ecbd82
 --- /dev/null
 +++ b/fs/bcachefs/btree_gc.c
-@@ -0,0 +1,1932 @@
+@@ -0,0 +1,1931 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2010 Kent Overstreet <kent.overstreet@gmail.com>
@@ -14584,7 +14584,6 @@ index 000000000..079424227
 +		if (gc_btree_gens_key(c, k) && !commit_err) {
 +			bch2_bkey_buf_reassemble(&sk, c, k);
 +			bch2_extent_normalize(c, bkey_i_to_s(sk.k));
-+
 +
 +			commit_err =
 +				bch2_trans_update(&trans, &iter, sk.k, 0) ?:
@@ -35917,10 +35916,10 @@ index 000000000..6f5cf4493
 +#endif /* _BCACHEFS_EXTENT_UPDATE_H */
 diff --git a/fs/bcachefs/extents.c b/fs/bcachefs/extents.c
 new file mode 100644
-index 000000000..6c2eed77a
+index 000000000..194fbe21c
 --- /dev/null
 +++ b/fs/bcachefs/extents.c
-@@ -0,0 +1,1209 @@
+@@ -0,0 +1,1249 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2010 Kent Overstreet <kent.overstreet@gmail.com>
@@ -36403,7 +36402,7 @@ index 000000000..6c2eed77a
 +
 +	bkey_for_each_ptr_decode(&k->k, ptrs, p, i)
 +		if (can_narrow_crc(p.crc, n)) {
-+			bch2_bkey_drop_ptr(bkey_i_to_s(k), &i->ptr);
++			__bch2_bkey_drop_ptr(bkey_i_to_s(k), &i->ptr);
 +			p.ptr.offset += p.crc.offset;
 +			p.crc = n;
 +			bch2_extent_ptr_decoded_append(k, &p);
@@ -36708,41 +36707,85 @@ index 000000000..6c2eed77a
 +	return i;
 +}
 +
-+union bch_extent_entry *bch2_bkey_drop_ptr(struct bkey_s k,
-+					   struct bch_extent_ptr *ptr)
++static void extent_entry_drop(struct bkey_s k, union bch_extent_entry *entry)
++{
++	union bch_extent_entry *next = extent_entry_next(entry);
++
++	/* stripes have ptrs, but their layout doesn't work with this code */
++	BUG_ON(k.k->type == KEY_TYPE_stripe);
++
++	memmove_u64s_down(entry, next,
++			  (u64 *) bkey_val_end(k) - (u64 *) next);
++	k.k->u64s -= (u64 *) next - (u64 *) entry;
++}
++
++/*
++ * Returns pointer to the next entry after the one being dropped:
++ */
++union bch_extent_entry *__bch2_bkey_drop_ptr(struct bkey_s k,
++					     struct bch_extent_ptr *ptr)
 +{
 +	struct bkey_ptrs ptrs = bch2_bkey_ptrs(k);
-+	union bch_extent_entry *dst, *src, *prev;
++	union bch_extent_entry *entry = to_entry(ptr), *next;
++	union bch_extent_entry *ret = entry;
 +	bool drop_crc = true;
 +
 +	EBUG_ON(ptr < &ptrs.start->ptr ||
 +		ptr >= &ptrs.end->ptr);
 +	EBUG_ON(ptr->type != 1 << BCH_EXTENT_ENTRY_ptr);
 +
-+	src = extent_entry_next(to_entry(ptr));
-+	if (src != ptrs.end &&
-+	    !extent_entry_is_crc(src))
-+		drop_crc = false;
-+
-+	dst = to_entry(ptr);
-+	while ((prev = extent_entry_prev(ptrs, dst))) {
-+		if (extent_entry_is_ptr(prev))
++	for (next = extent_entry_next(entry);
++	     next != ptrs.end;
++	     next = extent_entry_next(next)) {
++		if (extent_entry_is_crc(next)) {
 +			break;
-+
-+		if (extent_entry_is_crc(prev)) {
-+			if (drop_crc)
-+				dst = prev;
++		} else if (extent_entry_is_ptr(next)) {
++			drop_crc = false;
 +			break;
 +		}
-+
-+		dst = prev;
 +	}
 +
-+	memmove_u64s_down(dst, src,
-+			  (u64 *) ptrs.end - (u64 *) src);
-+	k.k->u64s -= (u64 *) src - (u64 *) dst;
++	extent_entry_drop(k, entry);
 +
-+	return dst;
++	while ((entry = extent_entry_prev(ptrs, entry))) {
++		if (extent_entry_is_ptr(entry))
++			break;
++
++		if ((extent_entry_is_crc(entry) && drop_crc) ||
++		    extent_entry_is_stripe_ptr(entry)) {
++			ret = (void *) ret - extent_entry_bytes(entry);
++			extent_entry_drop(k, entry);
++		}
++	}
++
++	return ret;
++}
++
++union bch_extent_entry *bch2_bkey_drop_ptr(struct bkey_s k,
++					   struct bch_extent_ptr *ptr)
++{
++	bool have_dirty = bch2_bkey_dirty_devs(k.s_c).nr;
++	union bch_extent_entry *ret =
++		__bch2_bkey_drop_ptr(k, ptr);
++
++	/*
++	 * If we deleted all the dirty pointers and there's still cached
++	 * pointers, we could set the cached pointers to dirty if they're not
++	 * stale - but to do that correctly we'd need to grab an open_bucket
++	 * reference so that we don't race with bucket reuse:
++	 */
++	if (have_dirty &&
++	    !bch2_bkey_dirty_devs(k.s_c).nr) {
++		k.k->type = KEY_TYPE_error;
++		set_bkey_val_u64s(k.k, 0);
++		ret = NULL;
++	} else if (!bch2_bkey_nr_ptrs(k.s_c)) {
++		k.k->type = KEY_TYPE_deleted;
++		set_bkey_val_u64s(k.k, 0);
++		ret = NULL;
++	}
++
++	return ret;
 +}
 +
 +void bch2_bkey_drop_device(struct bkey_s k, unsigned dev)
@@ -36811,10 +36854,6 @@ index 000000000..6c2eed77a
 +	bch2_bkey_drop_ptrs(k, ptr,
 +		ptr->cached &&
 +		ptr_stale(bch_dev_bkey_exists(c, ptr->dev), ptr));
-+
-+	/* will only happen if all pointers were cached: */
-+	if (!bch2_bkey_nr_ptrs(k.s_c))
-+		k.k->type = KEY_TYPE_deleted;
 +
 +	return bkey_deleted(k.k);
 +}
@@ -37132,10 +37171,10 @@ index 000000000..6c2eed77a
 +}
 diff --git a/fs/bcachefs/extents.h b/fs/bcachefs/extents.h
 new file mode 100644
-index 000000000..afd3067bb
+index 000000000..9c2567274
 --- /dev/null
 +++ b/fs/bcachefs/extents.h
-@@ -0,0 +1,678 @@
+@@ -0,0 +1,680 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_EXTENTS_H
 +#define _BCACHEFS_EXTENTS_H
@@ -37216,12 +37255,12 @@ index 000000000..afd3067bb
 +
 +static inline bool extent_entry_is_ptr(const union bch_extent_entry *e)
 +{
-+	switch (extent_entry_type(e)) {
-+	case BCH_EXTENT_ENTRY_ptr:
-+		return true;
-+	default:
-+		return false;
-+	}
++	return extent_entry_type(e) == BCH_EXTENT_ENTRY_ptr;
++}
++
++static inline bool extent_entry_is_stripe_ptr(const union bch_extent_entry *e)
++{
++	return extent_entry_type(e) == BCH_EXTENT_ENTRY_stripe_ptr;
 +}
 +
 +static inline bool extent_entry_is_crc(const union bch_extent_entry *e)
@@ -37716,6 +37755,8 @@ index 000000000..afd3067bb
 +void bch2_bkey_append_ptr(struct bkey_i *, struct bch_extent_ptr);
 +void bch2_extent_ptr_decoded_append(struct bkey_i *,
 +				    struct extent_ptr_decoded *);
++union bch_extent_entry *__bch2_bkey_drop_ptr(struct bkey_s,
++					     struct bch_extent_ptr *);
 +union bch_extent_entry *bch2_bkey_drop_ptr(struct bkey_s,
 +					   struct bch_extent_ptr *);
 +
@@ -38286,10 +38327,10 @@ index 000000000..cdb272708
 +#endif /* _BCACHEFS_FIFO_H */
 diff --git a/fs/bcachefs/fs-common.c b/fs/bcachefs/fs-common.c
 new file mode 100644
-index 000000000..00c7ba17f
+index 000000000..c49de741e
 --- /dev/null
 +++ b/fs/bcachefs/fs-common.c
-@@ -0,0 +1,493 @@
+@@ -0,0 +1,509 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -38559,18 +38600,33 @@ index 000000000..00c7ba17f
 +	if (ret)
 +		goto err;
 +
-+	if (deleting_snapshot == 1 && !inode_u->bi_subvol) {
-+		ret = -ENOENT;
-+		goto err;
-+	}
-+
 +	if (deleting_snapshot <= 0 && S_ISDIR(inode_u->bi_mode)) {
 +		ret = bch2_empty_dir_trans(trans, inum);
 +		if (ret)
 +			goto err;
 +	}
 +
-+	if (inode_u->bi_subvol) {
++	if (deleting_snapshot < 0 &&
++	    inode_u->bi_subvol) {
++		struct bch_subvolume s;
++
++		ret = bch2_subvolume_get(trans, inode_u->bi_subvol, true,
++					 BTREE_ITER_CACHED|
++					 BTREE_ITER_WITH_UPDATES,
++					 &s);
++		if (ret)
++			goto err;
++
++		if (BCH_SUBVOLUME_SNAP(&s))
++			deleting_snapshot = 1;
++	}
++
++	if (deleting_snapshot == 1) {
++		if (!inode_u->bi_subvol) {
++			ret = -ENOENT;
++			goto err;
++		}
++
 +		ret = bch2_subvolume_delete(trans, inode_u->bi_subvol,
 +					    deleting_snapshot);
 +		if (ret)
@@ -38589,6 +38645,8 @@ index 000000000..00c7ba17f
 +		ret = bch2_btree_iter_traverse(&dirent_iter);
 +		if (ret)
 +			goto err;
++	} else {
++		bch2_inode_nlink_dec(inode_u);
 +	}
 +
 +	if (inode_u->bi_dir		== dirent_iter.pos.inode &&
@@ -38599,7 +38657,6 @@ index 000000000..00c7ba17f
 +
 +	dir_u->bi_mtime = dir_u->bi_ctime = inode_u->bi_ctime = now;
 +	dir_u->bi_nlink -= is_subdir_for_nlink(inode_u);
-+	bch2_inode_nlink_dec(inode_u);
 +
 +	ret =   bch2_hash_delete_at(trans, bch2_dirent_hash_desc,
 +				    &dir_hash, &dirent_iter,
@@ -47865,10 +47922,10 @@ index 000000000..9e84cddcc
 +#endif /* _BCACHEFS_INODE_H */
 diff --git a/fs/bcachefs/io.c b/fs/bcachefs/io.c
 new file mode 100644
-index 000000000..0bc72d2a4
+index 000000000..65f8645c8
 --- /dev/null
 +++ b/fs/bcachefs/io.c
-@@ -0,0 +1,2439 @@
+@@ -0,0 +1,2441 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Some low level IO code, and hacks for various block layer limitations
@@ -48652,6 +48709,8 @@ index 000000000..0bc72d2a4
 +				      (buf
 +				       ? ((unsigned long) buf & (PAGE_SIZE - 1))
 +				       : 0), PAGE_SIZE);
++
++	pages = min(pages, BIO_MAX_VECS);
 +
 +	bio = bio_alloc_bioset(GFP_NOIO, pages, &c->bio_write);
 +	wbio			= wbio_init(bio);
@@ -55953,10 +56012,10 @@ index 000000000..4b3ff7d8a
 +#endif /* _BCACHEFS_KEYLIST_TYPES_H */
 diff --git a/fs/bcachefs/migrate.c b/fs/bcachefs/migrate.c
 new file mode 100644
-index 000000000..9f9eb7993
+index 000000000..94d5d99ff
 --- /dev/null
 +++ b/fs/bcachefs/migrate.c
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,191 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Code for moving data off a device.
@@ -56031,6 +56090,15 @@ index 000000000..9f9eb7993
 +		 * KEY_TYPE_error key, or just a discard if it was a cached extent)
 +		 */
 +		bch2_extent_normalize(c, bkey_i_to_s(sk.k));
++
++		/*
++		 * Since we're not inserting through an extent iterator
++		 * (BTREE_ITER_ALL_SNAPSHOTS iterators aren't extent iterators),
++		 * we aren't using the extent overwrite path to delete, we're
++		 * just using the normal key deletion path:
++		 */
++		if (bkey_deleted(&sk.k->k))
++			sk.k->k.size = 0;
 +
 +		ret   = bch2_btree_iter_traverse(&iter) ?:
 +			bch2_trans_update(&trans, &iter, sk.k,
@@ -56154,10 +56222,10 @@ index 000000000..027efaa0d
 +#endif /* _BCACHEFS_MIGRATE_H */
 diff --git a/fs/bcachefs/move.c b/fs/bcachefs/move.c
 new file mode 100644
-index 000000000..fddf7e822
+index 000000000..790389d48
 --- /dev/null
 +++ b/fs/bcachefs/move.c
-@@ -0,0 +1,1122 @@
+@@ -0,0 +1,1115 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -56356,7 +56424,7 @@ index 000000000..fddf7e822
 +				extent_for_each_ptr(extent_i_to_s(new), new_ptr)
 +					new_ptr->cached = true;
 +
-+			bch2_bkey_drop_ptr(bkey_i_to_s(insert), old_ptr);
++			__bch2_bkey_drop_ptr(bkey_i_to_s(insert), old_ptr);
 +		}
 +
 +		extent_for_each_ptr_decode(extent_i_to_s(new), p, entry) {
@@ -57106,16 +57174,9 @@ index 000000000..fddf7e822
 +				      struct data_opts *data_opts)
 +{
 +	unsigned nr_good = bch2_bkey_durability(c, k);
-+	unsigned replicas = 0;
-+
-+	switch (k.k->type) {
-+	case KEY_TYPE_btree_ptr:
-+		replicas = c->opts.metadata_replicas;
-+		break;
-+	case KEY_TYPE_extent:
-+		replicas = io_opts->data_replicas;
-+		break;
-+	}
++	unsigned replicas = bkey_is_btree_ptr(k.k)
++		? c->opts.metadata_replicas
++		: io_opts->data_replicas;
 +
 +	if (!nr_good || nr_good >= replicas)
 +		return DATA_SKIP;
@@ -70830,10 +70891,10 @@ index 000000000..59e8dfa3d
 +#include <trace/events/bcachefs.h>
 diff --git a/fs/bcachefs/util.c b/fs/bcachefs/util.c
 new file mode 100644
-index 000000000..9f21f68e8
+index 000000000..52de7c49c
 --- /dev/null
 +++ b/fs/bcachefs/util.c
-@@ -0,0 +1,908 @@
+@@ -0,0 +1,912 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * random utiility code, for bcache but in theory not specific to bcache
@@ -71361,7 +71422,11 @@ index 000000000..9f21f68e8
 +		if (!page)
 +			return -ENOMEM;
 +
-+		BUG_ON(!bio_add_page(bio, page, len, 0));
++		if (unlikely(!bio_add_page(bio, page, len, 0))) {
++			__free_page(page);
++			break;
++		}
++
 +		size -= len;
 +	}
 +
@@ -72502,15 +72567,19 @@ index 000000000..84ef4d6d3
 +#endif /* _BCACHEFS_UTIL_H */
 diff --git a/fs/bcachefs/varint.c b/fs/bcachefs/varint.c
 new file mode 100644
-index 000000000..752179b26
+index 000000000..a2d6bb713
 --- /dev/null
 +++ b/fs/bcachefs/varint.c
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,120 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include <linux/bitops.h>
 +#include <linux/string.h>
 +#include <asm/unaligned.h>
++
++#ifdef CONFIG_VALGRIND
++#include <valgrind/memcheck.h>
++#endif
 +
 +#include "varint.h"
 +
@@ -72603,6 +72672,9 @@ index 000000000..752179b26
 + */
 +int bch2_varint_decode_fast(const u8 *in, const u8 *end, u64 *out)
 +{
++#ifdef CONFIG_VALGRIND
++	VALGRIND_MAKE_MEM_DEFINED(in, 8);
++#endif
 +	u64 v = get_unaligned_le64(in);
 +	unsigned bytes = ffz(*in) + 1;
 +
