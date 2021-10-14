@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 23e0508..52bd38d 100644
+index 9ee1ff0..4e0450a 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,5 +1,4 @@
@@ -37,17 +37,6 @@ index 23e0508..52bd38d 100644
  LDLIBS+=$(EXTRA_LDLIBS)
  
  ifeq ($(PREFIX),/usr)
-@@ -73,10 +60,6 @@ endif
- 
- undefine var
- 
--ifeq (,$(RST2MAN))
--	@echo "WARNING: no RST2MAN found!"
--endif
--
- .PHONY: all
- all: bcachefs bcachefs.5
- 
 diff --git a/tools-util.c b/tools-util.c
 index 3cc0de4..a264fe9 100644
 --- a/tools-util.c
