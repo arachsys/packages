@@ -40,10 +40,10 @@ index 5038a967d..5ac2ce0aa 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index 112a6ea93..e5ae4648c 100644
+index d5cc81b1c..8f862e690 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -178,35 +178,7 @@ fn copy_self_contained_objects(
+@@ -197,38 +197,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -75,13 +75,16 @@ index 112a6ea93..e5ae4648c 100644
 -            builder.copy(&src, &target);
 -            target_deps.push((target, DependencyType::TargetSelfContained));
 -        }
+-
+-        let libunwind_path = copy_llvm_libunwind(builder, target, &libdir_self_contained);
+-        target_deps.push((libunwind_path, DependencyType::TargetSelfContained));
 -    } else if target.ends_with("-wasi") {
 +    if target.ends_with("-wasi") {
          let srcdir = builder
              .wasi_root(target)
              .unwrap_or_else(|| {
-@@ -1117,20 +1089,6 @@ impl Step for Assemble {
-             );
+@@ -1147,20 +1116,6 @@ impl Step for Assemble {
+             }
          }
  
 -        // Similarly, copy `llvm-dwp` into libdir for Split DWARF. Only copy it when the LLVM
@@ -102,11 +105,11 @@ index 112a6ea93..e5ae4648c 100644
          // so that it can be found when the newly built `rustc` is run.
          dist::maybe_install_llvm_runtime(builder, target_compiler.host, &sysroot);
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 16d148db6..05492164c 100644
+index d4875cfe1..52eae8c9c 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -408,10 +408,6 @@ impl Step for Rustc {
-                 builder.copy(&src_dir.join(&exe), &gcc_lld_dir.join(&exe));
+@@ -419,10 +419,6 @@ impl Step for Rustc {
+                 }
              }
  
 -            // Copy over llvm-dwp if it's there
@@ -116,7 +119,7 @@ index 16d148db6..05492164c 100644
              // Man pages
              t!(fs::create_dir_all(image.join("share/man/man1")));
              let man_src = builder.src.join("src/doc/man");
-@@ -992,7 +988,7 @@ impl Step for Cargo {
+@@ -1004,7 +1000,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -126,10 +129,10 @@ index 16d148db6..05492164c 100644
          }
  
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index a28762ac4..bf52ff0ae 100644
+index 74e50c606..a48775388 100644
 --- a/src/bootstrap/sanity.rs
 +++ b/src/bootstrap/sanity.rs
-@@ -183,28 +183,6 @@ pub fn check(build: &mut Build) {
+@@ -178,28 +178,6 @@ pub fn check(build: &mut Build) {
              }
          }
  
