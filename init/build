@@ -1,5 +1,5 @@
 check() {
-  url https://github.com/arachsys/init/releases
+  url https://github.com/arachsys/init/tags
   match version 2.0 'init-([0-9.]+)\.tar'
 }
 

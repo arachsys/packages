@@ -1,5 +1,5 @@
 check() {
-  url https://github.com/LMDB/lmdb/releases
+  url https://github.com/LMDB/lmdb/tags
   match version 0.9.29 'LMDB_([0-9.]+)\.tar'
 }
 

@@ -1,7 +1,7 @@
 require bison flex m4
 
 check() {
-  url https://github.com/dgibson/dtc/releases
+  url https://github.com/dgibson/dtc/tags
   match version 1.6.1 'tags/v([0-9.]+)\.tar'
 }
 
