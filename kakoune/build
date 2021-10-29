@@ -1,15 +1,15 @@
 check() {
   url https://github.com/mawww/kakoune/releases
-  match version 2021.08.28 'tags/v([0-9.]+)\.tar'
+  match version 2021.10.28 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack kakoune-2021.08.28.tar.gz \
-    https://github.com/mawww/kakoune/archive/v2021.08.28.tar.gz
+  unpack kakoune-2021.10.28.tar.gz \
+    https://github.com/mawww/kakoune/archive/v2021.10.28.tar.gz
   apply paths.diff
-  tree 744f254868dc192dd691048fbf5f8a5b6545433efbe9b2d0ad9f5123db022bf1
+  tree d9e1afaac2ee345acb56891a5a38114f81ae2a7f2b85d0f4c329b5642ba020f1
 }
 
 build() {
-  make install CXX=c++ DESTDIR=/dst PREFIX= version=2021.08.28
+  make install CXX=c++ DESTDIR=/dst PREFIX= version=2021.10.28
 }
