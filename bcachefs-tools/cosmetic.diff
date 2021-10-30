@@ -1,5 +1,5 @@
 diff --git a/bcachefs.c b/bcachefs.c
-index 1a06c17..797f37b 100644
+index 2b004a0..9324cc8 100644
 --- a/bcachefs.c
 +++ b/bcachefs.c
 @@ -28,7 +28,7 @@
@@ -36,7 +36,7 @@ index 1a06c17..797f37b 100644
  	     "  device online            Re-add an existing member to a filesystem\n"
 @@ -58,12 +58,12 @@ static void usage(void)
  	     "  device resize            Resize filesystem on a device\n"
- 	     "  device journal-resize    Resize journal on a device\n"
+ 	     "  device resize-journal    Resize journal on a device\n"
  	     "\n"
 -	     "Commands for managing subvolumes and snapshots:\n"
 -	     "  subvolume create     Create a new subvolume\n"
@@ -174,7 +174,7 @@ index 25a2dcb..0b30e24 100644
  	return bchu_data(bcache_fs_open(fs_path), op);
  }
 diff --git a/cmd_debug.c b/cmd_debug.c
-index aee19fb..1a43120 100644
+index 7cbeb90..2a4e97c 100644
 --- a/cmd_debug.c
 +++ b/cmd_debug.c
 @@ -23,10 +23,10 @@
@@ -190,7 +190,7 @@ index aee19fb..1a43120 100644
  	     "  -f            Force; overwrite when needed\n"
  	     "  -h            Display this help and exit\n"
  	     "Report bugs to <linux-bcache@vger.kernel.org>");
-@@ -145,7 +145,7 @@ int cmd_dump(int argc, char *argv[])
+@@ -149,7 +149,7 @@ int cmd_dump(int argc, char *argv[])
  
  	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
  	if (IS_ERR(c))
@@ -199,7 +199,7 @@ index aee19fb..1a43120 100644
  
  	down_read(&c->gc_lock);
  
-@@ -294,13 +294,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
+@@ -306,13 +306,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
  			i = &n_ondisk->keys;
  
  			if (!bch2_checksum_type_valid(c, BSET_CSUM_TYPE(i)))
@@ -215,7 +215,7 @@ index aee19fb..1a43120 100644
  
  			bset_encrypt(c, i, offset << 9);
  
-@@ -314,13 +314,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
+@@ -326,13 +326,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
  				break;
  
  			if (!bch2_checksum_type_valid(c, BSET_CSUM_TYPE(i)))
@@ -231,7 +231,7 @@ index aee19fb..1a43120 100644
  
  			bset_encrypt(c, i, offset << 9);
  
-@@ -404,14 +404,14 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
+@@ -424,14 +424,14 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
  static void list_keys_usage(void)
  {
  	puts("bcachefs list - list filesystem metadata to stdout\n"
@@ -251,7 +251,7 @@ index aee19fb..1a43120 100644
  	     "  -m (keys|formats|nodes|nodes_ondisk|nodes_keys)\n"
  	     "                                        List mode\n"
  	     "  -f                                    Check (fsck) the filesystem first\n"
-@@ -465,7 +465,7 @@ int cmd_list(int argc, char *argv[])
+@@ -485,7 +485,7 @@ int cmd_list(int argc, char *argv[])
  			break;
  		case 'l':
  			if (kstrtouint(optarg, 10, &level) || level >= BTREE_MAX_DEPTH)
@@ -260,7 +260,7 @@ index aee19fb..1a43120 100644
  			break;
  		case 's':
  			start	= bpos_parse(optarg);
-@@ -475,7 +475,7 @@ int cmd_list(int argc, char *argv[])
+@@ -495,7 +495,7 @@ int cmd_list(int argc, char *argv[])
  			break;
  		case 'i':
  			if (kstrtoull(optarg, 10, &inum))
@@ -269,7 +269,7 @@ index aee19fb..1a43120 100644
  			start	= POS(inum, 0);
  			end	= POS(inum + 1, 0);
  			break;
-@@ -501,7 +501,7 @@ int cmd_list(int argc, char *argv[])
+@@ -521,7 +521,7 @@ int cmd_list(int argc, char *argv[])
  
  	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
  	if (IS_ERR(c))
@@ -278,7 +278,7 @@ index aee19fb..1a43120 100644
  
  
  	for (btree_id = btree_id_start;
-@@ -534,8 +534,8 @@ int cmd_list(int argc, char *argv[])
+@@ -554,8 +554,8 @@ int cmd_list(int argc, char *argv[])
  
  static void list_journal_usage(void)
  {
@@ -289,7 +289,7 @@ index aee19fb..1a43120 100644
  	     "\n"
  	     "Options:\n"
  	     "  -a            Read entire journal, not just dirty entries\n"
-@@ -571,7 +571,7 @@ int cmd_list_journal(int argc, char *argv[])
+@@ -591,7 +591,7 @@ int cmd_list_journal(int argc, char *argv[])
  
  	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
  	if (IS_ERR(c))
@@ -299,7 +299,7 @@ index aee19fb..1a43120 100644
  	struct journal_replay *p;
  	struct jset_entry *entry;
 diff --git a/cmd_device.c b/cmd_device.c
-index 3bdb281..771c05b 100644
+index 87d8507..11e6f5d 100644
 --- a/cmd_device.c
 +++ b/cmd_device.c
 @@ -24,13 +24,13 @@
@@ -489,14 +489,14 @@ index 3bdb281..771c05b 100644
  static void device_resize_journal_usage(void)
  {
  	puts("bcachefs device resize-journal \n"
--	     "Usage: bcachefs device resize-journal device [ size ]\n"
-+	     "Usage: bcachefs device resize-journal DEVICE [SIZE]\n"
+-	     "Usage: bcachefs device resize-journal device size\n"
++	     "Usage: bcachefs device resize-journal DEVICE SIZE\n"
  	     "\n"
  	     "Options:\n"
  	     "  -h, --help                  display this help and exit\n"
 @@ -573,7 +573,7 @@ int cmd_device_resize_journal(int argc, char *argv[])
  	if (!size_arg)
- 		size = get_size(dev, dev_fd);
+ 		die("Please supply a journal size");
  	else if (bch2_strtoull_h(size_arg, &size))
 -		die("invalid size");
 +		die("Invalid size");
@@ -860,7 +860,7 @@ index ee4eb75..95c2f22 100644
  	     "\n"
  	     "Report bugs to <linux-bcachefs@vger.kernel.org>");
 diff --git a/crypto.c b/crypto.c
-index 31b03d1..37af21c 100644
+index 43753a3..99acb29 100644
 --- a/crypto.c
 +++ b/crypto.c
 @@ -31,12 +31,12 @@ char *read_passphrase(const char *prompt)
@@ -1060,10 +1060,10 @@ index 34246dc..1c8c009 100644
  		if (e.type)
  			continue;
 diff --git a/libbcachefs/opts.h b/libbcachefs/opts.h
-index d39d6a5..f68554b 100644
+index b60bdfc..97743bd 100644
 --- a/libbcachefs/opts.h
 +++ b/libbcachefs/opts.h
-@@ -82,12 +82,12 @@ enum opt_type {
+@@ -87,12 +87,12 @@ enum opt_type {
  	  OPT_FORMAT,							\
  	  OPT_SECTORS(1, 128),						\
  	  BCH_SB_BLOCK_SIZE,		8,				\
@@ -1078,7 +1078,7 @@ index d39d6a5..f68554b 100644
  	x(errors,			u8,				\
  	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,				\
  	  OPT_STR(bch2_error_actions),					\
-@@ -142,22 +142,22 @@ enum opt_type {
+@@ -147,22 +147,22 @@ enum opt_type {
  	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME|OPT_INODE,			\
  	  OPT_FN(bch2_opt_target),					\
  	  BCH_SB_METADATA_TARGET,	0,				\
@@ -1105,7 +1105,7 @@ index d39d6a5..f68554b 100644
  	x(erasure_code,			u16,				\
  	  OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME|OPT_INODE,			\
  	  OPT_BOOL(),							\
-@@ -306,7 +306,7 @@ enum opt_type {
+@@ -311,7 +311,7 @@ enum opt_type {
  	  OPT_MOUNT,							\
  	  OPT_UINT(0, S64_MAX),						\
  	  NO_SB_OPT,			BCH_SB_SECTOR,			\
@@ -1114,7 +1114,7 @@ index d39d6a5..f68554b 100644
  	x(read_only,			u8,				\
  	  0,								\
  	  OPT_BOOL(),							\
-@@ -337,18 +337,18 @@ enum opt_type {
+@@ -342,18 +342,18 @@ enum opt_type {
  	  OPT_DEVICE,							\
  	  OPT_SECTORS(0, S64_MAX),					\
  	  NO_SB_OPT,			0,				\
@@ -1151,7 +1151,7 @@ index c7604f0..72da973 100644
  	}
  
 diff --git a/tools-util.c b/tools-util.c
-index a264fe9..f7e2643 100644
+index 3cc0de4..b7ef16e 100644
 --- a/tools-util.c
 +++ b/tools-util.c
 @@ -45,7 +45,7 @@ char *mprintf(const char *fmt, ...)

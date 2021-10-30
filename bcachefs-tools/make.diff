@@ -1,14 +1,36 @@
 diff --git a/Makefile b/Makefile
-index 9ee1ff0..4e0450a 100644
+index e94419f..f2ad285 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,5 +1,4 @@
  PREFIX?=/usr/local
 -PKG_CONFIG?=pkg-config
  INSTALL=install
- PYTEST=pytest-3
- CFLAGS+=-std=gnu89 -O2 -g -MMD -Wall				\
-@@ -32,25 +31,13 @@ CFLAGS+=$(call cc-disable-warning, zero-length-array)
+ 
+ CFLAGS+=-std=gnu89 -O2 -g -MMD -Wall -fPIC				\
+@@ -22,19 +21,11 @@ LDFLAGS+=$(CFLAGS) $(EXTRA_LDFLAGS)
+ 
+ ## Configure Tools
+ PYTEST_ARGS?=
+-PYTEST_CMD?=$(shell \
+-	command -v pytest-3 \
+-	|| which pytest-3 \
+-)
++PYTEST_CMD?=$(shell command -v pytest-3)
+ PYTEST:=$(PYTEST_CMD) $(PYTEST_ARGS)
+ 
+ RST2MAN_ARGS?=
+-RST2MAN_CMD?=$(shell \
+-	command -v rst2man \
+-	|| which rst2man \
+-	|| command -v rst2man.py \
+-	|| which rst2man.py \
+-)
++RST2MAN_CMD?=$(shell command -v rst2man || command -v rst2man.py)
+ RST2MAN:=$(RST2MAN_CMD) $(RST2MAN_ARGS)
+ 
+ CARGO_ARGS=
+@@ -56,24 +47,13 @@ CFLAGS+=$(call cc-disable-warning, zero-length-array)
  CFLAGS+=$(call cc-disable-warning, shift-overflow)
  CFLAGS+=$(call cc-disable-warning, enum-conversion)
  
@@ -30,15 +52,14 @@ index 9ee1ff0..4e0450a 100644
 -
 -CFLAGS+=$(PKGCONFIG_CFLAGS)
 -LDLIBS+=$(PKGCONFIG_LDLIBS)
--
--LDLIBS+=-lm -lpthread -lrt -lscrypt -lkeyutils -laio -ldl
+-LDLIBS+=-lm -lpthread -lrt -lkeyutils -laio -ldl
 +LDLIBS+=-Wl,-Bstatic -laio -lkeyutils -lurcu -lsodium -llz4
 +LDLIBS+=-Wl,-Bdynamic -lblkid -luuid -lz -lzstd -lm -lpthread -lrt -ldl
  LDLIBS+=$(EXTRA_LDLIBS)
  
  ifeq ($(PREFIX),/usr)
 diff --git a/tools-util.c b/tools-util.c
-index 3cc0de4..a264fe9 100644
+index b7ef16e..f7e2643 100644
 --- a/tools-util.c
 +++ b/tools-util.c
 @@ -14,7 +14,7 @@
