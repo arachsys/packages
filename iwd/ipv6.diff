@@ -1,25 +1,26 @@
 diff --git a/src/netconfig.c b/src/netconfig.c
-index c748630..a52bbb2 100644
+index df9abd0..cff8dcc 100644
 --- a/src/netconfig.c
 +++ b/src/netconfig.c
-@@ -185,7 +185,7 @@ static inline char *netconfig_ipv6_to_string(const uint8_t *addr)
- 	struct in6_addr in6_addr;
- 	char *addr_str = l_malloc(INET6_ADDRSTRLEN);
+@@ -1098,6 +1098,9 @@ static void netconfig_dhcp6_event_handler(struct l_dhcp6_client *client,
+ 	{
+ 		const struct l_dhcp6_lease *lease =
+ 			l_dhcp6_client_get_lease(netconfig->dhcp6_client);
++		if (!lease)
++			break;
++
+ 		_auto_(l_free) char *addr_str =
+ 			l_dhcp6_lease_get_address(lease);
+ 		struct l_rtnl_address *address;
+@@ -1297,6 +1300,7 @@ static bool netconfig_ipv6_select_and_install(struct netconfig *netconfig)
+ 	}
  
--	memcpy(in6_addr.__in6_u.__u6_addr8, addr, 16);
-+	memcpy(in6_addr.s6_addr, addr, 16);
+ 	sysfs_write_ipv6_setting(netdev_get_name(netdev), "disable_ipv6", "0");
++	sysfs_write_ipv6_setting(netdev_get_name(netdev), "accept_ra", "1");
  
- 	if (L_WARN_ON(unlikely(!inet_ntop(AF_INET6, &in6_addr, addr_str,
- 						INET6_ADDRSTRLEN)))) {
-@@ -1465,7 +1465,6 @@ struct netconfig *netconfig_new(uint32_t ifindex)
- 
- 	l_queue_push_tail(netconfig_list, netconfig);
- 
--	sysfs_write_ipv6_setting(netdev_get_name(netdev), "accept_ra", "0");
- 	sysfs_write_ipv6_setting(netdev_get_name(netdev), "disable_ipv6", "1");
- 
- 	return netconfig;
-@@ -1532,7 +1531,7 @@ static int netconfig_init(void)
+ 	if (netconfig->rtm_v6_protocol == RTPROT_DHCP &&
+ 			netconfig->fils_override &&
+@@ -1738,7 +1742,7 @@ static int netconfig_init(void)
  	if (!l_settings_get_bool(iwd_get_config(), "Network",
  					"EnableIPv6",
  					&ipv6_enabled))
