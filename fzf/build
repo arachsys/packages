@@ -2,18 +2,18 @@ require go
 
 check() {
   url https://github.com/junegunn/fzf/releases
-  match version 0.27.3 'tags/([0-9.]+)\.tar'
+  match version 0.28.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack fzf-0.27.3.tar.gz \
-    https://github.com/junegunn/fzf/archive/refs/tags/0.27.3.tar.gz
+  unpack fzf-0.28.0.tar.gz \
+    https://github.com/junegunn/fzf/archive/refs/tags/0.28.0.tar.gz
   GOPATH=/tmp/go go mod vendor
-  tree 622d09be81885b0b8582e38c783891ef81382b2edbc4d99478bcc005ebfec230
+  tree e9b8ae288aacd6e09dd4a918f248e8e5a1f8d5fb995a841920f3f59a2d839cfe
 }
 
 build() {
   GOPATH=/tmp/go HOME=/tmp go build \
-    -ldflags "-s -w -X main.version=0.27.3 -X main.revision=arachsys"
+    -ldflags "-s -w -X main.version=0.28.0 -X main.revision=arachsys"
   install -D fzf /dst/bin/fzf
 }
