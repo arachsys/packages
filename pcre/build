@@ -1,12 +1,12 @@
 mode autotools
 
 check() {
-  url https://ftp.pcre.org/pub/pcre/
-  match version 8.45 'pcre-([0-9.]+)\.tar'
+  url https://sourceforge.net/projects/pcre/files/pcre/
+  match version 8.45 'files/pcre/([0-9.]+)/'
 }
 
 prepare() {
-  unpack https://ftp.pcre.org/pub/pcre/pcre-8.45.tar.bz2
+  unpack https://downloads.sourceforge.net/project/pcre/pcre/8.45/pcre-8.45.tar.gz
   apply paths.diff
   tree 923e68bdd1150b7cc2f2360a2fe133dabb3711eb3bca375dd485de273c26b0b6
 }
