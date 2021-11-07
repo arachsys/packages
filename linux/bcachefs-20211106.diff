@@ -327,10 +327,10 @@ index 000000000..71cda24e6
 +bcachefs-$(CONFIG_BCACHEFS_POSIX_ACL) += acl.o
 diff --git a/fs/bcachefs/acl.c b/fs/bcachefs/acl.c
 new file mode 100644
-index 000000000..d0c6878b0
+index 000000000..0cde2638d
 --- /dev/null
 +++ b/fs/bcachefs/acl.c
-@@ -0,0 +1,407 @@
+@@ -0,0 +1,406 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#ifdef CONFIG_BCACHEFS_POSIX_ACL
 +
@@ -664,8 +664,7 @@ index 000000000..d0c6878b0
 +	inode_u.bi_mode		= mode;
 +
 +	ret =   bch2_inode_write(&trans, &inode_iter, &inode_u) ?:
-+		bch2_trans_commit(&trans, NULL,
-+				  &inode->ei_journal_seq, 0);
++		bch2_trans_commit(&trans, NULL, NULL, 0);
 +btree_err:
 +	bch2_trans_iter_exit(&trans, &inode_iter);
 +
@@ -804,10 +803,10 @@ index 000000000..2d76a4897
 +#endif /* _BCACHEFS_ACL_H */
 diff --git a/fs/bcachefs/alloc_background.c b/fs/bcachefs/alloc_background.c
 new file mode 100644
-index 000000000..022c905dc
+index 000000000..b2735c859
 --- /dev/null
 +++ b/fs/bcachefs/alloc_background.c
-@@ -0,0 +1,1256 @@
+@@ -0,0 +1,1312 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#include "bcachefs.h"
 +#include "alloc_background.h"
@@ -957,10 +956,44 @@ index 000000000..022c905dc
 +	return 0;
 +}
 +
-+static void bch2_alloc_pack_v2(struct bkey_alloc_buf *dst,
++static int bch2_alloc_unpack_v3(struct bkey_alloc_unpacked *out,
++				struct bkey_s_c k)
++{
++	struct bkey_s_c_alloc_v3 a = bkey_s_c_to_alloc_v3(k);
++	const u8 *in = a.v->data;
++	const u8 *end = bkey_val_end(a);
++	unsigned fieldnr = 0;
++	int ret;
++	u64 v;
++
++	out->gen	= a.v->gen;
++	out->oldest_gen	= a.v->oldest_gen;
++	out->data_type	= a.v->data_type;
++	out->journal_seq = le64_to_cpu(a.v->journal_seq);
++
++#define x(_name, _bits)							\
++	if (fieldnr < a.v->nr_fields) {					\
++		ret = bch2_varint_decode_fast(in, end, &v);		\
++		if (ret < 0)						\
++			return ret;					\
++		in += ret;						\
++	} else {							\
++		v = 0;							\
++	}								\
++	out->_name = v;							\
++	if (v != out->_name)						\
++		return -1;						\
++	fieldnr++;
++
++	BCH_ALLOC_FIELDS_V2()
++#undef  x
++	return 0;
++}
++
++static void bch2_alloc_pack_v3(struct bkey_alloc_buf *dst,
 +			       const struct bkey_alloc_unpacked src)
 +{
-+	struct bkey_i_alloc_v2 *a = bkey_alloc_v2_init(&dst->k);
++	struct bkey_i_alloc_v3 *a = bkey_alloc_v3_init(&dst->k);
 +	unsigned nr_fields = 0, last_nonzero_fieldnr = 0;
 +	u8 *out = a->v.data;
 +	u8 *end = (void *) &dst[1];
@@ -971,6 +1004,7 @@ index 000000000..022c905dc
 +	a->v.gen	= src.gen;
 +	a->v.oldest_gen	= src.oldest_gen;
 +	a->v.data_type	= src.data_type;
++	a->v.journal_seq = cpu_to_le64(src.journal_seq);
 +
 +#define x(_name, _bits)							\
 +	nr_fields++;							\
@@ -1004,10 +1038,17 @@ index 000000000..022c905dc
 +		.gen	= 0,
 +	};
 +
-+	if (k.k->type == KEY_TYPE_alloc_v2)
-+		bch2_alloc_unpack_v2(&ret, k);
-+	else if (k.k->type == KEY_TYPE_alloc)
++	switch (k.k->type) {
++	case KEY_TYPE_alloc:
 +		bch2_alloc_unpack_v1(&ret, k);
++		break;
++	case KEY_TYPE_alloc_v2:
++		bch2_alloc_unpack_v2(&ret, k);
++		break;
++	case KEY_TYPE_alloc_v3:
++		bch2_alloc_unpack_v3(&ret, k);
++		break;
++	}
 +
 +	return ret;
 +}
@@ -1016,7 +1057,7 @@ index 000000000..022c905dc
 +		     struct bkey_alloc_buf *dst,
 +		     const struct bkey_alloc_unpacked src)
 +{
-+	bch2_alloc_pack_v2(dst, src);
++	bch2_alloc_pack_v3(dst, src);
 +}
 +
 +static unsigned bch_alloc_v1_val_u64s(const struct bch_alloc *a)
@@ -1059,13 +1100,28 @@ index 000000000..022c905dc
 +	return NULL;
 +}
 +
++const char *bch2_alloc_v3_invalid(const struct bch_fs *c, struct bkey_s_c k)
++{
++	struct bkey_alloc_unpacked u;
++
++	if (k.k->p.inode >= c->sb.nr_devices ||
++	    !c->devs[k.k->p.inode])
++		return "invalid device";
++
++	if (bch2_alloc_unpack_v3(&u, k))
++		return "unpack error";
++
++	return NULL;
++}
++
 +void bch2_alloc_to_text(struct printbuf *out, struct bch_fs *c,
 +			   struct bkey_s_c k)
 +{
 +	struct bkey_alloc_unpacked u = bch2_alloc_unpack(k);
 +
-+	pr_buf(out, "gen %u oldest_gen %u data_type %s",
-+	       u.gen, u.oldest_gen, bch2_data_types[u.data_type]);
++	pr_buf(out, "gen %u oldest_gen %u data_type %s journal_seq %llu",
++	       u.gen, u.oldest_gen, bch2_data_types[u.data_type],
++	       u.journal_seq);
 +#define x(_name, ...)	pr_buf(out, " " #_name " %llu", (u64) u._name);
 +	BCH_ALLOC_FIELDS_V2()
 +#undef  x
@@ -1078,8 +1134,7 @@ index 000000000..022c905dc
 +	struct bucket *g;
 +	struct bkey_alloc_unpacked u;
 +
-+	if (k.k->type != KEY_TYPE_alloc &&
-+	    k.k->type != KEY_TYPE_alloc_v2)
++	if (!bkey_is_alloc(k.k))
 +		return 0;
 +
 +	ca = bch_dev_bkey_exists(c, k.k->p.inode);
@@ -2066,10 +2121,10 @@ index 000000000..022c905dc
 +}
 diff --git a/fs/bcachefs/alloc_background.h b/fs/bcachefs/alloc_background.h
 new file mode 100644
-index 000000000..a4f6bf56b
+index 000000000..370573f8e
 --- /dev/null
 +++ b/fs/bcachefs/alloc_background.h
-@@ -0,0 +1,137 @@
+@@ -0,0 +1,143 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_ALLOC_BACKGROUND_H
 +#define _BCACHEFS_ALLOC_BACKGROUND_H
@@ -2081,6 +2136,7 @@ index 000000000..a4f6bf56b
 +extern const char * const bch2_allocator_states[];
 +
 +struct bkey_alloc_unpacked {
++	u64		journal_seq;
 +	u64		bucket;
 +	u8		dev;
 +	u8		gen;
@@ -2093,19 +2149,11 @@ index 000000000..a4f6bf56b
 +
 +struct bkey_alloc_buf {
 +	struct bkey_i	k;
++	struct bch_alloc_v3 v;
 +
-+	union {
-+	struct {
 +#define x(_name,  _bits)		+ _bits / 8
-+	u8		_pad[8 + BCH_ALLOC_FIELDS_V1()];
++	u8		_pad[0 + BCH_ALLOC_FIELDS_V2()];
 +#undef  x
-+	} _v1;
-+	struct {
-+#define x(_name,  _bits)		+ 8 + _bits / 8
-+	u8		_pad[8 + BCH_ALLOC_FIELDS_V2()];
-+#undef  x
-+	} _v2;
-+	};
 +} __attribute__((packed, aligned(8)));
 +
 +/* How out of date a pointer gen is allowed to be: */
@@ -2151,6 +2199,7 @@ index 000000000..a4f6bf56b
 +
 +const char *bch2_alloc_v1_invalid(const struct bch_fs *, struct bkey_s_c);
 +const char *bch2_alloc_v2_invalid(const struct bch_fs *, struct bkey_s_c);
++const char *bch2_alloc_v3_invalid(const struct bch_fs *, struct bkey_s_c);
 +void bch2_alloc_to_text(struct printbuf *, struct bch_fs *, struct bkey_s_c);
 +
 +#define bch2_bkey_ops_alloc (struct bkey_ops) {		\
@@ -2161,6 +2210,18 @@ index 000000000..a4f6bf56b
 +#define bch2_bkey_ops_alloc_v2 (struct bkey_ops) {	\
 +	.key_invalid	= bch2_alloc_v2_invalid,	\
 +	.val_to_text	= bch2_alloc_to_text,		\
++}
++
++#define bch2_bkey_ops_alloc_v3 (struct bkey_ops) {	\
++	.key_invalid	= bch2_alloc_v3_invalid,	\
++	.val_to_text	= bch2_alloc_to_text,		\
++}
++
++static inline bool bkey_is_alloc(const struct bkey *k)
++{
++	return  k->type == KEY_TYPE_alloc ||
++		k->type == KEY_TYPE_alloc_v2 ||
++		k->type == KEY_TYPE_alloc_v3;
 +}
 +
 +int bch2_alloc_read(struct bch_fs *);
@@ -4386,10 +4447,10 @@ index 000000000..131d0f7ba
 +#endif /* _BCACHEFS_H */
 diff --git a/fs/bcachefs/bcachefs_format.h b/fs/bcachefs/bcachefs_format.h
 new file mode 100644
-index 000000000..9b1be7146
+index 000000000..52212ad16
 --- /dev/null
 +++ b/fs/bcachefs/bcachefs_format.h
-@@ -0,0 +1,1856 @@
+@@ -0,0 +1,1883 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_FORMAT_H
 +#define _BCACHEFS_FORMAT_H
@@ -4736,7 +4797,9 @@ index 000000000..9b1be7146
 +	x(indirect_inline_data,	19)			\
 +	x(alloc_v2,		20)			\
 +	x(subvolume,		21)			\
-+	x(snapshot,		22)
++	x(snapshot,		22)			\
++	x(inode_v2,		23)			\
++	x(alloc_v3,		24)
 +
 +enum bch_bkey_type {
 +#define x(name, nr) KEY_TYPE_##name	= nr,
@@ -5073,6 +5136,16 @@ index 000000000..9b1be7146
 +	__u8			fields[0];
 +} __attribute__((packed, aligned(8)));
 +
++struct bch_inode_v2 {
++	struct bch_val		v;
++
++	__le64			bi_journal_seq;
++	__le64			bi_hash_seed;
++	__le64			bi_flags;
++	__le16			bi_mode;
++	__u8			fields[0];
++} __attribute__((packed, aligned(8)));
++
 +struct bch_inode_generation {
 +	struct bch_val		v;
 +
@@ -5163,6 +5236,9 @@ index 000000000..9b1be7146
 +LE32_BITMASK(INODE_STR_HASH,	struct bch_inode, bi_flags, 20, 24);
 +LE32_BITMASK(INODE_NR_FIELDS,	struct bch_inode, bi_flags, 24, 31);
 +LE32_BITMASK(INODE_NEW_VARINT,	struct bch_inode, bi_flags, 31, 32);
++
++LE64_BITMASK(INODEv2_STR_HASH,	struct bch_inode_v2, bi_flags, 20, 24);
++LE64_BITMASK(INODEv2_NR_FIELDS,	struct bch_inode_v2, bi_flags, 24, 31);
 +
 +/* Dirents */
 +
@@ -5257,6 +5333,17 @@ index 000000000..9b1be7146
 +	x(cached_sectors,	16)		\
 +	x(stripe,		32)		\
 +	x(stripe_redundancy,	8)
++
++struct bch_alloc_v3 {
++	struct bch_val		v;
++	__le64			journal_seq;
++	__le32			flags;
++	__u8			nr_fields;
++	__u8			gen;
++	__u8			oldest_gen;
++	__u8			data_type;
++	__u8			data[];
++} __attribute__((packed, aligned(8)));
 +
 +enum {
 +#define x(name, _bits) BCH_ALLOC_FIELD_V1_##name,
@@ -5664,7 +5751,8 @@ index 000000000..9b1be7146
 +	bcachefs_metadata_version_snapshot_2		= 15,
 +	bcachefs_metadata_version_reflink_p_fix		= 16,
 +	bcachefs_metadata_version_subvol_dirent		= 17,
-+	bcachefs_metadata_version_max			= 18,
++	bcachefs_metadata_version_inode_v2		= 18,
++	bcachefs_metadata_version_max			= 19,
 +};
 +
 +#define bcachefs_metadata_version_current	(bcachefs_metadata_version_max - 1)
@@ -8436,10 +8524,10 @@ index 000000000..0d7c67a95
 +#endif /* _BCACHEFS_BKEY_BUF_H */
 diff --git a/fs/bcachefs/bkey_methods.c b/fs/bcachefs/bkey_methods.c
 new file mode 100644
-index 000000000..874defd8a
+index 000000000..5c900cf8a
 --- /dev/null
 +++ b/fs/bcachefs/bkey_methods.c
-@@ -0,0 +1,448 @@
+@@ -0,0 +1,450 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -8555,6 +8643,7 @@ index 000000000..874defd8a
 +		(1U << KEY_TYPE_deleted)|
 +		(1U << KEY_TYPE_whiteout)|
 +		(1U << KEY_TYPE_inode)|
++		(1U << KEY_TYPE_inode_v2)|
 +		(1U << KEY_TYPE_inode_generation),
 +	[BKEY_TYPE_dirents] =
 +		(1U << KEY_TYPE_deleted)|
@@ -8570,7 +8659,8 @@ index 000000000..874defd8a
 +	[BKEY_TYPE_alloc] =
 +		(1U << KEY_TYPE_deleted)|
 +		(1U << KEY_TYPE_alloc)|
-+		(1U << KEY_TYPE_alloc_v2),
++		(1U << KEY_TYPE_alloc_v2)|
++		(1U << KEY_TYPE_alloc_v3),
 +	[BKEY_TYPE_quotas] =
 +		(1U << KEY_TYPE_deleted)|
 +		(1U << KEY_TYPE_quota),
@@ -21613,10 +21703,10 @@ index 000000000..d599008c5
 +
 diff --git a/fs/bcachefs/btree_types.h b/fs/bcachefs/btree_types.h
 new file mode 100644
-index 000000000..26aa3cd18
+index 000000000..affc0e681
 --- /dev/null
 +++ b/fs/bcachefs/btree_types.h
-@@ -0,0 +1,694 @@
+@@ -0,0 +1,699 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_BTREE_TYPES_H
 +#define _BCACHEFS_BTREE_TYPES_H
@@ -22224,6 +22314,7 @@ index 000000000..26aa3cd18
 +
 +#define BTREE_NODE_TYPE_HAS_MEM_TRIGGERS		\
 +	((1U << BKEY_TYPE_alloc)|			\
++	 (1U << BKEY_TYPE_inodes)|			\
 +	 (1U << BKEY_TYPE_stripes)|			\
 +	 (1U << BKEY_TYPE_snapshots))
 +
@@ -22271,8 +22362,12 @@ index 000000000..26aa3cd18
 +#define BTREE_TRIGGER_NOATOMIC		(1U << __BTREE_TRIGGER_NOATOMIC)
 +
 +#define BTREE_TRIGGER_WANTS_OLD_AND_NEW		\
-+	((1U << KEY_TYPE_stripe)|		\
++	((1U << KEY_TYPE_alloc)|		\
++	 (1U << KEY_TYPE_alloc_v2)|		\
++	 (1U << KEY_TYPE_alloc_v3)|		\
++	 (1U << KEY_TYPE_stripe)|		\
 +	 (1U << KEY_TYPE_inode)|		\
++	 (1U << KEY_TYPE_inode_v2)|		\
 +	 (1U << KEY_TYPE_snapshot))
 +
 +static inline bool btree_node_type_needs_gc(enum btree_node_type type)
@@ -24991,10 +25086,10 @@ index 000000000..8e03bd987
 +#endif /* _BCACHEFS_BTREE_UPDATE_INTERIOR_H */
 diff --git a/fs/bcachefs/btree_update_leaf.c b/fs/bcachefs/btree_update_leaf.c
 new file mode 100644
-index 000000000..b9c777cca
+index 000000000..51f65226d
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_leaf.c
-@@ -0,0 +1,1440 @@
+@@ -0,0 +1,1437 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -25358,9 +25453,6 @@ index 000000000..b9c777cca
 +				      i->btree_id,
 +				      i->level,
 +				      i->k);
-+
-+		bch2_journal_set_has_inode(j, &trans->journal_res,
-+					   i->k->k.p.inode);
 +
 +		if (trans->journal_seq)
 +			*trans->journal_seq = trans->journal_res.seq;
@@ -26437,10 +26529,10 @@ index 000000000..b9c777cca
 +}
 diff --git a/fs/bcachefs/buckets.c b/fs/bcachefs/buckets.c
 new file mode 100644
-index 000000000..699a0865c
+index 000000000..c3542d3c2
 --- /dev/null
 +++ b/fs/bcachefs/buckets.c
-@@ -0,0 +1,2224 @@
+@@ -0,0 +1,2251 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Code for manipulating bucket marks for garbage collection.
@@ -26456,6 +26548,7 @@ index 000000000..699a0865c
 +#include "buckets.h"
 +#include "ec.h"
 +#include "error.h"
++#include "inode.h"
 +#include "movinggc.h"
 +#include "recovery.h"
 +#include "reflink.h"
@@ -26980,8 +27073,7 @@ index 000000000..699a0865c
 +	struct bucket_mark old_m, m;
 +
 +	/* We don't do anything for deletions - do we?: */
-+	if (new.k->type != KEY_TYPE_alloc &&
-+	    new.k->type != KEY_TYPE_alloc_v2)
++	if (!bkey_is_alloc(new.k))
 +		return 0;
 +
 +	/*
@@ -26990,6 +27082,15 @@ index 000000000..699a0865c
 +	if ((flags & BTREE_TRIGGER_GC) &&
 +	    !(flags & BTREE_TRIGGER_BUCKET_INVALIDATE))
 +		return 0;
++
++	if (flags & BTREE_TRIGGER_INSERT) {
++		struct bch_alloc_v3 *v = (struct bch_alloc_v3 *) new.v;
++
++		BUG_ON(!journal_seq);
++		BUG_ON(new.k->type != KEY_TYPE_alloc_v3);
++
++		v->journal_seq = cpu_to_le64(journal_seq);
++	}
 +
 +	ca = bch_dev_bkey_exists(c, new.k->p.inode);
 +
@@ -27534,12 +27635,24 @@ index 000000000..699a0865c
 +{
 +	struct bch_fs *c = trans->c;
 +	struct bch_fs_usage __percpu *fs_usage;
++	u64 journal_seq = trans->journal_res.seq;
 +
-+	preempt_disable();
-+	fs_usage = fs_usage_ptr(c, trans->journal_res.seq, flags & BTREE_TRIGGER_GC);
-+	fs_usage->nr_inodes += new.k->type == KEY_TYPE_inode;
-+	fs_usage->nr_inodes -= old.k->type == KEY_TYPE_inode;
-+	preempt_enable();
++	if (flags & BTREE_TRIGGER_INSERT) {
++		struct bch_inode_v2 *v = (struct bch_inode_v2 *) new.v;
++
++		BUG_ON(!journal_seq);
++		BUG_ON(new.k->type != KEY_TYPE_inode_v2);
++
++		v->bi_journal_seq = cpu_to_le64(journal_seq);
++	}
++
++	if (flags & BTREE_TRIGGER_GC) {
++		preempt_disable();
++		fs_usage = fs_usage_ptr(c, journal_seq, flags & BTREE_TRIGGER_GC);
++		fs_usage->nr_inodes += bkey_is_inode(new.k);
++		fs_usage->nr_inodes -= bkey_is_inode(old.k);
++		preempt_enable();
++	}
 +	return 0;
 +}
 +
@@ -27625,10 +27738,14 @@ index 000000000..699a0865c
 +	struct bkey_s_c_reflink_p p = bkey_s_c_to_reflink_p(k);
 +	struct reflink_gc *ref;
 +	size_t l, r, m;
-+	u64 idx = le64_to_cpu(p.v->idx) - le32_to_cpu(p.v->front_pad);
-+	u64 end_idx = le64_to_cpu(p.v->idx) + p.k->size +
-+		le32_to_cpu(p.v->back_pad);
++	u64 idx = le64_to_cpu(p.v->idx);
++	u64 end = le64_to_cpu(p.v->idx) + p.k->size;
 +	int ret = 0;
++
++	if (c->sb.version >= bcachefs_metadata_version_reflink_p_fix) {
++		idx -= le32_to_cpu(p.v->front_pad);
++		end += le32_to_cpu(p.v->back_pad);
++	}
 +
 +	l = 0;
 +	r = c->reflink_gc_nr;
@@ -27642,7 +27759,7 @@ index 000000000..699a0865c
 +			r = m;
 +	}
 +
-+	while (idx < end_idx && !ret)
++	while (idx < end && !ret)
 +		ret = __bch2_mark_reflink_p(c, p, &idx, flags, l++);
 +
 +	return ret;
@@ -27658,6 +27775,7 @@ index 000000000..699a0865c
 +	switch (k.k->type) {
 +	case KEY_TYPE_alloc:
 +	case KEY_TYPE_alloc_v2:
++	case KEY_TYPE_alloc_v3:
 +		return bch2_mark_alloc(trans, old, new, flags);
 +	case KEY_TYPE_btree_ptr:
 +	case KEY_TYPE_btree_ptr_v2:
@@ -27667,6 +27785,7 @@ index 000000000..699a0865c
 +	case KEY_TYPE_stripe:
 +		return bch2_mark_stripe(trans, old, new, flags);
 +	case KEY_TYPE_inode:
++	case KEY_TYPE_inode_v2:
 +		return bch2_mark_inode(trans, old, new, flags);
 +	case KEY_TYPE_reservation:
 +		return bch2_mark_reservation(trans, old, new, flags);
@@ -28123,8 +28242,7 @@ index 000000000..699a0865c
 +				 struct bkey_s_c new,
 +				 unsigned flags)
 +{
-+	int nr = (new.k->type == KEY_TYPE_inode) -
-+		(old.k->type == KEY_TYPE_inode);
++	int nr = bkey_is_inode(new.k) - bkey_is_inode(old.k);
 +
 +	if (nr) {
 +		struct replicas_delta_list *d =
@@ -28272,6 +28390,7 @@ index 000000000..699a0865c
 +	case KEY_TYPE_stripe:
 +		return bch2_trans_mark_stripe(trans, old, new, flags);
 +	case KEY_TYPE_inode:
++	case KEY_TYPE_inode_v2:
 +		return bch2_trans_mark_inode(trans, old, new, flags);
 +	case KEY_TYPE_reservation:
 +		return bch2_trans_mark_reservation(trans, k, flags);
@@ -39082,10 +39201,10 @@ index 000000000..dde237859
 +#endif /* _BCACHEFS_FS_COMMON_H */
 diff --git a/fs/bcachefs/fs-io.c b/fs/bcachefs/fs-io.c
 new file mode 100644
-index 000000000..684488ef6
+index 000000000..a2367b3e0
 --- /dev/null
 +++ b/fs/bcachefs/fs-io.c
-@@ -0,0 +1,3304 @@
+@@ -0,0 +1,3303 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#ifndef NO_BCACHEFS_FS
 +
@@ -40214,7 +40333,6 @@ index 000000000..684488ef6
 +	op			= &w->io->op;
 +	bch2_write_op_init(op, c, w->opts);
 +	op->target		= w->opts.foreground_target;
-+	op_journal_seq_set(op, &inode->ei_journal_seq);
 +	op->nr_replicas		= nr_replicas;
 +	op->res.nr_replicas	= nr_replicas;
 +	op->write_point		= writepoint_hashed(inode->ei_last_dirtied);
@@ -41024,7 +41142,6 @@ index 000000000..684488ef6
 +		bch2_write_op_init(&dio->op, c, io_opts(c, &inode->ei_inode));
 +		dio->op.end_io		= bch2_dio_write_loop_async;
 +		dio->op.target		= dio->op.opts.foreground_target;
-+		op_journal_seq_set(&dio->op, &inode->ei_journal_seq);
 +		dio->op.write_point	= writepoint_hashed((unsigned long) current);
 +		dio->op.nr_replicas	= dio->op.opts.data_replicas;
 +		dio->op.subvol		= inode->ei_subvol;
@@ -41256,27 +41373,33 @@ index 000000000..684488ef6
 +
 +/* fsync: */
 +
++/*
++ * inode->ei_inode.bi_journal_seq won't be up to date since it's set in an
++ * insert trigger: look up the btree inode instead
++ */
++static int bch2_flush_inode(struct bch_fs *c, subvol_inum inum)
++{
++	struct bch_inode_unpacked inode;
++	int ret;
++
++	if (c->opts.journal_flush_disabled)
++		return 0;
++
++	ret = bch2_inode_find_by_inum(c, inum, &inode);
++	if (ret)
++		return ret;
++
++	return bch2_journal_flush_seq(&c->journal, inode.bi_journal_seq);
++}
++
 +int bch2_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 +{
 +	struct bch_inode_info *inode = file_bch_inode(file);
 +	struct bch_fs *c = inode->v.i_sb->s_fs_info;
-+	int ret, ret2;
++	int ret, ret2 = 0;
 +
 +	ret = file_write_and_wait_range(file, start, end);
-+	if (ret)
-+		return ret;
-+
-+	if (datasync && !(inode->v.i_state & I_DIRTY_DATASYNC))
-+		goto out;
-+
-+	ret = sync_inode_metadata(&inode->v, 1);
-+	if (ret)
-+		return ret;
-+out:
-+	if (!c->opts.journal_flush_disabled)
-+		ret = bch2_journal_flush_seq(&c->journal,
-+					     inode->ei_journal_seq);
-+	ret2 = file_check_and_advance_wb_err(file);
++	ret2 = bch2_flush_inode(c, inode_inum(inode));
 +
 +	return ret ?: ret2;
 +}
@@ -41540,7 +41663,7 @@ index 000000000..684488ef6
 +
 +	ret = bch2_fpunch(c, inode_inum(inode),
 +			round_up(iattr->ia_size, block_bytes(c)) >> 9,
-+			U64_MAX, &inode->ei_journal_seq, &i_sectors_delta);
++			U64_MAX, &i_sectors_delta);
 +	i_sectors_acct(c, inode, NULL, i_sectors_delta);
 +
 +	if (unlikely(ret))
@@ -41600,7 +41723,6 @@ index 000000000..684488ef6
 +
 +		ret = bch2_fpunch(c, inode_inum(inode),
 +				  discard_start, discard_end,
-+				  &inode->ei_journal_seq,
 +				  &i_sectors_delta);
 +		i_sectors_acct(c, inode, NULL, i_sectors_delta);
 +	}
@@ -41679,7 +41801,6 @@ index 000000000..684488ef6
 +
 +		ret = bch2_fpunch(c, inode_inum(inode),
 +				  offset >> 9, (offset + len) >> 9,
-+				  &inode->ei_journal_seq,
 +				  &i_sectors_delta);
 +		i_sectors_acct(c, inode, NULL, i_sectors_delta);
 +
@@ -41783,8 +41904,7 @@ index 000000000..684488ef6
 +		ret =   bch2_btree_iter_traverse(&del) ?:
 +			bch2_trans_update(&trans, &del, &delete, trigger_flags) ?:
 +			bch2_trans_update(&trans, &dst, copy.k, trigger_flags) ?:
-+			bch2_trans_commit(&trans, &disk_res,
-+					  &inode->ei_journal_seq,
++			bch2_trans_commit(&trans, &disk_res, NULL,
 +					  BTREE_INSERT_NOFAIL);
 +		bch2_disk_reservation_put(c, &disk_res);
 +
@@ -41895,7 +42015,7 @@ index 000000000..684488ef6
 +
 +		ret = bch2_extent_update(&trans, inode_inum(inode), &iter,
 +					 &reservation.k_i,
-+				&disk_res, &inode->ei_journal_seq,
++				&disk_res, NULL,
 +				0, &i_sectors_delta, true);
 +		i_sectors_acct(c, inode, &quota_res, i_sectors_delta);
 +bkey_err:
@@ -42099,7 +42219,6 @@ index 000000000..684488ef6
 +			       inode_inum(dst), pos_dst >> 9,
 +			       inode_inum(src), pos_src >> 9,
 +			       aligned_len >> 9,
-+			       &dst->ei_journal_seq,
 +			       pos_dst + len, &i_sectors_delta);
 +	if (ret < 0)
 +		goto err;
@@ -42117,10 +42236,9 @@ index 000000000..684488ef6
 +		i_size_write(&dst->v, pos_dst + ret);
 +	spin_unlock(&dst->v.i_lock);
 +
-+	if (((file_dst->f_flags & (__O_SYNC | O_DSYNC)) ||
-+	     IS_SYNC(file_inode(file_dst))) &&
-+	    !c->opts.journal_flush_disabled)
-+		ret = bch2_journal_flush_seq(&c->journal, dst->ei_journal_seq);
++	if ((file_dst->f_flags & (__O_SYNC | O_DSYNC)) ||
++	    IS_SYNC(file_inode(file_dst)))
++		ret = bch2_flush_inode(c, inode_inum(dst));
 +err:
 +	bch2_unlock_inodes(INODE_LOCK|INODE_PAGECACHE_BLOCK, src, dst);
 +
@@ -43071,10 +43189,10 @@ index 000000000..f201980ef
 +#endif /* _BCACHEFS_FS_IOCTL_H */
 diff --git a/fs/bcachefs/fs.c b/fs/bcachefs/fs.c
 new file mode 100644
-index 000000000..7a778c625
+index 000000000..74de7bc1e
 --- /dev/null
 +++ b/fs/bcachefs/fs.c
-@@ -0,0 +1,1767 @@
+@@ -0,0 +1,1725 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#ifndef NO_BCACHEFS_FS
 +
@@ -43116,27 +43234,6 @@ index 000000000..7a778c625
 +static void bch2_vfs_inode_init(struct bch_fs *, subvol_inum,
 +				struct bch_inode_info *,
 +				struct bch_inode_unpacked *);
-+
-+static void journal_seq_copy(struct bch_fs *c,
-+			     struct bch_inode_info *dst,
-+			     u64 journal_seq)
-+{
-+	/*
-+	 * atomic64_cmpxchg has a fallback for archs that don't support it,
-+	 * cmpxchg does not:
-+	 */
-+	atomic64_t *dst_seq = (void *) &dst->ei_journal_seq;
-+	u64 old, v = READ_ONCE(dst->ei_journal_seq);
-+
-+	do {
-+		old = v;
-+
-+		if (old >= journal_seq)
-+			break;
-+	} while ((v = atomic64_cmpxchg(dst_seq, old, journal_seq)) != old);
-+
-+	bch2_journal_set_has_inum(&c->journal, dst->v.i_ino, journal_seq);
-+}
 +
 +static void __pagecache_lock_put(struct pagecache_lock *lock, long i)
 +{
@@ -43230,9 +43327,7 @@ index 000000000..7a778c625
 +				BTREE_ITER_INTENT) ?:
 +		(set ? set(inode, &inode_u, p) : 0) ?:
 +		bch2_inode_write(&trans, &iter, &inode_u) ?:
-+		bch2_trans_commit(&trans, NULL,
-+				  &inode->ei_journal_seq,
-+				  BTREE_INSERT_NOFAIL);
++		bch2_trans_commit(&trans, NULL, NULL, BTREE_INSERT_NOFAIL);
 +
 +	/*
 +	 * the btree node lock protects inode->ei_inode, not ei_update_lock;
@@ -43334,8 +43429,6 @@ index 000000000..7a778c625
 +
 +	bch2_vfs_inode_init(c, inum, inode, &inode_u);
 +
-+	inode->ei_journal_seq = bch2_inode_journal_seq(&c->journal, inum.inum);
-+
 +	unlock_new_inode(&inode->v);
 +
 +	return &inode->v;
@@ -43409,7 +43502,6 @@ index 000000000..7a778c625
 +	if (!(flags & BCH_CREATE_TMPFILE)) {
 +		bch2_inode_update_after_write(c, dir, &dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
-+		journal_seq_copy(c, dir, journal_seq);
 +		mutex_unlock(&dir->ei_update_lock);
 +	}
 +
@@ -43417,7 +43509,6 @@ index 000000000..7a778c625
 +	inum.inum = inode_u.bi_inum;
 +
 +	bch2_vfs_inode_init(c, inum, inode, &inode_u);
-+	journal_seq_copy(c, inode, journal_seq);
 +
 +	set_cached_acl(&inode->v, ACL_TYPE_ACCESS, acl);
 +	set_cached_acl(&inode->v, ACL_TYPE_DEFAULT, default_acl);
@@ -43442,7 +43533,6 @@ index 000000000..7a778c625
 +		 * We raced, another process pulled the new inode into cache
 +		 * before us:
 +		 */
-+		journal_seq_copy(c, old, journal_seq);
 +		make_bad_inode(&inode->v);
 +		iput(&inode->v);
 +
@@ -43526,7 +43616,7 @@ index 000000000..7a778c625
 +	mutex_lock(&inode->ei_update_lock);
 +	bch2_trans_init(&trans, c, 4, 1024);
 +
-+	ret = __bch2_trans_do(&trans, NULL, &inode->ei_journal_seq, 0,
++	ret = __bch2_trans_do(&trans, NULL, NULL, 0,
 +			bch2_link_trans(&trans,
 +					inode_inum(dir),   &dir_u,
 +					inode_inum(inode), &inode_u,
@@ -43535,7 +43625,6 @@ index 000000000..7a778c625
 +	if (likely(!ret)) {
 +		BUG_ON(inode_u.bi_inum != inode->v.i_ino);
 +
-+		journal_seq_copy(c, inode, dir->ei_journal_seq);
 +		bch2_inode_update_after_write(c, dir, &dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
 +		bch2_inode_update_after_write(c, inode, &inode_u, ATTR_CTIME);
@@ -43578,7 +43667,7 @@ index 000000000..7a778c625
 +	bch2_lock_inodes(INODE_UPDATE_LOCK, dir, inode);
 +	bch2_trans_init(&trans, c, 4, 1024);
 +
-+	ret = __bch2_trans_do(&trans, NULL, &dir->ei_journal_seq,
++	ret = __bch2_trans_do(&trans, NULL, NULL,
 +			      BTREE_INSERT_NOFAIL,
 +			bch2_unlink_trans(&trans,
 +					  inode_inum(dir), &dir_u,
@@ -43588,7 +43677,6 @@ index 000000000..7a778c625
 +	if (likely(!ret)) {
 +		BUG_ON(inode_u.bi_inum != inode->v.i_ino);
 +
-+		journal_seq_copy(c, inode, dir->ei_journal_seq);
 +		bch2_inode_update_after_write(c, dir, &dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
 +		bch2_inode_update_after_write(c, inode, &inode_u,
@@ -43630,8 +43718,6 @@ index 000000000..7a778c625
 +	if (unlikely(ret))
 +		goto err;
 +
-+	journal_seq_copy(c, dir, inode->ei_journal_seq);
-+
 +	ret = __bch2_link(c, inode, dir, dentry);
 +	if (unlikely(ret))
 +		goto err;
@@ -43666,7 +43752,6 @@ index 000000000..7a778c625
 +		? BCH_RENAME_EXCHANGE
 +		: dst_dentry->d_inode
 +		? BCH_RENAME_OVERWRITE : BCH_RENAME;
-+	u64 journal_seq = 0;
 +	int ret;
 +
 +	if (flags & ~(RENAME_NOREPLACE|RENAME_EXCHANGE))
@@ -43706,7 +43791,7 @@ index 000000000..7a778c625
 +			goto err;
 +	}
 +
-+	ret = __bch2_trans_do(&trans, NULL, &journal_seq, 0,
++	ret = __bch2_trans_do(&trans, NULL, NULL, 0,
 +			bch2_rename_trans(&trans,
 +					  inode_inum(src_dir), &src_dir_u,
 +					  inode_inum(dst_dir), &dst_dir_u,
@@ -43724,23 +43809,17 @@ index 000000000..7a778c625
 +
 +	bch2_inode_update_after_write(c, src_dir, &src_dir_u,
 +				      ATTR_MTIME|ATTR_CTIME);
-+	journal_seq_copy(c, src_dir, journal_seq);
 +
-+	if (src_dir != dst_dir) {
++	if (src_dir != dst_dir)
 +		bch2_inode_update_after_write(c, dst_dir, &dst_dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
-+		journal_seq_copy(c, dst_dir, journal_seq);
-+	}
 +
 +	bch2_inode_update_after_write(c, src_inode, &src_inode_u,
 +				      ATTR_CTIME);
-+	journal_seq_copy(c, src_inode, journal_seq);
 +
-+	if (dst_inode) {
++	if (dst_inode)
 +		bch2_inode_update_after_write(c, dst_inode, &dst_inode_u,
 +					      ATTR_CTIME);
-+		journal_seq_copy(c, dst_inode, journal_seq);
-+	}
 +err:
 +	bch2_trans_exit(&trans);
 +
@@ -43847,8 +43926,7 @@ index 000000000..7a778c625
 +	}
 +
 +	ret =   bch2_inode_write(&trans, &inode_iter, &inode_u) ?:
-+		bch2_trans_commit(&trans, NULL,
-+				  &inode->ei_journal_seq,
++		bch2_trans_commit(&trans, NULL, NULL,
 +				  BTREE_INSERT_NOFAIL);
 +btree_err:
 +	bch2_trans_iter_exit(&trans, &inode_iter);
@@ -44282,7 +44360,6 @@ index 000000000..7a778c625
 +	inode->v.i_size		= bi->bi_size;
 +
 +	inode->ei_flags		= 0;
-+	inode->ei_journal_seq	= 0;
 +	inode->ei_quota_reserved = 0;
 +	inode->ei_qid		= bch_qid(bi);
 +	inode->ei_subvol	= inum.subvol;
@@ -44321,7 +44398,6 @@ index 000000000..7a778c625
 +	mutex_init(&inode->ei_update_lock);
 +	pagecache_lock_init(&inode->ei_pagecache_lock);
 +	mutex_init(&inode->ei_quota_lock);
-+	inode->ei_journal_seq = 0;
 +
 +	return &inode->v;
 +}
@@ -44844,10 +44920,10 @@ index 000000000..7a778c625
 +#endif /* NO_BCACHEFS_FS */
 diff --git a/fs/bcachefs/fs.h b/fs/bcachefs/fs.h
 new file mode 100644
-index 000000000..bf62e80fd
+index 000000000..40212b3da
 --- /dev/null
 +++ b/fs/bcachefs/fs.h
-@@ -0,0 +1,203 @@
+@@ -0,0 +1,202 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_FS_H
 +#define _BCACHEFS_FS_H
@@ -44886,7 +44962,6 @@ index 000000000..bf62e80fd
 +	unsigned long		ei_flags;
 +
 +	struct mutex		ei_update_lock;
-+	u64			ei_journal_seq;
 +	u64			ei_quota_reserved;
 +	unsigned long		ei_last_dirtied;
 +
@@ -45053,10 +45128,10 @@ index 000000000..bf62e80fd
 +#endif /* _BCACHEFS_FS_H */
 diff --git a/fs/bcachefs/fsck.c b/fs/bcachefs/fsck.c
 new file mode 100644
-index 000000000..9519ced97
+index 000000000..361dbf338
 --- /dev/null
 +++ b/fs/bcachefs/fsck.c
-@@ -0,0 +1,2353 @@
+@@ -0,0 +1,2345 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -45192,7 +45267,7 @@ index 000000000..9519ced97
 +		goto err;
 +	}
 +
-+	ret = bch2_inode_unpack(bkey_s_c_to_inode(k), inode);
++	ret = bch2_inode_unpack(k, inode);
 +err:
 +	if (ret && ret != -EINTR)
 +		bch_err(trans->c, "error %i fetching inode %llu",
@@ -45216,8 +45291,8 @@ index 000000000..9519ced97
 +	if (ret)
 +		goto err;
 +
-+	ret = k.k->type == KEY_TYPE_inode
-+		? bch2_inode_unpack(bkey_s_c_to_inode(k), inode)
++	ret = bkey_is_inode(k.k)
++		? bch2_inode_unpack(k, inode)
 +		: -ENOENT;
 +	if (!ret)
 +		*snapshot = iter.pos.snapshot;
@@ -45320,7 +45395,7 @@ index 000000000..9519ced97
 +	if (ret)
 +		goto err;
 +
-+	if (k.k->type != KEY_TYPE_inode) {
++	if (!bkey_is_inode(k.k)) {
 +		bch2_fs_inconsistent(trans->c,
 +				     "inode %llu:%u not found when deleting",
 +				     inum, snapshot);
@@ -45328,7 +45403,7 @@ index 000000000..9519ced97
 +		goto err;
 +	}
 +
-+	bch2_inode_unpack(bkey_s_c_to_inode(k), &inode_u);
++	bch2_inode_unpack(k, &inode_u);
 +
 +	/* Subvolume root? */
 +	if (inode_u.bi_subvol) {
@@ -45640,7 +45715,7 @@ index 000000000..9519ced97
 +}
 +
 +static int add_inode(struct bch_fs *c, struct inode_walker *w,
-+		     struct bkey_s_c_inode inode)
++		     struct bkey_s_c inode)
 +{
 +	struct bch_inode_unpacked u;
 +	int ret;
@@ -45682,8 +45757,8 @@ index 000000000..9519ced97
 +		if (k.k->p.offset != pos.inode)
 +			break;
 +
-+		if (k.k->type == KEY_TYPE_inode)
-+			add_inode(c, w, bkey_s_c_to_inode(k));
++		if (bkey_is_inode(k.k))
++			add_inode(c, w, k);
 +	}
 +	bch2_trans_iter_exit(trans, &iter);
 +
@@ -45735,11 +45810,11 @@ index 000000000..9519ced97
 +		if (k.k->p.offset != inum)
 +			break;
 +
-+		if (k.k->type != KEY_TYPE_inode)
++		if (!bkey_is_inode(k.k))
 +			continue;
 +
 +		if (ref_visible(c, s, s->pos.snapshot, k.k->p.snapshot)) {
-+			add_inode(c, w, bkey_s_c_to_inode(k));
++			add_inode(c, w, k);
 +			if (k.k->p.snapshot >= s->pos.snapshot)
 +				break;
 +		}
@@ -45864,7 +45939,6 @@ index 000000000..9519ced97
 +{
 +	struct bch_fs *c = trans->c;
 +	struct bkey_s_c k;
-+	struct bkey_s_c_inode inode;
 +	struct bch_inode_unpacked u;
 +	bool do_update = false;
 +	int ret;
@@ -45889,18 +45963,16 @@ index 000000000..9519ced97
 +	if (bch2_snapshot_internal_node(c, k.k->p.snapshot))
 +		return 0;
 +
-+	if (k.k->type != KEY_TYPE_inode)
++	if (!bkey_is_inode(k.k))
 +		return 0;
 +
-+	inode = bkey_s_c_to_inode(k);
++	BUG_ON(bch2_inode_unpack(k, &u));
 +
 +	if (!full &&
-+	    !(inode.v->bi_flags & (BCH_INODE_I_SIZE_DIRTY|
-+				   BCH_INODE_I_SECTORS_DIRTY|
-+				   BCH_INODE_UNLINKED)))
++	    !(u.bi_flags & (BCH_INODE_I_SIZE_DIRTY|
++			    BCH_INODE_I_SECTORS_DIRTY|
++			    BCH_INODE_UNLINKED)))
 +		return 0;
-+
-+	BUG_ON(bch2_inode_unpack(inode, &u));
 +
 +	if (prev->bi_inum != u.bi_inum)
 +		*prev = u;
@@ -47022,10 +47094,10 @@ index 000000000..9519ced97
 +			   BTREE_ITER_INTENT|
 +			   BTREE_ITER_PREFETCH|
 +			   BTREE_ITER_ALL_SNAPSHOTS, k, ret) {
-+		if (k.k->type != KEY_TYPE_inode)
++		if (!bkey_is_inode(k.k))
 +			continue;
 +
-+		ret = bch2_inode_unpack(bkey_s_c_to_inode(k), &u);
++		ret = bch2_inode_unpack(k, &u);
 +		if (ret) {
 +			/* Should have been caught earlier in fsck: */
 +			bch_err(c, "error unpacking inode %llu: %i", k.k->p.offset, ret);
@@ -47129,7 +47201,6 @@ index 000000000..9519ced97
 +	struct btree_trans trans;
 +	struct btree_iter iter;
 +	struct bkey_s_c k;
-+	struct bkey_s_c_inode inode;
 +	struct bch_inode_unpacked u;
 +	int ret = 0;
 +
@@ -47140,20 +47211,18 @@ index 000000000..9519ced97
 +			   BTREE_ITER_INTENT|
 +			   BTREE_ITER_PREFETCH|
 +			   BTREE_ITER_ALL_SNAPSHOTS, k, ret) {
-+		if (k.k->type != KEY_TYPE_inode)
++		if (!bkey_is_inode(k.k))
 +			continue;
 +
-+		inode = bkey_s_c_to_inode(k);
++		/* Should never fail, checked by bch2_inode_invalid: */
++		BUG_ON(bch2_inode_unpack(k, &u));
 +
 +		/*
 +		 * Backpointer and directory structure checks are sufficient for
 +		 * directories, since they can't have hardlinks:
 +		 */
-+		if (S_ISDIR(le16_to_cpu(inode.v->bi_mode)))
++		if (S_ISDIR(le16_to_cpu(u.bi_mode)))
 +			continue;
-+
-+		/* Should never fail, checked by bch2_inode_invalid: */
-+		BUG_ON(bch2_inode_unpack(inode, &u));
 +
 +		if (!u.bi_nlink)
 +			continue;
@@ -47228,7 +47297,6 @@ index 000000000..9519ced97
 +	struct btree_trans trans;
 +	struct btree_iter iter;
 +	struct bkey_s_c k;
-+	struct bkey_s_c_inode inode;
 +	struct bch_inode_unpacked u;
 +	struct nlink *link = links->d;
 +	int ret = 0;
@@ -47243,14 +47311,13 @@ index 000000000..9519ced97
 +		if (k.k->p.offset >= range_end)
 +			break;
 +
-+		if (k.k->type != KEY_TYPE_inode)
++		if (!bkey_is_inode(k.k))
 +			continue;
 +
-+		inode = bkey_s_c_to_inode(k);
-+		if (S_ISDIR(le16_to_cpu(inode.v->bi_mode)))
-+			continue;
++		BUG_ON(bch2_inode_unpack(k, &u));
 +
-+		BUG_ON(bch2_inode_unpack(inode, &u));
++		if (S_ISDIR(le16_to_cpu(u.bi_mode)))
++			continue;
 +
 +		if (!u.bi_nlink)
 +			continue;
@@ -47426,10 +47493,10 @@ index 000000000..264f2706b
 +#endif /* _BCACHEFS_FSCK_H */
 diff --git a/fs/bcachefs/inode.c b/fs/bcachefs/inode.c
 new file mode 100644
-index 000000000..462c1f43a
+index 000000000..ef1866a7e
 --- /dev/null
 +++ b/fs/bcachefs/inode.c
-@@ -0,0 +1,748 @@
+@@ -0,0 +1,743 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -47467,29 +47534,6 @@ index 000000000..462c1f43a
 +	13 * 8 - 8,
 +};
 +
-+static int inode_encode_field(u8 *out, u8 *end, u64 hi, u64 lo)
-+{
-+	__be64 in[2] = { cpu_to_be64(hi), cpu_to_be64(lo), };
-+	unsigned shift, bytes, bits = likely(!hi)
-+		? fls64(lo)
-+		: fls64(hi) + 64;
-+
-+	for (shift = 1; shift <= 8; shift++)
-+		if (bits < bits_table[shift - 1])
-+			goto got_shift;
-+
-+	BUG();
-+got_shift:
-+	bytes = byte_table[shift - 1];
-+
-+	BUG_ON(out + bytes > end);
-+
-+	memcpy(out, (u8 *) in + 16 - bytes, bytes);
-+	*out |= (1 << 8) >> shift;
-+
-+	return bytes;
-+}
-+
 +static int inode_decode_field(const u8 *in, const u8 *end,
 +			      u64 out[2], unsigned *out_bits)
 +{
@@ -47524,48 +47568,25 @@ index 000000000..462c1f43a
 +	return bytes;
 +}
 +
-+static noinline void bch2_inode_pack_v1(struct bkey_inode_buf *packed,
-+					const struct bch_inode_unpacked *inode)
++void bch2_inode_pack(struct bch_fs *c,
++		     struct bkey_inode_buf *packed,
++		     const struct bch_inode_unpacked *inode)
 +{
-+	struct bkey_i_inode *k = &packed->inode;
-+	u8 *out = k->v.fields;
-+	u8 *end = (void *) &packed[1];
-+	u8 *last_nonzero_field = out;
-+	unsigned nr_fields = 0, last_nonzero_fieldnr = 0;
-+	unsigned bytes;
-+
-+#define x(_name, _bits)							\
-+	out += inode_encode_field(out, end, 0, inode->_name);		\
-+	nr_fields++;							\
-+									\
-+	if (inode->_name) {						\
-+		last_nonzero_field = out;				\
-+		last_nonzero_fieldnr = nr_fields;			\
-+	}
-+
-+	BCH_INODE_FIELDS()
-+#undef  x
-+
-+	out = last_nonzero_field;
-+	nr_fields = last_nonzero_fieldnr;
-+
-+	bytes = out - (u8 *) &packed->inode.v;
-+	set_bkey_val_bytes(&packed->inode.k, bytes);
-+	memset_u64s_tail(&packed->inode.v, 0, bytes);
-+
-+	SET_INODE_NR_FIELDS(&k->v, nr_fields);
-+}
-+
-+static void bch2_inode_pack_v2(struct bkey_inode_buf *packed,
-+			       const struct bch_inode_unpacked *inode)
-+{
-+	struct bkey_i_inode *k = &packed->inode;
++	struct bkey_i_inode_v2 *k = &packed->inode;
 +	u8 *out = k->v.fields;
 +	u8 *end = (void *) &packed[1];
 +	u8 *last_nonzero_field = out;
 +	unsigned nr_fields = 0, last_nonzero_fieldnr = 0;
 +	unsigned bytes;
 +	int ret;
++
++	bkey_inode_v2_init(&packed->inode.k_i);
++	packed->inode.k.p.offset	= inode->bi_inum;
++	packed->inode.v.bi_journal_seq	= cpu_to_le64(inode->bi_journal_seq);
++	packed->inode.v.bi_hash_seed	= inode->bi_hash_seed;
++	packed->inode.v.bi_flags	= cpu_to_le64(inode->bi_flags);
++	packed->inode.v.bi_flags	= cpu_to_le64(inode->bi_flags);
++	packed->inode.v.bi_mode		= cpu_to_le16(inode->bi_mode);
 +
 +#define x(_name, _bits)							\
 +	nr_fields++;							\
@@ -47597,30 +47618,12 @@ index 000000000..462c1f43a
 +	set_bkey_val_bytes(&packed->inode.k, bytes);
 +	memset_u64s_tail(&packed->inode.v, 0, bytes);
 +
-+	SET_INODE_NR_FIELDS(&k->v, nr_fields);
-+}
-+
-+void bch2_inode_pack(struct bch_fs *c,
-+		     struct bkey_inode_buf *packed,
-+		     const struct bch_inode_unpacked *inode)
-+{
-+	bkey_inode_init(&packed->inode.k_i);
-+	packed->inode.k.p.offset	= inode->bi_inum;
-+	packed->inode.v.bi_hash_seed	= inode->bi_hash_seed;
-+	packed->inode.v.bi_flags	= cpu_to_le32(inode->bi_flags);
-+	packed->inode.v.bi_mode		= cpu_to_le16(inode->bi_mode);
-+
-+	if (c->sb.features & (1ULL << BCH_FEATURE_new_varint)) {
-+		SET_INODE_NEW_VARINT(&packed->inode.v, true);
-+		bch2_inode_pack_v2(packed, inode);
-+	} else {
-+		bch2_inode_pack_v1(packed, inode);
-+	}
++	SET_INODEv2_NR_FIELDS(&k->v, nr_fields);
 +
 +	if (IS_ENABLED(CONFIG_BCACHEFS_DEBUG)) {
 +		struct bch_inode_unpacked unpacked;
 +
-+		int ret = bch2_inode_unpack(inode_i_to_s_c(&packed->inode),
++		int ret = bch2_inode_unpack(bkey_i_to_s_c(&packed->inode.k_i),
 +					   &unpacked);
 +		BUG_ON(ret);
 +		BUG_ON(unpacked.bi_inum		!= inode->bi_inum);
@@ -47669,17 +47672,16 @@ index 000000000..462c1f43a
 +	return 0;
 +}
 +
-+static int bch2_inode_unpack_v2(struct bkey_s_c_inode inode,
-+				struct bch_inode_unpacked *unpacked)
++static int bch2_inode_unpack_v2(struct bch_inode_unpacked *unpacked,
++				const u8 *in, const u8 *end,
++				unsigned nr_fields)
 +{
-+	const u8 *in = inode.v->fields;
-+	const u8 *end = bkey_val_end(inode);
 +	unsigned fieldnr = 0;
 +	int ret;
 +	u64 v[2];
 +
 +#define x(_name, _bits)							\
-+	if (fieldnr < INODE_NR_FIELDS(inode.v)) {			\
++	if (fieldnr < nr_fields) {					\
 +		ret = bch2_varint_decode_fast(in, end, &v[0]);		\
 +		if (ret < 0)						\
 +			return ret;					\
@@ -47709,21 +47711,43 @@ index 000000000..462c1f43a
 +	return 0;
 +}
 +
-+int bch2_inode_unpack(struct bkey_s_c_inode inode,
++int bch2_inode_unpack(struct bkey_s_c k,
 +		      struct bch_inode_unpacked *unpacked)
 +{
-+	unpacked->bi_inum	= inode.k->p.offset;
-+	unpacked->bi_hash_seed	= inode.v->bi_hash_seed;
-+	unpacked->bi_flags	= le32_to_cpu(inode.v->bi_flags);
-+	unpacked->bi_mode	= le16_to_cpu(inode.v->bi_mode);
++	switch (k.k->type) {
++	case KEY_TYPE_inode: {
++		struct bkey_s_c_inode inode = bkey_s_c_to_inode(k);
 +
-+	if (INODE_NEW_VARINT(inode.v)) {
-+		return bch2_inode_unpack_v2(inode, unpacked);
-+	} else {
-+		return bch2_inode_unpack_v1(inode, unpacked);
++		unpacked->bi_inum	= inode.k->p.offset;
++		unpacked->bi_hash_seed	= inode.v->bi_hash_seed;
++		unpacked->bi_flags	= le32_to_cpu(inode.v->bi_flags);
++		unpacked->bi_mode	= le16_to_cpu(inode.v->bi_mode);
++
++		if (INODE_NEW_VARINT(inode.v)) {
++			return bch2_inode_unpack_v2(unpacked, inode.v->fields,
++						    bkey_val_end(inode),
++						    INODE_NR_FIELDS(inode.v));
++		} else {
++			return bch2_inode_unpack_v1(inode, unpacked);
++		}
++		break;
 +	}
++	case KEY_TYPE_inode_v2: {
++		struct bkey_s_c_inode_v2 inode = bkey_s_c_to_inode_v2(k);
 +
-+	return 0;
++		unpacked->bi_inum	= inode.k->p.offset;
++		unpacked->bi_journal_seq= le64_to_cpu(inode.v->bi_journal_seq);
++		unpacked->bi_hash_seed	= inode.v->bi_hash_seed;
++		unpacked->bi_flags	= le64_to_cpu(inode.v->bi_flags);
++		unpacked->bi_mode	= le16_to_cpu(inode.v->bi_mode);
++
++		return bch2_inode_unpack_v2(unpacked, inode.v->fields,
++					    bkey_val_end(inode),
++					    INODEv2_NR_FIELDS(inode.v));
++	}
++	default:
++		BUG();
++	}
 +}
 +
 +int bch2_inode_peek(struct btree_trans *trans,
@@ -47749,11 +47773,11 @@ index 000000000..462c1f43a
 +	if (ret)
 +		goto err;
 +
-+	ret = k.k->type == KEY_TYPE_inode ? 0 : -ENOENT;
++	ret = bkey_is_inode(k.k) ? 0 : -ENOENT;
 +	if (ret)
 +		goto err;
 +
-+	ret = bch2_inode_unpack(bkey_s_c_to_inode(k), inode);
++	ret = bch2_inode_unpack(k, inode);
 +	if (ret)
 +		goto err;
 +
@@ -47795,7 +47819,43 @@ index 000000000..462c1f43a
 +	if (INODE_STR_HASH(inode.v) >= BCH_STR_HASH_NR)
 +		return "invalid str hash type";
 +
-+	if (bch2_inode_unpack(inode, &unpacked))
++	if (bch2_inode_unpack(k, &unpacked))
++		return "invalid variable length fields";
++
++	if (unpacked.bi_data_checksum >= BCH_CSUM_OPT_NR + 1)
++		return "invalid data checksum type";
++
++	if (unpacked.bi_compression >= BCH_COMPRESSION_OPT_NR + 1)
++		return "invalid data checksum type";
++
++	if ((unpacked.bi_flags & BCH_INODE_UNLINKED) &&
++	    unpacked.bi_nlink != 0)
++		return "flagged as unlinked but bi_nlink != 0";
++
++	if (unpacked.bi_subvol && !S_ISDIR(unpacked.bi_mode))
++		return "subvolume root but not a directory";
++
++	return NULL;
++}
++
++const char *bch2_inode_v2_invalid(const struct bch_fs *c, struct bkey_s_c k)
++{
++	struct bkey_s_c_inode_v2 inode = bkey_s_c_to_inode_v2(k);
++	struct bch_inode_unpacked unpacked;
++
++	if (k.k->p.inode)
++		return "nonzero k.p.inode";
++
++	if (bkey_val_bytes(k.k) < sizeof(struct bch_inode))
++		return "incorrect value size";
++
++	if (k.k->p.offset < BLOCKDEV_INODE_MAX)
++		return "fs inode in blockdev range";
++
++	if (INODEv2_STR_HASH(inode.v) >= BCH_STR_HASH_NR)
++		return "invalid str hash type";
++
++	if (bch2_inode_unpack(k, &unpacked))
 +		return "invalid variable length fields";
 +
 +	if (unpacked.bi_data_checksum >= BCH_CSUM_OPT_NR + 1)
@@ -47816,10 +47876,12 @@ index 000000000..462c1f43a
 +
 +static void __bch2_inode_unpacked_to_text(struct printbuf *out, struct bch_inode_unpacked *inode)
 +{
-+	pr_buf(out, "mode %o flags %x ", inode->bi_mode, inode->bi_flags);
++	pr_buf(out, "mode %o flags %x journal_seq %llu",
++	       inode->bi_mode, inode->bi_flags,
++	       inode->bi_journal_seq);
 +
 +#define x(_name, _bits)						\
-+	pr_buf(out, #_name " %llu ", (u64) inode->_name);
++	pr_buf(out, " "#_name " %llu", (u64) inode->_name);
 +	BCH_INODE_FIELDS()
 +#undef  x
 +}
@@ -47833,15 +47895,14 @@ index 000000000..462c1f43a
 +void bch2_inode_to_text(struct printbuf *out, struct bch_fs *c,
 +		       struct bkey_s_c k)
 +{
-+	struct bkey_s_c_inode inode = bkey_s_c_to_inode(k);
-+	struct bch_inode_unpacked unpacked;
++	struct bch_inode_unpacked inode;
 +
-+	if (bch2_inode_unpack(inode, &unpacked)) {
++	if (bch2_inode_unpack(k, &inode)) {
 +		pr_buf(out, "(unpack error)");
 +		return;
 +	}
 +
-+	__bch2_inode_unpacked_to_text(out, &unpacked);
++	__bch2_inode_unpacked_to_text(out, &inode);
 +}
 +
 +const char *bch2_inode_generation_invalid(const struct bch_fs *c,
@@ -47917,6 +47978,7 @@ index 000000000..462c1f43a
 +{
 +	switch (k.k->type) {
 +	case KEY_TYPE_inode:
++	case KEY_TYPE_inode_v2:
 +		BUG();
 +	case KEY_TYPE_inode_generation:
 +		return le32_to_cpu(bkey_s_c_to_inode_generation(k).v->bi_generation);
@@ -47974,7 +48036,7 @@ index 000000000..462c1f43a
 +		}
 +
 +		if (k.k->p.snapshot == snapshot &&
-+		    k.k->type != KEY_TYPE_inode &&
++		    !bkey_is_inode(k.k) &&
 +		    !bch2_btree_key_cache_find(c, BTREE_ID_inodes, SPOS(0, pos, snapshot))) {
 +			bch2_btree_iter_advance(iter);
 +			continue;
@@ -48017,7 +48079,7 @@ index 000000000..462c1f43a
 +	}
 +
 +	/* We may have raced while the iterator wasn't pointing at pos: */
-+	if (k.k->type == KEY_TYPE_inode ||
++	if (bkey_is_inode(k.k) ||
 +	    bch2_btree_key_cache_find(c, BTREE_ID_inodes, k.k->p))
 +		goto again;
 +
@@ -48130,7 +48192,7 @@ index 000000000..462c1f43a
 +	if (ret)
 +		goto err;
 +
-+	if (k.k->type != KEY_TYPE_inode) {
++	if (!bkey_is_inode(k.k)) {
 +		bch2_fs_inconsistent(trans.c,
 +				     "inode %llu not found when deleting",
 +				     inum.inum);
@@ -48138,7 +48200,7 @@ index 000000000..462c1f43a
 +		goto err;
 +	}
 +
-+	bch2_inode_unpack(bkey_s_c_to_inode(k), &inode_u);
++	bch2_inode_unpack(k, &inode_u);
 +
 +	/* Subvolume root? */
 +	BUG_ON(inode_u.bi_subvol);
@@ -48180,10 +48242,10 @@ index 000000000..462c1f43a
 +}
 diff --git a/fs/bcachefs/inode.h b/fs/bcachefs/inode.h
 new file mode 100644
-index 000000000..009b807cc
+index 000000000..d433d48de
 --- /dev/null
 +++ b/fs/bcachefs/inode.h
-@@ -0,0 +1,185 @@
+@@ -0,0 +1,198 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_INODE_H
 +#define _BCACHEFS_INODE_H
@@ -48193,11 +48255,23 @@ index 000000000..009b807cc
 +extern const char * const bch2_inode_opts[];
 +
 +const char *bch2_inode_invalid(const struct bch_fs *, struct bkey_s_c);
++const char *bch2_inode_v2_invalid(const struct bch_fs *, struct bkey_s_c);
 +void bch2_inode_to_text(struct printbuf *, struct bch_fs *, struct bkey_s_c);
 +
 +#define bch2_bkey_ops_inode (struct bkey_ops) {		\
 +	.key_invalid	= bch2_inode_invalid,		\
 +	.val_to_text	= bch2_inode_to_text,		\
++}
++
++#define bch2_bkey_ops_inode_v2 (struct bkey_ops) {	\
++	.key_invalid	= bch2_inode_v2_invalid,	\
++	.val_to_text	= bch2_inode_to_text,		\
++}
++
++static inline bool bkey_is_inode(const struct bkey *k)
++{
++	return  k->type == KEY_TYPE_inode ||
++		k->type == KEY_TYPE_inode_v2;
 +}
 +
 +const char *bch2_inode_generation_invalid(const struct bch_fs *,
@@ -48220,6 +48294,7 @@ index 000000000..009b807cc
 +
 +struct bch_inode_unpacked {
 +	u64			bi_inum;
++	u64			bi_journal_seq;
 +	__le64			bi_hash_seed;
 +	u32			bi_flags;
 +	u16			bi_mode;
@@ -48230,7 +48305,7 @@ index 000000000..009b807cc
 +};
 +
 +struct bkey_inode_buf {
-+	struct bkey_i_inode	inode;
++	struct bkey_i_inode_v2	inode;
 +
 +#define x(_name, _bits)		+ 8 + _bits / 8
 +	u8		_pad[0 + BCH_INODE_FIELDS()];
@@ -48239,7 +48314,7 @@ index 000000000..009b807cc
 +
 +void bch2_inode_pack(struct bch_fs *, struct bkey_inode_buf *,
 +		     const struct bch_inode_unpacked *);
-+int bch2_inode_unpack(struct bkey_s_c_inode, struct bch_inode_unpacked *);
++int bch2_inode_unpack(struct bkey_s_c, struct bch_inode_unpacked *);
 +
 +void bch2_inode_unpacked_to_text(struct printbuf *, struct bch_inode_unpacked *);
 +
@@ -48371,10 +48446,10 @@ index 000000000..009b807cc
 +#endif /* _BCACHEFS_INODE_H */
 diff --git a/fs/bcachefs/io.c b/fs/bcachefs/io.c
 new file mode 100644
-index 000000000..701e9d0ea
+index 000000000..7c9ea91d8
 --- /dev/null
 +++ b/fs/bcachefs/io.c
-@@ -0,0 +1,2437 @@
+@@ -0,0 +1,2436 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Some low level IO code, and hacks for various block layer limitations
@@ -48753,7 +48828,7 @@ index 000000000..701e9d0ea
 + */
 +int bch2_fpunch_at(struct btree_trans *trans, struct btree_iter *iter,
 +		   subvol_inum inum, u64 end,
-+		   u64 *journal_seq, s64 *i_sectors_delta)
++		   s64 *i_sectors_delta)
 +{
 +	struct bch_fs *c	= trans->c;
 +	unsigned max_sectors	= KEY_SIZE_MAX & (~0 << c->block_bits);
@@ -48791,7 +48866,7 @@ index 000000000..701e9d0ea
 +		bch2_cut_back(end_pos, &delete);
 +
 +		ret = bch2_extent_update(trans, inum, iter, &delete,
-+				&disk_res, journal_seq,
++				&disk_res, NULL,
 +				0, i_sectors_delta, false);
 +		bch2_disk_reservation_put(c, &disk_res);
 +btree_err:
@@ -48810,7 +48885,7 @@ index 000000000..701e9d0ea
 +}
 +
 +int bch2_fpunch(struct bch_fs *c, subvol_inum inum, u64 start, u64 end,
-+		u64 *journal_seq, s64 *i_sectors_delta)
++		s64 *i_sectors_delta)
 +{
 +	struct btree_trans trans;
 +	struct btree_iter iter;
@@ -48821,8 +48896,7 @@ index 000000000..701e9d0ea
 +			     POS(inum.inum, start),
 +			     BTREE_ITER_INTENT);
 +
-+	ret = bch2_fpunch_at(&trans, &iter, inum, end,
-+			     journal_seq, i_sectors_delta);
++	ret = bch2_fpunch_at(&trans, &iter, inum, end, i_sectors_delta);
 +
 +	bch2_trans_iter_exit(&trans, &iter);
 +	bch2_trans_exit(&trans);
@@ -50814,10 +50888,10 @@ index 000000000..701e9d0ea
 +}
 diff --git a/fs/bcachefs/io.h b/fs/bcachefs/io.h
 new file mode 100644
-index 000000000..38efd39c6
+index 000000000..fbe466606
 --- /dev/null
 +++ b/fs/bcachefs/io.h
-@@ -0,0 +1,195 @@
+@@ -0,0 +1,189 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_IO_H
 +#define _BCACHEFS_IO_H
@@ -50868,12 +50942,6 @@ index 000000000..38efd39c6
 +		? op->journal_seq_p : &op->journal_seq;
 +}
 +
-+static inline void op_journal_seq_set(struct bch_write_op *op, u64 *journal_seq)
-+{
-+	op->journal_seq_p = journal_seq;
-+	op->flags |= BCH_WRITE_JOURNAL_SEQ_PTR;
-+}
-+
 +static inline struct workqueue_struct *index_update_wq(struct bch_write_op *op)
 +{
 +	return op->alloc_reserve == RESERVE_MOVINGGC
@@ -50888,8 +50956,8 @@ index 000000000..38efd39c6
 +		       struct disk_reservation *, u64 *, u64, s64 *, bool);
 +
 +int bch2_fpunch_at(struct btree_trans *, struct btree_iter *,
-+		   subvol_inum, u64, u64 *, s64 *);
-+int bch2_fpunch(struct bch_fs *c, subvol_inum, u64, u64, u64 *, s64 *);
++		   subvol_inum, u64, s64 *);
++int bch2_fpunch(struct bch_fs *c, subvol_inum, u64, u64, s64 *);
 +
 +int bch2_write_index_default(struct bch_write_op *);
 +
@@ -51182,10 +51250,10 @@ index 000000000..78bff13d3
 +#endif /* _BCACHEFS_IO_TYPES_H */
 diff --git a/fs/bcachefs/journal.c b/fs/bcachefs/journal.c
 new file mode 100644
-index 000000000..ac4071fc4
+index 000000000..a2b26d5b5
 --- /dev/null
 +++ b/fs/bcachefs/journal.c
-@@ -0,0 +1,1327 @@
+@@ -0,0 +1,1276 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * bcachefs journalling code, for btree insertions
@@ -51275,8 +51343,6 @@ index 000000000..ac4071fc4
 +	buf->noflush	= false;
 +	buf->must_flush	= false;
 +	buf->separate_flush = false;
-+
-+	memset(buf->has_inode, 0, sizeof(buf->has_inode));
 +
 +	memset(buf->data, 0, sizeof(*buf->data));
 +	buf->data->seq	= cpu_to_le64(journal_cur_seq(j));
@@ -51521,55 +51587,6 @@ index 000000000..ac4071fc4
 +	struct journal *j = container_of(work, struct journal, write_work.work);
 +
 +	journal_entry_close(j);
-+}
-+
-+/*
-+ * Given an inode number, if that inode number has data in the journal that
-+ * hasn't yet been flushed, return the journal sequence number that needs to be
-+ * flushed:
-+ */
-+u64 bch2_inode_journal_seq(struct journal *j, u64 inode)
-+{
-+	size_t h = hash_64(inode, ilog2(sizeof(j->buf[0].has_inode) * 8));
-+	union journal_res_state s;
-+	unsigned i;
-+	u64 seq;
-+
-+
-+	spin_lock(&j->lock);
-+	seq = journal_cur_seq(j);
-+	s = READ_ONCE(j->reservations);
-+	i = s.idx;
-+
-+	while (1) {
-+		if (test_bit(h, j->buf[i].has_inode))
-+			goto out;
-+
-+		if (i == s.unwritten_idx)
-+			break;
-+
-+		i = (i - 1) & JOURNAL_BUF_MASK;
-+		seq--;
-+	}
-+
-+	seq = 0;
-+out:
-+	spin_unlock(&j->lock);
-+
-+	return seq;
-+}
-+
-+void bch2_journal_set_has_inum(struct journal *j, u64 inode, u64 seq)
-+{
-+	size_t h = hash_64(inode, ilog2(sizeof(j->buf[0].has_inode) * 8));
-+	struct journal_buf *buf;
-+
-+	spin_lock(&j->lock);
-+
-+	if ((buf = journal_seq_to_buf(j, seq)))
-+		set_bit(h, buf->has_inode);
-+
-+	spin_unlock(&j->lock);
 +}
 +
 +static int __journal_res_get(struct journal *j, struct journal_res *res,
@@ -52515,10 +52532,10 @@ index 000000000..ac4071fc4
 +}
 diff --git a/fs/bcachefs/journal.h b/fs/bcachefs/journal.h
 new file mode 100644
-index 000000000..99fd25364
+index 000000000..c39cbbf1b
 --- /dev/null
 +++ b/fs/bcachefs/journal.h
-@@ -0,0 +1,532 @@
+@@ -0,0 +1,519 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_JOURNAL_H
 +#define _BCACHEFS_JOURNAL_H
@@ -52662,7 +52679,6 @@ index 000000000..99fd25364
 +	return j->pin.back - 1;
 +}
 +
-+u64 bch2_inode_journal_seq(struct journal *, u64);
 +void bch2_journal_set_has_inum(struct journal *, u64, u64);
 +
 +static inline int journal_state_count(union journal_res_state s, int idx)
@@ -52682,18 +52698,6 @@ index 000000000..99fd25364
 +	s->buf1_count += s->idx == 1;
 +	s->buf2_count += s->idx == 2;
 +	s->buf3_count += s->idx == 3;
-+}
-+
-+static inline void bch2_journal_set_has_inode(struct journal *j,
-+					      struct journal_res *res,
-+					      u64 inum)
-+{
-+	struct journal_buf *buf = &j->buf[res->idx];
-+	unsigned long bit = hash_64(inum, ilog2(sizeof(buf->has_inode) * 8));
-+
-+	/* avoid atomic op if possible */
-+	if (unlikely(!test_bit(bit, buf->has_inode)))
-+		set_bit(bit, buf->has_inode);
 +}
 +
 +/*
@@ -55961,10 +55965,10 @@ index 000000000..afb886ec8
 +#endif /* _BCACHEFS_JOURNAL_SEQ_BLACKLIST_H */
 diff --git a/fs/bcachefs/journal_types.h b/fs/bcachefs/journal_types.h
 new file mode 100644
-index 000000000..cc10e1d78
+index 000000000..d48451328
 --- /dev/null
 +++ b/fs/bcachefs/journal_types.h
-@@ -0,0 +1,326 @@
+@@ -0,0 +1,324 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_JOURNAL_TYPES_H
 +#define _BCACHEFS_JOURNAL_TYPES_H
@@ -56001,8 +56005,6 @@ index 000000000..cc10e1d78
 +	bool			noflush;	/* write has already been kicked off, and was noflush */
 +	bool			must_flush;	/* something wants a flush */
 +	bool			separate_flush;
-+	/* bloom filter: */
-+	unsigned long		has_inode[1024 / sizeof(unsigned long)];
 +};
 +
 +/*
@@ -56685,7 +56687,7 @@ index 000000000..027efaa0d
 +#endif /* _BCACHEFS_MIGRATE_H */
 diff --git a/fs/bcachefs/move.c b/fs/bcachefs/move.c
 new file mode 100644
-index 000000000..d0c784012
+index 000000000..0152fbcde
 --- /dev/null
 +++ b/fs/bcachefs/move.c
 @@ -0,0 +1,1125 @@
@@ -57314,11 +57316,11 @@ index 000000000..d0c784012
 +		goto err;
 +	}
 +
-+	ret = k.k->type == KEY_TYPE_inode ? 0 : -EIO;
++	ret = bkey_is_inode(k.k) ? 0 : -EIO;
 +	if (ret)
 +		goto err;
 +
-+	ret = bch2_inode_unpack(bkey_s_c_to_inode(k), inode);
++	ret = bch2_inode_unpack(k, inode);
 +	if (ret)
 +		goto err;
 +err:
@@ -59260,10 +59262,10 @@ index 000000000..b60bdfca2
 +#endif /* _BCACHEFS_OPTS_H */
 diff --git a/fs/bcachefs/quota.c b/fs/bcachefs/quota.c
 new file mode 100644
-index 000000000..17fd5bf10
+index 000000000..5f1216da7
 --- /dev/null
 +++ b/fs/bcachefs/quota.c
-@@ -0,0 +1,785 @@
+@@ -0,0 +1,784 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#include "bcachefs.h"
 +#include "btree_update.h"
@@ -59705,9 +59707,8 @@ index 000000000..17fd5bf10
 +
 +	for_each_btree_key(&trans, iter, BTREE_ID_inodes, POS_MIN,
 +			   BTREE_ITER_PREFETCH, k, ret) {
-+		switch (k.k->type) {
-+		case KEY_TYPE_inode:
-+			ret = bch2_inode_unpack(bkey_s_c_to_inode(k), &u);
++		if (bkey_is_inode(k.k)) {
++			ret = bch2_inode_unpack(k, &u);
 +			if (ret)
 +				return ret;
 +
@@ -60586,10 +60587,10 @@ index 000000000..7462a92e9
 +#endif /* _BCACHEFS_REBALANCE_TYPES_H */
 diff --git a/fs/bcachefs/recovery.c b/fs/bcachefs/recovery.c
 new file mode 100644
-index 000000000..29fae6dbc
+index 000000000..d8e511a06
 --- /dev/null
 +++ b/fs/bcachefs/recovery.c
-@@ -0,0 +1,1513 @@
+@@ -0,0 +1,1516 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -61607,13 +61608,13 @@ index 000000000..29fae6dbc
 +	if (ret)
 +		goto err;
 +
-+	if (k.k->type != KEY_TYPE_inode) {
++	if (!bkey_is_inode(k.k)) {
 +		bch_err(c, "root inode not found");
 +		ret = -ENOENT;
 +		goto err;
 +	}
 +
-+	ret = bch2_inode_unpack(bkey_s_c_to_inode(k), &inode);
++	ret = bch2_inode_unpack(k, &inode);
 +	BUG_ON(ret);
 +
 +	inode.bi_subvol = BCACHEFS_ROOT_SUBVOL;
@@ -61685,6 +61686,9 @@ index 000000000..29fae6dbc
 +			bch_info(c, "filesystem version is prior to subvol_dirent - upgrading");
 +			c->opts.version_upgrade = true;
 +			c->opts.fsck		= true;
++		} else if (c->sb.version < bcachefs_metadata_version_inode_v2) {
++			bch_info(c, "filesystem version is prior to inode_v2 - upgrading");
++			c->opts.version_upgrade = true;
 +		}
 +	}
 +
@@ -62169,7 +62173,7 @@ index 000000000..e45c70b36
 +#endif /* _BCACHEFS_RECOVERY_H */
 diff --git a/fs/bcachefs/reflink.c b/fs/bcachefs/reflink.c
 new file mode 100644
-index 000000000..8e66e6390
+index 000000000..d003f4088
 --- /dev/null
 +++ b/fs/bcachefs/reflink.c
 @@ -0,0 +1,363 @@
@@ -62385,7 +62389,7 @@ index 000000000..8e66e6390
 +s64 bch2_remap_range(struct bch_fs *c,
 +		     subvol_inum dst_inum, u64 dst_offset,
 +		     subvol_inum src_inum, u64 src_offset,
-+		     u64 remap_sectors, u64 *journal_seq,
++		     u64 remap_sectors,
 +		     u64 new_i_size, s64 *i_sectors_delta)
 +{
 +	struct btree_trans trans;
@@ -62456,7 +62460,7 @@ index 000000000..8e66e6390
 +					min(dst_end.offset,
 +					    dst_iter.pos.offset +
 +					    src_iter.pos.offset - src_want.offset),
-+					journal_seq, i_sectors_delta);
++					i_sectors_delta);
 +			continue;
 +		}
 +
@@ -62495,7 +62499,7 @@ index 000000000..8e66e6390
 +				    dst_end.offset - dst_iter.pos.offset));
 +
 +		ret = bch2_extent_update(&trans, dst_inum, &dst_iter,
-+					 new_dst.k, &disk_res, journal_seq,
++					 new_dst.k, &disk_res, NULL,
 +					 new_i_size, i_sectors_delta,
 +					 true);
 +		bch2_disk_reservation_put(c, &disk_res);
@@ -62522,7 +62526,7 @@ index 000000000..8e66e6390
 +		    inode_u.bi_size < new_i_size) {
 +			inode_u.bi_size = new_i_size;
 +			ret2  = bch2_inode_write(&trans, &inode_iter, &inode_u) ?:
-+				bch2_trans_commit(&trans, NULL, journal_seq, 0);
++				bch2_trans_commit(&trans, NULL, NULL, 0);
 +		}
 +
 +		bch2_trans_iter_exit(&trans, &inode_iter);
@@ -62538,7 +62542,7 @@ index 000000000..8e66e6390
 +}
 diff --git a/fs/bcachefs/reflink.h b/fs/bcachefs/reflink.h
 new file mode 100644
-index 000000000..4c1b82860
+index 000000000..3745873fd
 --- /dev/null
 +++ b/fs/bcachefs/reflink.h
 @@ -0,0 +1,63 @@
@@ -62602,7 +62606,7 @@ index 000000000..4c1b82860
 +}
 +
 +s64 bch2_remap_range(struct bch_fs *, subvol_inum, u64,
-+		     subvol_inum, u64, u64, u64 *, u64, s64 *);
++		     subvol_inum, u64, u64, u64, s64 *);
 +
 +#endif /* _BCACHEFS_REFLINK_H */
 diff --git a/fs/bcachefs/replicas.c b/fs/bcachefs/replicas.c
@@ -67059,10 +67063,10 @@ index 000000000..b64ac2fbb
 +#endif /* _BCACHEFS_SUPER_IO_H */
 diff --git a/fs/bcachefs/super.c b/fs/bcachefs/super.c
 new file mode 100644
-index 000000000..dc8f64150
+index 000000000..3744b6d51
 --- /dev/null
 +++ b/fs/bcachefs/super.c
-@@ -0,0 +1,2096 @@
+@@ -0,0 +1,2110 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * bcachefs setup/teardown code, and some metadata io - read a superblock and
@@ -67653,48 +67657,53 @@ index 000000000..dc8f64150
 +	bch2_fs_free(c);
 +}
 +
-+static const char *bch2_fs_online(struct bch_fs *c)
++static int bch2_fs_online(struct bch_fs *c)
 +{
 +	struct bch_dev *ca;
-+	const char *err = NULL;
 +	unsigned i;
-+	int ret;
++	int ret = 0;
 +
 +	lockdep_assert_held(&bch_fs_list_lock);
 +
-+	if (!list_empty(&c->list))
-+		return NULL;
-+
-+	if (__bch2_uuid_to_fs(c->sb.uuid))
-+		return "filesystem UUID already open";
++	if (__bch2_uuid_to_fs(c->sb.uuid)) {
++		bch_err(c, "filesystem UUID already open");
++		return -EINVAL;
++	}
 +
 +	ret = bch2_fs_chardev_init(c);
-+	if (ret)
-+		return "error creating character device";
++	if (ret) {
++		bch_err(c, "error creating character device");
++		return ret;
++	}
 +
 +	bch2_fs_debug_init(c);
 +
-+	if (kobject_add(&c->kobj, NULL, "%pU", c->sb.user_uuid.b) ||
-+	    kobject_add(&c->internal, &c->kobj, "internal") ||
-+	    kobject_add(&c->opts_dir, &c->kobj, "options") ||
-+	    kobject_add(&c->time_stats, &c->kobj, "time_stats") ||
-+	    bch2_opts_create_sysfs_files(&c->opts_dir))
-+		return "error creating sysfs objects";
++	ret = kobject_add(&c->kobj, NULL, "%pU", c->sb.user_uuid.b) ?:
++	    kobject_add(&c->internal, &c->kobj, "internal") ?:
++	    kobject_add(&c->opts_dir, &c->kobj, "options") ?:
++	    kobject_add(&c->time_stats, &c->kobj, "time_stats") ?:
++	    bch2_opts_create_sysfs_files(&c->opts_dir);
++	if (ret) {
++		bch_err(c, "error creating sysfs objects");
++		return ret;
++	}
 +
 +	down_write(&c->state_lock);
 +
-+	err = "error creating sysfs objects";
-+	for_each_member_device(ca, c, i)
-+		if (bch2_dev_sysfs_online(c, ca)) {
++	for_each_member_device(ca, c, i) {
++		ret = bch2_dev_sysfs_online(c, ca);
++		if (ret) {
++			bch_err(c, "error creating sysfs objects");
 +			percpu_ref_put(&ca->ref);
 +			goto err;
 +		}
++	}
 +
++	BUG_ON(!list_empty(&c->list));
 +	list_add(&c->list, &bch_fs_list);
-+	err = NULL;
 +err:
 +	up_write(&c->state_lock);
-+	return err;
++	return ret;
 +}
 +
 +static struct bch_fs *bch2_fs_alloc(struct bch_sb *sb, struct bch_opts opts)
@@ -67702,13 +67711,15 @@ index 000000000..dc8f64150
 +	struct bch_sb_field_members *mi;
 +	struct bch_fs *c;
 +	unsigned i, iter_size;
-+	const char *err;
++	int ret = 0;
 +
 +	pr_verbose_init(opts, "");
 +
 +	c = kvpmalloc(sizeof(struct bch_fs), GFP_KERNEL|__GFP_ZERO);
-+	if (!c)
++	if (!c) {
++		c = ERR_PTR(-ENOMEM);
 +		goto out;
++	}
 +
 +	__module_get(THIS_MODULE);
 +
@@ -67789,17 +67800,16 @@ index 000000000..dc8f64150
 +
 +	mutex_init(&c->sectors_available_lock);
 +
-+	if (percpu_init_rwsem(&c->mark_lock))
++	ret = percpu_init_rwsem(&c->mark_lock);
++	if (ret)
 +		goto err;
 +
 +	mutex_lock(&c->sb_lock);
-+
-+	if (bch2_sb_to_fs(c, sb)) {
-+		mutex_unlock(&c->sb_lock);
-+		goto err;
-+	}
-+
++	ret = bch2_sb_to_fs(c, sb);
 +	mutex_unlock(&c->sb_lock);
++
++	if (ret)
++		goto err;
 +
 +	scnprintf(c->name, sizeof(c->name), "%pU", &c->sb.user_uuid);
 +
@@ -67810,8 +67820,11 @@ index 000000000..dc8f64150
 +	c->block_bits		= ilog2(c->opts.block_size);
 +	c->btree_foreground_merge_threshold = BTREE_FOREGROUND_MERGE_THRESHOLD(c);
 +
-+	if (bch2_fs_init_fault("fs_alloc"))
++	if (bch2_fs_init_fault("fs_alloc")) {
++		bch_err(c, "fs_alloc fault injected");
++		ret = -EFAULT;
 +		goto err;
++	}
 +
 +	iter_size = sizeof(struct sort_iter) +
 +		(btree_blocks(c) + 1) * 2 *
@@ -67841,21 +67854,26 @@ index 000000000..dc8f64150
 +					btree_bytes(c)) ||
 +	    mempool_init_kmalloc_pool(&c->large_bkey_pool, 1, 2048) ||
 +	    !(c->unused_inode_hints = kcalloc(1U << c->inode_shard_bits,
-+					      sizeof(u64), GFP_KERNEL)) ||
-+	    bch2_io_clock_init(&c->io_clock[READ]) ||
-+	    bch2_io_clock_init(&c->io_clock[WRITE]) ||
-+	    bch2_fs_journal_init(&c->journal) ||
-+	    bch2_fs_replicas_init(c) ||
-+	    bch2_fs_btree_cache_init(c) ||
-+	    bch2_fs_btree_key_cache_init(&c->btree_key_cache) ||
-+	    bch2_fs_btree_iter_init(c) ||
-+	    bch2_fs_btree_interior_update_init(c) ||
-+	    bch2_fs_subvolumes_init(c) ||
-+	    bch2_fs_io_init(c) ||
-+	    bch2_fs_encryption_init(c) ||
-+	    bch2_fs_compress_init(c) ||
-+	    bch2_fs_ec_init(c) ||
-+	    bch2_fs_fsio_init(c))
++					      sizeof(u64), GFP_KERNEL))) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	ret = bch2_io_clock_init(&c->io_clock[READ]) ?:
++	    bch2_io_clock_init(&c->io_clock[WRITE]) ?:
++	    bch2_fs_journal_init(&c->journal) ?:
++	    bch2_fs_replicas_init(c) ?:
++	    bch2_fs_btree_cache_init(c) ?:
++	    bch2_fs_btree_key_cache_init(&c->btree_key_cache) ?:
++	    bch2_fs_btree_iter_init(c) ?:
++	    bch2_fs_btree_interior_update_init(c) ?:
++	    bch2_fs_subvolumes_init(c) ?:
++	    bch2_fs_io_init(c) ?:
++	    bch2_fs_encryption_init(c) ?:
++	    bch2_fs_compress_init(c) ?:
++	    bch2_fs_ec_init(c) ?:
++	    bch2_fs_fsio_init(c);
++	if (ret)
 +		goto err;
 +
 +	if (c->opts.nochanges)
@@ -67864,8 +67882,10 @@ index 000000000..dc8f64150
 +	mi = bch2_sb_get_members(c->disk_sb.sb);
 +	for (i = 0; i < c->sb.nr_devices; i++)
 +		if (bch2_dev_exists(c->disk_sb.sb, mi, i) &&
-+		    bch2_dev_alloc(c, i))
++		    bch2_dev_alloc(c, i)) {
++			ret = -EEXIST;
 +			goto err;
++		}
 +
 +	bch2_journal_entry_res_resize(&c->journal,
 +			&c->btree_root_journal_res,
@@ -67876,18 +67896,17 @@ index 000000000..dc8f64150
 +			(sizeof(struct jset_entry_clock) / sizeof(u64)) * 2);
 +
 +	mutex_lock(&bch_fs_list_lock);
-+	err = bch2_fs_online(c);
++	ret = bch2_fs_online(c);
 +	mutex_unlock(&bch_fs_list_lock);
-+	if (err) {
-+		bch_err(c, "bch2_fs_online() error: %s", err);
++
++	if (ret)
 +		goto err;
-+	}
 +out:
-+	pr_verbose_init(opts, "ret %i", c ? 0 : -ENOMEM);
++	pr_verbose_init(opts, "ret %i", PTR_ERR_OR_ZERO(c));
 +	return c;
 +err:
 +	bch2_fs_free(c);
-+	c = NULL;
++	c = ERR_PTR(ret);
 +	goto out;
 +}
 +
@@ -67927,7 +67946,6 @@ index 000000000..dc8f64150
 +
 +int bch2_fs_start(struct bch_fs *c)
 +{
-+	const char *err = "cannot allocate memory";
 +	struct bch_sb_field_members *mi;
 +	struct bch_dev *ca;
 +	time64_t now = ktime_get_real_seconds();
@@ -67963,10 +67981,11 @@ index 000000000..dc8f64150
 +	if (ret)
 +		goto err;
 +
-+	err = "dynamic fault";
 +	ret = -EINVAL;
-+	if (bch2_fs_init_fault("fs_start"))
++	if (bch2_fs_init_fault("fs_start")) {
++		bch_err(c, "fs_start fault injected");
 +		goto err;
++	}
 +
 +	set_bit(BCH_FS_STARTED, &c->flags);
 +
@@ -67987,7 +68006,6 @@ index 000000000..dc8f64150
 +	if (c->opts.read_only || c->opts.nochanges) {
 +		bch2_fs_read_only(c);
 +	} else {
-+		err = "error going read write";
 +		ret = !test_bit(BCH_FS_RW, &c->flags)
 +			? bch2_fs_read_write(c)
 +			: bch2_fs_read_write_late(c);
@@ -68005,25 +68023,22 @@ index 000000000..dc8f64150
 +	case BCH_FSCK_ERRORS_NOT_FIXED:
 +		bch_err(c, "filesystem contains errors: please report this to the developers");
 +		pr_cont("mount with -o fix_errors to repair\n");
-+		err = "fsck error";
 +		break;
 +	case BCH_FSCK_REPAIR_UNIMPLEMENTED:
 +		bch_err(c, "filesystem contains errors: please report this to the developers");
 +		pr_cont("repair unimplemented: inform the developers so that it can be added\n");
-+		err = "fsck error";
 +		break;
 +	case BCH_FSCK_REPAIR_IMPOSSIBLE:
 +		bch_err(c, "filesystem contains errors, but repair impossible");
-+		err = "fsck error";
 +		break;
 +	case BCH_FSCK_UNKNOWN_VERSION:
-+		err = "unknown metadata version";;
++		bch_err(c, "unknown metadata version");
 +		break;
 +	case -ENOMEM:
-+		err = "cannot allocate memory";
++		bch_err(c, "cannot allocate memory");
 +		break;
 +	case -EIO:
-+		err = "IO error";
++		bch_err(c, "IO error");
 +		break;
 +	}
 +
@@ -68443,7 +68458,7 @@ index 000000000..dc8f64150
 +	bch2_copygc_start(c);
 +}
 +
-+static const char *__bch2_dev_read_write(struct bch_fs *c, struct bch_dev *ca)
++static int __bch2_dev_read_write(struct bch_fs *c, struct bch_dev *ca)
 +{
 +	lockdep_assert_held(&c->state_lock);
 +
@@ -68452,10 +68467,7 @@ index 000000000..dc8f64150
 +	bch2_dev_allocator_add(c, ca);
 +	bch2_recalc_capacity(c);
 +
-+	if (bch2_dev_allocator_start(ca))
-+		return "error starting allocator thread";
-+
-+	return NULL;
++	return bch2_dev_allocator_start(ca);
 +}
 +
 +int __bch2_dev_set_state(struct bch_fs *c, struct bch_dev *ca,
@@ -68481,9 +68493,8 @@ index 000000000..dc8f64150
 +	bch2_write_super(c);
 +	mutex_unlock(&c->sb_lock);
 +
-+	if (new_state == BCH_MEMBER_STATE_rw &&
-+	    __bch2_dev_read_write(c, ca))
-+		ret = -ENOMEM;
++	if (new_state == BCH_MEMBER_STATE_rw)
++		ret = __bch2_dev_read_write(c, ca);
 +
 +	rebalance_wakeup(c);
 +
@@ -68767,8 +68778,8 @@ index 000000000..dc8f64150
 +		goto err_late;
 +
 +	if (ca->mi.state == BCH_MEMBER_STATE_rw) {
-+		err = __bch2_dev_read_write(c, ca);
-+		if (err)
++		ret = __bch2_dev_read_write(c, ca);
++		if (ret)
 +			goto err_late;
 +	}
 +
@@ -68812,24 +68823,27 @@ index 000000000..dc8f64150
 +	dev_idx = sb.sb->dev_idx;
 +
 +	err = bch2_dev_in_fs(c->disk_sb.sb, sb.sb);
-+	if (err)
-+		goto err;
-+
-+	if (bch2_dev_attach_bdev(c, &sb)) {
-+		err = "bch2_dev_attach_bdev() error";
++	if (err) {
++		bch_err(c, "error bringing %s online: %s", path, err);
 +		goto err;
 +	}
 +
++	ret = bch2_dev_attach_bdev(c, &sb);
++	if (ret)
++		goto err;
++
 +	ca = bch_dev_locked(c, dev_idx);
 +
-+	if (bch2_trans_mark_dev_sb(c, ca)) {
-+		err = "bch2_trans_mark_dev_sb() error";
++	ret = bch2_trans_mark_dev_sb(c, ca);
++	if (ret) {
++		bch_err(c, "error bringing %s online: error %i from bch2_trans_mark_dev_sb",
++			path, ret);
 +		goto err;
 +	}
 +
 +	if (ca->mi.state == BCH_MEMBER_STATE_rw) {
-+		err = __bch2_dev_read_write(c, ca);
-+		if (err)
++		ret = __bch2_dev_read_write(c, ca);
++		if (ret)
 +			goto err;
 +	}
 +
@@ -68847,7 +68861,6 @@ index 000000000..dc8f64150
 +err:
 +	up_write(&c->state_lock);
 +	bch2_free_super(&sb);
-+	bch_err(c, "error bringing %s online: %s", path, err);
 +	return -EINVAL;
 +}
 +
@@ -68951,7 +68964,7 @@ index 000000000..dc8f64150
 +	struct bch_sb_field_members *mi;
 +	unsigned i, best_sb = 0;
 +	const char *err;
-+	int ret = -ENOMEM;
++	int ret = 0;
 +
 +	pr_verbose_init(opts, "");
 +
@@ -68966,8 +68979,10 @@ index 000000000..dc8f64150
 +	}
 +
 +	sb = kcalloc(nr_devices, sizeof(*sb), GFP_KERNEL);
-+	if (!sb)
++	if (!sb) {
++		ret = -ENOMEM;
 +		goto err;
++	}
 +
 +	for (i = 0; i < nr_devices; i++) {
 +		ret = bch2_read_super(devices[i], &opts, &sb[i]);
@@ -69004,18 +69019,20 @@ index 000000000..dc8f64150
 +		i++;
 +	}
 +
-+	ret = -ENOMEM;
 +	c = bch2_fs_alloc(sb[best_sb].sb, opts);
-+	if (!c)
++	if (IS_ERR(c)) {
++		ret = PTR_ERR(c);
 +		goto err;
++	}
 +
-+	err = "bch2_dev_online() error";
 +	down_write(&c->state_lock);
-+	for (i = 0; i < nr_devices; i++)
-+		if (bch2_dev_attach_bdev(c, &sb[i])) {
++	for (i = 0; i < nr_devices; i++) {
++		ret = bch2_dev_attach_bdev(c, &sb[i]);
++		if (ret) {
 +			up_write(&c->state_lock);
-+			goto err_print;
++			goto err;
 +		}
++	}
 +	up_write(&c->state_lock);
 +
 +	err = "insufficient devices";
@@ -69038,10 +69055,11 @@ index 000000000..dc8f64150
 +	       devices[0], err);
 +	ret = -EINVAL;
 +err:
-+	if (c)
++	if (!IS_ERR_OR_NULL(c))
 +		bch2_fs_stop(c);
-+	for (i = 0; i < nr_devices; i++)
-+		bch2_free_super(&sb[i]);
++	if (sb)
++		for (i = 0; i < nr_devices; i++)
++			bch2_free_super(&sb[i]);
 +	c = ERR_PTR(ret);
 +	goto out;
 +}
@@ -69067,12 +69085,12 @@ index 000000000..dc8f64150
 +		if (err)
 +			goto err;
 +	} else {
-+		c = bch2_fs_alloc(sb->sb, opts);
-+		err = "cannot allocate memory";
-+		if (!c)
-+			goto err;
-+
 +		allocated_fs = true;
++		c = bch2_fs_alloc(sb->sb, opts);
++
++		err = "bch2_fs_alloc() error";
++		if (IS_ERR(c))
++			goto err;
 +	}
 +
 +	err = "bch2_dev_online() error";
@@ -69098,7 +69116,7 @@ index 000000000..dc8f64150
 +err:
 +	mutex_unlock(&bch_fs_list_lock);
 +
-+	if (allocated_fs)
++	if (allocated_fs && !IS_ERR(c))
 +		bch2_fs_stop(c);
 +	else if (c)
 +		closure_put(&c->cl);
@@ -69462,10 +69480,10 @@ index 000000000..96023f37a
 +#endif /* _BCACHEFS_SUPER_TYPES_H */
 diff --git a/fs/bcachefs/sysfs.c b/fs/bcachefs/sysfs.c
 new file mode 100644
-index 000000000..51eb19b84
+index 000000000..864be8601
 --- /dev/null
 +++ b/fs/bcachefs/sysfs.c
-@@ -0,0 +1,1099 @@
+@@ -0,0 +1,1009 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * bcache sysfs interfaces
@@ -69622,11 +69640,6 @@ index 000000000..51eb19b84
 +read_attribute(congested);
 +
 +read_attribute(btree_avg_write_size);
-+
-+read_attribute(bucket_quantiles_last_read);
-+read_attribute(bucket_quantiles_last_write);
-+read_attribute(bucket_quantiles_fragmentation);
-+read_attribute(bucket_quantiles_oldest_gen);
 +
 +read_attribute(reserve_stats);
 +read_attribute(btree_cache_size);
@@ -70219,76 +70232,6 @@ index 000000000..51eb19b84
 +	NULL
 +};
 +
-+typedef unsigned (bucket_map_fn)(struct bch_fs *, struct bch_dev *,
-+				 size_t, void *);
-+
-+static unsigned bucket_last_io_fn(struct bch_fs *c, struct bch_dev *ca,
-+				  size_t b, void *private)
-+{
-+	int rw = (private ? 1 : 0);
-+
-+	return atomic64_read(&c->io_clock[rw].now) - bucket(ca, b)->io_time[rw];
-+}
-+
-+static unsigned bucket_sectors_used_fn(struct bch_fs *c, struct bch_dev *ca,
-+				       size_t b, void *private)
-+{
-+	struct bucket *g = bucket(ca, b);
-+	return bucket_sectors_used(g->mark);
-+}
-+
-+static unsigned bucket_oldest_gen_fn(struct bch_fs *c, struct bch_dev *ca,
-+				     size_t b, void *private)
-+{
-+	return bucket_gc_gen(bucket(ca, b));
-+}
-+
-+static int unsigned_cmp(const void *_l, const void *_r)
-+{
-+	const unsigned *l = _l;
-+	const unsigned *r = _r;
-+
-+	return cmp_int(*l, *r);
-+}
-+
-+static int quantiles_to_text(struct printbuf *out,
-+			     struct bch_fs *c, struct bch_dev *ca,
-+			     bucket_map_fn *fn, void *private)
-+{
-+	size_t i, n;
-+	/* Compute 31 quantiles */
-+	unsigned q[31], *p;
-+
-+	down_read(&ca->bucket_lock);
-+	n = ca->mi.nbuckets;
-+
-+	p = vzalloc(n * sizeof(unsigned));
-+	if (!p) {
-+		up_read(&ca->bucket_lock);
-+		return -ENOMEM;
-+	}
-+
-+	for (i = ca->mi.first_bucket; i < n; i++)
-+		p[i] = fn(c, ca, i, private);
-+
-+	sort(p, n, sizeof(unsigned), unsigned_cmp, NULL);
-+	up_read(&ca->bucket_lock);
-+
-+	while (n &&
-+	       !p[n - 1])
-+		--n;
-+
-+	for (i = 0; i < ARRAY_SIZE(q); i++)
-+		q[i] = p[n * (i + 1) / (ARRAY_SIZE(q) + 1)];
-+
-+	vfree(p);
-+
-+	for (i = 0; i < ARRAY_SIZE(q); i++)
-+		pr_buf(out, "%u ", q[i]);
-+	pr_buf(out, "\n");
-+	return 0;
-+}
-+
 +static void reserve_stats_to_text(struct printbuf *out, struct bch_dev *ca)
 +{
 +	enum alloc_reserve i;
@@ -70450,15 +70393,6 @@ index 000000000..51eb19b84
 +		     clamp(atomic_read(&ca->congested), 0, CONGESTED_MAX)
 +		     * 100 / CONGESTED_MAX);
 +
-+	if (attr == &sysfs_bucket_quantiles_last_read)
-+		return quantiles_to_text(&out, c, ca, bucket_last_io_fn, (void *) 0) ?: out.pos - buf;
-+	if (attr == &sysfs_bucket_quantiles_last_write)
-+		return quantiles_to_text(&out, c, ca, bucket_last_io_fn, (void *) 1) ?: out.pos - buf;
-+	if (attr == &sysfs_bucket_quantiles_fragmentation)
-+		return quantiles_to_text(&out, c, ca, bucket_sectors_used_fn, NULL)  ?: out.pos - buf;
-+	if (attr == &sysfs_bucket_quantiles_oldest_gen)
-+		return quantiles_to_text(&out, c, ca, bucket_oldest_gen_fn, NULL)    ?: out.pos - buf;
-+
 +	if (attr == &sysfs_reserve_stats) {
 +		reserve_stats_to_text(&out, ca);
 +		return out.pos - buf;
@@ -70549,12 +70483,6 @@ index 000000000..51eb19b84
 +	&sysfs_io_latency_stats_read,
 +	&sysfs_io_latency_stats_write,
 +	&sysfs_congested,
-+
-+	/* alloc info - other stats: */
-+	&sysfs_bucket_quantiles_last_read,
-+	&sysfs_bucket_quantiles_last_write,
-+	&sysfs_bucket_quantiles_fragmentation,
-+	&sysfs_bucket_quantiles_oldest_gen,
 +
 +	&sysfs_reserve_stats,
 +
@@ -73420,10 +73348,10 @@ index 000000000..c099cdc06
 +#endif /* _VSTRUCTS_H */
 diff --git a/fs/bcachefs/xattr.c b/fs/bcachefs/xattr.c
 new file mode 100644
-index 000000000..bb5da310e
+index 000000000..464ed6831
 --- /dev/null
 +++ b/fs/bcachefs/xattr.c
-@@ -0,0 +1,613 @@
+@@ -0,0 +1,629 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -73591,7 +73519,23 @@ index 000000000..bb5da310e
 +		   const char *name, const void *value, size_t size,
 +		   int type, int flags)
 +{
++	struct btree_iter inode_iter = { NULL };
++	struct bch_inode_unpacked inode_u;
 +	int ret;
++
++	/*
++	 * We need to do an inode update so that bi_journal_sync gets updated
++	 * and fsync works:
++	 *
++	 * Perhaps we should be updating bi_mtime too?
++	 */
++
++	ret   = bch2_inode_peek(trans, &inode_iter, &inode_u, inum, BTREE_ITER_INTENT) ?:
++		bch2_inode_write(trans, &inode_iter, &inode_u);
++	bch2_trans_iter_exit(trans, &inode_iter);
++
++	if (ret)
++		return ret;
 +
 +	if (value) {
 +		struct bkey_i_xattr *xattr;
@@ -73778,7 +73722,7 @@ index 000000000..bb5da310e
 +	struct bch_fs *c = inode->v.i_sb->s_fs_info;
 +	struct bch_hash_info hash = bch2_hash_info_init(c, &inode->ei_inode);
 +
-+	return bch2_trans_do(c, NULL, &inode->ei_journal_seq, 0,
++	return bch2_trans_do(c, NULL, NULL, 0,
 +			bch2_xattr_set(&trans, inode_inum(inode), &hash,
 +				       name, value, size,
 +				       handler->flags, flags));
