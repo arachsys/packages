@@ -6,8 +6,9 @@ check() {
 prepare() {
   unpack https://musl.libc.org/releases/musl-1.2.2.tar.gz
   apply paths.diff
+  apply strerror.diff
   apply usage.diff
-  tree 2ab1ba916097cb3fde055a6770b20c4fdf4d6266fff08154f30d26485057171d
+  tree 7fe8b8add3b110debb0b22870a3a0c89c6b231342cbae45f8d082bc7447305e9
 }
 
 build() {

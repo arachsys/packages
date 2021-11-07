@@ -1,0 +1,12 @@
+diff --git a/src/errno/__strerror.h b/src/errno/__strerror.h
+index 2d992da5..14925907 100644
+--- a/src/errno/__strerror.h
++++ b/src/errno/__strerror.h
+@@ -102,3 +102,7 @@ E(EDQUOT,       "Quota exceeded")
+ E(ENOMEDIUM,    "No medium found")
+ E(EMEDIUMTYPE,  "Wrong medium type")
+ E(EMULTIHOP,    "Multihop attempted")
++E(ENOKEY,       "Required key not available")
++E(EKEYEXPIRED,  "Key has expired")
++E(EKEYREVOKED,  "Key has been revoked")
++E(EKEYREJECTED, "Key was rejected by service")
