@@ -2,17 +2,18 @@ require bison flex
 
 check() {
   url https://mirrors.edge.kernel.org/pub/software/network/iw/
-  match iw 5.9 'iw-([0-9.]+)\.tar'
+  match iw 5.16 'iw-([0-9.]+)\.tar'
 
-  url http://www.infradead.org/~tgr/libnl/files/
-  match libnl 3.2.25 'libnl-([0-9.]+)\.tar'
+  url https://github.com/thom311/libnl/releases
+  match libnl 3.5.0 'libnl-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-5.9.tar.xz
-  unpack -d libnl http://www.infradead.org/~tgr/libnl/files/libnl-3.2.25.tar.gz
+  unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-5.16.tar.xz
+  unpack -d libnl \
+    https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz
   apply paths.diff
-  tree fb2ce9108503d93a3ae800dac0f500cdd8acb1838af6bddd35cf5707bbf3a535
+  tree 82c0d8aba88c7141e3253888f02c96e8eba0d637be94923854eef57c7e82082d
 }
 
 build() {
