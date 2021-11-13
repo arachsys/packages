@@ -1,5 +1,5 @@
 diff --git a/block/bio.c b/block/bio.c
-index a6fb6a0b4..681142a6b 100644
+index a6fb6a0b4295..3c9cc0000168 100644
 --- a/block/bio.c
 +++ b/block/bio.c
 @@ -526,15 +526,15 @@ struct bio *bio_kmalloc(gfp_t gfp_mask, unsigned short nr_iovecs)
@@ -21,7 +21,43 @@ index a6fb6a0b4..681142a6b 100644
  
  /**
   * bio_truncate - truncate the bio to small size of @new_size
-@@ -1366,6 +1366,7 @@ void bio_set_pages_dirty(struct bio *bio)
+@@ -1284,15 +1284,27 @@ EXPORT_SYMBOL(bio_advance);
+ void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
+ 			struct bio *src, struct bvec_iter *src_iter)
+ {
+-	while (src_iter->bi_size && dst_iter->bi_size) {
+-		struct bio_vec src_bv = bio_iter_iovec(src, *src_iter);
+-		struct bio_vec dst_bv = bio_iter_iovec(dst, *dst_iter);
+-		unsigned int bytes = min(src_bv.bv_len, dst_bv.bv_len);
+-		void *src_buf;
++	struct bio_vec src_bv, dst_bv;
++	void *src_p, *dst_p;
++	unsigned bytes;
+ 
+-		src_buf = bvec_kmap_local(&src_bv);
+-		memcpy_to_bvec(&dst_bv, src_buf);
+-		kunmap_local(src_buf);
++	while (src_iter->bi_size && dst_iter->bi_size) {
++		src_bv = bio_iter_iovec(src, *src_iter);
++		dst_bv = bio_iter_iovec(dst, *dst_iter);
++
++		bytes = min(src_bv.bv_len, dst_bv.bv_len);
++
++		src_p = kmap_atomic(src_bv.bv_page);
++		dst_p = kmap_atomic(dst_bv.bv_page);
++
++		memcpy(dst_p + dst_bv.bv_offset,
++		       src_p + src_bv.bv_offset,
++		       bytes);
++
++		kunmap_atomic(dst_p);
++		kunmap_atomic(src_p);
++
++		flush_dcache_page(dst_bv.bv_page);
+ 
+ 		bio_advance_iter_single(src, src_iter, bytes);
+ 		bio_advance_iter_single(dst, dst_iter, bytes);
+@@ -1366,6 +1378,7 @@ void bio_set_pages_dirty(struct bio *bio)
  			set_page_dirty_lock(bvec->bv_page);
  	}
  }
@@ -29,7 +65,7 @@ index a6fb6a0b4..681142a6b 100644
  
  /*
   * bio_check_pages_dirty() will check that all the BIO's pages are still dirty.
-@@ -1425,6 +1426,7 @@ void bio_check_pages_dirty(struct bio *bio)
+@@ -1425,6 +1438,7 @@ void bio_check_pages_dirty(struct bio *bio)
  	spin_unlock_irqrestore(&bio_dirty_lock, flags);
  	schedule_work(&bio_dirty_work);
  }
@@ -38,7 +74,7 @@ index a6fb6a0b4..681142a6b 100644
  static inline bool bio_remaining_done(struct bio *bio)
  {
 diff --git a/block/blk-core.c b/block/blk-core.c
-index 4d8f5fe91..96cf713f0 100644
+index 4d8f5fe91588..96cf713f03a7 100644
 --- a/block/blk-core.c
 +++ b/block/blk-core.c
 @@ -214,18 +214,23 @@ int blk_status_to_errno(blk_status_t status)
@@ -70,7 +106,7 @@ index 4d8f5fe91..96cf713f0 100644
  		blk_rq_pos(req), req_op(req), blk_op_str(req_op(req)),
  		req->cmd_flags & ~REQ_OP_MASK,
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 7bf4686af..80511131b 100644
+index 7bf4686af774..80511131b884 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
 @@ -1412,7 +1412,6 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
@@ -82,7 +118,7 @@ index 7bf4686af..80511131b 100644
  	mutex_unlock(&lo->lo_mutex);
  	if (partscan) {
 diff --git a/drivers/md/bcache/Kconfig b/drivers/md/bcache/Kconfig
-index cf3e80969..f1a1f0c4a 100644
+index cf3e8096942a..f1a1f0c4a0ea 100644
 --- a/drivers/md/bcache/Kconfig
 +++ b/drivers/md/bcache/Kconfig
 @@ -4,6 +4,7 @@ config BCACHE
@@ -110,7 +146,7 @@ index cf3e80969..f1a1f0c4a 100644
  	bool "Asynchronous device registration (EXPERIMENTAL)"
  	depends on BCACHE
 diff --git a/drivers/md/bcache/Makefile b/drivers/md/bcache/Makefile
-index 5b87e5967..054e8a33a 100644
+index 5b87e59676b8..054e8a33a7ab 100644
 --- a/drivers/md/bcache/Makefile
 +++ b/drivers/md/bcache/Makefile
 @@ -2,6 +2,6 @@
@@ -123,7 +159,7 @@ index 5b87e5967..054e8a33a 100644
 +	journal.o movinggc.o request.o stats.o super.o sysfs.o trace.o\
  	util.o writeback.o features.o
 diff --git a/drivers/md/bcache/bcache.h b/drivers/md/bcache/bcache.h
-index 5fc989a6d..e5e147d0e 100644
+index 5fc989a6d452..e5e147d0e49a 100644
 --- a/drivers/md/bcache/bcache.h
 +++ b/drivers/md/bcache/bcache.h
 @@ -180,6 +180,7 @@
@@ -143,7 +179,7 @@ index 5fc989a6d..e5e147d0e 100644
  struct bucket {
  	atomic_t	pin;
 diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index f2874c77f..7217e0510 100644
+index f2874c77ff79..7217e05107bf 100644
 --- a/drivers/md/bcache/super.c
 +++ b/drivers/md/bcache/super.c
 @@ -2910,7 +2910,6 @@ static int __init bcache_init(void)
@@ -155,7 +191,7 @@ index f2874c77f..7217e0510 100644
  	bcache_is_reboot = false;
  
 diff --git a/drivers/md/bcache/util.h b/drivers/md/bcache/util.h
-index b64460a76..2a390503b 100644
+index b64460a76267..2a390503bde2 100644
 --- a/drivers/md/bcache/util.h
 +++ b/drivers/md/bcache/util.h
 @@ -4,6 +4,7 @@
@@ -176,7 +212,7 @@ index b64460a76..2a390503b 100644
  
  #ifdef CONFIG_BCACHE_DEBUG
 diff --git a/fs/Kconfig b/fs/Kconfig
-index a6313a969..b3dae7de1 100644
+index a6313a969bc5..b3dae7de1627 100644
 --- a/fs/Kconfig
 +++ b/fs/Kconfig
 @@ -40,6 +40,7 @@ source "fs/ocfs2/Kconfig"
@@ -188,7 +224,7 @@ index a6313a969..b3dae7de1 100644
  
  config FS_DAX
 diff --git a/fs/Makefile b/fs/Makefile
-index 84c5e4cdf..b0ec155b5 100644
+index 84c5e4cdfee5..b0ec155b5c97 100644
 --- a/fs/Makefile
 +++ b/fs/Makefile
 @@ -132,6 +132,7 @@ obj-$(CONFIG_OCFS2_FS)		+= ocfs2/
@@ -201,7 +237,7 @@ index 84c5e4cdf..b0ec155b5 100644
  obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
 diff --git a/fs/bcachefs/Kconfig b/fs/bcachefs/Kconfig
 new file mode 100644
-index 000000000..27742ce27
+index 000000000000..27742ce276cd
 --- /dev/null
 +++ b/fs/bcachefs/Kconfig
 @@ -0,0 +1,52 @@
@@ -259,7 +295,7 @@ index 000000000..27742ce27
 +	Include some unit and performance tests for the core btree code
 diff --git a/fs/bcachefs/Makefile b/fs/bcachefs/Makefile
 new file mode 100644
-index 000000000..71cda24e6
+index 000000000000..71cda24e6d08
 --- /dev/null
 +++ b/fs/bcachefs/Makefile
 @@ -0,0 +1,62 @@
@@ -327,7 +363,7 @@ index 000000000..71cda24e6
 +bcachefs-$(CONFIG_BCACHEFS_POSIX_ACL) += acl.o
 diff --git a/fs/bcachefs/acl.c b/fs/bcachefs/acl.c
 new file mode 100644
-index 000000000..0cde2638d
+index 000000000000..5070caf8f349
 --- /dev/null
 +++ b/fs/bcachefs/acl.c
 @@ -0,0 +1,406 @@
@@ -673,7 +709,7 @@ index 000000000..0cde2638d
 +	if (unlikely(ret))
 +		goto err;
 +
-+	bch2_inode_update_after_write(c, inode, &inode_u,
++	bch2_inode_update_after_write(&trans, inode, &inode_u,
 +				      ATTR_CTIME|ATTR_MODE);
 +
 +	set_cached_acl(&inode->v, type, acl);
@@ -739,7 +775,7 @@ index 000000000..0cde2638d
 +#endif /* CONFIG_BCACHEFS_POSIX_ACL */
 diff --git a/fs/bcachefs/acl.h b/fs/bcachefs/acl.h
 new file mode 100644
-index 000000000..2d76a4897
+index 000000000000..2d76a4897ba8
 --- /dev/null
 +++ b/fs/bcachefs/acl.h
 @@ -0,0 +1,58 @@
@@ -803,7 +839,7 @@ index 000000000..2d76a4897
 +#endif /* _BCACHEFS_ACL_H */
 diff --git a/fs/bcachefs/alloc_background.c b/fs/bcachefs/alloc_background.c
 new file mode 100644
-index 000000000..b2735c859
+index 000000000000..b2735c8591d6
 --- /dev/null
 +++ b/fs/bcachefs/alloc_background.c
 @@ -0,0 +1,1312 @@
@@ -2121,7 +2157,7 @@ index 000000000..b2735c859
 +}
 diff --git a/fs/bcachefs/alloc_background.h b/fs/bcachefs/alloc_background.h
 new file mode 100644
-index 000000000..370573f8e
+index 000000000000..370573f8e05d
 --- /dev/null
 +++ b/fs/bcachefs/alloc_background.h
 @@ -0,0 +1,143 @@
@@ -2270,7 +2306,7 @@ index 000000000..370573f8e
 +#endif /* _BCACHEFS_ALLOC_BACKGROUND_H */
 diff --git a/fs/bcachefs/alloc_foreground.c b/fs/bcachefs/alloc_foreground.c
 new file mode 100644
-index 000000000..412fed479
+index 000000000000..412fed479482
 --- /dev/null
 +++ b/fs/bcachefs/alloc_foreground.c
 @@ -0,0 +1,960 @@
@@ -3236,7 +3272,7 @@ index 000000000..412fed479
 +}
 diff --git a/fs/bcachefs/alloc_foreground.h b/fs/bcachefs/alloc_foreground.h
 new file mode 100644
-index 000000000..c658295cb
+index 000000000000..c658295cb8e0
 --- /dev/null
 +++ b/fs/bcachefs/alloc_foreground.h
 @@ -0,0 +1,138 @@
@@ -3380,7 +3416,7 @@ index 000000000..c658295cb
 +#endif /* _BCACHEFS_ALLOC_FOREGROUND_H */
 diff --git a/fs/bcachefs/alloc_types.h b/fs/bcachefs/alloc_types.h
 new file mode 100644
-index 000000000..4a1cd8b73
+index 000000000000..4a1cd8b73d16
 --- /dev/null
 +++ b/fs/bcachefs/alloc_types.h
 @@ -0,0 +1,98 @@
@@ -3484,7 +3520,7 @@ index 000000000..4a1cd8b73
 +#endif /* _BCACHEFS_ALLOC_TYPES_H */
 diff --git a/fs/bcachefs/bcachefs.h b/fs/bcachefs/bcachefs.h
 new file mode 100644
-index 000000000..131d0f7ba
+index 000000000000..131d0f7ba47d
 --- /dev/null
 +++ b/fs/bcachefs/bcachefs.h
 @@ -0,0 +1,957 @@
@@ -4447,7 +4483,7 @@ index 000000000..131d0f7ba
 +#endif /* _BCACHEFS_H */
 diff --git a/fs/bcachefs/bcachefs_format.h b/fs/bcachefs/bcachefs_format.h
 new file mode 100644
-index 000000000..52212ad16
+index 000000000000..52212ad1682f
 --- /dev/null
 +++ b/fs/bcachefs/bcachefs_format.h
 @@ -0,0 +1,1883 @@
@@ -6336,7 +6372,7 @@ index 000000000..52212ad16
 +#endif /* _BCACHEFS_FORMAT_H */
 diff --git a/fs/bcachefs/bcachefs_ioctl.h b/fs/bcachefs/bcachefs_ioctl.h
 new file mode 100644
-index 000000000..930981ad5
+index 000000000000..930981ad5535
 --- /dev/null
 +++ b/fs/bcachefs/bcachefs_ioctl.h
 @@ -0,0 +1,367 @@
@@ -6709,7 +6745,7 @@ index 000000000..930981ad5
 +#endif /* _BCACHEFS_IOCTL_H */
 diff --git a/fs/bcachefs/bkey.c b/fs/bcachefs/bkey.c
 new file mode 100644
-index 000000000..946dd27f0
+index 000000000000..946dd27f09fc
 --- /dev/null
 +++ b/fs/bcachefs/bkey.c
 @@ -0,0 +1,1171 @@
@@ -7886,7 +7922,7 @@ index 000000000..946dd27f0
 +#endif
 diff --git a/fs/bcachefs/bkey.h b/fs/bcachefs/bkey.h
 new file mode 100644
-index 000000000..7dee3d8e0
+index 000000000000..7dee3d8e0a3d
 --- /dev/null
 +++ b/fs/bcachefs/bkey.h
 @@ -0,0 +1,566 @@
@@ -8458,7 +8494,7 @@ index 000000000..7dee3d8e0
 +#endif /* _BCACHEFS_BKEY_H */
 diff --git a/fs/bcachefs/bkey_buf.h b/fs/bcachefs/bkey_buf.h
 new file mode 100644
-index 000000000..0d7c67a95
+index 000000000000..0d7c67a959af
 --- /dev/null
 +++ b/fs/bcachefs/bkey_buf.h
 @@ -0,0 +1,60 @@
@@ -8524,7 +8560,7 @@ index 000000000..0d7c67a95
 +#endif /* _BCACHEFS_BKEY_BUF_H */
 diff --git a/fs/bcachefs/bkey_methods.c b/fs/bcachefs/bkey_methods.c
 new file mode 100644
-index 000000000..5c900cf8a
+index 000000000000..5c900cf8a8a2
 --- /dev/null
 +++ b/fs/bcachefs/bkey_methods.c
 @@ -0,0 +1,450 @@
@@ -8980,7 +9016,7 @@ index 000000000..5c900cf8a
 +}
 diff --git a/fs/bcachefs/bkey_methods.h b/fs/bcachefs/bkey_methods.h
 new file mode 100644
-index 000000000..3012035db
+index 000000000000..3012035db1a3
 --- /dev/null
 +++ b/fs/bcachefs/bkey_methods.h
 @@ -0,0 +1,80 @@
@@ -9066,7 +9102,7 @@ index 000000000..3012035db
 +#endif /* _BCACHEFS_BKEY_METHODS_H */
 diff --git a/fs/bcachefs/bkey_sort.c b/fs/bcachefs/bkey_sort.c
 new file mode 100644
-index 000000000..537ab7919
+index 000000000000..537ab7919e88
 --- /dev/null
 +++ b/fs/bcachefs/bkey_sort.c
 @@ -0,0 +1,253 @@
@@ -9325,7 +9361,7 @@ index 000000000..537ab7919
 +}
 diff --git a/fs/bcachefs/bkey_sort.h b/fs/bcachefs/bkey_sort.h
 new file mode 100644
-index 000000000..1059996da
+index 000000000000..1059996dac78
 --- /dev/null
 +++ b/fs/bcachefs/bkey_sort.h
 @@ -0,0 +1,49 @@
@@ -9380,7 +9416,7 @@ index 000000000..1059996da
 +#endif /* _BCACHEFS_BKEY_SORT_H */
 diff --git a/fs/bcachefs/bset.c b/fs/bcachefs/bset.c
 new file mode 100644
-index 000000000..59e4c1d1a
+index 000000000000..59e4c1d1a2a5
 --- /dev/null
 +++ b/fs/bcachefs/bset.c
 @@ -0,0 +1,1712 @@
@@ -11098,7 +11134,7 @@ index 000000000..59e4c1d1a
 +}
 diff --git a/fs/bcachefs/bset.h b/fs/bcachefs/bset.h
 new file mode 100644
-index 000000000..e42f866cf
+index 000000000000..e42f866cf2ec
 --- /dev/null
 +++ b/fs/bcachefs/bset.h
 @@ -0,0 +1,616 @@
@@ -11720,7 +11756,7 @@ index 000000000..e42f866cf
 +#endif /* _BCACHEFS_BSET_H */
 diff --git a/fs/bcachefs/btree_cache.c b/fs/bcachefs/btree_cache.c
 new file mode 100644
-index 000000000..905237a7b
+index 000000000000..5ae61e5d3923
 --- /dev/null
 +++ b/fs/bcachefs/btree_cache.c
 @@ -0,0 +1,1095 @@
@@ -12027,7 +12063,7 @@ index 000000000..905237a7b
 +	list_for_each_entry_safe(b, t, &bc->freeable, list) {
 +		touched++;
 +
-+		if (freed >= nr)
++		if (touched >= nr)
 +			break;
 +
 +		if (++i > 3 &&
@@ -12042,7 +12078,7 @@ index 000000000..905237a7b
 +	list_for_each_entry_safe(b, t, &bc->live, list) {
 +		touched++;
 +
-+		if (freed >= nr) {
++		if (touched >= nr) {
 +			/* Save position */
 +			if (&t->list != &bc->live)
 +				list_move_tail(&bc->live, &t->list);
@@ -12821,7 +12857,7 @@ index 000000000..905237a7b
 +}
 diff --git a/fs/bcachefs/btree_cache.h b/fs/bcachefs/btree_cache.h
 new file mode 100644
-index 000000000..402cec180
+index 000000000000..402cec1802bc
 --- /dev/null
 +++ b/fs/bcachefs/btree_cache.h
 @@ -0,0 +1,105 @@
@@ -12932,7 +12968,7 @@ index 000000000..402cec180
 +#endif /* _BCACHEFS_BTREE_CACHE_H */
 diff --git a/fs/bcachefs/btree_gc.c b/fs/bcachefs/btree_gc.c
 new file mode 100644
-index 000000000..b4340df67
+index 000000000000..b4340df677b7
 --- /dev/null
 +++ b/fs/bcachefs/btree_gc.c
 @@ -0,0 +1,1938 @@
@@ -14876,7 +14912,7 @@ index 000000000..b4340df67
 +}
 diff --git a/fs/bcachefs/btree_gc.h b/fs/bcachefs/btree_gc.h
 new file mode 100644
-index 000000000..59dfb069e
+index 000000000000..59dfb069e699
 --- /dev/null
 +++ b/fs/bcachefs/btree_gc.h
 @@ -0,0 +1,106 @@
@@ -14988,7 +15024,7 @@ index 000000000..59dfb069e
 +#endif /* _BCACHEFS_BTREE_GC_H */
 diff --git a/fs/bcachefs/btree_io.c b/fs/bcachefs/btree_io.c
 new file mode 100644
-index 000000000..f11fcab61
+index 000000000000..f11fcab61902
 --- /dev/null
 +++ b/fs/bcachefs/btree_io.c
 @@ -0,0 +1,2124 @@
@@ -17118,7 +17154,7 @@ index 000000000..f11fcab61
 +}
 diff --git a/fs/bcachefs/btree_io.h b/fs/bcachefs/btree_io.h
 new file mode 100644
-index 000000000..0f20224e2
+index 000000000000..0f20224e2a77
 --- /dev/null
 +++ b/fs/bcachefs/btree_io.h
 @@ -0,0 +1,248 @@
@@ -17372,10 +17408,10 @@ index 000000000..0f20224e2
 +#endif /* _BCACHEFS_BTREE_IO_H */
 diff --git a/fs/bcachefs/btree_iter.c b/fs/bcachefs/btree_iter.c
 new file mode 100644
-index 000000000..f5d8a7306
+index 000000000000..f43044e6fa37
 --- /dev/null
 +++ b/fs/bcachefs/btree_iter.c
-@@ -0,0 +1,2912 @@
+@@ -0,0 +1,2960 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -17427,7 +17463,7 @@ index 000000000..f5d8a7306
 +				   unsigned		r_level)
 +{
 +	return   cmp_int(l->btree_id,	r_btree_id) ?:
-+		 cmp_int(l->cached,	r_cached) ?:
++		 cmp_int((int) l->cached,	(int) r_cached) ?:
 +		 bpos_cmp(l->pos,	r_pos) ?:
 +		-cmp_int(l->level,	r_level);
 +}
@@ -18136,6 +18172,43 @@ index 000000000..f5d8a7306
 +out:
 +	bch2_trans_iter_exit(trans, &copy);
 +	return ret;
++}
++
++void bch2_assert_pos_locked(struct btree_trans *trans, enum btree_id id,
++			    struct bpos pos, bool key_cache)
++{
++	struct btree_path *path;
++	unsigned idx;
++	char buf[100];
++
++	trans_for_each_path_inorder(trans, path, idx) {
++		int cmp = cmp_int(path->btree_id, id) ?:
++			cmp_int(path->cached, key_cache);
++
++		if (cmp > 0)
++			break;
++		if (cmp < 0)
++			continue;
++
++		if (!(path->nodes_locked & 1) ||
++		    !path->should_be_locked)
++			continue;
++
++		if (!key_cache) {
++			if (bkey_cmp(pos, path->l[0].b->data->min_key) >= 0 &&
++			    bkey_cmp(pos, path->l[0].b->key.k.p) <= 0)
++				return;
++		} else {
++			if (!bkey_cmp(pos, path->pos))
++				return;
++		}
++	}
++
++	bch2_dump_trans_paths_updates(trans);
++	panic("not locked: %s %s%s\n",
++	      bch2_btree_ids[id],
++	      (bch2_bpos_to_text(&PBUF(buf), pos), buf),
++	      key_cache ? " cached" : "");
 +}
 +
 +#else
@@ -19025,19 +19098,19 @@ index 000000000..f5d8a7306
 +	return NULL;
 +}
 +
-+static bool have_node_at_pos(struct btree_trans *trans, struct btree_path *path)
++static struct btree_path *have_node_at_pos(struct btree_trans *trans, struct btree_path *path)
 +{
 +	struct btree_path *next;
 +
 +	next = prev_btree_path(trans, path);
-+	if (next && path_l(next)->b == path_l(path)->b)
-+		return true;
++	if (next && next->level == path->level && path_l(next)->b == path_l(path)->b)
++		return next;
 +
 +	next = next_btree_path(trans, path);
-+	if (next && path_l(next)->b == path_l(path)->b)
-+		return true;
++	if (next && next->level == path->level && path_l(next)->b == path_l(path)->b)
++		return next;
 +
-+	return false;
++	return NULL;
 +}
 +
 +static inline void __bch2_path_free(struct btree_trans *trans, struct btree_path *path)
@@ -19064,11 +19137,20 @@ index 000000000..f5d8a7306
 +	    (dup = have_path_at_pos(trans, path))) {
 +		dup->preserve = true;
 +		path->preserve = false;
++		goto free;
 +	}
 +
 +	if (!path->preserve &&
-+	    have_node_at_pos(trans, path))
-+		__bch2_path_free(trans, path);
++	    (dup = have_node_at_pos(trans, path)))
++		goto free;
++	return;
++free:
++	if (path->should_be_locked &&
++	    !btree_node_locked(dup, path->level))
++		return;
++
++	dup->should_be_locked |= path->should_be_locked;
++	__bch2_path_free(trans, path);
 +}
 +
 +noinline __cold
@@ -19082,11 +19164,13 @@ index 000000000..f5d8a7306
 +	btree_trans_verify_sorted(trans);
 +
 +	trans_for_each_path_inorder(trans, path, idx)
-+		printk(KERN_ERR "path: idx %u ref %u:%u%s btree %s pos %s %pS\n",
++		printk(KERN_ERR "path: idx %u ref %u:%u%s%s btree %s pos %s locks %u %pS\n",
 +		       path->idx, path->ref, path->intent_ref,
-+		       path->preserve ? " preserve" : "",
++		       path->should_be_locked ? " S" : "",
++		       path->preserve ? " P" : "",
 +		       bch2_btree_ids[path->btree_id],
 +		       (bch2_bpos_to_text(&PBUF(buf1), path->pos), buf1),
++		       path->nodes_locked,
 +#ifdef CONFIG_BCACHEFS_DEBUG
 +		       (void *) path->ip_allocated
 +#else
@@ -20290,10 +20374,10 @@ index 000000000..f5d8a7306
 +}
 diff --git a/fs/bcachefs/btree_iter.h b/fs/bcachefs/btree_iter.h
 new file mode 100644
-index 000000000..2dc588283
+index 000000000000..33a703c27f7a
 --- /dev/null
 +++ b/fs/bcachefs/btree_iter.h
-@@ -0,0 +1,356 @@
+@@ -0,0 +1,358 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_BTREE_ITER_H
 +#define _BCACHEFS_BTREE_ITER_H
@@ -20436,9 +20520,13 @@ index 000000000..2dc588283
 +#ifdef CONFIG_BCACHEFS_DEBUG
 +void bch2_trans_verify_paths(struct btree_trans *);
 +void bch2_trans_verify_locks(struct btree_trans *);
++void bch2_assert_pos_locked(struct btree_trans *, enum btree_id,
++			    struct bpos, bool);
 +#else
 +static inline void bch2_trans_verify_paths(struct btree_trans *trans) {}
 +static inline void bch2_trans_verify_locks(struct btree_trans *trans) {}
++static inline void bch2_assert_pos_locked(struct btree_trans *trans, enum btree_id id,
++					  struct bpos pos, bool key_cache) {}
 +#endif
 +
 +void bch2_btree_path_fix_key_modified(struct btree_trans *trans,
@@ -20523,8 +20611,6 @@ index 000000000..2dc588283
 +	iter->k.p.offset	= iter->pos.offset	= new_pos.offset;
 +	iter->k.p.snapshot	= iter->pos.snapshot	= new_pos.snapshot;
 +	iter->k.size = 0;
-+	if (iter->path->ref == 1)
-+		iter->path->should_be_locked = false;
 +}
 +
 +static inline void bch2_btree_iter_set_pos_to_extent_start(struct btree_iter *iter)
@@ -20652,7 +20738,7 @@ index 000000000..2dc588283
 +#endif /* _BCACHEFS_BTREE_ITER_H */
 diff --git a/fs/bcachefs/btree_key_cache.c b/fs/bcachefs/btree_key_cache.c
 new file mode 100644
-index 000000000..4f1bc1d16
+index 000000000000..4f1bc1d165aa
 --- /dev/null
 +++ b/fs/bcachefs/btree_key_cache.c
 @@ -0,0 +1,736 @@
@@ -21394,7 +21480,7 @@ index 000000000..4f1bc1d16
 +}
 diff --git a/fs/bcachefs/btree_key_cache.h b/fs/bcachefs/btree_key_cache.h
 new file mode 100644
-index 000000000..0768ef3ca
+index 000000000000..0768ef3ca776
 --- /dev/null
 +++ b/fs/bcachefs/btree_key_cache.h
 @@ -0,0 +1,54 @@
@@ -21454,7 +21540,7 @@ index 000000000..0768ef3ca
 +#endif /* _BCACHEFS_BTREE_KEY_CACHE_H */
 diff --git a/fs/bcachefs/btree_locking.h b/fs/bcachefs/btree_locking.h
 new file mode 100644
-index 000000000..d599008c5
+index 000000000000..d599008c5fc1
 --- /dev/null
 +++ b/fs/bcachefs/btree_locking.h
 @@ -0,0 +1,243 @@
@@ -21703,7 +21789,7 @@ index 000000000..d599008c5
 +
 diff --git a/fs/bcachefs/btree_types.h b/fs/bcachefs/btree_types.h
 new file mode 100644
-index 000000000..affc0e681
+index 000000000000..affc0e681de9
 --- /dev/null
 +++ b/fs/bcachefs/btree_types.h
 @@ -0,0 +1,699 @@
@@ -22408,7 +22494,7 @@ index 000000000..affc0e681
 +#endif /* _BCACHEFS_BTREE_TYPES_H */
 diff --git a/fs/bcachefs/btree_update.h b/fs/bcachefs/btree_update.h
 new file mode 100644
-index 000000000..0268dd74f
+index 000000000000..0268dd74f0ab
 --- /dev/null
 +++ b/fs/bcachefs/btree_update.h
 @@ -0,0 +1,155 @@
@@ -22569,7 +22655,7 @@ index 000000000..0268dd74f
 +#endif /* _BCACHEFS_BTREE_UPDATE_H */
 diff --git a/fs/bcachefs/btree_update_interior.c b/fs/bcachefs/btree_update_interior.c
 new file mode 100644
-index 000000000..61c7757bd
+index 000000000000..61c7757bd3ca
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_interior.c
 @@ -0,0 +1,2187 @@
@@ -24762,7 +24848,7 @@ index 000000000..61c7757bd
 +}
 diff --git a/fs/bcachefs/btree_update_interior.h b/fs/bcachefs/btree_update_interior.h
 new file mode 100644
-index 000000000..8e03bd987
+index 000000000000..8e03bd987d6d
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_interior.h
 @@ -0,0 +1,318 @@
@@ -25086,7 +25172,7 @@ index 000000000..8e03bd987
 +#endif /* _BCACHEFS_BTREE_UPDATE_INTERIOR_H */
 diff --git a/fs/bcachefs/btree_update_leaf.c b/fs/bcachefs/btree_update_leaf.c
 new file mode 100644
-index 000000000..51f65226d
+index 000000000000..51f65226d3bf
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_leaf.c
 @@ -0,0 +1,1437 @@
@@ -26529,7 +26615,7 @@ index 000000000..51f65226d
 +}
 diff --git a/fs/bcachefs/buckets.c b/fs/bcachefs/buckets.c
 new file mode 100644
-index 000000000..c3542d3c2
+index 000000000000..c3542d3c2eac
 --- /dev/null
 +++ b/fs/bcachefs/buckets.c
 @@ -0,0 +1,2251 @@
@@ -28786,7 +28872,7 @@ index 000000000..c3542d3c2
 +}
 diff --git a/fs/bcachefs/buckets.h b/fs/bcachefs/buckets.h
 new file mode 100644
-index 000000000..8a9b2b565
+index 000000000000..8a9b2b565d48
 --- /dev/null
 +++ b/fs/bcachefs/buckets.h
 @@ -0,0 +1,293 @@
@@ -29085,7 +29171,7 @@ index 000000000..8a9b2b565
 +#endif /* _BUCKETS_H */
 diff --git a/fs/bcachefs/buckets_types.h b/fs/bcachefs/buckets_types.h
 new file mode 100644
-index 000000000..b2de2995c
+index 000000000000..b2de2995c5e7
 --- /dev/null
 +++ b/fs/bcachefs/buckets_types.h
 @@ -0,0 +1,124 @@
@@ -29215,7 +29301,7 @@ index 000000000..b2de2995c
 +#endif /* _BUCKETS_TYPES_H */
 diff --git a/fs/bcachefs/chardev.c b/fs/bcachefs/chardev.c
 new file mode 100644
-index 000000000..db68a7827
+index 000000000000..db68a78276cf
 --- /dev/null
 +++ b/fs/bcachefs/chardev.c
 @@ -0,0 +1,758 @@
@@ -29979,7 +30065,7 @@ index 000000000..db68a7827
 +#endif /* NO_BCACHEFS_CHARDEV */
 diff --git a/fs/bcachefs/chardev.h b/fs/bcachefs/chardev.h
 new file mode 100644
-index 000000000..3a4890d39
+index 000000000000..3a4890d39ff9
 --- /dev/null
 +++ b/fs/bcachefs/chardev.h
 @@ -0,0 +1,31 @@
@@ -30016,7 +30102,7 @@ index 000000000..3a4890d39
 +#endif /* _BCACHEFS_CHARDEV_H */
 diff --git a/fs/bcachefs/checksum.c b/fs/bcachefs/checksum.c
 new file mode 100644
-index 000000000..d20924e57
+index 000000000000..d20924e579bf
 --- /dev/null
 +++ b/fs/bcachefs/checksum.c
 @@ -0,0 +1,653 @@
@@ -30675,7 +30761,7 @@ index 000000000..d20924e57
 +}
 diff --git a/fs/bcachefs/checksum.h b/fs/bcachefs/checksum.h
 new file mode 100644
-index 000000000..6841fb165
+index 000000000000..6841fb16568a
 --- /dev/null
 +++ b/fs/bcachefs/checksum.h
 @@ -0,0 +1,204 @@
@@ -30885,7 +30971,7 @@ index 000000000..6841fb165
 +#endif /* _BCACHEFS_CHECKSUM_H */
 diff --git a/fs/bcachefs/clock.c b/fs/bcachefs/clock.c
 new file mode 100644
-index 000000000..4324cfe7e
+index 000000000000..4324cfe7eed0
 --- /dev/null
 +++ b/fs/bcachefs/clock.c
 @@ -0,0 +1,191 @@
@@ -31082,7 +31168,7 @@ index 000000000..4324cfe7e
 +}
 diff --git a/fs/bcachefs/clock.h b/fs/bcachefs/clock.h
 new file mode 100644
-index 000000000..70a0f7436
+index 000000000000..70a0f7436c84
 --- /dev/null
 +++ b/fs/bcachefs/clock.h
 @@ -0,0 +1,38 @@
@@ -31126,7 +31212,7 @@ index 000000000..70a0f7436
 +#endif /* _BCACHEFS_CLOCK_H */
 diff --git a/fs/bcachefs/clock_types.h b/fs/bcachefs/clock_types.h
 new file mode 100644
-index 000000000..5fae0012d
+index 000000000000..5fae0012d808
 --- /dev/null
 +++ b/fs/bcachefs/clock_types.h
 @@ -0,0 +1,37 @@
@@ -31169,7 +31255,7 @@ index 000000000..5fae0012d
 +#endif /* _BCACHEFS_CLOCK_TYPES_H */
 diff --git a/fs/bcachefs/compress.c b/fs/bcachefs/compress.c
 new file mode 100644
-index 000000000..f63651d29
+index 000000000000..f63651d291e5
 --- /dev/null
 +++ b/fs/bcachefs/compress.c
 @@ -0,0 +1,640 @@
@@ -31815,7 +31901,7 @@ index 000000000..f63651d29
 +}
 diff --git a/fs/bcachefs/compress.h b/fs/bcachefs/compress.h
 new file mode 100644
-index 000000000..4bab1f61b
+index 000000000000..4bab1f61b3b5
 --- /dev/null
 +++ b/fs/bcachefs/compress.h
 @@ -0,0 +1,18 @@
@@ -31839,7 +31925,7 @@ index 000000000..4bab1f61b
 +#endif /* _BCACHEFS_COMPRESS_H */
 diff --git a/fs/bcachefs/debug.c b/fs/bcachefs/debug.c
 new file mode 100644
-index 000000000..294e4baf4
+index 000000000000..294e4baf4deb
 --- /dev/null
 +++ b/fs/bcachefs/debug.c
 @@ -0,0 +1,476 @@
@@ -32321,7 +32407,7 @@ index 000000000..294e4baf4
 +}
 diff --git a/fs/bcachefs/debug.h b/fs/bcachefs/debug.h
 new file mode 100644
-index 000000000..0b86736e5
+index 000000000000..0b86736e5e1b
 --- /dev/null
 +++ b/fs/bcachefs/debug.h
 @@ -0,0 +1,30 @@
@@ -32357,7 +32443,7 @@ index 000000000..0b86736e5
 +#endif /* _BCACHEFS_DEBUG_H */
 diff --git a/fs/bcachefs/dirent.c b/fs/bcachefs/dirent.c
 new file mode 100644
-index 000000000..9267eea81
+index 000000000000..9267eea810f8
 --- /dev/null
 +++ b/fs/bcachefs/dirent.c
 @@ -0,0 +1,548 @@
@@ -32911,7 +32997,7 @@ index 000000000..9267eea81
 +}
 diff --git a/fs/bcachefs/dirent.h b/fs/bcachefs/dirent.h
 new file mode 100644
-index 000000000..8ae407765
+index 000000000000..8ae407765fe4
 --- /dev/null
 +++ b/fs/bcachefs/dirent.h
 @@ -0,0 +1,64 @@
@@ -32981,7 +33067,7 @@ index 000000000..8ae407765
 +#endif /* _BCACHEFS_DIRENT_H */
 diff --git a/fs/bcachefs/disk_groups.c b/fs/bcachefs/disk_groups.c
 new file mode 100644
-index 000000000..c52b6faac
+index 000000000000..c52b6faac9b4
 --- /dev/null
 +++ b/fs/bcachefs/disk_groups.c
 @@ -0,0 +1,486 @@
@@ -33473,7 +33559,7 @@ index 000000000..c52b6faac
 +}
 diff --git a/fs/bcachefs/disk_groups.h b/fs/bcachefs/disk_groups.h
 new file mode 100644
-index 000000000..3d84f23c3
+index 000000000000..3d84f23c34ed
 --- /dev/null
 +++ b/fs/bcachefs/disk_groups.h
 @@ -0,0 +1,91 @@
@@ -33570,7 +33656,7 @@ index 000000000..3d84f23c3
 +#endif /* _BCACHEFS_DISK_GROUPS_H */
 diff --git a/fs/bcachefs/ec.c b/fs/bcachefs/ec.c
 new file mode 100644
-index 000000000..bfa512d78
+index 000000000000..bfa512d78538
 --- /dev/null
 +++ b/fs/bcachefs/ec.c
 @@ -0,0 +1,1780 @@
@@ -35356,7 +35442,7 @@ index 000000000..bfa512d78
 +}
 diff --git a/fs/bcachefs/ec.h b/fs/bcachefs/ec.h
 new file mode 100644
-index 000000000..eb16e140e
+index 000000000000..eb16e140e2c8
 --- /dev/null
 +++ b/fs/bcachefs/ec.h
 @@ -0,0 +1,229 @@
@@ -35591,7 +35677,7 @@ index 000000000..eb16e140e
 +#endif /* _BCACHEFS_EC_H */
 diff --git a/fs/bcachefs/ec_types.h b/fs/bcachefs/ec_types.h
 new file mode 100644
-index 000000000..3fc312224
+index 000000000000..3fc31222459a
 --- /dev/null
 +++ b/fs/bcachefs/ec_types.h
 @@ -0,0 +1,37 @@
@@ -35634,7 +35720,7 @@ index 000000000..3fc312224
 +#endif /* _BCACHEFS_EC_TYPES_H */
 diff --git a/fs/bcachefs/error.c b/fs/bcachefs/error.c
 new file mode 100644
-index 000000000..2cea69457
+index 000000000000..2cea694575e9
 --- /dev/null
 +++ b/fs/bcachefs/error.c
 @@ -0,0 +1,185 @@
@@ -35825,7 +35911,7 @@ index 000000000..2cea69457
 +}
 diff --git a/fs/bcachefs/error.h b/fs/bcachefs/error.h
 new file mode 100644
-index 000000000..986938298
+index 000000000000..986938298adc
 --- /dev/null
 +++ b/fs/bcachefs/error.h
 @@ -0,0 +1,218 @@
@@ -36049,7 +36135,7 @@ index 000000000..986938298
 +#endif /* _BCACHEFS_ERROR_H */
 diff --git a/fs/bcachefs/extent_update.c b/fs/bcachefs/extent_update.c
 new file mode 100644
-index 000000000..58b2c96f4
+index 000000000000..58b2c96f450c
 --- /dev/null
 +++ b/fs/bcachefs/extent_update.c
 @@ -0,0 +1,169 @@
@@ -36224,7 +36310,7 @@ index 000000000..58b2c96f4
 +}
 diff --git a/fs/bcachefs/extent_update.h b/fs/bcachefs/extent_update.h
 new file mode 100644
-index 000000000..6f5cf4493
+index 000000000000..6f5cf449361a
 --- /dev/null
 +++ b/fs/bcachefs/extent_update.h
 @@ -0,0 +1,12 @@
@@ -36242,7 +36328,7 @@ index 000000000..6f5cf4493
 +#endif /* _BCACHEFS_EXTENT_UPDATE_H */
 diff --git a/fs/bcachefs/extents.c b/fs/bcachefs/extents.c
 new file mode 100644
-index 000000000..194fbe21c
+index 000000000000..194fbe21c97f
 --- /dev/null
 +++ b/fs/bcachefs/extents.c
 @@ -0,0 +1,1249 @@
@@ -37497,7 +37583,7 @@ index 000000000..194fbe21c
 +}
 diff --git a/fs/bcachefs/extents.h b/fs/bcachefs/extents.h
 new file mode 100644
-index 000000000..9c2567274
+index 000000000000..9c2567274a2b
 --- /dev/null
 +++ b/fs/bcachefs/extents.h
 @@ -0,0 +1,680 @@
@@ -38183,7 +38269,7 @@ index 000000000..9c2567274
 +#endif /* _BCACHEFS_EXTENTS_H */
 diff --git a/fs/bcachefs/extents_types.h b/fs/bcachefs/extents_types.h
 new file mode 100644
-index 000000000..43d6c341e
+index 000000000000..43d6c341ecca
 --- /dev/null
 +++ b/fs/bcachefs/extents_types.h
 @@ -0,0 +1,40 @@
@@ -38229,7 +38315,7 @@ index 000000000..43d6c341e
 +#endif /* _BCACHEFS_EXTENTS_TYPES_H */
 diff --git a/fs/bcachefs/eytzinger.h b/fs/bcachefs/eytzinger.h
 new file mode 100644
-index 000000000..26d5cad7e
+index 000000000000..26d5cad7e6a5
 --- /dev/null
 +++ b/fs/bcachefs/eytzinger.h
 @@ -0,0 +1,285 @@
@@ -38520,7 +38606,7 @@ index 000000000..26d5cad7e
 +#endif /* _EYTZINGER_H */
 diff --git a/fs/bcachefs/fifo.h b/fs/bcachefs/fifo.h
 new file mode 100644
-index 000000000..cdb272708
+index 000000000000..cdb272708a4b
 --- /dev/null
 +++ b/fs/bcachefs/fifo.h
 @@ -0,0 +1,127 @@
@@ -38653,7 +38739,7 @@ index 000000000..cdb272708
 +#endif /* _BCACHEFS_FIFO_H */
 diff --git a/fs/bcachefs/fs-common.c b/fs/bcachefs/fs-common.c
 new file mode 100644
-index 000000000..5f3429e99
+index 000000000000..5f3429e99115
 --- /dev/null
 +++ b/fs/bcachefs/fs-common.c
 @@ -0,0 +1,493 @@
@@ -39152,7 +39238,7 @@ index 000000000..5f3429e99
 +}
 diff --git a/fs/bcachefs/fs-common.h b/fs/bcachefs/fs-common.h
 new file mode 100644
-index 000000000..dde237859
+index 000000000000..dde237859514
 --- /dev/null
 +++ b/fs/bcachefs/fs-common.h
 @@ -0,0 +1,43 @@
@@ -39201,10 +39287,10 @@ index 000000000..dde237859
 +#endif /* _BCACHEFS_FS_COMMON_H */
 diff --git a/fs/bcachefs/fs-io.c b/fs/bcachefs/fs-io.c
 new file mode 100644
-index 000000000..a2367b3e0
+index 000000000000..d3d48a5b6205
 --- /dev/null
 +++ b/fs/bcachefs/fs-io.c
-@@ -0,0 +1,3303 @@
+@@ -0,0 +1,3302 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#ifndef NO_BCACHEFS_FS
 +
@@ -40379,16 +40465,16 @@ index 000000000..a2367b3e0
 +do_io:
 +	s = bch2_page_state_create(page, __GFP_NOFAIL);
 +
-+	ret = bch2_get_page_disk_reservation(c, inode, page, true);
-+	if (ret) {
-+		SetPageError(page);
-+		mapping_set_error(page->mapping, ret);
-+		unlock_page(page);
-+		return 0;
-+	}
++	/*
++	 * Things get really hairy with errors during writeback:
++	 */
++	ret = bch2_get_page_disk_reservation(c, inode, page, false);
++	BUG_ON(ret);
 +
 +	/* Before unlocking the page, get copy of reservations: */
++	spin_lock(&s->lock);
 +	orig = *s;
++	spin_unlock(&s->lock);
 +
 +	for (i = 0; i < PAGE_SECTORS; i++) {
 +		if (s->s[i].state < SECTOR_DIRTY)
@@ -40421,7 +40507,7 @@ index 000000000..a2367b3e0
 +
 +	offset = 0;
 +	while (1) {
-+		unsigned sectors = 1, dirty_sectors = 0, reserved_sectors = 0;
++		unsigned sectors = 0, dirty_sectors = 0, reserved_sectors = 0;
 +		u64 sector;
 +
 +		while (offset < PAGE_SECTORS &&
@@ -40431,16 +40517,15 @@ index 000000000..a2367b3e0
 +		if (offset == PAGE_SECTORS)
 +			break;
 +
-+		sector = ((u64) page->index << PAGE_SECTOR_SHIFT) + offset;
-+
 +		while (offset + sectors < PAGE_SECTORS &&
-+		       orig.s[offset + sectors].state >= SECTOR_DIRTY)
++		       orig.s[offset + sectors].state >= SECTOR_DIRTY) {
++			reserved_sectors += orig.s[offset + sectors].replicas_reserved;
++			dirty_sectors += orig.s[offset + sectors].state == SECTOR_DIRTY;
 +			sectors++;
-+
-+		for (i = offset; i < offset + sectors; i++) {
-+			reserved_sectors += orig.s[i].replicas_reserved;
-+			dirty_sectors += orig.s[i].state == SECTOR_DIRTY;
 +		}
++		BUG_ON(!sectors);
++
++		sector = ((u64) page->index << PAGE_SECTOR_SHIFT) + offset;
 +
 +		if (w->io &&
 +		    (w->io->op.res.nr_replicas != nr_replicas_this_write ||
@@ -41396,12 +41481,13 @@ index 000000000..a2367b3e0
 +{
 +	struct bch_inode_info *inode = file_bch_inode(file);
 +	struct bch_fs *c = inode->v.i_sb->s_fs_info;
-+	int ret, ret2 = 0;
++	int ret, ret2, ret3;
 +
 +	ret = file_write_and_wait_range(file, start, end);
-+	ret2 = bch2_flush_inode(c, inode_inum(inode));
++	ret2 = sync_inode_metadata(&inode->v, 1);
++	ret3 = bch2_flush_inode(c, inode_inum(inode));
 +
-+	return ret ?: ret2;
++	return ret ?: ret2 ?: ret3;
 +}
 +
 +/* truncate: */
@@ -41506,6 +41592,14 @@ index 000000000..a2367b3e0
 +		s->s[i].state		= SECTOR_UNALLOCATED;
 +	}
 +
++	/*
++	 * Caller needs to know whether this page will be written out by
++	 * writeback - doing an i_size update if necessary - or whether it will
++	 * be responsible for the i_size update:
++	 */
++	ret = s->s[(min_t(u64, inode->v.i_size - (index << PAGE_SHIFT),
++			  PAGE_SIZE) - 1) >> 9].state >= SECTOR_DIRTY;
++
 +	zero_user_segment(page, start_offset, end_offset);
 +
 +	/*
@@ -41514,8 +41608,7 @@ index 000000000..a2367b3e0
 +	 * XXX: because we aren't currently tracking whether the page has actual
 +	 * data in it (vs. just 0s, or only partially written) this wrong. ick.
 +	 */
-+	ret = bch2_get_page_disk_reservation(c, inode, page, false);
-+	BUG_ON(ret);
++	BUG_ON(bch2_get_page_disk_reservation(c, inode, page, false));
 +
 +	/*
 +	 * This removes any writeable userspace mappings; we need to force
@@ -41535,6 +41628,20 @@ index 000000000..a2367b3e0
 +{
 +	return __bch2_truncate_page(inode, from >> PAGE_SHIFT,
 +				    from, round_up(from, PAGE_SIZE));
++}
++
++static int bch2_truncate_pages(struct bch_inode_info *inode,
++			       loff_t start, loff_t end)
++{
++	int ret = __bch2_truncate_page(inode, start >> PAGE_SHIFT,
++				       start, end);
++
++	if (ret >= 0 &&
++	    start >> PAGE_SHIFT != end >> PAGE_SHIFT)
++		ret = __bch2_truncate_page(inode,
++					   end >> PAGE_SHIFT,
++					   start, end);
++	return ret;
 +}
 +
 +static int bch2_extend(struct user_namespace *mnt_userns,
@@ -41627,7 +41734,7 @@ index 000000000..a2367b3e0
 +	iattr->ia_valid &= ~ATTR_SIZE;
 +
 +	ret = bch2_truncate_page(inode, iattr->ia_size);
-+	if (unlikely(ret))
++	if (unlikely(ret < 0))
 +		goto err;
 +
 +	/*
@@ -41693,48 +41800,39 @@ index 000000000..a2367b3e0
 +static long bchfs_fpunch(struct bch_inode_info *inode, loff_t offset, loff_t len)
 +{
 +	struct bch_fs *c = inode->v.i_sb->s_fs_info;
-+	u64 discard_start = round_up(offset, block_bytes(c)) >> 9;
-+	u64 discard_end = round_down(offset + len, block_bytes(c)) >> 9;
++	u64 end		= offset + len;
++	u64 block_start	= round_up(offset, block_bytes(c));
++	u64 block_end	= round_down(end, block_bytes(c));
++	bool truncated_last_page;
 +	int ret = 0;
 +
-+	inode_lock(&inode->v);
-+	inode_dio_wait(&inode->v);
-+	bch2_pagecache_block_get(&inode->ei_pagecache_lock);
-+
-+	ret = __bch2_truncate_page(inode,
-+				   offset >> PAGE_SHIFT,
-+				   offset, offset + len);
-+	if (unlikely(ret))
++	ret = bch2_truncate_pages(inode, offset, end);
++	if (unlikely(ret < 0))
 +		goto err;
 +
-+	if (offset >> PAGE_SHIFT !=
-+	    (offset + len) >> PAGE_SHIFT) {
-+		ret = __bch2_truncate_page(inode,
-+					   (offset + len) >> PAGE_SHIFT,
-+					   offset, offset + len);
-+		if (unlikely(ret))
-+			goto err;
-+	}
++	truncated_last_page = ret;
 +
-+	truncate_pagecache_range(&inode->v, offset, offset + len - 1);
++	truncate_pagecache_range(&inode->v, offset, end - 1);
 +
-+	if (discard_start < discard_end) {
++	if (block_start < block_end ) {
 +		s64 i_sectors_delta = 0;
 +
 +		ret = bch2_fpunch(c, inode_inum(inode),
-+				  discard_start, discard_end,
++				  block_start >> 9, block_end >> 9,
 +				  &i_sectors_delta);
 +		i_sectors_acct(c, inode, NULL, i_sectors_delta);
 +	}
 +
 +	mutex_lock(&inode->ei_update_lock);
-+	ret = bch2_write_inode(c, inode, inode_update_times_fn, NULL,
-+			       ATTR_MTIME|ATTR_CTIME) ?: ret;
++	if (end >= inode->v.i_size && !truncated_last_page) {
++		ret = bch2_write_inode_size(c, inode, inode->v.i_size,
++					    ATTR_MTIME|ATTR_CTIME);
++	} else {
++		ret = bch2_write_inode(c, inode, inode_update_times_fn, NULL,
++				       ATTR_MTIME|ATTR_CTIME);
++	}
 +	mutex_unlock(&inode->ei_update_lock);
 +err:
-+	bch2_pagecache_block_put(&inode->ei_pagecache_lock);
-+	inode_unlock(&inode->v);
-+
 +	return ret;
 +}
 +
@@ -41754,31 +41852,18 @@ index 000000000..a2367b3e0
 +	if ((offset | len) & (block_bytes(c) - 1))
 +		return -EINVAL;
 +
-+	/*
-+	 * We need i_mutex to keep the page cache consistent with the extents
-+	 * btree, and the btree consistent with i_size - we don't need outside
-+	 * locking for the extents btree itself, because we're using linked
-+	 * iterators
-+	 */
-+	inode_lock(&inode->v);
-+	inode_dio_wait(&inode->v);
-+	bch2_pagecache_block_get(&inode->ei_pagecache_lock);
-+
 +	if (insert) {
-+		ret = -EFBIG;
 +		if (inode->v.i_sb->s_maxbytes - inode->v.i_size < len)
-+			goto err;
++			return -EFBIG;
 +
-+		ret = -EINVAL;
 +		if (offset >= inode->v.i_size)
-+			goto err;
++			return -EINVAL;
 +
 +		src_start	= U64_MAX;
 +		shift		= len;
 +	} else {
-+		ret = -EINVAL;
 +		if (offset + len >= inode->v.i_size)
-+			goto err;
++			return -EINVAL;
 +
 +		src_start	= offset + len;
 +		shift		= -len;
@@ -41788,7 +41873,7 @@ index 000000000..a2367b3e0
 +
 +	ret = write_invalidate_inode_pages_range(mapping, offset, LLONG_MAX);
 +	if (ret)
-+		goto err;
++		return ret;
 +
 +	if (insert) {
 +		i_size_write(&inode->v, new_size);
@@ -41805,7 +41890,7 @@ index 000000000..a2367b3e0
 +		i_sectors_acct(c, inode, NULL, i_sectors_delta);
 +
 +		if (ret)
-+			goto err;
++			return ret;
 +	}
 +
 +	bch2_bkey_buf_init(&copy);
@@ -41918,18 +42003,19 @@ index 000000000..a2367b3e0
 +	bch2_bkey_buf_exit(&copy, c);
 +
 +	if (ret)
-+		goto err;
++		return ret;
 +
++	mutex_lock(&inode->ei_update_lock);
 +	if (!insert) {
 +		i_size_write(&inode->v, new_size);
-+		mutex_lock(&inode->ei_update_lock);
 +		ret = bch2_write_inode_size(c, inode, new_size,
 +					    ATTR_MTIME|ATTR_CTIME);
-+		mutex_unlock(&inode->ei_update_lock);
++	} else {
++		/* We need an inode update to update bi_journal_seq for fsync: */
++		ret = bch2_write_inode(c, inode, inode_update_times_fn, NULL,
++				       ATTR_MTIME|ATTR_CTIME);
 +	}
-+err:
-+	bch2_pagecache_block_put(&inode->ei_pagecache_lock);
-+	inode_unlock(&inode->v);
++	mutex_unlock(&inode->ei_update_lock);
 +	return ret;
 +}
 +
@@ -42024,6 +42110,17 @@ index 000000000..a2367b3e0
 +		if (ret == -EINTR)
 +			ret = 0;
 +	}
++
++	if (ret == -ENOSPC && (mode & FALLOC_FL_ZERO_RANGE)) {
++		struct quota_res quota_res = { 0 };
++		s64 i_sectors_delta = 0;
++
++		bch2_fpunch_at(&trans, &iter, inode_inum(inode),
++			       end_sector, &i_sectors_delta);
++		i_sectors_acct(c, inode, &quota_res, i_sectors_delta);
++		bch2_quota_reservation_put(c, inode, &quota_res);
++	}
++
 +	bch2_trans_iter_exit(&trans, &iter);
 +	bch2_trans_exit(&trans);
 +	return ret;
@@ -42032,77 +42129,58 @@ index 000000000..a2367b3e0
 +static long bchfs_fallocate(struct bch_inode_info *inode, int mode,
 +			    loff_t offset, loff_t len)
 +{
-+	struct address_space *mapping = inode->v.i_mapping;
 +	struct bch_fs *c = inode->v.i_sb->s_fs_info;
-+	loff_t end		= offset + len;
-+	loff_t block_start	= round_down(offset,	block_bytes(c));
-+	loff_t block_end	= round_up(end,		block_bytes(c));
-+	int ret;
-+
-+	inode_lock(&inode->v);
-+	inode_dio_wait(&inode->v);
-+	bch2_pagecache_block_get(&inode->ei_pagecache_lock);
++	u64 end		= offset + len;
++	u64 block_start	= round_down(offset,	block_bytes(c));
++	u64 block_end	= round_up(end,		block_bytes(c));
++	bool truncated_last_page = false;
++	int ret, ret2 = 0;
 +
 +	if (!(mode & FALLOC_FL_KEEP_SIZE) && end > inode->v.i_size) {
 +		ret = inode_newsize_ok(&inode->v, end);
 +		if (ret)
-+			goto err;
++			return ret;
 +	}
 +
 +	if (mode & FALLOC_FL_ZERO_RANGE) {
-+		ret = __bch2_truncate_page(inode,
-+					   offset >> PAGE_SHIFT,
-+					   offset, end);
++		ret = bch2_truncate_pages(inode, offset, end);
++		if (unlikely(ret < 0))
++			return ret;
 +
-+		if (!ret &&
-+		    offset >> PAGE_SHIFT != end >> PAGE_SHIFT)
-+			ret = __bch2_truncate_page(inode,
-+						   end >> PAGE_SHIFT,
-+						   offset, end);
-+
-+		if (unlikely(ret))
-+			goto err;
++		truncated_last_page = ret;
 +
 +		truncate_pagecache_range(&inode->v, offset, end - 1);
++
++		block_start	= round_up(offset,	block_bytes(c));
++		block_end	= round_down(end,	block_bytes(c));
 +	}
 +
 +	ret = __bchfs_fallocate(inode, mode, block_start >> 9, block_end >> 9);
-+	if (ret)
-+		goto err;
 +
 +	/*
-+	 * Do we need to extend the file?
-+	 *
-+	 * If we zeroed up to the end of the file, we dropped whatever writes
-+	 * were going to write out the current i_size, so we have to extend
-+	 * manually even if FL_KEEP_SIZE was set:
++	 * On -ENOSPC in ZERO_RANGE mode, we still want to do the inode update,
++	 * so that the VFS cache i_size is consistent with the btree i_size:
 +	 */
++	if (ret &&
++	    !(ret == -ENOSPC && (mode & FALLOC_FL_ZERO_RANGE)))
++		return ret;
++
++	if (mode & FALLOC_FL_KEEP_SIZE && end > inode->v.i_size)
++		end = inode->v.i_size;
++
 +	if (end >= inode->v.i_size &&
-+	    (!(mode & FALLOC_FL_KEEP_SIZE) ||
-+	     (mode & FALLOC_FL_ZERO_RANGE))) {
-+
-+		/*
-+		 * Sync existing appends before extending i_size,
-+		 * as in bch2_extend():
-+		 */
-+		ret = filemap_write_and_wait_range(mapping,
-+					inode->ei_inode.bi_size, S64_MAX);
-+		if (ret)
-+			goto err;
-+
-+		if (mode & FALLOC_FL_KEEP_SIZE)
-+			end = inode->v.i_size;
-+		else
-+			i_size_write(&inode->v, end);
++	    (((mode & FALLOC_FL_ZERO_RANGE) && !truncated_last_page) ||
++	     !(mode & FALLOC_FL_KEEP_SIZE))) {
++		spin_lock(&inode->v.i_lock);
++		i_size_write(&inode->v, end);
++		spin_unlock(&inode->v.i_lock);
 +
 +		mutex_lock(&inode->ei_update_lock);
-+		ret = bch2_write_inode_size(c, inode, end, 0);
++		ret2 = bch2_write_inode_size(c, inode, end, 0);
 +		mutex_unlock(&inode->ei_update_lock);
 +	}
-+err:
-+	bch2_pagecache_block_put(&inode->ei_pagecache_lock);
-+	inode_unlock(&inode->v);
-+	return ret;
++
++	return ret ?: ret2;
 +}
 +
 +long bch2_fallocate_dispatch(struct file *file, int mode,
@@ -42115,6 +42193,10 @@ index 000000000..a2367b3e0
 +	if (!percpu_ref_tryget(&c->writes))
 +		return -EROFS;
 +
++	inode_lock(&inode->v);
++	inode_dio_wait(&inode->v);
++	bch2_pagecache_block_get(&inode->ei_pagecache_lock);
++
 +	if (!(mode & ~(FALLOC_FL_KEEP_SIZE|FALLOC_FL_ZERO_RANGE)))
 +		ret = bchfs_fallocate(inode, mode, offset, len);
 +	else if (mode == (FALLOC_FL_PUNCH_HOLE|FALLOC_FL_KEEP_SIZE))
@@ -42126,6 +42208,9 @@ index 000000000..a2367b3e0
 +	else
 +		ret = -EOPNOTSUPP;
 +
++
++	bch2_pagecache_block_put(&inode->ei_pagecache_lock);
++	inode_unlock(&inode->v);
 +	percpu_ref_put(&c->writes);
 +
 +	return ret;
@@ -42510,7 +42595,7 @@ index 000000000..a2367b3e0
 +#endif /* NO_BCACHEFS_FS */
 diff --git a/fs/bcachefs/fs-io.h b/fs/bcachefs/fs-io.h
 new file mode 100644
-index 000000000..b24efeaf3
+index 000000000000..b24efeaf343e
 --- /dev/null
 +++ b/fs/bcachefs/fs-io.h
 @@ -0,0 +1,57 @@
@@ -42573,7 +42658,7 @@ index 000000000..b24efeaf3
 +#endif /* _BCACHEFS_FS_IO_H */
 diff --git a/fs/bcachefs/fs-ioctl.c b/fs/bcachefs/fs-ioctl.c
 new file mode 100644
-index 000000000..9f329a624
+index 000000000000..9f329a624c12
 --- /dev/null
 +++ b/fs/bcachefs/fs-ioctl.c
 @@ -0,0 +1,523 @@
@@ -43102,7 +43187,7 @@ index 000000000..9f329a624
 +#endif /* NO_BCACHEFS_FS */
 diff --git a/fs/bcachefs/fs-ioctl.h b/fs/bcachefs/fs-ioctl.h
 new file mode 100644
-index 000000000..f201980ef
+index 000000000000..f201980ef2c3
 --- /dev/null
 +++ b/fs/bcachefs/fs-ioctl.h
 @@ -0,0 +1,81 @@
@@ -43189,10 +43274,10 @@ index 000000000..f201980ef
 +#endif /* _BCACHEFS_FS_IOCTL_H */
 diff --git a/fs/bcachefs/fs.c b/fs/bcachefs/fs.c
 new file mode 100644
-index 000000000..74de7bc1e
+index 000000000000..8499235869c1
 --- /dev/null
 +++ b/fs/bcachefs/fs.c
-@@ -0,0 +1,1725 @@
+@@ -0,0 +1,1737 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#ifndef NO_BCACHEFS_FS
 +
@@ -43231,7 +43316,7 @@ index 000000000..74de7bc1e
 +
 +static struct kmem_cache *bch2_inode_cache;
 +
-+static void bch2_vfs_inode_init(struct bch_fs *, subvol_inum,
++static void bch2_vfs_inode_init(struct btree_trans *, subvol_inum,
 +				struct bch_inode_info *,
 +				struct bch_inode_unpacked *);
 +
@@ -43287,11 +43372,19 @@ index 000000000..74de7bc1e
 +	__pagecache_lock_get(lock, -1);
 +}
 +
-+void bch2_inode_update_after_write(struct bch_fs *c,
++void bch2_inode_update_after_write(struct btree_trans *trans,
 +				   struct bch_inode_info *inode,
 +				   struct bch_inode_unpacked *bi,
 +				   unsigned fields)
 +{
++	struct bch_fs *c = trans->c;
++
++	BUG_ON(bi->bi_inum != inode->v.i_ino);
++
++	bch2_assert_pos_locked(trans, BTREE_ID_inodes,
++			       POS(0, bi->bi_inum),
++			       0 && c->opts.inodes_use_key_cache);
++
 +	set_nlink(&inode->v, bch2_inode_nlink_get(bi));
 +	i_uid_write(&inode->v, bi->bi_uid);
 +	i_gid_write(&inode->v, bi->bi_gid);
@@ -43320,6 +43413,7 @@ index 000000000..74de7bc1e
 +	int ret;
 +
 +	bch2_trans_init(&trans, c, 0, 512);
++	trans.ip = _RET_IP_;
 +retry:
 +	bch2_trans_begin(&trans);
 +
@@ -43334,7 +43428,7 @@ index 000000000..74de7bc1e
 +	 * this is important for inode updates via bchfs_write_index_update
 +	 */
 +	if (!ret)
-+		bch2_inode_update_after_write(c, inode, &inode_u, fields);
++		bch2_inode_update_after_write(&trans, inode, &inode_u, fields);
 +
 +	bch2_trans_iter_exit(&trans, &iter);
 +
@@ -43409,6 +43503,7 @@ index 000000000..74de7bc1e
 +{
 +	struct bch_inode_unpacked inode_u;
 +	struct bch_inode_info *inode;
++	struct btree_trans trans;
 +	int ret;
 +
 +	inode = to_bch_ei(iget5_locked(c->vfs_sb,
@@ -43421,13 +43516,18 @@ index 000000000..74de7bc1e
 +	if (!(inode->v.i_state & I_NEW))
 +		return &inode->v;
 +
-+	ret = bch2_inode_find_by_inum(c, inum, &inode_u);
++	bch2_trans_init(&trans, c, 8, 0);
++	ret = lockrestart_do(&trans,
++		bch2_inode_find_by_inum_trans(&trans, inum, &inode_u));
++
++	if (!ret)
++		bch2_vfs_inode_init(&trans, inum, inode, &inode_u);
++	bch2_trans_exit(&trans);
++
 +	if (ret) {
 +		iget_failed(&inode->v);
 +		return ERR_PTR(ret);
 +	}
-+
-+	bch2_vfs_inode_init(c, inum, inode, &inode_u);
 +
 +	unlock_new_inode(&inode->v);
 +
@@ -43500,7 +43600,7 @@ index 000000000..74de7bc1e
 +	}
 +
 +	if (!(flags & BCH_CREATE_TMPFILE)) {
-+		bch2_inode_update_after_write(c, dir, &dir_u,
++		bch2_inode_update_after_write(&trans, dir, &dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
 +		mutex_unlock(&dir->ei_update_lock);
 +	}
@@ -43508,7 +43608,8 @@ index 000000000..74de7bc1e
 +	inum.subvol = inode_u.bi_subvol ?: dir->ei_subvol;
 +	inum.inum = inode_u.bi_inum;
 +
-+	bch2_vfs_inode_init(c, inum, inode, &inode_u);
++	bch2_iget5_set(&inode->v, &inum);
++	bch2_vfs_inode_init(&trans, inum, inode, &inode_u);
 +
 +	set_cached_acl(&inode->v, ACL_TYPE_ACCESS, acl);
 +	set_cached_acl(&inode->v, ACL_TYPE_DEFAULT, default_acl);
@@ -43623,11 +43724,9 @@ index 000000000..74de7bc1e
 +					&dentry->d_name));
 +
 +	if (likely(!ret)) {
-+		BUG_ON(inode_u.bi_inum != inode->v.i_ino);
-+
-+		bch2_inode_update_after_write(c, dir, &dir_u,
++		bch2_inode_update_after_write(&trans, dir, &dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
-+		bch2_inode_update_after_write(c, inode, &inode_u, ATTR_CTIME);
++		bch2_inode_update_after_write(&trans, inode, &inode_u, ATTR_CTIME);
 +	}
 +
 +	bch2_trans_exit(&trans);
@@ -43675,11 +43774,9 @@ index 000000000..74de7bc1e
 +					  deleting_snapshot));
 +
 +	if (likely(!ret)) {
-+		BUG_ON(inode_u.bi_inum != inode->v.i_ino);
-+
-+		bch2_inode_update_after_write(c, dir, &dir_u,
++		bch2_inode_update_after_write(&trans, dir, &dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
-+		bch2_inode_update_after_write(c, inode, &inode_u,
++		bch2_inode_update_after_write(&trans, inode, &inode_u,
 +					      ATTR_MTIME);
 +	}
 +
@@ -43807,18 +43904,18 @@ index 000000000..74de7bc1e
 +	BUG_ON(dst_inode &&
 +	       dst_inode->v.i_ino != dst_inode_u.bi_inum);
 +
-+	bch2_inode_update_after_write(c, src_dir, &src_dir_u,
++	bch2_inode_update_after_write(&trans, src_dir, &src_dir_u,
 +				      ATTR_MTIME|ATTR_CTIME);
 +
 +	if (src_dir != dst_dir)
-+		bch2_inode_update_after_write(c, dst_dir, &dst_dir_u,
++		bch2_inode_update_after_write(&trans, dst_dir, &dst_dir_u,
 +					      ATTR_MTIME|ATTR_CTIME);
 +
-+	bch2_inode_update_after_write(c, src_inode, &src_inode_u,
++	bch2_inode_update_after_write(&trans, src_inode, &src_inode_u,
 +				      ATTR_CTIME);
 +
 +	if (dst_inode)
-+		bch2_inode_update_after_write(c, dst_inode, &dst_inode_u,
++		bch2_inode_update_after_write(&trans, dst_inode, &dst_inode_u,
 +					      ATTR_CTIME);
 +err:
 +	bch2_trans_exit(&trans);
@@ -43936,7 +44033,7 @@ index 000000000..74de7bc1e
 +	if (unlikely(ret))
 +		goto err_trans;
 +
-+	bch2_inode_update_after_write(c, inode, &inode_u, attr->ia_valid);
++	bch2_inode_update_after_write(&trans, inode, &inode_u, attr->ia_valid);
 +
 +	if (acl)
 +		set_cached_acl(&inode->v, ACL_TYPE_ACCESS, acl);
@@ -44347,11 +44444,11 @@ index 000000000..74de7bc1e
 +	//.get_parent	= bch2_get_parent,
 +};
 +
-+static void bch2_vfs_inode_init(struct bch_fs *c, subvol_inum inum,
++static void bch2_vfs_inode_init(struct btree_trans *trans, subvol_inum inum,
 +				struct bch_inode_info *inode,
 +				struct bch_inode_unpacked *bi)
 +{
-+	bch2_inode_update_after_write(c, inode, bi, ~0);
++	bch2_inode_update_after_write(trans, inode, bi, ~0);
 +
 +	inode->v.i_blocks	= bi->bi_sectors;
 +	inode->v.i_ino		= bi->bi_inum;
@@ -44920,7 +45017,7 @@ index 000000000..74de7bc1e
 +#endif /* NO_BCACHEFS_FS */
 diff --git a/fs/bcachefs/fs.h b/fs/bcachefs/fs.h
 new file mode 100644
-index 000000000..40212b3da
+index 000000000000..27aacd7e2864
 --- /dev/null
 +++ b/fs/bcachefs/fs.h
 @@ -0,0 +1,202 @@
@@ -45099,7 +45196,7 @@ index 000000000..40212b3da
 +typedef int (*inode_set_fn)(struct bch_inode_info *,
 +			    struct bch_inode_unpacked *, void *);
 +
-+void bch2_inode_update_after_write(struct bch_fs *,
++void bch2_inode_update_after_write(struct btree_trans *,
 +				   struct bch_inode_info *,
 +				   struct bch_inode_unpacked *,
 +				   unsigned);
@@ -45128,7 +45225,7 @@ index 000000000..40212b3da
 +#endif /* _BCACHEFS_FS_H */
 diff --git a/fs/bcachefs/fsck.c b/fs/bcachefs/fsck.c
 new file mode 100644
-index 000000000..361dbf338
+index 000000000000..361dbf338023
 --- /dev/null
 +++ b/fs/bcachefs/fsck.c
 @@ -0,0 +1,2345 @@
@@ -47479,7 +47576,7 @@ index 000000000..361dbf338
 +}
 diff --git a/fs/bcachefs/fsck.h b/fs/bcachefs/fsck.h
 new file mode 100644
-index 000000000..264f2706b
+index 000000000000..264f2706b12d
 --- /dev/null
 +++ b/fs/bcachefs/fsck.h
 @@ -0,0 +1,8 @@
@@ -47493,7 +47590,7 @@ index 000000000..264f2706b
 +#endif /* _BCACHEFS_FSCK_H */
 diff --git a/fs/bcachefs/inode.c b/fs/bcachefs/inode.c
 new file mode 100644
-index 000000000..ef1866a7e
+index 000000000000..968ccffeba4f
 --- /dev/null
 +++ b/fs/bcachefs/inode.c
 @@ -0,0 +1,743 @@
@@ -48221,9 +48318,9 @@ index 000000000..ef1866a7e
 +	return ret;
 +}
 +
-+static int bch2_inode_find_by_inum_trans(struct btree_trans *trans,
-+					 subvol_inum inum,
-+					 struct bch_inode_unpacked *inode)
++int bch2_inode_find_by_inum_trans(struct btree_trans *trans,
++				  subvol_inum inum,
++				  struct bch_inode_unpacked *inode)
 +{
 +	struct btree_iter iter;
 +	int ret;
@@ -48242,10 +48339,10 @@ index 000000000..ef1866a7e
 +}
 diff --git a/fs/bcachefs/inode.h b/fs/bcachefs/inode.h
 new file mode 100644
-index 000000000..d433d48de
+index 000000000000..723186d8afb6
 --- /dev/null
 +++ b/fs/bcachefs/inode.h
-@@ -0,0 +1,198 @@
+@@ -0,0 +1,200 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_INODE_H
 +#define _BCACHEFS_INODE_H
@@ -48337,6 +48434,8 @@ index 000000000..d433d48de
 +
 +int bch2_inode_rm(struct bch_fs *, subvol_inum, bool);
 +
++int bch2_inode_find_by_inum_trans(struct btree_trans *, subvol_inum,
++				  struct bch_inode_unpacked *);
 +int bch2_inode_find_by_inum(struct bch_fs *, subvol_inum,
 +			    struct bch_inode_unpacked *);
 +
@@ -48446,10 +48545,10 @@ index 000000000..d433d48de
 +#endif /* _BCACHEFS_INODE_H */
 diff --git a/fs/bcachefs/io.c b/fs/bcachefs/io.c
 new file mode 100644
-index 000000000..7c9ea91d8
+index 000000000000..3026daa7f9c2
 --- /dev/null
 +++ b/fs/bcachefs/io.c
-@@ -0,0 +1,2436 @@
+@@ -0,0 +1,2371 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Some low level IO code, and hacks for various block layer limitations
@@ -48639,7 +48738,6 @@ index 000000000..7c9ea91d8
 +int bch2_sum_sector_overwrites(struct btree_trans *trans,
 +			       struct btree_iter *extent_iter,
 +			       struct bkey_i *new,
-+			       bool *maybe_extending,
 +			       bool *usage_increasing,
 +			       s64 *i_sectors_delta,
 +			       s64 *disk_sectors_delta)
@@ -48651,7 +48749,6 @@ index 000000000..7c9ea91d8
 +	bool new_compressed = bch2_bkey_sectors_compressed(bkey_i_to_s_c(new));
 +	int ret = 0;
 +
-+	*maybe_extending	= true;
 +	*usage_increasing	= false;
 +	*i_sectors_delta	= 0;
 +	*disk_sectors_delta	= 0;
@@ -48678,31 +48775,8 @@ index 000000000..7c9ea91d8
 +		     (!new_compressed && bch2_bkey_sectors_compressed(old))))
 +			*usage_increasing = true;
 +
-+		if (bkey_cmp(old.k->p, new->k.p) >= 0) {
-+			/*
-+			 * Check if there's already data above where we're
-+			 * going to be writing to - this means we're definitely
-+			 * not extending the file:
-+			 *
-+			 * Note that it's not sufficient to check if there's
-+			 * data up to the sector offset we're going to be
-+			 * writing to, because i_size could be up to one block
-+			 * less:
-+			 */
-+			if (!bkey_cmp(old.k->p, new->k.p)) {
-+				old = bch2_btree_iter_next(&iter);
-+				ret = bkey_err(old);
-+				if (ret)
-+					break;
-+			}
-+
-+			if (old.k && !bkey_err(old) &&
-+			    old.k->p.inode == extent_iter->pos.inode &&
-+			    bkey_extent_is_data(old.k))
-+				*maybe_extending = false;
-+
++		if (bkey_cmp(old.k->p, new->k.p) >= 0)
 +			break;
-+		}
 +	}
 +
 +	bch2_trans_iter_exit(trans, &iter);
@@ -48719,12 +48793,10 @@ index 000000000..7c9ea91d8
 +		       s64 *i_sectors_delta_total,
 +		       bool check_enospc)
 +{
-+	/* this must live until after bch2_trans_commit(): */
-+	struct bkey_inode_buf inode_p;
 +	struct btree_iter inode_iter;
 +	struct bch_inode_unpacked inode_u;
 +	struct bpos next_pos;
-+	bool extending = false, usage_increasing;
++	bool usage_increasing;
 +	s64 i_sectors_delta = 0, disk_sectors_delta = 0;
 +	int ret;
 +
@@ -48742,84 +48814,51 @@ index 000000000..7c9ea91d8
 +	if (ret)
 +		return ret;
 +
++	new_i_size = min(k->k.p.offset << 9, new_i_size);
++	next_pos = k->k.p;
++
 +	ret = bch2_sum_sector_overwrites(trans, iter, k,
-+			&extending,
 +			&usage_increasing,
 +			&i_sectors_delta,
 +			&disk_sectors_delta);
 +	if (ret)
 +		return ret;
 +
-+	if (!usage_increasing)
-+		check_enospc = false;
-+
 +	if (disk_res &&
 +	    disk_sectors_delta > (s64) disk_res->sectors) {
 +		ret = bch2_disk_reservation_add(trans->c, disk_res,
 +					disk_sectors_delta - disk_res->sectors,
-+					!check_enospc
++					!check_enospc || !usage_increasing
 +					? BCH_DISK_RESERVATION_NOFAIL : 0);
 +		if (ret)
 +			return ret;
 +	}
-+
-+	new_i_size = extending
-+		? min(k->k.p.offset << 9, new_i_size)
-+		: 0;
 +
 +	ret = bch2_inode_peek(trans, &inode_iter, &inode_u, inum,
 +			      BTREE_ITER_INTENT);
 +	if (ret)
 +		return ret;
 +
-+	/*
-+	 * XXX:
-+	 * writeback can race a bit with truncate, because truncate
-+	 * first updates the inode then truncates the pagecache. This is
-+	 * ugly, but lets us preserve the invariant that the in memory
-+	 * i_size is always >= the on disk i_size.
-+	 *
-+	BUG_ON(new_i_size > inode_u.bi_size &&
-+	       (inode_u.bi_flags & BCH_INODE_I_SIZE_DIRTY));
-+	 */
-+	BUG_ON(new_i_size > inode_u.bi_size && !extending);
-+
 +	if (!(inode_u.bi_flags & BCH_INODE_I_SIZE_DIRTY) &&
 +	    new_i_size > inode_u.bi_size)
 +		inode_u.bi_size = new_i_size;
-+	else
-+		new_i_size = 0;
 +
 +	inode_u.bi_sectors += i_sectors_delta;
 +
-+	if (i_sectors_delta || new_i_size) {
-+		bch2_inode_pack(trans->c, &inode_p, &inode_u);
-+
-+		inode_p.inode.k.p.snapshot = iter->snapshot;
-+
-+		ret = bch2_trans_update(trans, &inode_iter,
-+				  &inode_p.inode.k_i, 0);
-+	}
-+
++	ret =   bch2_trans_update(trans, iter, k, 0) ?:
++		bch2_inode_write(trans, &inode_iter, &inode_u) ?:
++		bch2_trans_commit(trans, disk_res, journal_seq,
++				BTREE_INSERT_NOCHECK_RW|
++				BTREE_INSERT_NOFAIL);
 +	bch2_trans_iter_exit(trans, &inode_iter);
 +
 +	if (ret)
 +		return ret;
 +
-+	next_pos = k->k.p;
-+
-+	ret =   bch2_trans_update(trans, iter, k, 0) ?:
-+		bch2_trans_commit(trans, disk_res, journal_seq,
-+				BTREE_INSERT_NOCHECK_RW|
-+				BTREE_INSERT_NOFAIL);
-+	BUG_ON(ret == -ENOSPC);
-+	if (ret)
-+		return ret;
-+
-+	bch2_btree_iter_set_pos(iter, next_pos);
-+
 +	if (i_sectors_delta_total)
 +		*i_sectors_delta_total += i_sectors_delta;
++	bch2_btree_iter_set_pos(iter, next_pos);
++
 +	return 0;
 +}
 +
@@ -48837,26 +48876,31 @@ index 000000000..7c9ea91d8
 +	int ret = 0, ret2 = 0;
 +	u32 snapshot;
 +
-+	while (1) {
++	while (!ret || ret == -EINTR) {
 +		struct disk_reservation disk_res =
 +			bch2_disk_reservation_init(c, 0);
 +		struct bkey_i delete;
++
++		if (ret)
++			ret2 = ret;
 +
 +		bch2_trans_begin(trans);
 +
 +		ret = bch2_subvolume_get_snapshot(trans, inum.subvol, &snapshot);
 +		if (ret)
-+			goto btree_err;
++			continue;
 +
 +		bch2_btree_iter_set_snapshot(iter, snapshot);
 +
 +		k = bch2_btree_iter_peek(iter);
-+		if (bkey_cmp(iter->pos, end_pos) >= 0)
++		if (bkey_cmp(iter->pos, end_pos) >= 0) {
++			bch2_btree_iter_set_pos(iter, end_pos);
 +			break;
++		}
 +
 +		ret = bkey_err(k);
 +		if (ret)
-+			goto btree_err;
++			continue;
 +
 +		bkey_init(&delete.k);
 +		delete.k.p = iter->pos;
@@ -48869,17 +48913,7 @@ index 000000000..7c9ea91d8
 +				&disk_res, NULL,
 +				0, i_sectors_delta, false);
 +		bch2_disk_reservation_put(c, &disk_res);
-+btree_err:
-+		if (ret == -EINTR) {
-+			ret2 = ret;
-+			ret = 0;
-+		}
-+		if (ret)
-+			break;
 +	}
-+
-+	if (bkey_cmp(iter->pos, end_pos) > 0)
-+		bch2_btree_iter_set_pos(iter, end_pos);
 +
 +	return ret ?: ret2;
 +}
@@ -50888,7 +50922,7 @@ index 000000000..7c9ea91d8
 +}
 diff --git a/fs/bcachefs/io.h b/fs/bcachefs/io.h
 new file mode 100644
-index 000000000..fbe466606
+index 000000000000..1aa422dccef7
 --- /dev/null
 +++ b/fs/bcachefs/io.h
 @@ -0,0 +1,189 @@
@@ -50950,7 +50984,7 @@ index 000000000..fbe466606
 +}
 +
 +int bch2_sum_sector_overwrites(struct btree_trans *, struct btree_iter *,
-+			       struct bkey_i *, bool *, bool *, s64 *, s64 *);
++			       struct bkey_i *, bool *, s64 *, s64 *);
 +int bch2_extent_update(struct btree_trans *, subvol_inum,
 +		       struct btree_iter *, struct bkey_i *,
 +		       struct disk_reservation *, u64 *, u64, s64 *, bool);
@@ -51083,7 +51117,7 @@ index 000000000..fbe466606
 +#endif /* _BCACHEFS_IO_H */
 diff --git a/fs/bcachefs/io_types.h b/fs/bcachefs/io_types.h
 new file mode 100644
-index 000000000..78bff13d3
+index 000000000000..78bff13d36f2
 --- /dev/null
 +++ b/fs/bcachefs/io_types.h
 @@ -0,0 +1,161 @@
@@ -51250,7 +51284,7 @@ index 000000000..78bff13d3
 +#endif /* _BCACHEFS_IO_TYPES_H */
 diff --git a/fs/bcachefs/journal.c b/fs/bcachefs/journal.c
 new file mode 100644
-index 000000000..a2b26d5b5
+index 000000000000..a2b26d5b5236
 --- /dev/null
 +++ b/fs/bcachefs/journal.c
 @@ -0,0 +1,1276 @@
@@ -52532,7 +52566,7 @@ index 000000000..a2b26d5b5
 +}
 diff --git a/fs/bcachefs/journal.h b/fs/bcachefs/journal.h
 new file mode 100644
-index 000000000..c39cbbf1b
+index 000000000000..c39cbbf1bccd
 --- /dev/null
 +++ b/fs/bcachefs/journal.h
 @@ -0,0 +1,519 @@
@@ -53057,7 +53091,7 @@ index 000000000..c39cbbf1b
 +#endif /* _BCACHEFS_JOURNAL_H */
 diff --git a/fs/bcachefs/journal_io.c b/fs/bcachefs/journal_io.c
 new file mode 100644
-index 000000000..53aad1d0c
+index 000000000000..53aad1d0c9a9
 --- /dev/null
 +++ b/fs/bcachefs/journal_io.c
 @@ -0,0 +1,1553 @@
@@ -54616,7 +54650,7 @@ index 000000000..53aad1d0c
 +}
 diff --git a/fs/bcachefs/journal_io.h b/fs/bcachefs/journal_io.h
 new file mode 100644
-index 000000000..f34281a28
+index 000000000000..f34281a28f12
 --- /dev/null
 +++ b/fs/bcachefs/journal_io.h
 @@ -0,0 +1,50 @@
@@ -54672,10 +54706,10 @@ index 000000000..f34281a28
 +#endif /* _BCACHEFS_JOURNAL_IO_H */
 diff --git a/fs/bcachefs/journal_reclaim.c b/fs/bcachefs/journal_reclaim.c
 new file mode 100644
-index 000000000..a93f5b189
+index 000000000000..ca482c6743c3
 --- /dev/null
 +++ b/fs/bcachefs/journal_reclaim.c
-@@ -0,0 +1,846 @@
+@@ -0,0 +1,849 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -55324,6 +55358,9 @@ index 000000000..a93f5b189
 +		if (fifo_free(&j->pin) <= 32)
 +			min_nr = 1;
 +
++		if (atomic_read(&c->btree_cache.dirty) * 2 > c->btree_cache.used)
++			min_nr = 1;
++
 +		trace_journal_reclaim_start(c,
 +				min_nr,
 +				j->prereserved.reserved,
@@ -55524,7 +55561,7 @@ index 000000000..a93f5b189
 +}
 diff --git a/fs/bcachefs/journal_reclaim.h b/fs/bcachefs/journal_reclaim.h
 new file mode 100644
-index 000000000..0fd1af120
+index 000000000000..0fd1af120db5
 --- /dev/null
 +++ b/fs/bcachefs/journal_reclaim.h
 @@ -0,0 +1,86 @@
@@ -55616,7 +55653,7 @@ index 000000000..0fd1af120
 +#endif /* _BCACHEFS_JOURNAL_RECLAIM_H */
 diff --git a/fs/bcachefs/journal_seq_blacklist.c b/fs/bcachefs/journal_seq_blacklist.c
 new file mode 100644
-index 000000000..79bc0e493
+index 000000000000..79bc0e49389b
 --- /dev/null
 +++ b/fs/bcachefs/journal_seq_blacklist.c
 @@ -0,0 +1,315 @@
@@ -55937,7 +55974,7 @@ index 000000000..79bc0e493
 +}
 diff --git a/fs/bcachefs/journal_seq_blacklist.h b/fs/bcachefs/journal_seq_blacklist.h
 new file mode 100644
-index 000000000..afb886ec8
+index 000000000000..afb886ec8e25
 --- /dev/null
 +++ b/fs/bcachefs/journal_seq_blacklist.h
 @@ -0,0 +1,22 @@
@@ -55965,7 +56002,7 @@ index 000000000..afb886ec8
 +#endif /* _BCACHEFS_JOURNAL_SEQ_BLACKLIST_H */
 diff --git a/fs/bcachefs/journal_types.h b/fs/bcachefs/journal_types.h
 new file mode 100644
-index 000000000..d48451328
+index 000000000000..d484513289aa
 --- /dev/null
 +++ b/fs/bcachefs/journal_types.h
 @@ -0,0 +1,324 @@
@@ -56295,7 +56332,7 @@ index 000000000..d48451328
 +#endif /* _BCACHEFS_JOURNAL_TYPES_H */
 diff --git a/fs/bcachefs/keylist.c b/fs/bcachefs/keylist.c
 new file mode 100644
-index 000000000..cda77835b
+index 000000000000..cda77835b9ea
 --- /dev/null
 +++ b/fs/bcachefs/keylist.c
 @@ -0,0 +1,67 @@
@@ -56368,7 +56405,7 @@ index 000000000..cda77835b
 +#endif
 diff --git a/fs/bcachefs/keylist.h b/fs/bcachefs/keylist.h
 new file mode 100644
-index 000000000..195799bb2
+index 000000000000..195799bb20bc
 --- /dev/null
 +++ b/fs/bcachefs/keylist.h
 @@ -0,0 +1,76 @@
@@ -56450,7 +56487,7 @@ index 000000000..195799bb2
 +#endif /* _BCACHEFS_KEYLIST_H */
 diff --git a/fs/bcachefs/keylist_types.h b/fs/bcachefs/keylist_types.h
 new file mode 100644
-index 000000000..4b3ff7d8a
+index 000000000000..4b3ff7d8a875
 --- /dev/null
 +++ b/fs/bcachefs/keylist_types.h
 @@ -0,0 +1,16 @@
@@ -56472,7 +56509,7 @@ index 000000000..4b3ff7d8a
 +#endif /* _BCACHEFS_KEYLIST_TYPES_H */
 diff --git a/fs/bcachefs/migrate.c b/fs/bcachefs/migrate.c
 new file mode 100644
-index 000000000..6defc3332
+index 000000000000..6defc33322b3
 --- /dev/null
 +++ b/fs/bcachefs/migrate.c
 @@ -0,0 +1,196 @@
@@ -56674,7 +56711,7 @@ index 000000000..6defc3332
 +}
 diff --git a/fs/bcachefs/migrate.h b/fs/bcachefs/migrate.h
 new file mode 100644
-index 000000000..027efaa0d
+index 000000000000..027efaa0d575
 --- /dev/null
 +++ b/fs/bcachefs/migrate.h
 @@ -0,0 +1,7 @@
@@ -56687,10 +56724,10 @@ index 000000000..027efaa0d
 +#endif /* _BCACHEFS_MIGRATE_H */
 diff --git a/fs/bcachefs/move.c b/fs/bcachefs/move.c
 new file mode 100644
-index 000000000..0152fbcde
+index 000000000000..64e39c10e34b
 --- /dev/null
 +++ b/fs/bcachefs/move.c
-@@ -0,0 +1,1125 @@
+@@ -0,0 +1,1124 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -56853,7 +56890,7 @@ index 000000000..0152fbcde
 +		struct extent_ptr_decoded p;
 +		struct bpos next_pos;
 +		bool did_work = false;
-+		bool extending = false, should_check_enospc;
++		bool should_check_enospc;
 +		s64 i_sectors_delta = 0, disk_sectors_delta = 0;
 +
 +		bch2_trans_begin(&trans);
@@ -56919,7 +56956,6 @@ index 000000000..0152fbcde
 +					       op->opts.data_replicas);
 +
 +		ret = bch2_sum_sector_overwrites(&trans, &iter, insert,
-+						 &extending,
 +						 &should_check_enospc,
 +						 &i_sectors_delta,
 +						 &disk_sectors_delta);
@@ -57818,7 +57854,7 @@ index 000000000..0152fbcde
 +}
 diff --git a/fs/bcachefs/move.h b/fs/bcachefs/move.h
 new file mode 100644
-index 000000000..2a789a115
+index 000000000000..2a789a1158ca
 --- /dev/null
 +++ b/fs/bcachefs/move.h
 @@ -0,0 +1,73 @@
@@ -57897,7 +57933,7 @@ index 000000000..2a789a115
 +#endif /* _BCACHEFS_MOVE_H */
 diff --git a/fs/bcachefs/move_types.h b/fs/bcachefs/move_types.h
 new file mode 100644
-index 000000000..9df6d1813
+index 000000000000..9df6d18137a5
 --- /dev/null
 +++ b/fs/bcachefs/move_types.h
 @@ -0,0 +1,19 @@
@@ -57922,7 +57958,7 @@ index 000000000..9df6d1813
 +#endif /* _BCACHEFS_MOVE_TYPES_H */
 diff --git a/fs/bcachefs/movinggc.c b/fs/bcachefs/movinggc.c
 new file mode 100644
-index 000000000..5c9eafc02
+index 000000000000..5c9eafc026c9
 --- /dev/null
 +++ b/fs/bcachefs/movinggc.c
 @@ -0,0 +1,385 @@
@@ -58313,7 +58349,7 @@ index 000000000..5c9eafc02
 +}
 diff --git a/fs/bcachefs/movinggc.h b/fs/bcachefs/movinggc.h
 new file mode 100644
-index 000000000..922738247
+index 000000000000..922738247d03
 --- /dev/null
 +++ b/fs/bcachefs/movinggc.h
 @@ -0,0 +1,9 @@
@@ -58328,7 +58364,7 @@ index 000000000..922738247
 +#endif /* _BCACHEFS_MOVINGGC_H */
 diff --git a/fs/bcachefs/opts.c b/fs/bcachefs/opts.c
 new file mode 100644
-index 000000000..ff99c6d24
+index 000000000000..ff99c6d24abd
 --- /dev/null
 +++ b/fs/bcachefs/opts.c
 @@ -0,0 +1,455 @@
@@ -58789,7 +58825,7 @@ index 000000000..ff99c6d24
 +}
 diff --git a/fs/bcachefs/opts.h b/fs/bcachefs/opts.h
 new file mode 100644
-index 000000000..b60bdfca2
+index 000000000000..b60bdfca27fd
 --- /dev/null
 +++ b/fs/bcachefs/opts.h
 @@ -0,0 +1,467 @@
@@ -59262,7 +59298,7 @@ index 000000000..b60bdfca2
 +#endif /* _BCACHEFS_OPTS_H */
 diff --git a/fs/bcachefs/quota.c b/fs/bcachefs/quota.c
 new file mode 100644
-index 000000000..5f1216da7
+index 000000000000..5f1216da76d0
 --- /dev/null
 +++ b/fs/bcachefs/quota.c
 @@ -0,0 +1,784 @@
@@ -60052,7 +60088,7 @@ index 000000000..5f1216da7
 +#endif /* CONFIG_BCACHEFS_QUOTA */
 diff --git a/fs/bcachefs/quota.h b/fs/bcachefs/quota.h
 new file mode 100644
-index 000000000..51e4f9713
+index 000000000000..51e4f9713ef0
 --- /dev/null
 +++ b/fs/bcachefs/quota.h
 @@ -0,0 +1,71 @@
@@ -60129,7 +60165,7 @@ index 000000000..51e4f9713
 +#endif /* _BCACHEFS_QUOTA_H */
 diff --git a/fs/bcachefs/quota_types.h b/fs/bcachefs/quota_types.h
 new file mode 100644
-index 000000000..6a136083d
+index 000000000000..6a136083d389
 --- /dev/null
 +++ b/fs/bcachefs/quota_types.h
 @@ -0,0 +1,43 @@
@@ -60178,7 +60214,7 @@ index 000000000..6a136083d
 +#endif /* _BCACHEFS_QUOTA_TYPES_H */
 diff --git a/fs/bcachefs/rebalance.c b/fs/bcachefs/rebalance.c
 new file mode 100644
-index 000000000..a573fede0
+index 000000000000..a573fede05b1
 --- /dev/null
 +++ b/fs/bcachefs/rebalance.c
 @@ -0,0 +1,337 @@
@@ -60521,7 +60557,7 @@ index 000000000..a573fede0
 +}
 diff --git a/fs/bcachefs/rebalance.h b/fs/bcachefs/rebalance.h
 new file mode 100644
-index 000000000..7ade0bb81
+index 000000000000..7ade0bb81cce
 --- /dev/null
 +++ b/fs/bcachefs/rebalance.h
 @@ -0,0 +1,28 @@
@@ -60555,7 +60591,7 @@ index 000000000..7ade0bb81
 +#endif /* _BCACHEFS_REBALANCE_H */
 diff --git a/fs/bcachefs/rebalance_types.h b/fs/bcachefs/rebalance_types.h
 new file mode 100644
-index 000000000..7462a92e9
+index 000000000000..7462a92e9598
 --- /dev/null
 +++ b/fs/bcachefs/rebalance_types.h
 @@ -0,0 +1,26 @@
@@ -60587,7 +60623,7 @@ index 000000000..7462a92e9
 +#endif /* _BCACHEFS_REBALANCE_TYPES_H */
 diff --git a/fs/bcachefs/recovery.c b/fs/bcachefs/recovery.c
 new file mode 100644
-index 000000000..d8e511a06
+index 000000000000..d8e511a0664e
 --- /dev/null
 +++ b/fs/bcachefs/recovery.c
 @@ -0,0 +1,1516 @@
@@ -62109,7 +62145,7 @@ index 000000000..d8e511a06
 +}
 diff --git a/fs/bcachefs/recovery.h b/fs/bcachefs/recovery.h
 new file mode 100644
-index 000000000..e45c70b36
+index 000000000000..e45c70b3693f
 --- /dev/null
 +++ b/fs/bcachefs/recovery.h
 @@ -0,0 +1,58 @@
@@ -62173,10 +62209,10 @@ index 000000000..e45c70b36
 +#endif /* _BCACHEFS_RECOVERY_H */
 diff --git a/fs/bcachefs/reflink.c b/fs/bcachefs/reflink.c
 new file mode 100644
-index 000000000..d003f4088
+index 000000000000..22230f82b8b9
 --- /dev/null
 +++ b/fs/bcachefs/reflink.c
-@@ -0,0 +1,363 @@
+@@ -0,0 +1,364 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#include "bcachefs.h"
 +#include "bkey_buf.h"
@@ -62526,7 +62562,8 @@ index 000000000..d003f4088
 +		    inode_u.bi_size < new_i_size) {
 +			inode_u.bi_size = new_i_size;
 +			ret2  = bch2_inode_write(&trans, &inode_iter, &inode_u) ?:
-+				bch2_trans_commit(&trans, NULL, NULL, 0);
++				bch2_trans_commit(&trans, NULL, NULL,
++						  BTREE_INSERT_NOFAIL);
 +		}
 +
 +		bch2_trans_iter_exit(&trans, &inode_iter);
@@ -62542,7 +62579,7 @@ index 000000000..d003f4088
 +}
 diff --git a/fs/bcachefs/reflink.h b/fs/bcachefs/reflink.h
 new file mode 100644
-index 000000000..3745873fd
+index 000000000000..3745873fd88d
 --- /dev/null
 +++ b/fs/bcachefs/reflink.h
 @@ -0,0 +1,63 @@
@@ -62611,7 +62648,7 @@ index 000000000..3745873fd
 +#endif /* _BCACHEFS_REFLINK_H */
 diff --git a/fs/bcachefs/replicas.c b/fs/bcachefs/replicas.c
 new file mode 100644
-index 000000000..002006593
+index 000000000000..002006593044
 --- /dev/null
 +++ b/fs/bcachefs/replicas.c
 @@ -0,0 +1,1094 @@
@@ -63711,7 +63748,7 @@ index 000000000..002006593
 +}
 diff --git a/fs/bcachefs/replicas.h b/fs/bcachefs/replicas.h
 new file mode 100644
-index 000000000..72ac544f1
+index 000000000000..72ac544f16d8
 --- /dev/null
 +++ b/fs/bcachefs/replicas.h
 @@ -0,0 +1,108 @@
@@ -63825,7 +63862,7 @@ index 000000000..72ac544f1
 +#endif /* _BCACHEFS_REPLICAS_H */
 diff --git a/fs/bcachefs/replicas_types.h b/fs/bcachefs/replicas_types.h
 new file mode 100644
-index 000000000..0535b1d37
+index 000000000000..0535b1d3760e
 --- /dev/null
 +++ b/fs/bcachefs/replicas_types.h
 @@ -0,0 +1,10 @@
@@ -63841,7 +63878,7 @@ index 000000000..0535b1d37
 +#endif /* _BCACHEFS_REPLICAS_TYPES_H */
 diff --git a/fs/bcachefs/siphash.c b/fs/bcachefs/siphash.c
 new file mode 100644
-index 000000000..c062edb3f
+index 000000000000..c062edb3fbc2
 --- /dev/null
 +++ b/fs/bcachefs/siphash.c
 @@ -0,0 +1,173 @@
@@ -64020,7 +64057,7 @@ index 000000000..c062edb3f
 +}
 diff --git a/fs/bcachefs/siphash.h b/fs/bcachefs/siphash.h
 new file mode 100644
-index 000000000..3dfaf34a4
+index 000000000000..3dfaf34a43b2
 --- /dev/null
 +++ b/fs/bcachefs/siphash.h
 @@ -0,0 +1,87 @@
@@ -64113,7 +64150,7 @@ index 000000000..3dfaf34a4
 +#endif /* _SIPHASH_H_ */
 diff --git a/fs/bcachefs/str_hash.h b/fs/bcachefs/str_hash.h
 new file mode 100644
-index 000000000..789dde7c6
+index 000000000000..789dde7c6ac6
 --- /dev/null
 +++ b/fs/bcachefs/str_hash.h
 @@ -0,0 +1,358 @@
@@ -64477,7 +64514,7 @@ index 000000000..789dde7c6
 +#endif /* _BCACHEFS_STR_HASH_H */
 diff --git a/fs/bcachefs/subvolume.c b/fs/bcachefs/subvolume.c
 new file mode 100644
-index 000000000..0ef625d21
+index 000000000000..0ef625d21672
 --- /dev/null
 +++ b/fs/bcachefs/subvolume.c
 @@ -0,0 +1,1075 @@
@@ -65558,7 +65595,7 @@ index 000000000..0ef625d21
 +}
 diff --git a/fs/bcachefs/subvolume.h b/fs/bcachefs/subvolume.h
 new file mode 100644
-index 000000000..dde755b45
+index 000000000000..dde755b45392
 --- /dev/null
 +++ b/fs/bcachefs/subvolume.h
 @@ -0,0 +1,130 @@
@@ -65694,7 +65731,7 @@ index 000000000..dde755b45
 +#endif /* _BCACHEFS_SUBVOLUME_H */
 diff --git a/fs/bcachefs/subvolume_types.h b/fs/bcachefs/subvolume_types.h
 new file mode 100644
-index 000000000..9410b9587
+index 000000000000..9410b9587591
 --- /dev/null
 +++ b/fs/bcachefs/subvolume_types.h
 @@ -0,0 +1,11 @@
@@ -65711,7 +65748,7 @@ index 000000000..9410b9587
 +#endif /* _BCACHEFS_SUBVOLUME_TYPES_H */
 diff --git a/fs/bcachefs/super-io.c b/fs/bcachefs/super-io.c
 new file mode 100644
-index 000000000..33d832bc4
+index 000000000000..33d832bc4d4a
 --- /dev/null
 +++ b/fs/bcachefs/super-io.c
 @@ -0,0 +1,1204 @@
@@ -66921,7 +66958,7 @@ index 000000000..33d832bc4
 +}
 diff --git a/fs/bcachefs/super-io.h b/fs/bcachefs/super-io.h
 new file mode 100644
-index 000000000..b64ac2fbb
+index 000000000000..b64ac2fbbf8b
 --- /dev/null
 +++ b/fs/bcachefs/super-io.h
 @@ -0,0 +1,136 @@
@@ -67063,7 +67100,7 @@ index 000000000..b64ac2fbb
 +#endif /* _BCACHEFS_SUPER_IO_H */
 diff --git a/fs/bcachefs/super.c b/fs/bcachefs/super.c
 new file mode 100644
-index 000000000..3744b6d51
+index 000000000000..3744b6d519a7
 --- /dev/null
 +++ b/fs/bcachefs/super.c
 @@ -0,0 +1,2110 @@
@@ -69179,7 +69216,7 @@ index 000000000..3744b6d51
 +module_init(bcachefs_init);
 diff --git a/fs/bcachefs/super.h b/fs/bcachefs/super.h
 new file mode 100644
-index 000000000..739e8fd18
+index 000000000000..739e8fd18176
 --- /dev/null
 +++ b/fs/bcachefs/super.h
 @@ -0,0 +1,238 @@
@@ -69423,7 +69460,7 @@ index 000000000..739e8fd18
 +#endif /* _BCACHEFS_SUPER_H */
 diff --git a/fs/bcachefs/super_types.h b/fs/bcachefs/super_types.h
 new file mode 100644
-index 000000000..96023f37a
+index 000000000000..96023f37afea
 --- /dev/null
 +++ b/fs/bcachefs/super_types.h
 @@ -0,0 +1,51 @@
@@ -69480,7 +69517,7 @@ index 000000000..96023f37a
 +#endif /* _BCACHEFS_SUPER_TYPES_H */
 diff --git a/fs/bcachefs/sysfs.c b/fs/bcachefs/sysfs.c
 new file mode 100644
-index 000000000..864be8601
+index 000000000000..864be8601868
 --- /dev/null
 +++ b/fs/bcachefs/sysfs.c
 @@ -0,0 +1,1009 @@
@@ -70495,7 +70532,7 @@ index 000000000..864be8601
 +#endif  /* _BCACHEFS_SYSFS_H_ */
 diff --git a/fs/bcachefs/sysfs.h b/fs/bcachefs/sysfs.h
 new file mode 100644
-index 000000000..525fd05d9
+index 000000000000..525fd05d91f7
 --- /dev/null
 +++ b/fs/bcachefs/sysfs.h
 @@ -0,0 +1,44 @@
@@ -70545,7 +70582,7 @@ index 000000000..525fd05d9
 +#endif  /* _BCACHEFS_SYSFS_H_ */
 diff --git a/fs/bcachefs/tests.c b/fs/bcachefs/tests.c
 new file mode 100644
-index 000000000..d5a74f4db
+index 000000000000..d5a74f4db64d
 --- /dev/null
 +++ b/fs/bcachefs/tests.c
 @@ -0,0 +1,871 @@
@@ -71422,7 +71459,7 @@ index 000000000..d5a74f4db
 +#endif /* CONFIG_BCACHEFS_TESTS */
 diff --git a/fs/bcachefs/tests.h b/fs/bcachefs/tests.h
 new file mode 100644
-index 000000000..c73b18aea
+index 000000000000..c73b18aea7e0
 --- /dev/null
 +++ b/fs/bcachefs/tests.h
 @@ -0,0 +1,15 @@
@@ -71443,7 +71480,7 @@ index 000000000..c73b18aea
 +#endif /* _BCACHEFS_TEST_H */
 diff --git a/fs/bcachefs/trace.c b/fs/bcachefs/trace.c
 new file mode 100644
-index 000000000..59e8dfa3d
+index 000000000000..59e8dfa3d245
 --- /dev/null
 +++ b/fs/bcachefs/trace.c
 @@ -0,0 +1,12 @@
@@ -71461,7 +71498,7 @@ index 000000000..59e8dfa3d
 +#include <trace/events/bcachefs.h>
 diff --git a/fs/bcachefs/util.c b/fs/bcachefs/util.c
 new file mode 100644
-index 000000000..52de7c49c
+index 000000000000..52de7c49cacb
 --- /dev/null
 +++ b/fs/bcachefs/util.c
 @@ -0,0 +1,912 @@
@@ -72379,7 +72416,7 @@ index 000000000..52de7c49c
 +}
 diff --git a/fs/bcachefs/util.h b/fs/bcachefs/util.h
 new file mode 100644
-index 000000000..bec84d8aa
+index 000000000000..bec84d8aabed
 --- /dev/null
 +++ b/fs/bcachefs/util.h
 @@ -0,0 +1,751 @@
@@ -73136,7 +73173,7 @@ index 000000000..bec84d8aa
 +#endif /* _BCACHEFS_UTIL_H */
 diff --git a/fs/bcachefs/varint.c b/fs/bcachefs/varint.c
 new file mode 100644
-index 000000000..a2d6bb713
+index 000000000000..a2d6bb7136c7
 --- /dev/null
 +++ b/fs/bcachefs/varint.c
 @@ -0,0 +1,120 @@
@@ -73262,7 +73299,7 @@ index 000000000..a2d6bb713
 +}
 diff --git a/fs/bcachefs/varint.h b/fs/bcachefs/varint.h
 new file mode 100644
-index 000000000..92a182fb3
+index 000000000000..92a182fb3d7a
 --- /dev/null
 +++ b/fs/bcachefs/varint.h
 @@ -0,0 +1,11 @@
@@ -73279,7 +73316,7 @@ index 000000000..92a182fb3
 +#endif /* _BCACHEFS_VARINT_H */
 diff --git a/fs/bcachefs/vstructs.h b/fs/bcachefs/vstructs.h
 new file mode 100644
-index 000000000..c099cdc06
+index 000000000000..c099cdc0605f
 --- /dev/null
 +++ b/fs/bcachefs/vstructs.h
 @@ -0,0 +1,63 @@
@@ -73348,7 +73385,7 @@ index 000000000..c099cdc06
 +#endif /* _VSTRUCTS_H */
 diff --git a/fs/bcachefs/xattr.c b/fs/bcachefs/xattr.c
 new file mode 100644
-index 000000000..464ed6831
+index 000000000000..464ed68318e7
 --- /dev/null
 +++ b/fs/bcachefs/xattr.c
 @@ -0,0 +1,629 @@
@@ -73983,7 +74020,7 @@ index 000000000..464ed6831
 +}
 diff --git a/fs/bcachefs/xattr.h b/fs/bcachefs/xattr.h
 new file mode 100644
-index 000000000..f4f896545
+index 000000000000..f4f896545e1c
 --- /dev/null
 +++ b/fs/bcachefs/xattr.h
 @@ -0,0 +1,50 @@
@@ -74038,7 +74075,7 @@ index 000000000..f4f896545
 +
 +#endif /* _BCACHEFS_XATTR_H */
 diff --git a/fs/dcache.c b/fs/dcache.c
-index cf871a81f..30910dae3 100644
+index cf871a81f4fd..30910dae37ad 100644
 --- a/fs/dcache.c
 +++ b/fs/dcache.c
 @@ -3167,9 +3167,8 @@ void d_genocide(struct dentry *parent)
@@ -74067,7 +74104,7 @@ index cf871a81f..30910dae3 100644
  }
  EXPORT_SYMBOL(d_tmpfile);
 diff --git a/fs/inode.c b/fs/inode.c
-index ed0cab8a3..900927eab 100644
+index ed0cab8a32db..900927eab51c 100644
 --- a/fs/inode.c
 +++ b/fs/inode.c
 @@ -56,8 +56,23 @@
@@ -74554,7 +74591,7 @@ index ed0cab8a3..900927eab 100644
  					14,
  					HASH_ZERO,
 diff --git a/include/linux/bio.h b/include/linux/bio.h
-index 00952e92e..ae18dabd3 100644
+index 00952e92eae1..ae18dabd3fe7 100644
 --- a/include/linux/bio.h
 +++ b/include/linux/bio.h
 @@ -482,9 +482,14 @@ extern void bio_copy_data_iter(struct bio *dst, struct bvec_iter *dst_iter,
@@ -74574,7 +74611,7 @@ index 00952e92e..ae18dabd3 100644
  extern const char *bio_devname(struct bio *bio, char *buffer);
  
 diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 12b9dbcc9..2f5c51720 100644
+index 12b9dbcc980e..2f5c517209b1 100644
 --- a/include/linux/blkdev.h
 +++ b/include/linux/blkdev.h
 @@ -891,6 +891,7 @@ extern const char *blk_op_str(unsigned int op);
@@ -74589,7 +74626,7 @@ diff --git a/drivers/md/bcache/closure.h b/include/linux/closure.h
 similarity index 94%
 rename from drivers/md/bcache/closure.h
 rename to include/linux/closure.h
-index c88cdc4ae..36b4a83f9 100644
+index c88cdc4ae4ec..36b4a83f9b77 100644
 --- a/drivers/md/bcache/closure.h
 +++ b/include/linux/closure.h
 @@ -155,7 +155,7 @@ struct closure {
@@ -74697,7 +74734,7 @@ index c88cdc4ae..36b4a83f9 100644
 +
  #endif /* _LINUX_CLOSURE_H */
 diff --git a/include/linux/compiler_attributes.h b/include/linux/compiler_attributes.h
-index e6ec63403..4e9c50282 100644
+index e6ec63403965..4e9c50282193 100644
 --- a/include/linux/compiler_attributes.h
 +++ b/include/linux/compiler_attributes.h
 @@ -305,4 +305,9 @@
@@ -74711,7 +74748,7 @@ index e6ec63403..4e9c50282 100644
 +
  #endif /* __LINUX_COMPILER_ATTRIBUTES_H */
 diff --git a/include/linux/dcache.h b/include/linux/dcache.h
-index 9e23d33bb..b3e3ff793 100644
+index 9e23d33bb6f1..b3e3ff7930b5 100644
 --- a/include/linux/dcache.h
 +++ b/include/linux/dcache.h
 @@ -258,6 +258,7 @@ extern struct dentry * d_make_root(struct inode *);
@@ -74723,7 +74760,7 @@ index 9e23d33bb..b3e3ff793 100644
  
  extern struct dentry *d_find_alias(struct inode *);
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index e7a633353..08f3c4ab0 100644
+index e7a633353fd2..08f3c4ab0828 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
 @@ -675,7 +675,8 @@ struct inode {
@@ -74764,7 +74801,7 @@ index e7a633353..08f3c4ab0 100644
  }
  
 diff --git a/include/linux/generic-radix-tree.h b/include/linux/generic-radix-tree.h
-index bfd00320c..0af6ca0e3 100644
+index bfd00320c7f3..0af6ca0e3b2e 100644
 --- a/include/linux/generic-radix-tree.h
 +++ b/include/linux/generic-radix-tree.h
 @@ -183,6 +183,12 @@ void *__genradix_iter_peek(struct genradix_iter *, struct __genradix *, size_t);
@@ -74781,7 +74818,7 @@ index bfd00320c..0af6ca0e3 100644
  
  	if (!is_power_of_2(obj_size) &&
 diff --git a/include/linux/list_bl.h b/include/linux/list_bl.h
-index ae1b54144..8ee2bf5af 100644
+index ae1b541446c9..8ee2bf5af131 100644
 --- a/include/linux/list_bl.h
 +++ b/include/linux/list_bl.h
 @@ -143,6 +143,28 @@ static inline void hlist_bl_del_init(struct hlist_bl_node *n)
@@ -74814,7 +74851,7 @@ index ae1b54144..8ee2bf5af 100644
  {
  	bit_spin_lock(0, (unsigned long *)b);
 diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index 9fe165beb..1113f6ed0 100644
+index 9fe165beb0f9..1113f6ed0eb4 100644
 --- a/include/linux/lockdep.h
 +++ b/include/linux/lockdep.h
 @@ -336,6 +336,8 @@ extern void lock_unpin_lock(struct lockdep_map *lock, struct pin_cookie);
@@ -74836,7 +74873,7 @@ index 9fe165beb..1113f6ed0 100644
  
  enum xhlock_context_t {
 diff --git a/include/linux/sched.h b/include/linux/sched.h
-index c1a927dde..10a353e33 100644
+index c1a927ddec64..10a353e3313f 100644
 --- a/include/linux/sched.h
 +++ b/include/linux/sched.h
 @@ -856,6 +856,7 @@ struct task_struct {
@@ -74849,7 +74886,7 @@ index c1a927dde..10a353e33 100644
  	struct vmacache			vmacache;
 diff --git a/include/linux/six.h b/include/linux/six.h
 new file mode 100644
-index 000000000..477c33eb0
+index 000000000000..477c33eb00d7
 --- /dev/null
 +++ b/include/linux/six.h
 @@ -0,0 +1,203 @@
@@ -75057,7 +75094,7 @@ index 000000000..477c33eb0
 +
 +#endif /* _LINUX_SIX_H */
 diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index 671d402c3..94417aac1 100644
+index 671d402c3778..94417aac15c7 100644
 --- a/include/linux/vmalloc.h
 +++ b/include/linux/vmalloc.h
 @@ -141,6 +141,7 @@ extern void *vzalloc(unsigned long size);
@@ -75070,7 +75107,7 @@ index 671d402c3..94417aac1 100644
  extern void *__vmalloc(unsigned long size, gfp_t gfp_mask);
 diff --git a/include/trace/events/bcachefs.h b/include/trace/events/bcachefs.h
 new file mode 100644
-index 000000000..fce314637
+index 000000000000..fce3146378f9
 --- /dev/null
 +++ b/include/trace/events/bcachefs.h
 @@ -0,0 +1,800 @@
@@ -75875,7 +75912,7 @@ index 000000000..fce314637
 +/* This part must be outside protection */
 +#include <trace/define_trace.h>
 diff --git a/init/init_task.c b/init/init_task.c
-index 2d024066e..04c8c3d80 100644
+index 2d024066e27b..04c8c3d80cf7 100644
 --- a/init/init_task.c
 +++ b/init/init_task.c
 @@ -85,6 +85,7 @@ struct task_struct init_task
@@ -75887,7 +75924,7 @@ index 2d024066e..04c8c3d80 100644
  		.fn = do_no_restart_syscall,
  	},
 diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-index 4198f0273..b2abd9a5d 100644
+index 4198f0273ecd..b2abd9a5d9ab 100644
 --- a/kernel/Kconfig.locks
 +++ b/kernel/Kconfig.locks
 @@ -259,3 +259,6 @@ config ARCH_HAS_MMIOWB
@@ -75898,7 +75935,7 @@ index 4198f0273..b2abd9a5d 100644
 +config SIXLOCKS
 +	bool
 diff --git a/kernel/locking/Makefile b/kernel/locking/Makefile
-index d51cabf28..cadbf6520 100644
+index d51cabf28f38..cadbf6520c4b 100644
 --- a/kernel/locking/Makefile
 +++ b/kernel/locking/Makefile
 @@ -32,3 +32,4 @@ obj-$(CONFIG_QUEUED_RWLOCKS) += qrwlock.o
@@ -75907,7 +75944,7 @@ index d51cabf28..cadbf6520 100644
  obj-$(CONFIG_LOCK_EVENT_COUNTS) += lock_events.o
 +obj-$(CONFIG_SIXLOCKS) += six.o
 diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index bf1c00c88..22e7c15eb 100644
+index bf1c00c881e4..22e7c15ebab4 100644
 --- a/kernel/locking/lockdep.c
 +++ b/kernel/locking/lockdep.c
 @@ -6438,6 +6438,26 @@ void debug_check_no_locks_held(void)
@@ -75939,7 +75976,7 @@ index bf1c00c88..22e7c15eb 100644
  {
 diff --git a/kernel/locking/six.c b/kernel/locking/six.c
 new file mode 100644
-index 000000000..fca120872
+index 000000000000..fca1208720b6
 --- /dev/null
 +++ b/kernel/locking/six.c
 @@ -0,0 +1,759 @@
@@ -76703,7 +76740,7 @@ index 000000000..fca120872
 +}
 +EXPORT_SYMBOL_GPL(six_lock_pcpu_alloc);
 diff --git a/kernel/module.c b/kernel/module.c
-index 5c26a76e8..155f9c153 100644
+index 5c26a76e800b..155f9c1536b0 100644
 --- a/kernel/module.c
 +++ b/kernel/module.c
 @@ -2835,9 +2835,7 @@ static void dynamic_debug_remove(struct module *mod, struct _ddebug *debug)
@@ -76718,7 +76755,7 @@ index 5c26a76e8..155f9c153 100644
  
  bool __weak module_init_section(const char *name)
 diff --git a/lib/Kconfig b/lib/Kconfig
-index 5e7165e6a..32786f287 100644
+index 5e7165e6a346..32786f287f46 100644
 --- a/lib/Kconfig
 +++ b/lib/Kconfig
 @@ -481,6 +481,9 @@ config ASSOCIATIVE_ARRAY
@@ -76732,7 +76769,7 @@ index 5e7165e6a..32786f287 100644
  	bool
  	depends on !NO_IOMEM
 diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 2a9b6dcda..1c2f33b8a 100644
+index 2a9b6dcdac4f..1c2f33b8a526 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
 @@ -1666,6 +1666,15 @@ config DEBUG_CREDENTIALS
@@ -76752,7 +76789,7 @@ index 2a9b6dcda..1c2f33b8a 100644
  	bool "Force round-robin CPU selection for unbound work items"
  	depends on DEBUG_KERNEL
 diff --git a/lib/Makefile b/lib/Makefile
-index a841be524..9759073b2 100644
+index a841be5244ac..9759073b2c27 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
 @@ -239,6 +239,8 @@ obj-$(CONFIG_ATOMIC64_SELFTEST) += atomic64_test.o
@@ -76768,7 +76805,7 @@ diff --git a/drivers/md/bcache/closure.c b/lib/closure.c
 similarity index 88%
 rename from drivers/md/bcache/closure.c
 rename to lib/closure.c
-index d8d9394a6..b38ded00b 100644
+index d8d9394a6beb..b38ded00b9b0 100644
 --- a/drivers/md/bcache/closure.c
 +++ b/lib/closure.c
 @@ -6,13 +6,12 @@
@@ -76882,7 +76919,7 @@ index d8d9394a6..b38ded00b 100644
 -MODULE_LICENSE("GPL");
 +#endif
 diff --git a/lib/generic-radix-tree.c b/lib/generic-radix-tree.c
-index f25eb111c..7dfa88282 100644
+index f25eb111c051..7dfa88282b00 100644
 --- a/lib/generic-radix-tree.c
 +++ b/lib/generic-radix-tree.c
 @@ -166,6 +166,10 @@ void *__genradix_iter_peek(struct genradix_iter *iter,
@@ -76918,7 +76955,7 @@ index f25eb111c..7dfa88282 100644
  				objs_per_page;
  			if (i == GENRADIX_ARY)
 diff --git a/mm/filemap.c b/mm/filemap.c
-index dae481293..0dc615e48 100644
+index dae481293b5d..0dc615e48c8c 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
 @@ -2186,6 +2186,7 @@ unsigned find_get_pages_range(struct address_space *mapping, pgoff_t *start,
@@ -76930,7 +76967,7 @@ index dae481293..0dc615e48 100644
  /**
   * find_get_pages_contig - gang contiguous pagecache lookup
 diff --git a/mm/nommu.c b/mm/nommu.c
-index 02d2427b8..2f4894f9b 100644
+index 02d2427b8f9e..2f4894f9b7e3 100644
 --- a/mm/nommu.c
 +++ b/mm/nommu.c
 @@ -280,6 +280,24 @@ void *vzalloc_node(unsigned long size, int node)
@@ -76959,7 +76996,7 @@ index 02d2427b8..2f4894f9b 100644
   * vmalloc_32  -  allocate virtually contiguous memory (32bit addressable)
   *	@size:		allocation size
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index e8a807c78..5fb4311fd 100644
+index e8a807c78110..5fb4311fdc07 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
 @@ -3200,6 +3200,27 @@ void *vzalloc_node(unsigned long size, int node)
