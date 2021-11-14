@@ -3,24 +3,24 @@ require libffi sqlite
 
 check() {
   url https://www.python.org/downloads/source/
-  match version 3.9.7 'Python-([0-9.]+)\.tar'
+  match version 3.10.0 'Python-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack python-3.9.7.tar.xz \
-    https://www.python.org/ftp/python/3.9.7/Python-3.9.7.tar.xz
+  unpack python-3.10.0.tar.xz \
+    https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tar.xz
   apply getpath.diff
-  apply fakepkg.diff
   apply history.diff
+  apply libressl.diff
   apply musl.diff
   apply paths.diff
-  tree 960c174db78ebd322a8d3d39117c4dcca7129eb446ee206cf310d5a5e1a77741
+  tree a1e9aa3e41fc9b2e9b984337cd2df06123b98f2660eca9fb1397387d983dc2cc
 }
 
-config-extra --enable-{ipv6,optimizations,shared} --with-ensurepip=install \
-  --with-{computed-gotos,dbmliborder=,lto} PKG_CONFIG=/src/fake-pkg-config \
-  CFLAGS="$CFLAGS -fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
-  LDFLAGS="$LDFLAGS -fno-semantic-interposition"
+config-extra --enable-optimizations --enable-shared --with-dbmliborder= \
+  --with-ensurepip=install --with-lto --with-openssl=/lib \
+  CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
+  LDFLAGS=-fno-semantic-interposition
 
 post-install() {
   rm -f -r /dst/lib/python/{,*/}{test,tests}/ \
@@ -29,10 +29,10 @@ post-install() {
     /dst/lib/python/venv/scripts/*/!(activate) \
     /dst/bin/{2to3,easy_install*,idle*,pip3,pydoc3,python3,python*-config}
   mv /dst/lib/python/venv/scripts/common/activate{,.sh}
-  mv /dst/bin/2to3-3.9 /dst/bin/2to3
-  mv /dst/bin/pip3.9 /dst/bin/pip
-  mv /dst/bin/pydoc3.9 /dst/bin/pydoc
-  mv /dst/bin/python3.9 /dst/bin/python3
+  mv /dst/bin/2to3-3.10 /dst/bin/2to3
+  mv /dst/bin/pip3.10 /dst/bin/pip
+  mv /dst/bin/pydoc3.10 /dst/bin/pydoc
+  mv /dst/bin/python3.10 /dst/bin/python3
   ln -s python3 /dst/bin/python
   sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/2to3 /dst/bin/pip \
     /dst/bin/pydoc /dst/lib/python/config-3*/python-config.py
