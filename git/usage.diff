@@ -1,5 +1,5 @@
 diff --git a/builtin/help.c b/builtin/help.c
-index e5590d7..3f72a66 100644
+index 75cd2fb..cddd8a0 100644
 --- a/builtin/help.c
 +++ b/builtin/help.c
 @@ -30,7 +30,8 @@ enum help_format {
@@ -11,24 +11,26 @@ index e5590d7..3f72a66 100644
 +	HELP_FORMAT_USAGE
  };
  
- static const char *html_path;
-@@ -53,12 +54,14 @@ static struct option builtin_help_options[] = {
+ enum show_config_type {
+@@ -60,6 +61,8 @@ static struct option builtin_help_options[] = {
  			HELP_FORMAT_WEB),
  	OPT_SET_INT('i', "info", &help_format, N_("show info page"),
  			HELP_FORMAT_INFO),
 +	OPT_SET_INT('u', "usage", &help_format, N_("show usage"),
 +			HELP_FORMAT_USAGE),
  	OPT__VERBOSE(&verbose, N_("print command description")),
- 	OPT_END(),
- };
+ 
+ 	OPT_CMDMODE('g', "guides", &cmd_mode, N_("print list of useful guides"),
+@@ -76,7 +79,7 @@ static struct option builtin_help_options[] = {
  
  static const char * const builtin_help_usage[] = {
--	N_("git help [--all] [--guides] [--man | --web | --info] [<command>]"),
-+	N_("git help [--all] [--guides] [--man | --web | --info | --usage] [<command>]"),
+ 	N_("git help [-a|--all] [--[no-]verbose]]\n"
+-	   "         [[-i|--info] [-m|--man] [-w|--web]] [<command>]"),
++	   "         [[-i|--info] [-m|--man] [-u|--usage] [-w|--web]] [<command>]"),
+ 	N_("git help [-g|--guides]"),
+ 	N_("git help [-c|--config]"),
  	NULL
- };
- 
-@@ -70,6 +73,8 @@ static enum help_format parse_help_format(const char *format)
+@@ -189,6 +192,8 @@ static enum help_format parse_help_format(const char *format)
  		return HELP_FORMAT_INFO;
  	if (!strcmp(format, "web") || !strcmp(format, "html"))
  		return HELP_FORMAT_WEB;
@@ -37,8 +39,8 @@ index e5590d7..3f72a66 100644
  	/*
  	 * Please update _git_config() in git-completion.bash when you
  	 * add new help formats.
-@@ -458,6 +463,11 @@ static const char *check_git_cmd(const char* cmd)
- 	return cmd;
+@@ -582,6 +587,11 @@ static void no_extra_argc(int argc)
+ 			      builtin_help_usage, builtin_help_options);
  }
  
 +static void show_usage(const char *git_cmd)
@@ -49,9 +51,9 @@ index e5590d7..3f72a66 100644
  int cmd_help(int argc, const char **argv, const char *prefix)
  {
  	int nongit;
-@@ -531,6 +541,9 @@ int cmd_help(int argc, const char **argv, const char *prefix)
+@@ -654,6 +664,9 @@ int cmd_help(int argc, const char **argv, const char *prefix)
  	case HELP_FORMAT_WEB:
- 		show_html_page(argv[0]);
+ 		show_html_page(page);
  		break;
 +	case HELP_FORMAT_USAGE:
 +		show_usage(argv[0]);
