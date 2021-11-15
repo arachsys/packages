@@ -1,13 +1,13 @@
 check() {
   url https://api.github.com/repos/arachsys/pocketcrypt
-  match snapshot 20211027 \
+  match snapshot 20211114 \
     '"pushed_at": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack pocketcrypt-20211027-906b0de9.tar.gz \
-    https://github.com/arachsys/pocketcrypt/archive/906b0de94a563df9f299767c167c1012ff94ec83.tar.gz
-  tree 76f73ab9f34f1962bfebb3759ce415a71d99cca25b97ef62ac588ee613b24a61
+  unpack pocketcrypt-20211114-6bf3f389.tar.gz \
+    https://github.com/arachsys/pocketcrypt/archive/6bf3f38927204b52a3c5168931652ef2e502a226.tar.gz
+  tree 2bae96765fda8578c159b2922d988bf8e68ed13c1d7e08644804d8c293cd1f9b
 }
 
 build() {
