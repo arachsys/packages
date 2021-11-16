@@ -1,0 +1,13 @@
+diff --git a/lib/mm/memlock.c b/lib/mm/memlock.c
+index 3d1a392..b657061 100644
+--- a/lib/mm/memlock.c
++++ b/lib/mm/memlock.c
+@@ -160,7 +160,7 @@ static void _touch_memory(void *mem, size_t size)
+ 
+ static void _allocate_memory(void)
+ {
+-#ifndef VALGRIND_POOL
++#if !defined(VALGRIND_POOL) && defined(__GLIBC__)
+ 	void *stack_mem;
+ 	struct rlimit limit;
+ 	int i, area = 0, missing = _size_malloc_tmp, max_areas = 32, hblks;
