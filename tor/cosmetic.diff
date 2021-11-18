@@ -1,0 +1,163 @@
+diff --git a/src/app/config/config.c b/src/app/config/config.c
+index 2877bc1..aae1bd1 100644
+--- a/src/app/config/config.c
++++ b/src/app/config/config.c
+@@ -2677,12 +2677,16 @@ static void
+ print_usage(void)
+ {
+   printf(
+-"Copyright (c) 2001-2004, Roger Dingledine\n"
+-"Copyright (c) 2004-2006, Roger Dingledine, Nick Mathewson\n"
+-"Copyright (c) 2007-2021, The Tor Project, Inc.\n\n"
+-"tor -f <torrc> [args]\n"
+-"See man page for options, or https://www.torproject.org/ for "
+-"documentation.\n");
++"Usage: tor [-h|--help] [-f <torrc>] [--allow-missing-torrc]\n"
++"           [--defaults-torrc <torrc>] [--ignore-mising-torrc]\n"
++"           [--dump-config short|full] [--verify-config]\n"
++"           [--hash-passsword <passwd>] [--list-fingerprint <key type>]\n"
++"           [--keygen [--newpass]] [--passphrase-fd <fd>]\n"
++"           [--key-expiration [<purpose] [--format iso8601|timestamp]]\n"
++"           [--list-torrc-options] [--list-deprecated-options]\n"
++"           [--list-modules] [--quiet|--hush] [--version]\n"
++"           [[--]<option> <value>]...\n"
++"See https://www.torproject.org/ for full documentation.\n");
+ }
+ 
+ /** Print all non-obsolete torrc options. */
+@@ -4488,21 +4492,17 @@ options_init_from_torrc(int argc, char **argv)
+   if (config_line_find(cmdline_only_options, "--version")) {
+     printf("Tor version %s.\n",get_version());
+     printf("Tor is running on %s with Libevent %s, "
+-            "%s %s, Zlib %s, Liblzma %s, Libzstd %s and %s %s as libc.\n",
++            "%s, Zlib %s, Liblzma %s and Libzstd %s.\n",
+             get_uname(),
+             tor_libevent_get_version_str(),
+-            crypto_get_library_name(),
+             crypto_get_library_version_string(),
+             tor_compress_supports_method(ZLIB_METHOD) ?
+             tor_compress_version_str(ZLIB_METHOD) : "N/A",
+             tor_compress_supports_method(LZMA_METHOD) ?
+             tor_compress_version_str(LZMA_METHOD) : "N/A",
+             tor_compress_supports_method(ZSTD_METHOD) ?
+-            tor_compress_version_str(ZSTD_METHOD) : "N/A",
+-            tor_libc_get_name() ?
+-            tor_libc_get_name() : "Unknown",
+-            tor_libc_get_version_str());
+-    printf("Tor compiled with %s version %s\n",
++            tor_compress_version_str(ZSTD_METHOD) : "N/A");
++    printf("Tor compiled with %s version %s.\n",
+             strcmp(COMPILER_VENDOR, "gnu") == 0?
+             COMPILER:COMPILER_VENDOR, COMPILER_VERSION);
+ 
+diff --git a/src/app/main/main.c b/src/app/main/main.c
+index 8956449..d5c9f92 100644
+--- a/src/app/main/main.c
++++ b/src/app/main/main.c
+@@ -576,25 +576,17 @@ tor_init(int argc, char *argv[])
+     const char *version = get_version();
+ 
+     log_notice(LD_GENERAL, "Tor %s running on %s with Libevent %s, "
+-               "%s %s, Zlib %s, Liblzma %s, Libzstd %s and %s %s as libc.",
++               "%s, Zlib %s, Liblzma %s and Libzstd %s.",
+                version,
+                get_uname(),
+                tor_libevent_get_version_str(),
+-               crypto_get_library_name(),
+                crypto_get_library_version_string(),
+                tor_compress_supports_method(ZLIB_METHOD) ?
+                  tor_compress_version_str(ZLIB_METHOD) : "N/A",
+                tor_compress_supports_method(LZMA_METHOD) ?
+                  tor_compress_version_str(LZMA_METHOD) : "N/A",
+                tor_compress_supports_method(ZSTD_METHOD) ?
+-                 tor_compress_version_str(ZSTD_METHOD) : "N/A",
+-               tor_libc_get_name() ?
+-                 tor_libc_get_name() : "Unknown",
+-               tor_libc_get_version_str());
+-
+-    log_notice(LD_GENERAL, "Tor can't help you if you use it wrong! "
+-               "Learn how to be safe at "
+-               "https://www.torproject.org/download/download#warning");
++                 tor_compress_version_str(ZSTD_METHOD) : "N/A");
+ 
+     if (strstr(version, "alpha") || strstr(version, "beta"))
+       log_notice(LD_GENERAL, "This version is not a stable Tor release. "
+diff --git a/src/lib/crypt_ops/crypto_rand.c b/src/lib/crypt_ops/crypto_rand.c
+index 5bf3a65..6c2a038 100644
+--- a/src/lib/crypt_ops/crypto_rand.c
++++ b/src/lib/crypt_ops/crypto_rand.c
+@@ -67,8 +67,7 @@ ENABLE_GCC_WARNING("-Wstrict-prototypes")
+ 
+ #ifdef HAVE_FCNTL_H
+ #include <fcntl.h>
+-#endif
+-#ifdef HAVE_SYS_FCNTL_H
++#elif defined HAVE_SYS_FCNTL_H
+ #include <sys/fcntl.h>
+ #endif
+ #ifdef HAVE_SYS_STAT_H
+diff --git a/src/lib/tls/tortls_openssl.c b/src/lib/tls/tortls_openssl.c
+index d59d65d..a145624 100644
+--- a/src/lib/tls/tortls_openssl.c
++++ b/src/lib/tls/tortls_openssl.c
+@@ -340,7 +340,7 @@ tor_tls_init(void)
+     SSL_load_error_strings();
+ #endif /* defined(OPENSSL_1_1_API) */
+ 
+-#if (SIZEOF_VOID_P >= 8 &&                              \
++#if (SIZEOF_VOID_P >= 8 && !defined(LIBRESSL_VERSION_NUMBER) && \
+      OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1,0,1))
+     long version = tor_OpenSSL_version_num();
+ 
+diff --git a/src/tools/tor-gencert.c b/src/tools/tor-gencert.c
+index efd4d00..587bcda 100644
+--- a/src/tools/tor-gencert.c
++++ b/src/tools/tor-gencert.c
+@@ -75,12 +75,11 @@ static EVP_PKEY *signing_key = NULL;
+ static void
+ show_help(void)
+ {
+-  fprintf(stderr, "Syntax:\n"
+-          "tor-gencert [-h|--help] [-v] [-r|--reuse] [--create-identity-key]\n"
+-          "        [-i identity_key_file] [-s signing_key_file] "
+-          "[-c certificate_file]\n"
+-          "        [-m lifetime_in_months] [-a address:port] "
+-          "[--passphrase-fd <fd>]\n");
++  fprintf(stderr,
++          "Usage: tor-gencert [-h|--help] [-v] [-r|--reuse] [--create-identity-key]\n"
++          "                   [-i <identity_key_file>] [-s <signing_key_file>]\n"
++          "                   [-c <certificate_file>] [-m <lifetime_in_months>]\n"
++          "                   [-a <address>:<port>] [--passphrase-fd <fd>]\n");
+ }
+ 
+ /** Read the passphrase from the passphrase fd. */
+diff --git a/src/tools/tor-print-ed-signing-cert.c b/src/tools/tor-print-ed-signing-cert.c
+index 7d4e0b1..2477122 100644
+--- a/src/tools/tor-print-ed-signing-cert.c
++++ b/src/tools/tor-print-ed-signing-cert.c
+@@ -19,8 +19,8 @@ main(int argc, char **argv)
+   char rfc1123_buf[RFC1123_TIME_LEN+1] = "";
+ 
+   if (argc != 2) {
+-    fprintf(stderr, "Usage:\n");
+-    fprintf(stderr, "%s <path to ed25519_signing_cert file>\n", argv[0]);
++    fprintf(stderr, "Usage: ");
++    fprintf(stderr, "%s <file>\n", argv[0]);
+     return -1;
+   }
+ 
+diff --git a/src/tools/tor-resolve.c b/src/tools/tor-resolve.c
+index 09ff8df..7b77606 100644
+--- a/src/tools/tor-resolve.c
++++ b/src/tools/tor-resolve.c
+@@ -532,8 +532,8 @@ do_resolve(const char *hostname,
+ static void
+ usage(void)
+ {
+-  puts("Syntax: tor-resolve [-4] [-5] [-v] [-x] [-p port] "
+-       "hostname [sockshost[:socksport]]");
++  puts("Usage: tor-resolve [-4] [-5] [-v] [-x] [-p <port>] <hostname>\n"
++       "                   [<sockshost>[:<socksport>]]");
+   exit(1);
+ }
+ 

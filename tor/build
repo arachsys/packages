@@ -8,11 +8,16 @@ check() {
 
 prepare() {
   unpack https://dist.torproject.org/tor-0.4.6.8.tar.gz
-  tree ace50cbc0c34bf2d76b7fef241023d3fa370073c04c36204937f720dd2f1d9e8
+  apply cosmetic.diff
+  tree 50ae5eb62fb7f4c30012e23399c73e7cd4fccc818b2e99ada3b304d21f7d9bd4
 }
 
-config-extra --enable-lzma --enable-static-libevent --enable-zstd \
-  --with-libevent-dir=/lib/static CONFDIR=/etc
+config-extra --enable-lzma --enable-zstd CONFDIR=/etc \
+  {LZMA,ZSTD}_CFLAGS=-I/lib/include LZMA_LIBS=-llzma ZSTD_LIBS=-lzstd
+
+post-config() {
+  sed -i 's:-levent:/lib/static/libevent.a:g' Makefile config.rust
+}
 
 post-install() {
   rm -f /dst/bin/torify
