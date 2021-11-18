@@ -3,21 +3,21 @@ require bison flex
 
 check() {
   url https://www.netfilter.org/projects/nftables/files/
-  match nftables 1.0.0 'nftables-([0-9.]+)\.tar'
+  match nftables 1.0.1 'nftables-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libmnl/files/
   match libmnl 1.0.4 'libmnl-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libnftnl/files/
-  match libnftnl 1.2.0 'libnftnl-([0-9.]+)\.tar'
+  match libnftnl 1.2.1 'libnftnl-([0-9.]+)\.tar'
 }
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
-  unpack $NFP/nftables/files/nftables-1.0.0.tar.bz2
+  unpack $NFP/nftables/files/nftables-1.0.1.tar.bz2
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.4.tar.bz2
-  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.0.tar.bz2
-  tree bd133c0d17257081bb699baa879fede2bbee7bf018a042eaeba1495a640c59e6
+  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.1.tar.bz2
+  tree 3b1d59c2aed4d14dc1b303f3b85b5b499930893238ac87f25921a2a88a52b783
 }
 
 pre-config() {
@@ -33,11 +33,9 @@ pre-config() {
   cd /src
 }
 
-config-extra --disable-{debug,man-doc,python,shared} --with-mini-gmp
-config-extra LIBMNL_CFLAGS=-I/src/libs/include
-config-extra LIBMNL_LIBS="-L/src/libs/lib -lmnl"
-config-extra LIBNFTNL_CFLAGS=-I/src/libs/include
-config-extra LIBNFTNL_LIBS="-L/src/libs/lib -lnftnl"
+config-extra --disable-shared --with-cli=readline --with-mini-gmp \
+  LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl" \
+  LIBNFTNL_CFLAGS=-I/src/libs/include LIBNFTNL_LIBS="-L/src/libs/lib -lnftnl"
 
 post-install() {
   rm -f -r /dst/lib/{include,lib*.a,lib*.la}
