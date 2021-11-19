@@ -31,6 +31,18 @@ index fd61b7c..b9522b5 100644
  	}
  
  	return node->id;
+diff --git a/ell/dhcp.c b/ell/dhcp.c
+index be03697..808267c 100644
+--- a/ell/dhcp.c
++++ b/ell/dhcp.c
+@@ -149,6 +149,7 @@ static void dhcp_message_set_address_type(struct dhcp_message *message,
+ 	}
+ }
+ 
++__attribute__((unused))
+ static inline int dhcp_message_optimize(struct dhcp_message *message,
+ 					const uint8_t *end)
+ {
 diff --git a/ell/missing.h b/ell/missing.h
 index 2a3e647..b5b6f89 100644
 --- a/ell/missing.h
@@ -45,62 +57,35 @@ index 2a3e647..b5b6f89 100644
 -_Pragma("GCC diagnostic pop")
  }
  #endif
+diff --git a/ell/util.h b/ell/util.h
+index 9d4e36c..ae35fd4 100644
+--- a/ell/util.h
++++ b/ell/util.h
+@@ -323,7 +323,7 @@ const char *l_util_get_debugfs_path(void);
+ 	_L_IN_SET_CMP((val), __auto_type, __v == __elems[__i], ##__VA_ARGS__)
+ 
+ #define L_IN_STRSET(val, ...)						\
+-	_L_IN_SET_CMP((val), const char *, __v == __elems[__i] ||	\
++	_L_IN_SET_CMP((val), char *, __v == __elems[__i] ||	\
+ 				(__v && __elems[__i] &&			\
+ 				 !strcmp(__v, __elems[__i])), ##__VA_ARGS__)
+ 
 diff --git a/src/eap.c b/src/eap.c
-index 0645be4..7656b1a 100644
+index beb106c..10381af 100644
 --- a/src/eap.c
 +++ b/src/eap.c
-@@ -416,6 +416,9 @@ static const char *eap_type_to_str(enum eap_type type, uint32_t vendor_id,
+@@ -413,11 +413,8 @@ static const char *eap_type_to_str(enum eap_type type, uint32_t vendor_id,
+ 	return buf;
+ }
+ 
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
  #define IS_EXPANDED_RESPONSE(id, t) \
  	(type == EAP_TYPE_EXPANDED && vendor_id == (id) && vendor_type == (t))
+-_Pragma("GCC diagnostic pop")
  
-+#define RESPONSE_IS(wanted) \
-+	(type == wanted || IS_EXPANDED_RESPONSE(0, wanted))
-+
- static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
- 				size_t len)
- {
-@@ -428,14 +431,6 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
- 				eap->method->vendor_id[2];
- 	uint32_t our_vendor_type = eap->method->vendor_type;
- 
--	bool response_is(enum eap_type wanted)
--	{
--		if (type == wanted)
--			return true;
--
--		return IS_EXPANDED_RESPONSE(0, wanted);
--	}
--
- 	if (len < 1)
- 		/* Invalid packets to be ignored */
- 		return;
-@@ -461,7 +456,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
- 			return;
- 	}
- 
--	if (response_is(EAP_TYPE_NAK)) {
-+	if (RESPONSE_IS(EAP_TYPE_NAK)) {
- 		l_debug("EAP peer not configured for method: %s",
- 			eap_type_to_str(our_type, our_vendor_id,
- 							our_vendor_type));
-@@ -500,7 +495,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
- 	 */
- 
- 	if (!eap->identity) {
--		if (!response_is(EAP_TYPE_IDENTITY))
-+		if (!RESPONSE_IS(EAP_TYPE_IDENTITY))
- 			goto unsupported_method;
- 
- 		/*
-@@ -528,7 +523,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
- 	 * (with the exception of the Nak)
- 	 */
- 	if (our_type != EAP_TYPE_EXPANDED) {
--		if (response_is(our_type))
-+		if (RESPONSE_IS(our_type))
- 			goto handle_response;
- 	} else if (IS_EXPANDED_RESPONSE(our_vendor_id, our_vendor_type))
- 		goto handle_response;
+ #define RESPONSE_IS(t) \
+ 	(type == (t) || IS_EXPANDED_RESPONSE(0, (t)))
 diff --git a/src/eapol.c b/src/eapol.c
 index 19f70b5..2b9fbd1 100644
 --- a/src/eapol.c
