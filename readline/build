@@ -16,7 +16,8 @@ prepare() {
     shift
   done
   apply config.diff
-  tree 43363519d7ab199b3350bb990a9e17eeab68fa6807538b74b7da9b7005213585
+  apply rpath.diff
+  tree 8caa8336b53ae591ecdce1acc28e1d0f7272442f2691a54a0f7ea2e81caef13c
 }
 
 config-extra --disable-install-examples
