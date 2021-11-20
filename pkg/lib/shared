@@ -238,8 +238,9 @@ tidy() {
   { find "$PWD" -type f -print0 | while read -d '' -r FILE; do
       if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
         # ELF executable or shared object
-        if ! enabled rpaths && readelf -d "$FILE" | grep -q ' (RPATH) '; then
-          echo "$FILE has been incorrectly compiled with an RPATH"
+        if readelf -d "$FILE" | grep -q ' (R\(UN\)\?PATH) ' \
+             && ! enabled rpaths; then
+          echo "$FILE has been compiled with an RPATH or RUNPATH"
         fi
         if ! enabled unstripped; then
           strip --strip-unneeded "$FILE"
