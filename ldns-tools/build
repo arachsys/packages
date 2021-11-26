@@ -1,21 +1,17 @@
 check() {
   url https://www.nlnetlabs.nl/downloads/ldns/
-  match ldns 1.7.1 'ldns-([0-9.]+)\.tar'
+  match ldns 1.8.0 'ldns-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.nlnetlabs.nl/downloads/ldns/ldns-1.7.1.tar.gz
-  fetch https://raw.githubusercontent.com/freebsd/freebsd/d999889ee922b31e8c404b857f1151952a443bc8/contrib/ldns-host/ldns-host.c >ldns-host.c
-  fetch https://raw.githubusercontent.com/freebsd/freebsd/d999889ee922b31e8c404b857f1151952a443bc8/contrib/ldns-host/ldns-host.1 >ldns-host.1
-  tree 76ff6a70f72c9891eb616bb02e6e838863f2cbd2d2b6d51caf98cba147ba5131
+  unpack https://www.nlnetlabs.nl/downloads/ldns/ldns-1.8.0.tar.gz
+  fetch https://raw.githubusercontent.com/freebsd/freebsd-src/1c4f5adba92947a5faa1836449a621502a1678b8/contrib/ldns-host/ldns-host.c >ldns-host.c
+  tree 00c58ccd960cf27693cf5bd65e52c87faa519031b8a7f0eec8ef649885da5cf1
 }
 
 build() {
   /src/configure --disable-{dane-ta-usage,shared} --with-{drill,ssl=/lib}
   make setup-builddir drill
   cc -g -I. -L.libs -Os -Wall ldns-host.c -lldns -lcrypto -o host
-
   install -s -t /dst/bin -D drill/drill host
-  install -m 0644 -t /dst/lib/man/man1 -D drill/drill.1
-  sed 's/ldns-//gI' ldns-host.1 >/dst/lib/man/man1/host.1
 }
