@@ -1,14 +1,14 @@
 check() {
   url https://www.kernel.org/
-  match linux 5.15.5 'linux-([0-9.]+)\.tar'
+  match linux 5.15.6 'linux-([0-9.]+)\.tar'
 
   url https://api.github.com/repos/koverstreet/bcachefs/branches/master
-  match 'bcachefs snapshot' 20211124 \
+  match 'bcachefs snapshot' 20211201 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.15.5.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.15.6.tar.xz
   apply llvm.diff
   apply ncurses.diff
   apply regdom.diff
@@ -19,11 +19,11 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree feec0fb17dc4d0165e969ce1127538dab5c7cf0781098477ab5cbac8f206a3c8
+  tree 6afb124e8c689c8f64834ed31a6c4ea76081e8daef4c84216849a932adc28085
 
   if enabled bcachefs; then
-    apply bcachefs-20211124.diff
-    tree b4d0b2262d1624d2b221bfb21bfd1b8cd40a57af16fb6bf593105eb5a1169962
+    apply bcachefs-20211201.diff
+    tree ee6e048c8f93ca48e94c335d76eb4333b3453183065ca82ea2874328d1f033b5
   fi
 }
 
