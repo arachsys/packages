@@ -40,7 +40,7 @@ index 5038a967d..5ac2ce0aa 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index d5cc81b1c..8f862e690 100644
+index e9cc7662e..f6e45c261 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
 @@ -197,38 +197,7 @@ fn copy_self_contained_objects(
@@ -83,7 +83,7 @@ index d5cc81b1c..8f862e690 100644
          let srcdir = builder
              .wasi_root(target)
              .unwrap_or_else(|| {
-@@ -1147,20 +1116,6 @@ impl Step for Assemble {
+@@ -1153,20 +1122,6 @@ impl Step for Assemble {
              }
          }
  
@@ -128,11 +128,31 @@ index d4875cfe1..52eae8c9c 100644
              }
          }
  
+diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
+index 2d4e15278..b67f103d2 100644
+--- a/src/bootstrap/lib.rs
++++ b/src/bootstrap/lib.rs
+@@ -273,6 +273,7 @@ pub struct Build {
+         RefCell<HashMap<TargetSelection, HashMap<String, (&'static str, PathBuf, Vec<String>)>>>,
+ }
+ 
++#[allow(dead_code)]
+ #[derive(Debug)]
+ struct Crate {
+     name: Interned<String>,
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index 74e50c606..a48775388 100644
+index d7db2cef2..a79117795 100644
 --- a/src/bootstrap/sanity.rs
 +++ b/src/bootstrap/sanity.rs
-@@ -178,28 +178,6 @@ pub fn check(build: &mut Build) {
+@@ -11,7 +11,6 @@
+ use std::collections::HashMap;
+ use std::env;
+ use std::ffi::{OsStr, OsString};
+-use std::fs;
+ use std::path::PathBuf;
+ use std::process::Command;
+ 
+@@ -178,28 +177,6 @@ pub fn check(build: &mut Build) {
              }
          }
  
