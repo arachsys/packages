@@ -215,27 +215,25 @@ setup() {
 }
 
 tidy() {
-  rm -f -r etc run tmp var lib/pkgconfig
-  if ! enabled docs; then
-    rm -f -r lib/{doc,info,man}
-  fi
-
-  find . -type d -exec chown -f 0:0 {} + -exec chmod -f u=rwx,go=rx {} +
-  find . -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
+  find "$@" -type d -exec chown -f 0:0 {} + -exec chmod -f u=rwx,go=rx {} +
+  find "$@" -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
     -exec chmod -f u=rwX,go=rX {} +
 
-  if [[ -d lib ]]; then
-    find lib -name '*.la' -type f -delete
-    find lib -type f \( -name '*.so' -or -name '*.so.*' \) \
-      -exec chmod -f u=rw,go=r {} +
-  fi
+  for IMG in "$@"; do
+    if [[ -d $IMG ]]; then
+      rm -f -r "$IMG"/{etc,run,tmp,var,lib/pkgconfig,lib/**/*.la}
+      if ! enabled docs; then
+        rm -f -r "$IMG"/lib/{doc,info,man}
+      fi
 
-  mkdir -p lib/{shared,static}
-  maybe mv -t lib/static -- lib{,/shared}/*.[ao]
-  maybe mv -t lib/shared -- lib{,/static}/!(ld*).so?(.*)
-  maybe chmod -f a+x -- lib/ld*.so?(.*)
+      mkdir -p "$IMG"/lib/{shared,static}
+      maybe mv -t "$IMG"/lib/static -- "$IMG"/lib{,/shared}/*.[ao]
+      maybe mv -t "$IMG"/lib/shared -- "$IMG"/lib{,/static}/!(ld*).so?(.*)
+      maybe chmod -f u=rw,go=r -- "$IMG"/lib/**/{*.so,*.so.*}
+      maybe chmod -f a+x -- "$IMG"/lib/ld*.so?(.*)
+    fi
 
-  { find "$PWD" -type f -print0 | while read -d '' -r FILE; do
+    find "$IMG" -type f -print0 | while read -d '' -r FILE; do
       if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
         # ELF executable or shared object
         if readelf -d "$FILE" | grep -q ' (R\(UN\)\?PATH) ' \
@@ -263,23 +261,24 @@ tidy() {
       fi
     done
 
-    find "$PWD" -mindepth 1 -path "$PWD/bin" -type d -prune \
-      -or -path "$PWD/lib" -type d -prune \
-      -or -path "$PWD/requirements" -type f \
-      -or -printf "%p is neither in $PWD/bin nor $PWD/lib\n"
+    find "$IMG" -mindepth 1 -path "$IMG/bin" -type d -prune \
+      -or -path "$IMG/lib" -type d -prune \
+      -or -path "$IMG/requirements" -type f \
+      -or -printf "%p is neither in $IMG/bin nor $IMG/lib\n"
 
-    find "$PWD" -lname '/*' -printf '%p is an absolute symlink\n' \
+    find "$IMG" -lname '/*' -printf '%p is an absolute symlink\n' \
       -or -xtype l -printf '%p is a dangling symlink\n' \
       -or -not -xtype d -not -xtype f -printf '%p is a special file\n'
 
-    if [[ -d $PWD/bin ]]; then
-      find "$PWD/bin" -mindepth 1 -xtype d -printf '%p is a directory\n' \
+    if [[ -d $IMG/bin ]]; then
+      find "$IMG/bin" -mindepth 1 -xtype d -printf '%p is a directory\n' \
         -or -xtype f -executable -or -printf '%p is not executable\n'
     fi
-  } | [[ -z $(tee /dev/stderr) ]]
+  done | [[ -z $(tee /dev/stderr) ]]
 
-  find . -depth -type d -empty -delete -or -exec touch -r . {} +
-  hardlink -q -t .
+  hardlink -q -t "$@"
+  find "$@" -depth -exec touch -d $(date +@%s) {} +
+  find "$@" -depth -type d -empty -delete
 }
 
 tree() {

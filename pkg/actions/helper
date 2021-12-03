@@ -36,23 +36,23 @@ elif [[ $1 == prepare ]] && [[ -d /src ]]; then
   fi
   cd /src && prepare "${@:2}"
 elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
+  image() (
+    cd /dst && mkdir -p "img/$1"
+    while [[ $# -gt 1 ]]; do
+      cp -a -l -t "img/$1" --parents -- "${2#/dst/}"
+      rm -f -r -- "${2#/dst/}"
+      set -- "$1" "${@:3}"
+    done
+  )
+
   if ( set -- /src/* && [[ $# -eq 0 ]] ); then
     cd /src && prepare "${@:2}"
   fi
   cd /src && build "${@:2}" 2>&1
+  image "$2" /dst/!(img)
 
-  if [[ -d /dst/img ]]; then
-    find /dst -path /dst/img -prune -or -type d \
-        -or -printf '%p is outside /dst/img in multi-image build\n' \
-      | [[ -z $(tee /dev/stderr) ]]
-  else
-    mkdir -p "/dst/img/$2"
-    mv /dst/!(img) "/dst/img/$2/"
-  fi
-
-  for IMG in /dst/img/*/; do
-    cd "$IMG" && tidy
-  done
+  tidy /dst/img/*
+  find /dst/img -maxdepth 1 -type d -empty -delete
 else
   die "$0 helper action is for internal use only"
 fi
