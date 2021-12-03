@@ -87,19 +87,24 @@ build() {
   cp -R include/llvm ../llvm/include/{llvm,llvm-c} $LLVMDIR/include/
 
   for TARGET in wasm32 wasm64; do
-    mkdir -p /src/build-$TARGET $CLANGDIR/lib/$TARGET-wasi
-    cd /src/build-$TARGET
-    /src/cmake/bin/cmake -W no-dev \
-      -DCMAKE_{ASM,C}_COMPILER_TARGET=$TARGET-wasi \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_C_COMPILER_WORKS=Yes \
-      -DLLVM_CONFIG_PATH=../build/bin/llvm-config \
-      -DCOMPILER_RT_BAREMETAL_BUILD=Yes \
-      -DCOMPILER_RT_DEFAULT_TARGET_ONLY=Yes \
-      ../compiler-rt/lib/builtins
-    make compiler-rt
-    cp lib/*/libclang_rt.builtins-$TARGET.a \
-      $CLANGDIR/lib/$TARGET-wasi/libclang_rt.builtins.a
+    if /dst/bin/clang -print-targets | grep -q -F $TARGET; then
+      mkdir -p /src/build-$TARGET $CLANGDIR/lib/$TARGET-wasi
+      cd /src/build-$TARGET
+      /src/cmake/bin/cmake -W no-dev \
+        -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET-wasi \
+        -DCMAKE_ASM_COMPILER=/dst/bin/llvm-as \
+        -DCMAKE_C_COMPILER=/dst/bin/clang \
+        -DCMAKE_CXX_COMPILER=/dst/bin/clang++ \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER_WORKS=Yes \
+        -DLLVM_CONFIG_PATH=../build/bin/llvm-config \
+        -DCOMPILER_RT_BAREMETAL_BUILD=Yes \
+        -DCOMPILER_RT_DEFAULT_TARGET_ONLY=Yes \
+        ../compiler-rt/lib/builtins
+      make compiler-rt
+      cp lib/*/libclang_rt.builtins-$TARGET.a \
+        $CLANGDIR/lib/$TARGET-wasi/libclang_rt.builtins.a
+    fi
   done
 
   find $LLVMDIR/include -type d -or -name '*.def' -or -name '*.h' \
@@ -117,9 +122,10 @@ build() {
     echo "INPUT ( $UNWIND ..${RUNTIME#/dst/lib} )" >/dst/lib/libunwind.so
   fi
 
-  mkdir -p /dst/img/{llvm,lldb/bin,lldb/lib}
-  mv /dst/bin/lldb* /dst/img/lldb/bin/
-  mv /dst/lib/liblldb* /dst/img/lldb/lib/
-  mv /dst/bin /dst/lib /dst/img/llvm/
+  image lldb /dst/bin/lldb* /dst/lib/liblldb*.{a,so,so.*}
+  image llvm-shared /dst/lib/lib{c++,c++abi,unwind}.{so,so.*}
+  image llvm /dst/bin /dst/lib
+
   echo libedit >>/dst/img/lldb/requirements
+  echo llvm-shared >>/dst/img/llvm/requirements
 }
