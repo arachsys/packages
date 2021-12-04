@@ -30,4 +30,5 @@ post-config() {
 
 post-install() {
   rm -f -r /dst/bin/chkdupexec /dst/lib/{getopt,bash-completion}
+  find /dst/bin -lname setarch -delete
 }
