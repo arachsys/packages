@@ -16,7 +16,7 @@ mkdir -p "$CACHEDIR" "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 
-populate "$ROOT" base
+populate "$ROOT" build
 mkdir -p "$ROOT/pkg"
 
 check() {

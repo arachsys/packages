@@ -14,7 +14,7 @@ helper() {
   PKG=$PKG SRC= pkg contain "$ROOT" pkg helper "$@"
 }
 
-populate "$ROOT" base
+populate "$ROOT" build
 mkdir -p "$ROOT"/{pkg,src}
 mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:3}")
 populate "$ROOT" "${REQUIRED[@]}"

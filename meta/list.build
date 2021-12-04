@@ -1,0 +1,5 @@
+base
+linux-headers
+llvm
+make
+pkg

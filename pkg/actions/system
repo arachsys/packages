@@ -24,6 +24,12 @@ elif [[ -e "$1" ]]; then
   die "Cannot construct system image: $1 already exists"
 fi
 
+if [[ $# -lt 2 ]]; then
+  set -- "$1" build
+else
+  set -- "$1" base "${@:2}"
+fi
+
 mkdir -p "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
@@ -45,7 +51,7 @@ if [[ -n $WITHPKG ]]; then
   done
 fi
 
-resolve base "${@:2}" | while read IMG; do
+resolve "${@:2}" | while read IMG; do
   maybe cp -a -l -t "$ROOT" -- "$IMGDIR/$IMG"/!(requirements)
   if [[ -n $WITHIMG ]]; then
     mkdir -m 0755 -p "$ROOT"/{home,home/root,home/root/img}

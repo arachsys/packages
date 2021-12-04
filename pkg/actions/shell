@@ -17,5 +17,5 @@ while getopts :s: OPTION; do
 done
 shift $(($OPTIND - 1))
 
-populate "$ROOT" base "$@"
+populate "$ROOT" "${@+base}" "${@-build}"
 SRC=$SRC pkg contain "$ROOT" bash -l
