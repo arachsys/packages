@@ -1,8 +1,7 @@
 prepare() { :; }
 
 build() {
-  mkdir -p /dst/img
   for FILE in /pkg/list.*; do
-    cp $FILE /dst/img/${FILE##*/list.}
+    cp $FILE /img/${FILE##*/list.}
   done
 }

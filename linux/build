@@ -29,7 +29,7 @@ prepare() {
 
 build() {
   make headers
-  mkdir -p /dst/img/linux-headers/lib/include
+  mkdir -p /img/linux-headers/lib/include
   cd usr/include && find . -xtype f -name '*.h' \
-    -exec cp -d -t /dst/img/linux-headers/lib/include --parents {} +
+    -exec cp -d -t /img/linux-headers/lib/include --parents {} +
 }

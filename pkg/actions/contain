@@ -14,7 +14,7 @@ fi
 mount -o bind "$1" "$1"
 
 [[ -d $1/dev ]] && mount -o rbind /dev "$1/dev"
-[[ -d $1/dst ]] && mount -o bind "$1/dst" "$1/dst"
+[[ -d $1/img ]] && mount -o bind "$1/img" "$1/img"
 [[ -d $1/pkg ]] && mount -o rbind "${PKG:-$1/pkg}" "$1/pkg"
 [[ -d $1/proc ]] && mount -o rbind /proc "$1/proc"
 [[ -d $1/run ]] && mount -o bind "$1/run" "$1/run"

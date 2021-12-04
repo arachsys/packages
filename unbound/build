@@ -16,5 +16,5 @@ config-extra --disable-{rpath,shared} --with-conf-file=/etc/unbound.conf \
 
 post-install() {
   rm -f -r /dst/include /dst/lib
-  echo expat >>/dst/requirements
+  image - requires expat
 }

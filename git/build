@@ -24,6 +24,6 @@ build() {
     | xargs -0 rm --
   find /dst/lib/git/templates -name '*.sample' -delete
   if enabled perl; then
-    echo perl >>/dst/requirements
+    image - requires perl
   fi
 }

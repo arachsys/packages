@@ -75,4 +75,7 @@ post-install() {
   mv /dst/lib/**/*.spec /dst/lib/gcc/$TARGET/$VERSION/
   rm -f /dst/bin/{$TARGET-*,ld.bfd,gccbug} /dst/**/*.py
   ln -s gcc /dst/bin/cc
+
+  image gcc-shared contains /dst/lib/{,shared/}lib{atomic,gcc_s,stdc++}.so*
+  image - requires gcc-shared
 }

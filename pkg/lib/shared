@@ -162,7 +162,7 @@ populate() {
   cp -n -t "$1/etc" -L -R /etc/{protocols,resolv.conf,services,ssl} \
     "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"
   resolve "${@:2}" | while read IMG; do
-    maybe cp -a -l -t "$1" -- "$IMGDIR/$IMG"/!(requirements)
+    maybe cp -a -l -t "$1" -- "$IMGDIR/$IMG"/!(info)
   done
 }
 
@@ -186,8 +186,8 @@ resolve() {
         mapfile -t REQUIRED < "$IMGDIR/$1"
       elif [[ -d $IMGDIR/$1 ]]; then
         printf '%s\n' "$1"
-        if [[ -f $IMGDIR/$1/requirements ]]; then
-          mapfile -t REQUIRED < "$IMGDIR/$1/requirements"
+        if [[ -f $IMGDIR/$1/info/requirements ]]; then
+          mapfile -t REQUIRED < "$IMGDIR/$1/info/requirements"
         fi
       else
         die "Required image $1 not found in $IMGDIR"
@@ -263,7 +263,7 @@ tidy() {
 
     find "$IMG" -mindepth 1 -path "$IMG/bin" -type d -prune \
       -or -path "$IMG/lib" -type d -prune \
-      -or -path "$IMG/requirements" -type f \
+      -or -path "$IMG/info" -type d -prune \
       -or -printf "%p is neither in $IMG/bin nor $IMG/lib\n"
 
     find "$IMG" -lname '/*' -printf '%p is an absolute symlink\n' \

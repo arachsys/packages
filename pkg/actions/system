@@ -52,7 +52,7 @@ if [[ -n $WITHPKG ]]; then
 fi
 
 resolve "${@:2}" | while read IMG; do
-  maybe cp -a -l -t "$ROOT" -- "$IMGDIR/$IMG"/!(requirements)
+  maybe cp -a -l -t "$ROOT" -- "$IMGDIR/$IMG"/!(info)
   if [[ -n $WITHIMG ]]; then
     mkdir -m 0755 -p "$ROOT"/{home,home/root,home/root/img}
     cp -a -l -t "$ROOT/home/root/img" "$IMGDIR/$IMG"

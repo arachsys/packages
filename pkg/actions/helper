@@ -37,22 +37,42 @@ elif [[ $1 == prepare ]] && [[ -d /src ]]; then
   cd /src && prepare "${@:2}"
 elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
   image() (
-    cd /dst && mkdir -p "img/$1"
-    while [[ $# -gt 1 ]]; do
-      cp -a -l -t "img/$1" --parents -- "${2#/dst/}"
-      rm -f -r -- "${2#/dst/}"
-      set -- "$1" "${@:3}"
-    done
+    if [[ $2 == contains ]] && [[ $1 != ?(-) ]]; then
+      cd /dst && mkdir -p "/img/$1"
+      while [[ $# -gt 2 ]]; do
+        cp -a -l -t "/img/$1" --parents -- "${3#/dst/}"
+        rm -f -r -- "${3#/dst/}"
+        set -- "$1" "$2" "${@:4}"
+      done
+    elif [[ $2 == requires ]] && [[ $# -gt 2 ]]; then
+      if [[ $1 == ?(-) ]]; then
+        mkdir -p /dst/info
+        printf '%s\n' "${@:3}" >>/dst/info/requirements
+      else
+        mkdir -p "/img/$1/info"
+        printf '%s\n' "${@:3}" >>/img/$1/info/requirements
+      fi
+    else
+      die "Invalid command: image $*"
+    fi
   )
 
   if ( set -- /src/* && [[ $# -eq 0 ]] ); then
     cd /src && prepare "${@:2}"
   fi
   cd /src && build "${@:2}" 2>&1
-  image "$2" /dst/!(img)
 
-  tidy /dst/img/*
-  find /dst/img -maxdepth 1 -type d -empty -delete
+  tidy /img/*
+  find /img -mindepth 1 -maxdepth 1 -type d -empty -delete
+  for IMG in /img/*; do
+    if [[ -d "$IMG" ]]; then
+      mkdir -p "$IMG/info"
+      printf '%s\n' "$2" >"$IMG/info/source"
+    fi
+    if [[ -f "$IMG/info/requirements" ]]; then
+      sort -o "$IMG/info/requirements" -u "$IMG/info/requirements"
+    fi
+  done
 else
   die "$0 helper action is for internal use only"
 fi

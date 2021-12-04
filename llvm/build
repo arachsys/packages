@@ -122,10 +122,9 @@ build() {
     echo "INPUT ( $UNWIND ..${RUNTIME#/dst/lib} )" >/dst/lib/libunwind.so
   fi
 
-  image lldb /dst/bin/lldb* /dst/lib/liblldb*.{a,so,so.*}
-  image llvm-shared /dst/lib/lib{c++,c++abi,unwind}.{so,so.*}
-  image llvm /dst/bin /dst/lib
+  image lldb contains /dst/bin/lldb* /dst/lib/liblldb*.{a,so,so.*}
+  image lldb requires libedit
 
-  echo libedit >>/dst/img/lldb/requirements
-  echo llvm-shared >>/dst/img/llvm/requirements
+  image llvm-shared contains /dst/lib/lib{c++,c++abi,unwind}.{so,so.*}
+  image - requires llvm-shared
 }

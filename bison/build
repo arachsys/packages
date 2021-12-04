@@ -18,5 +18,5 @@ post-install() {
 exec bison -y "$@"
 EOF
   chmod 0755 /dst/bin/yacc
-  echo m4 >>/dst/requirements
+  image - requires m4
 }

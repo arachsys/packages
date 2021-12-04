@@ -42,5 +42,5 @@ post-install() {
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python -m compileall \
     /dst/lib/python/site-packages/pip/_internal/cli/cmdoptions.py
 
-  echo libffi >>/dst/requirements
+  image - requires libffi
 }

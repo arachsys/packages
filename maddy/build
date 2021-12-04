@@ -20,5 +20,5 @@ build() {
       -o $CMD /src/cmd/$CMD
     install -D $CMD /dst/bin/$CMD
   done
-  echo sqlite >>/dst/requirements
+  image - requires sqlite
 }

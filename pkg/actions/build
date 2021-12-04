@@ -34,7 +34,8 @@ helper() {
 }
 
 populate "$ROOT" build
-mkdir -p "$ROOT"/{dst,pkg,src}
+mkdir -p "$ROOT/img/${PKG##*/}" "$ROOT/pkg" "$ROOT/src"
+ln -s "img/${PKG##*/}" "$ROOT/dst"
 mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:2}")
 populate "$ROOT" "${REQUIRED[@]}"
 helper build "${PKG##*/}" "${@:2}"
@@ -42,7 +43,7 @@ helper build "${PKG##*/}" "${@:2}"
 if [[ -n $DEBUG ]]; then
   echo "Debug mode: not installing or replacing images"
 else
-  for IMG in "$ROOT"/dst/img/*; do
+  for IMG in "$ROOT"/img/*; do
     if [[ -e "$IMGDIR/${IMG##*/}" ]]; then
       echo "Replacing existing image in $IMGDIR/${IMG##*/}"
       rm -f -r "$IMGDIR/${IMG##*/}"

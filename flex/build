@@ -14,5 +14,5 @@ prepare() {
 config-extra --disable-shared
 
 post-install() {
-  echo m4 >>/dst/requirements
+  image - requires m4
 }
