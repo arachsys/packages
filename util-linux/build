@@ -13,8 +13,8 @@ prepare() {
   tree 0e8289d2b35857871d5c47780f997cfe5c381686f7397895bcaa16d1b81077b5
 }
 
-config-extra --disable-{chfn-chsh,cramfs,last,lastb,login,lslogins,mesg} \
-  --disable-{minix,newgrp,nologin,{pivot,switch}_root,su,utmpdump,vipw,wall} \
+config-extra --disable-{chfn-chsh,cramfs,last,login,lslogins,mesg,minix} \
+  --disable-{more,newgrp,nologin,{pivot,switch}_root,su,utmpdump,vipw,wall} \
   --enable-{line,shared,fs-paths-default=/bin} ADJTIME_PATH=/var/lib/adjtime
 
 post-config() {
