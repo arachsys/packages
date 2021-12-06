@@ -1,11 +1,12 @@
 mode autotools
+enabled bootstrap || require gcc
 
 check() {
   url https://ftp.gnu.org/gnu/gcc/
   match gcc 11.2.0 'gcc-([0-9.]+)/'
 
   url https://ftp.gnu.org/gnu/binutils/
-  match binutils 2.36.1 'binutils-([0-9.]+)\.tar'
+  match binutils 2.36.1 'binutils-(2\.36\.[0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/gmp/
   match gmp 6.2.1 'gmp-([0-9.]+)\.tar'
@@ -50,21 +51,12 @@ config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
   --with-slibdir='${prefix}/lib/shared' --with-system-zlib \
   libat_cv_have_ifunc=no
 
-if enabled bootstrap; then
-  config-extra --enable-bootstrap
-fi
-
 if enabled gold; then
   config-extra --enable-gold
 fi
 
 compile-extra tooldir='${prefix}'
 install-extra tooldir='${prefix}'
-
-pre-install() {
-  # Avoid libbfd dependency bug with parallel install
-  export MAKEFLAGS=-j1
-}
 
 post-install() {
   local TARGET=$(cd /dst/lib/gcc && echo *)
