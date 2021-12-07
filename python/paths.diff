@@ -53,7 +53,7 @@ index cb772f3..d62bc70 100644
                                          stderr=subprocess.DEVNULL)
              except OSError:  # E.g. command not found
 diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index 26696cf..2d6eb4d 100644
+index 01d5331..775bd75 100644
 --- a/Lib/distutils/command/install.py
 +++ b/Lib/distutils/command/install.py
 @@ -72,8 +72,8 @@ if HAS_USER_SITE:
@@ -148,7 +148,7 @@ index ae416a8..142e8b5 100644
  
  
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index 1e83131..ec0225b 100644
+index c389685..8428f21 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -47,14 +47,6 @@ __all__ = [
@@ -230,7 +230,7 @@ index c182eea..471a176 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index 95b48f6..be74673 100644
+index daf9f00..30cc0d8 100644
 --- a/Lib/sysconfig.py
 +++ b/Lib/sysconfig.py
 @@ -25,14 +25,14 @@ _ALWAYS_STR = {
@@ -298,10 +298,10 @@ index 95b48f6..be74673 100644
              'data': '{userbase}',
              },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index efcf7a7..bb70ff2 100644
+index 7b68212..9ff85bc 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
-@@ -166,7 +166,7 @@ def _candidate_tempdir_list():
+@@ -170,7 +170,7 @@ def _candidate_tempdir_list():
                           _os.path.expandvars(r'%SYSTEMROOT%\Temp'),
                           r'c:\temp', r'c:\tmp', r'\temp', r'\tmp' ])
      else:
@@ -323,7 +323,7 @@ index 5ae0a3e..43c286e 100644
          if executable is None:
              return None
 diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
-index 8009deb..76fc258 100644
+index ce1f5d7..02a169c 100644
 --- a/Lib/venv/__init__.py
 +++ b/Lib/venv/__init__.py
 @@ -125,19 +125,11 @@ class EnvBuilder:
@@ -349,10 +349,10 @@ index 8009deb..76fc258 100644
          context.bin_name = binname
          context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 790d974..ea28684 100644
+index ee85f35..f63d8a0 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -142,7 +142,7 @@ BINDIR=		@bindir@
+@@ -141,7 +141,7 @@ BINDIR=		@bindir@
  LIBDIR=		@libdir@
  MANDIR=		@mandir@
  INCLUDEDIR=	@includedir@
@@ -361,7 +361,7 @@ index 790d974..ea28684 100644
  PLATLIBDIR=	@PLATLIBDIR@
  SCRIPTDIR=	$(prefix)/$(PLATLIBDIR)
  ABIFLAGS=	@ABIFLAGS@
-@@ -151,9 +151,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
+@@ -150,9 +150,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
  
  # Detailed destination directories
  BINLIBDEST=	@BINLIBDEST@
@@ -375,7 +375,7 @@ index 790d974..ea28684 100644
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index 10f7752..a841dc6 100644
+index 0bdbd98..af8bc9f 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
 @@ -1460,7 +1460,7 @@ calculate_init(PyCalculatePath *calculate, const PyConfig *config)
@@ -388,10 +388,10 @@ index 10f7752..a841dc6 100644
          return DECODE_LOCALE_ERR("VERSION macro", len);
      }
 diff --git a/configure b/configure
-index 9903aed..f25eebb 100755
+index ca42c39..5031d97 100755
 --- a/configure
 +++ b/configure
-@@ -15447,7 +15447,7 @@ fi
+@@ -15678,7 +15678,7 @@ fi
  
  
  
@@ -400,7 +400,7 @@ index 9903aed..f25eebb 100755
  
  
  # Check for --with-platlibdir
-@@ -15483,9 +15483,9 @@ fi
+@@ -15714,9 +15714,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then
@@ -413,10 +413,10 @@ index 9903aed..f25eebb 100755
  
  
 diff --git a/setup.py b/setup.py
-index 3d250e7..56941a3 100644
+index 43e807f..cefaa1a 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -678,9 +678,11 @@ class PyBuildExt(build_ext):
+@@ -682,9 +682,11 @@ class PyBuildExt(build_ext):
  
          if multiarch_path_component != '':
              add_dir_to_list(self.compiler.library_dirs,
@@ -430,7 +430,7 @@ index 3d250e7..56941a3 100644
              return
  
          if not find_executable('dpkg-architecture'):
-@@ -699,9 +701,11 @@ class PyBuildExt(build_ext):
+@@ -703,9 +705,11 @@ class PyBuildExt(build_ext):
                  with open(tmpfile) as fp:
                      multiarch_path_component = fp.readline().strip()
                  add_dir_to_list(self.compiler.library_dirs,
@@ -444,7 +444,7 @@ index 3d250e7..56941a3 100644
          finally:
              os.unlink(tmpfile)
  
-@@ -832,8 +836,8 @@ class PyBuildExt(build_ext):
+@@ -846,8 +850,8 @@ class PyBuildExt(build_ext):
              add_dir_to_list(self.compiler.include_dirs,
                              sysconfig.get_config_var("INCLUDEDIR"))
  
@@ -455,7 +455,7 @@ index 3d250e7..56941a3 100644
          # lib_dirs and inc_dirs are used to search for files;
          # if a file is found in one of those directories, it can
          # be assumed that no additional -I,-L directives are needed.
-@@ -1131,11 +1135,11 @@ class PyBuildExt(build_ext):
+@@ -1145,11 +1149,11 @@ class PyBuildExt(build_ext):
              elif curses_library:
                  readline_libs.append(curses_library)
              elif self.compiler.find_library_file(self.lib_dirs +
@@ -469,7 +469,7 @@ index 3d250e7..56941a3 100644
                                 extra_link_args=readline_extra_link_args,
                                 libraries=readline_libs))
          else:
-@@ -1149,7 +1153,7 @@ class PyBuildExt(build_ext):
+@@ -1163,7 +1167,7 @@ class PyBuildExt(build_ext):
          if curses_library == 'ncursesw':
              curses_defines.append(('HAVE_NCURSESW', '1'))
              if not CROSS_COMPILING:
@@ -478,7 +478,7 @@ index 3d250e7..56941a3 100644
              # Bug 1464056: If _curses.so links with ncursesw,
              # _curses_panel.so must link with panelw.
              panel_library = 'panelw'
-@@ -1274,33 +1278,17 @@ class PyBuildExt(build_ext):
+@@ -1288,33 +1292,17 @@ class PyBuildExt(build_ext):
          # construct a list of paths to look for the header file in on
          # top of the normal inc_dirs.
          db_inc_paths = [
@@ -518,7 +518,7 @@ index 3d250e7..56941a3 100644
  
          if CROSS_COMPILING:
              db_inc_paths = []
-@@ -1527,12 +1515,9 @@ class PyBuildExt(build_ext):
+@@ -1541,12 +1529,9 @@ class PyBuildExt(build_ext):
  
          # We hunt for #define SQLITE_VERSION "n.n.n"
          sqlite_incdir = sqlite_libdir = None
@@ -534,12 +534,3 @@ index 3d250e7..56941a3 100644
                               ]
          if CROSS_COMPILING:
              sqlite_inc_paths = []
-@@ -1849,7 +1834,7 @@ class PyBuildExt(build_ext):
- 
-     def detect_uuid(self):
-         # Build the _uuid module if possible
--        uuid_incs = find_file("uuid.h", self.inc_dirs, ["/usr/include/uuid"])
-+        uuid_incs = find_file("uuid.h", self.inc_dirs, ["/lib/include/uuid"])
-         if uuid_incs is not None:
-             if self.compiler.find_library_file(self.lib_dirs, 'uuid'):
-                 uuid_libs = ['uuid']
