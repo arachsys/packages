@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url http://www.greenwoodsoftware.com/less/download.html
-  match version 590 'less-([0-9.]+)\.tar'
+  match version 598 'less-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack http://www.greenwoodsoftware.com/less/less-590.tar.gz
-  tree 4b165b9858f779a27bc49b67fcf9b6db9a5c8bfa1d6afdbc648c622f24a6a6ed
+  unpack http://www.greenwoodsoftware.com/less/less-598.tar.gz
+  tree 60517f2f55c5803fcaec24089f264ea9afadf166dac4ef2fef9f6d66595102d2
 }
 
 post-install() {
