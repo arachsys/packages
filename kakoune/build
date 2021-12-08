@@ -6,8 +6,9 @@ check() {
 prepare() {
   unpack kakoune-2021.11.08.tar.gz \
     https://github.com/mawww/kakoune/archive/v2021.11.08.tar.gz
+  apply modeline.diff
   apply paths.diff
-  tree 05666922128847fcd04964c18c1483865bb5a9891c83a31a468467bf39ec43bf
+  tree 65a74b8e3145a09dc2e491f6d8719334363a09f129ba00e155530bc55307cc05
 }
 
 build() {
