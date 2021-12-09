@@ -3,12 +3,12 @@ require expat
 
 check() {
   url https://nlnetlabs.nl/downloads/unbound/
-  match version 1.13.2 'unbound-([0-9.]+)\.tar'
+  match version 1.14.0 'unbound-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.13.2.tar.gz
-  tree 1977e7edac58f0942da57ab72a55a9125090e1f46b898f30e037749ea61e5d8c
+  unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.14.0.tar.gz
+  tree 4e52cddbafe042dd1f276f781e04adcfb5d66a956d7ab44b3384184a2e7fcf7c
 }
 
 config-extra --disable-{rpath,shared} --with-conf-file=/etc/unbound.conf \
