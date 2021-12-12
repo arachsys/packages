@@ -1,0 +1,36 @@
+diff --git a/rc/filetype/c-family.kak b/rc/filetype/c-family.kak
+index d82bc0d..aaf806b 100644
+--- a/rc/filetype/c-family.kak
++++ b/rc/filetype/c-family.kak
+@@ -209,7 +209,7 @@ evaluate-commands %sh{
+             add-highlighter shared/$ft/macro/ regex ^\\h*(#\\h*\\S*) 1:meta
+             add-highlighter shared/$ft/macro/ regex ^\\h*#\\h*include\\h+(<[^>]*>|"(?:[^"\\\\]|\\\\.)*") 1:module
+             add-highlighter shared/$ft/macro/ regex /\\*.*?\\*/ 0:comment
+-	EOF
++EOF
+     done
+ }
+ 
+diff --git a/rc/tools/git.kak b/rc/tools/git.kak
+index 8511f7a..96af805 100644
+--- a/rc/tools/git.kak
++++ b/rc/tools/git.kak
+@@ -256,16 +256,14 @@ define-command -params 1.. \
+ 
+     commit() {
+         # Handle case where message needs not to be edited
+-        if grep -E -q -e "-m|-F|-C|--message=.*|--file=.*|--reuse-message=.*|--no-edit|--fixup.*|--squash.*"; then
++        if printf '%s\n' "$@" | grep -E -q -e "-m|-F|-C|--message=.*|--file=.*|--reuse-message=.*|--no-edit|--fixup.*|--squash.*"; then
+             if git commit "$@" > /dev/null 2>&1; then
+                 echo 'echo -markup "{Information}Commit succeeded"'
+             else
+                 echo 'fail Commit failed'
+             fi
+             exit
+-        fi <<-EOF
+-			$@
+-		EOF
++        fi
+ 
+         # fails, and generate COMMIT_EDITMSG
+         GIT_EDITOR='' EDITOR='' git commit "$@" > /dev/null 2>&1

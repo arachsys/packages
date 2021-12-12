@@ -6,11 +6,21 @@ check() {
 prepare() {
   unpack kakoune-2021.11.08.tar.gz \
     https://github.com/mawww/kakoune/archive/v2021.11.08.tar.gz
+  apply highlight.diff
   apply modeline.diff
   apply paths.diff
-  tree 65a74b8e3145a09dc2e491f6d8719334363a09f129ba00e155530bc55307cc05
+  apply tabs.diff
+  apply windowing.diff
+  tree c19423ccbf10afedafb3829e0d21e3e9949e15cfdbd8aa08b8ed124b731737d0
 }
 
 build() {
   make install CXX=c++ DESTDIR=/dst PREFIX= version=2021.11.08
+  find /dst/lib/kak/{colors,kakrc,rc} -type f -exec sed -E -e '/^\s*#/d' \
+    -e "s/^(([^'\"#]*|'[^']*'|\"([^\"\\]|\\\\.)*\")*)\\s+#\\s.*/\\1/" \
+    -e 's/\s+$//' -e '/./,/^$/p' -i -n {} +
+  find /dst/lib/kak/{colors,kakrc,rc} -type f | while read FILE; do
+    sed -E -e '${/^$/d}' -e 's/rgb:[[:xdigit:]]{2}{3,4}/\L&/g' "$FILE" \
+      | expand -i > "$FILE.tmp" && mv -f "$FILE.tmp" "$FILE"
+  done
 }
