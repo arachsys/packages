@@ -1,0 +1,99 @@
+diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
+index 88a81ce..3440a85 100644
+--- a/doc/pages/options.asciidoc
++++ b/doc/pages/options.asciidoc
+@@ -367,6 +367,11 @@ are exclusively available to built-in options.
+             reduce terminal output with sequences that could trigger flickering
+             if unsynchronized (defaults to *false*)
+ 
++        *terminal_use_palette*:::
++            if *yes* or *true*, approximate 24-bit colors using the standard
++            256-color palette instead of emitting true RGB escape sequences
++            (defaults to *false*)
++
+ [[startup-info]]
+ *startup_info_version* `int`::
+     _default_ 0 +
+diff --git a/src/main.cc b/src/main.cc
+index b8649d0..fa8f2aa 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -555,7 +555,8 @@ void register_options()
+                        "    terminal_wheel_scroll_amount   int\n"
+                        "    terminal_shift_function_key    int\n"
+                        "    terminal_padding_char          codepoint\n"
+-                       "    terminal_padding_fill          bool\n",
++                       "    terminal_padding_fill          bool\n"
++                       "    terminal_use_palette           bool\n",
+                        UserInterface::Options{});
+     reg.declare_option("modelinefmt", "format string used to generate the modeline",
+                        "%val{bufname} %val{cursor_line}:%val{cursor_char_column} {{context_info}} {{mode_info}} - %val{client}@[%val{session}]"_str);
+diff --git a/src/terminal_ui.cc b/src/terminal_ui.cc
+index 6746074..9dc3da4 100644
+--- a/src/terminal_ui.cc
++++ b/src/terminal_ui.cc
+@@ -226,13 +226,24 @@ void TerminalUI::Screen::set_face(const Face& face, Writer& writer)
+     static constexpr int ul_table[]{ 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+     static constexpr const char* attr_table[]{ "0", "4", "4:3", "7", "5", "1", "2", "3", "9" };
+ 
++    auto nearest = [](const Color& color) {
++        int i = color.r < 35 ? 0 : (color.r - 35)/40;
++        int j = color.g < 35 ? 0 : (color.g - 35)/40;
++        int k = color.b < 35 ? 0 : (color.b - 35)/40;
++        if (i == j and j == k and color.g >= 4 and color.g < 244)
++            return 232 + (color.g - 4)/10;
++        return 36*i + 6*j + k + 16;
++    };
++
+     auto set_color = [&](bool fg, const Color& color, bool join) {
+         if (join)
+             writer.write(";");
+-        if (color.isRGB())
+-            format_with(writer, "{};2;{};{};{}", fg ? 38 : 48, color.r, color.g, color.b);
+-        else
++        if (not color.isRGB())
+             format_with(writer, "{}", (fg ? fg_table : bg_table)[(int)(char)color.color]);
++        else if (m_use_palette)
++            format_with(writer, "{};5;{}", fg ? 38 : 48, nearest(color));
++        else
++            format_with(writer, "{};2;{};{};{}", fg ? 38 : 48, color.r, color.g, color.b);
+     };
+ 
+     if (m_active_face == face)
+@@ -266,10 +277,12 @@ void TerminalUI::Screen::set_face(const Face& face, Writer& writer)
+             writer.write(";");
+         if (face.underline != Color::Default)
+         {
+-            if (face.underline.isRGB())
+-                format_with(writer, "58:2::{}:{}:{}", face.underline.r, face.underline.g, face.underline.b);
+-            else
++            if (not face.underline.isRGB())
+                 format_with(writer, "58:5:{}", ul_table[(int)(char)face.underline.color]);
++            else if (m_use_palette)
++                format_with(writer, "58:5::{}", nearest(face.underline));
++            else
++                format_with(writer, "58:2::{}:{}:{}", face.underline.r, face.underline.g, face.underline.b);
+         }
+         else
+             format_with(writer, "59");
+@@ -1490,6 +1503,8 @@ void TerminalUI::set_ui_options(const Options& options)
+ 
+     m_padding_char = find("terminal_padding_char").map([](StringView s) { return s.column_length() < 1 ? ' ' : s[0_char]; }).value_or(Codepoint{'~'});
+     m_padding_fill = find("terminal_padding_fill").map(to_bool).value_or(false);
++
++    m_screen.m_use_palette = find("terminal_use_palette").map(to_bool).value_or(false);
+ }
+ 
+ }
+diff --git a/src/terminal_ui.hh b/src/terminal_ui.hh
+index b02cbb3..d4801b3 100644
+--- a/src/terminal_ui.hh
++++ b/src/terminal_ui.hh
+@@ -94,6 +94,7 @@ private:
+ 
+         std::unique_ptr<size_t[]> hashes;
+         Face m_active_face;
++        bool m_use_palette = false;
+     };
+ 
+     Window m_window;

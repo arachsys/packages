@@ -8,10 +8,11 @@ prepare() {
     https://github.com/mawww/kakoune/archive/v2021.11.08.tar.gz
   apply highlight.diff
   apply modeline.diff
+  apply palette.diff
   apply paths.diff
   apply tabs.diff
   apply windowing.diff
-  tree c19423ccbf10afedafb3829e0d21e3e9949e15cfdbd8aa08b8ed124b731737d0
+  tree 28d711998a574a00d060c17209dce29ab2beb066f2a813e5102cab6ceae1212a
 }
 
 build() {
