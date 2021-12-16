@@ -2,13 +2,13 @@ enable setuid
 
 check() {
   url https://github.com/iputils/iputils/releases
-  match iputils 20210722 'tags/([0-9.]+)\.tar'
+  match iputils 20211215 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack iputils-20210705.tar.gz \
-    https://github.com/iputils/iputils/archive/refs/tags/20210722.tar.gz
-  tree 4cb233ff1c7bc3f89e8f8f85ea37e4fd33343e1eacf29f0ec33295b23782905f
+  unpack iputils-20211215.tar.gz \
+    https://github.com/iputils/iputils/archive/refs/tags/20211215.tar.gz
+  tree b7a965c1da8b12b8ee7c7ee20f0b3f000f22d4e9411e08d4fc6df268d5dce57e
 }
 
 build() {
