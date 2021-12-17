@@ -3,13 +3,13 @@ require libevent
 
 check() {
   url https://dist.torproject.org/
-  match version 0.4.6.8 'tor-([0-9.]+)\.tar'
+  match version 0.4.6.9 'tor-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dist.torproject.org/tor-0.4.6.8.tar.gz
+  unpack https://dist.torproject.org/tor-0.4.6.9.tar.gz
   apply cosmetic.diff
-  tree 50ae5eb62fb7f4c30012e23399c73e7cd4fccc818b2e99ada3b304d21f7d9bd4
+  tree 387bb1296f159e5dcfa54419d7b9a523c952f5595e3238e00f87306b8768608c
 }
 
 config-extra --enable-lzma --enable-zstd CONFDIR=/etc \
