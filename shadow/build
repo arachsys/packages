@@ -3,17 +3,17 @@ enable setuid setgid
 
 check() {
   url https://github.com/shadow-maint/shadow/releases
-  match version 4.9 'shadow-([0-9.]+)\.tar'
+  match version 4.10 'shadow-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/v4.9/shadow-4.9.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/v4.10/shadow-4.10.tar.xz
   apply bcrypt.diff
   apply paths.diff
-  tree 037fa7042d8ba8a691bc88e0226090b7046525842eb021cf9d7589318a6e6944
+  tree ae1c3196c7d041e6bd845ab9ebd9ed6cfcdbcdc2f1e1d6fa53d5c8f856edf9d4
 }
 
-config-extra --without-audit --with-bcrypt --without-libpam
+config-extra --disable-shared --without-{audit,libpam} --with-bcrypt
 
 post-config() {
   sed -e 's:^\(#define FAILLOG_FILE\).*:\1 "/dev/null":' \
@@ -28,4 +28,5 @@ post-install() {
   chmod u-s,g+s /dst/bin/{chage,expiry}
   rm -f /dst/bin/{chfn,faillog,groups,lastlog,logoutd}
   rm -f /dst/lib/man/man*/{chfn,faillog,groups,lastlog,logoutd}.*
+  rm -f -r /dst/lib/include /dst/lib/*.a
 }
