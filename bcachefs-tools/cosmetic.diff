@@ -284,7 +284,7 @@ index d78598d..1daea63 100644
  	return bchu_data(bcache_fs_open(fs_path), op);
  }
 diff --git a/cmd_debug.c b/cmd_debug.c
-index 73f8686..bb41c10 100644
+index eac9c38..3d6c489 100644
 --- a/cmd_debug.c
 +++ b/cmd_debug.c
 @@ -23,13 +23,14 @@
@@ -307,6 +307,15 @@ index 73f8686..bb41c10 100644
  }
  
  static void dump_one_device(struct bch_fs *c, struct bch_dev *ca, int fd)
+@@ -87,7 +88,7 @@ static void dump_one_device(struct bch_fs *c, struct bch_dev *ca, int fd)
+ 		}
+ 
+ 		if (ret)
+-			die("error %s walking btree nodes", strerror(-ret));
++			die("Error %s walking btree nodes", strerror(-ret));
+ 
+ 		b = c->btree_roots[i].b;
+ 		if (!btree_node_fake(b)) {
 @@ -149,7 +150,7 @@ int cmd_dump(int argc, char *argv[])
  
  	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
@@ -316,6 +325,24 @@ index 73f8686..bb41c10 100644
  
  	down_read(&c->gc_lock);
  
+@@ -229,7 +230,7 @@ static void list_btree_formats(struct bch_fs *c, enum btree_id btree_id, unsigne
+ 	bch2_trans_iter_exit(&trans, &iter);
+ 
+ 	if (ret)
+-		die("error %s walking btree nodes", strerror(-ret));
++		die("Error %s walking btree nodes", strerror(-ret));
+ 
+ 	bch2_trans_exit(&trans);
+ }
+@@ -256,7 +257,7 @@ static void list_nodes(struct bch_fs *c, enum btree_id btree_id, unsigned level,
+ 	bch2_trans_iter_exit(&trans, &iter);
+ 
+ 	if (ret)
+-		die("error %s walking btree nodes", strerror(-ret));
++		die("Error %s walking btree nodes", strerror(-ret));
+ 
+ 	bch2_trans_exit(&trans);
+ }
 @@ -306,13 +307,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
  			i = &n_ondisk->keys;
  
@@ -348,6 +375,24 @@ index 73f8686..bb41c10 100644
  
  			bset_encrypt(c, i, offset << 9);
  
+@@ -381,7 +382,7 @@ static void list_nodes_ondisk(struct bch_fs *c, enum btree_id btree_id, unsigned
+ 	bch2_trans_iter_exit(&trans, &iter);
+ 
+ 	if (ret)
+-		die("error %s walking btree nodes", strerror(-ret));
++		die("Error %s walking btree nodes", strerror(-ret));
+ 
+ 	bch2_trans_exit(&trans);
+ }
+@@ -416,7 +417,7 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
+ 	bch2_trans_iter_exit(&trans, &iter);
+ 
+ 	if (ret)
+-		die("error %s walking btree nodes", strerror(-ret));
++		die("Error %s walking btree nodes", strerror(-ret));
+ 
+ 	bch2_trans_exit(&trans);
+ }
 @@ -424,20 +425,22 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
  static void list_keys_usage(void)
  {
@@ -1024,7 +1069,7 @@ index 6052cb0..9534943 100644
  
  	bch2_write_super(c);
 diff --git a/cmd_migrate.c b/cmd_migrate.c
-index 23d8142..93c760d 100644
+index b1475b2..12a6ff1 100644
 --- a/cmd_migrate.c
 +++ b/cmd_migrate.c
 @@ -58,7 +58,7 @@ static char *dev_t_to_path(dev_t dev)
@@ -1036,7 +1081,7 @@ index 23d8142..93c760d 100644
  	p++;
  
  	return mprintf("/dev/%s", p);
-@@ -126,7 +126,7 @@ static void update_inode(struct bch_fs *c,
+@@ -127,7 +127,7 @@ static void update_inode(struct bch_fs *c,
  	ret = bch2_btree_insert(c, BTREE_ID_inodes, &packed.inode.k_i,
  				NULL, NULL, 0);
  	if (ret)
@@ -1045,7 +1090,7 @@ index 23d8142..93c760d 100644
  }
  
  static void create_link(struct bch_fs *c,
-@@ -142,7 +142,7 @@ static void create_link(struct bch_fs *c,
+@@ -143,7 +143,7 @@ static void create_link(struct bch_fs *c,
  				(subvol_inum) { 1, parent->bi_inum }, &parent_u,
  				(subvol_inum) { 1, inum }, &inode, &qstr));
  	if (ret)
@@ -1054,16 +1099,16 @@ index 23d8142..93c760d 100644
  }
  
  static struct bch_inode_unpacked create_file(struct bch_fs *c,
-@@ -161,7 +161,7 @@ static struct bch_inode_unpacked create_file(struct bch_fs *c,
+@@ -164,7 +164,7 @@ static struct bch_inode_unpacked create_file(struct bch_fs *c,
  				  uid, gid, mode, rdev, NULL, NULL,
  				  (subvol_inum) {}, 0));
  	if (ret)
--		die("error creating file: %s", strerror(-ret));
-+		die("Error creating file: %s", strerror(-ret));
+-		die("error creating %s: %s", name, strerror(-ret));
++		die("Error creating %s: %s", name, strerror(-ret));
  
  	return new_inode;
  }
-@@ -222,7 +222,7 @@ static void copy_xattrs(struct bch_fs *c, struct bch_inode_unpacked *dst,
+@@ -225,7 +225,7 @@ static void copy_xattrs(struct bch_fs *c, struct bch_inode_unpacked *dst,
  		ssize_t val_size = lgetxattr(src, attr, val, sizeof(val));
  
  		if (val_size < 0)
@@ -1072,7 +1117,7 @@ index 23d8142..93c760d 100644
  
  		const struct xattr_handler *h = xattr_resolve_name(&attr);
  
-@@ -232,7 +232,7 @@ static void copy_xattrs(struct bch_fs *c, struct bch_inode_unpacked *dst,
+@@ -235,7 +235,7 @@ static void copy_xattrs(struct bch_fs *c, struct bch_inode_unpacked *dst,
  					       &hash_info, attr,
  					       val, val_size, h->flags, 0));
  		if (ret < 0)
@@ -1081,16 +1126,16 @@ index 23d8142..93c760d 100644
  	}
  }
  
-@@ -264,7 +264,7 @@ static void write_data(struct bch_fs *c,
- 	int ret = bch2_disk_reservation_get(c, &o.op.res, len >> 9,
+@@ -269,7 +269,7 @@ static void write_data(struct bch_fs *c,
+ 	int ret = bch2_disk_reservation_get(c, &op.res, len >> 9,
  					    c->opts.data_replicas, 0);
  	if (ret)
 -		die("error reserving space in new filesystem: %s", strerror(-ret));
 +		die("Error reserving space in new filesystem: %s", strerror(-ret));
  
- 	closure_call(&o.op.cl, bch2_write, NULL, &cl);
+ 	closure_call(&op.cl, bch2_write, NULL, &cl);
  	closure_sync(&cl);
-@@ -328,13 +328,13 @@ static void link_data(struct bch_fs *c, struct bch_inode_unpacked *dst,
+@@ -334,13 +334,13 @@ static void link_data(struct bch_fs *c, struct bch_inode_unpacked *dst,
  		ret = bch2_disk_reservation_get(c, &res, sectors, 1,
  						BCH_DISK_RESERVATION_NOFAIL);
  		if (ret)
@@ -1106,7 +1151,7 @@ index 23d8142..93c760d 100644
  
  		bch2_disk_reservation_put(c, &res);
  
-@@ -574,7 +574,7 @@ static void copy_fs(struct bch_fs *c, int src_fd, const char *src_path,
+@@ -581,7 +581,7 @@ static void copy_fs(struct bch_fs *c, int src_fd, const char *src_path,
  	int ret = bch2_inode_find_by_inum(c, (subvol_inum) { 1, BCACHEFS_ROOT_INO },
  					  &root_inode);
  	if (ret)
@@ -1115,7 +1160,7 @@ index 23d8142..93c760d 100644
  
  	if (fchdir(src_fd))
  		die("chdir error: %m");
-@@ -631,12 +631,13 @@ static void migrate_usage(void)
+@@ -638,12 +638,13 @@ static void migrate_usage(void)
  	     "Usage: bcachefs migrate [OPTION]...\n"
  	     "\n"
  	     "Options:\n"
@@ -1135,7 +1180,7 @@ index 23d8142..93c760d 100644
  }
  
  static const struct option migrate_opts[] = {
-@@ -733,8 +734,8 @@ static int migrate_fs(const char		*fs_path,
+@@ -740,8 +741,8 @@ static int migrate_fs(const char		*fs_path,
  	       "The new filesystem will have a file at /old_migrated_filestem\n"
  	       "referencing all disk space that might be used by the existing\n"
  	       "filesystem. That file can be deleted once the old filesystem is\n"
@@ -1146,7 +1191,7 @@ index 23d8142..93c760d 100644
  	       sb_offset, dev.path, dev.path, sb_offset);
  	return 0;
  }
-@@ -790,10 +791,11 @@ static void migrate_superblock_usage(void)
+@@ -797,10 +798,11 @@ static void migrate_superblock_usage(void)
  	     "Usage: bcachefs migrate-superblock [OPTION]...\n"
  	     "\n"
  	     "Options:\n"
@@ -1324,19 +1369,19 @@ index f031ea1..6ce8591 100644
  	if (__builtin_constant_p(size)) {
  		if (!size)
 diff --git a/libbcachefs.c b/libbcachefs.c
-index 85523c6..de19033 100644
+index 1e95007..5eb9e9d 100644
 --- a/libbcachefs.c
 +++ b/libbcachefs.c
-@@ -59,7 +59,7 @@ static void init_layout(struct bch_sb_layout *l,
+@@ -60,7 +60,7 @@ static void init_layout(struct bch_sb_layout *l,
  	}
  
- 	if (sb_start >= sb_end)
--		die("insufficient space for superblocks");
-+		die("Insufficient space for superblocks");
+ 	if (sb_pos > sb_end)
+-		die("insufficient space for superblocks: start %llu end %llu > %llu size %u",
++		die("Insufficient space for superblocks: start %llu end %llu > %llu size %u",
+ 		    sb_start, sb_pos, sb_end, sb_size);
  }
  
- void bch2_pick_bucket_size(struct bch_opts opts, struct dev_opts *dev)
-@@ -69,7 +69,7 @@ void bch2_pick_bucket_size(struct bch_opts opts, struct dev_opts *dev)
+@@ -71,7 +71,7 @@ void bch2_pick_bucket_size(struct bch_opts opts, struct dev_opts *dev)
  
  	if (!dev->bucket_size) {
  		if (dev->size < min_size(opts.block_size))
@@ -1345,7 +1390,7 @@ index 85523c6..de19033 100644
  			    dev->path, dev->size, min_size(opts.block_size));
  
  		/* Bucket size must be >= block size: */
-@@ -155,7 +155,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+@@ -159,7 +159,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  	if (!opt_defined(fs_opts, block_size)) {
  		opt_set(fs_opts, block_size, max_dev_block_size);
  	} else if (fs_opts.block_size < max_dev_block_size)
@@ -1354,18 +1399,7 @@ index 85523c6..de19033 100644
  		    fs_opts.block_size, max_dev_block_size);
  
  	/* calculate bucket sizes: */
-@@ -174,16 +174,16 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
- 	}
- 
- 	if (!is_power_of_2(fs_opts.block_size))
--		die("block size must be power of 2");
-+		die("Block size must be power of 2");
- 
- 	if (!is_power_of_2(fs_opts.btree_node_size))
--		die("btree node size must be power of 2");
-+		die("Btree node size must be power of 2");
- 
- 	if (uuid_is_null(opts.uuid.b))
+@@ -181,7 +181,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  		uuid_generate(opts.uuid.b);
  
  	if (bch2_sb_realloc(&sb, 0))
@@ -1374,7 +1408,7 @@ index 85523c6..de19033 100644
  
  	sb.sb->version		= le16_to_cpu(opts.version);
  	sb.sb->version_min	= le16_to_cpu(opts.version);
-@@ -223,7 +223,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+@@ -213,7 +213,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  
  	struct timespec now;
  	if (clock_gettime(CLOCK_REALTIME, &now))
@@ -1383,7 +1417,7 @@ index 85523c6..de19033 100644
  
  	sb.sb->time_base_lo	= cpu_to_le64(now.tv_sec * NSEC_PER_SEC + now.tv_nsec);
  	sb.sb->time_precision	= cpu_to_le32(1);
-@@ -257,7 +257,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+@@ -247,7 +247,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  
  		idx = bch2_disk_path_find_or_create(&sb, i->label);
  		if (idx < 0)
@@ -1392,7 +1426,7 @@ index 85523c6..de19033 100644
  
  		SET_BCH_MEMBER_GROUP(m,	idx + 1);
  	}
-@@ -350,7 +350,7 @@ struct bch_sb *__bch2_super_read(int fd, u64 sector)
+@@ -340,7 +340,7 @@ struct bch_sb *__bch2_super_read(int fd, u64 sector)
  	xpread(fd, &sb, sizeof(sb), sector << 9);
  
  	if (memcmp(&sb.magic, &BCACHE_MAGIC, sizeof(sb.magic)))
@@ -1401,7 +1435,7 @@ index 85523c6..de19033 100644
  
  	size_t bytes = vstruct_bytes(&sb);
  
-@@ -905,7 +905,7 @@ struct bchfs_handle bcache_fs_open(const char *path)
+@@ -895,7 +895,7 @@ struct bchfs_handle bcache_fs_open(const char *path)
  
  		struct bch_ioctl_query_uuid uuid;
  		if (ioctl(ret.ioctl_fd, BCH_IOCTL_QUERY_UUID, &uuid) < 0)
@@ -1410,7 +1444,7 @@ index 85523c6..de19033 100644
  
  		ret.uuid = uuid.uuid;
  
-@@ -942,7 +942,7 @@ struct bchfs_handle bchu_fs_open_by_dev(const char *path, int *idx)
+@@ -932,7 +932,7 @@ struct bchfs_handle bchu_fs_open_by_dev(const char *path, int *idx)
  	if (len > 0) {
  		char *p = strrchr(buf, '/');
  		if (!p || sscanf(p + 1, "dev-%u", idx) != 1)
@@ -1419,7 +1453,7 @@ index 85523c6..de19033 100644
  
  		*p = '\0';
  		p = strrchr(buf, '/');
-@@ -987,7 +987,7 @@ int bchu_data(struct bchfs_handle fs, struct bch_ioctl_data cmd)
+@@ -977,7 +977,7 @@ int bchu_data(struct bchfs_handle fs, struct bch_ioctl_data cmd)
  		struct bch_ioctl_data_event e;
  
  		if (read(progress_fd, &e, sizeof(e)) != sizeof(e))
@@ -1428,7 +1462,7 @@ index 85523c6..de19033 100644
  
  		if (e.type)
  			continue;
-@@ -1125,7 +1125,7 @@ struct bch_opts bch2_parse_opts(struct bch_opt_strs strs)
+@@ -1116,7 +1116,7 @@ struct bch_opts bch2_parse_opts(struct bch_opt_strs strs)
  void bch2_opts_usage(unsigned opt_types)
  {
  	const struct bch_option *opt;
@@ -1438,25 +1472,35 @@ index 85523c6..de19033 100644
  
  
 diff --git a/libbcachefs/opts.h b/libbcachefs/opts.h
-index 8711427..8b7e5f7 100644
+index aadd395..fac438d 100644
 --- a/libbcachefs/opts.h
 +++ b/libbcachefs/opts.h
-@@ -91,12 +91,12 @@ enum opt_type {
- 	  OPT_FS|OPT_FORMAT,						\
- 	  OPT_SECTORS(1, 128),						\
+@@ -95,13 +95,13 @@ enum opt_type {
+ 	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS,	\
+ 	  OPT_UINT(512, 1U << 16),					\
  	  BCH_SB_BLOCK_SIZE,		8,				\
 -	  "size",	NULL)						\
 +	  "SIZE",	NULL)						\
- 	x(btree_node_size,		u16,				\
- 	  OPT_FS|OPT_FORMAT,						\
- 	  OPT_SECTORS(1, 512),						\
+ 	x(btree_node_size,		u32,				\
+ 	  OPT_FS|OPT_FORMAT|						\
+ 	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS,	\
+ 	  OPT_UINT(512, 1U << 20),					\
  	  BCH_SB_BTREE_NODE_SIZE,	512,				\
 -	  "size",	"Btree node size, default 256k")		\
 +	  "SIZE",	"Btree node size, default 256k")		\
  	x(errors,			u8,				\
  	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
  	  OPT_STR(bch2_error_actions),					\
-@@ -151,22 +151,22 @@ enum opt_type {
+@@ -132,7 +132,7 @@ enum opt_type {
+ 	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS|OPT_SB_FIELD_ILOG2,\
+ 	  OPT_UINT(4096, 2U << 20),					\
+ 	  BCH_SB_ENCODED_EXTENT_MAX_BITS, 64 << 10,			\
+-	  "size",	"Maximum size of checksummed/compressed extents")\
++	  "SIZE",	"Maximum size of checksummed/compressed extents")\
+ 	x(metadata_checksum,		u8,				\
+ 	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
+ 	  OPT_STR(bch2_csum_opts),					\
+@@ -162,22 +162,22 @@ enum opt_type {
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_FN(bch2_opt_target),					\
  	  BCH_SB_METADATA_TARGET,	0,				\
@@ -1483,7 +1527,7 @@ index 8711427..8b7e5f7 100644
  	x(erasure_code,			u16,				\
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_BOOL(),							\
-@@ -325,7 +325,7 @@ enum opt_type {
+@@ -337,7 +337,7 @@ enum opt_type {
  	  OPT_MOUNT,							\
  	  OPT_UINT(0, S64_MAX),						\
  	  NO_SB_OPT,			BCH_SB_SECTOR,			\
@@ -1492,15 +1536,15 @@ index 8711427..8b7e5f7 100644
  	x(read_only,			u8,				\
  	  OPT_FS,							\
  	  OPT_BOOL(),							\
-@@ -356,18 +356,18 @@ enum opt_type {
+@@ -368,18 +368,18 @@ enum opt_type {
  	  OPT_DEVICE,							\
- 	  OPT_SECTORS(0, S64_MAX),					\
+ 	  OPT_UINT(0, S64_MAX),						\
  	  NO_SB_OPT,			0,				\
 -	  "size",	"Size of filesystem on device")			\
 +	  "SIZE",	"Size of filesystem on device")			\
  	x(bucket,			u32,				\
  	  OPT_DEVICE,							\
- 	  OPT_SECTORS(0, S64_MAX),					\
+ 	  OPT_UINT(0, S64_MAX),						\
  	  NO_SB_OPT,			0,				\
 -	  "size",	"Size of filesystem on device")			\
 +	  "SIZE",	"Size of filesystem on device")			\
@@ -1515,6 +1559,19 @@ index 8711427..8b7e5f7 100644
  
  struct bch_opts {
  #define x(_name, _bits, ...)	unsigned _name##_defined:1;
+diff --git a/linux/blkdev.c b/linux/blkdev.c
+index 762e5aa..7f87761 100644
+--- a/linux/blkdev.c
++++ b/linux/blkdev.c
+@@ -225,7 +225,7 @@ static void io_fallback(void)
+ {
+ 	fops++;
+ 	if (fops->init == NULL)
+-		die("no fallback possible, something is very wrong");
++		die("No fallback possible, something is very wrong");
+ 	fops->init();
+ }
+ 
 diff --git a/tools-util.c b/tools-util.c
 index acae27d..99e2b73 100644
 --- a/tools-util.c
