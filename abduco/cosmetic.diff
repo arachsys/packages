@@ -1,0 +1,131 @@
+diff --git a/abduco.c b/abduco.c
+index b56e6f4..62a5384 100644
+--- a/abduco.c
++++ b/abduco.c
+@@ -222,9 +222,23 @@ static void die(const char *s) {
+ 	exit(EXIT_FAILURE);
+ }
+ 
+-static void usage(void) {
+-	fprintf(stderr, "usage: abduco [-a|-A|-c|-n] [-p] [-r] [-q] [-l] [-f] [-e detachkey] name command\n");
+-	exit(EXIT_FAILURE);
++static void usage(int status) {
++	fprintf(stderr, "\
++Usage: %s ACTION [OPTION]... SESSION [COMMAND]\n\
++Actions:\n\
++  -a      attach to an existing session\n\
++  -A      attach to a session, creating it if necessary\n\
++  -c      create a new session and attach to it\n\
++  -n      create a new detached session\n\
++Options:\n\
++  -e KEY  set the detach key (default ^\\)\n\
++  -f      force session creation when a terminated one already exists\n\
++  -l      attach with the lowest size-change priority\n\
++  -p      pass stdin to the session (implies -l and -q)\n\
++  -q      quiet operation: do not print info messages\n\
++  -r      read-only operation: ignore user input\n\
++", server.name);
++	exit(status);
+ }
+ 
+ static bool xsnprintf(char *buf, size_t size, const char *fmt, ...) {
+@@ -537,7 +551,7 @@ static bool attach_session(const char *name, const bool terminate) {
+ 	} else if (status == -EIO) {
+ 		info("exited due to I/O errors");
+ 	} else {
+-		info("session terminated with exit status %d", status);
++		info("exited with status %d", status);
+ 		if (terminate)
+ 			exit(status);
+ 	}
+@@ -567,12 +581,12 @@ static int list_session(void) {
+ 	int n = scandir(sockaddr.sun_path, &namelist, session_filter, session_comparator);
+ 	if (n < 0)
+ 		return 1;
+-	printf("Active sessions (on host %s)\n", server.host+1);
++	printf("Active sessions on host %s:\n", server.host+1);
+ 	while (n--) {
+ 		struct stat sb; char buf[255];
+ 		if (stat(namelist[n]->d_name, &sb) == 0 && S_ISSOCK(sb.st_mode)) {
+ 			pid_t pid = 0;
+-			strftime(buf, sizeof(buf), "%a%t %F %T", localtime(&sb.st_mtime));
++			strftime(buf, sizeof(buf), "%a %F %T", localtime(&sb.st_mtime));
+ 			char status = ' ';
+ 			char *local = strstr(namelist[n]->d_name, server.host);
+ 			if (local) {
+@@ -599,14 +613,14 @@ int main(int argc, char *argv[]) {
+ 
+ 	char *default_cmd[4] = { "/bin/sh", "-c", getenv("ABDUCO_CMD"), NULL };
+ 	if (!default_cmd[2]) {
+-		default_cmd[0] = ABDUCO_CMD;
++		default_cmd[0] = getenv("SHELL") ?: "/bin/sh";
+ 		default_cmd[1] = NULL;
+ 	}
+ 
+ 	server.name = basename(argv[0]);
+ 	gethostname(server.host+1, sizeof(server.host) - 1);
+ 
+-	while ((opt = getopt(argc, argv, "aAclne:fpqrv")) != -1) {
++	while ((opt = getopt(argc, argv, "aAchlne:fpqrv")) != -1) {
+ 		switch (opt) {
+ 		case 'a':
+ 		case 'A':
+@@ -616,7 +630,7 @@ int main(int argc, char *argv[]) {
+ 			break;
+ 		case 'e':
+ 			if (!optarg)
+-				usage();
++				usage(EXIT_FAILURE);
+ 			if (optarg[0] == '^' && optarg[1])
+ 				optarg[0] = CTRL(optarg[1]);
+ 			KEY_DETACH = optarg[0];
+@@ -624,6 +638,8 @@ int main(int argc, char *argv[]) {
+ 		case 'f':
+ 			force = true;
+ 			break;
++		case 'h':
++			usage(EXIT_SUCCESS);
+ 		case 'p':
+ 			passthrough = true;
+ 			break;
+@@ -637,10 +653,10 @@ int main(int argc, char *argv[]) {
+ 			client.flags |= CLIENT_LOWPRIORITY;
+ 			break;
+ 		case 'v':
+-			puts("abduco-"VERSION" © 2013-2018 Marc André Tanner");
++			puts("abduco-"VERSION" (C) 2013-2018 Marc André Tanner");
+ 			exit(EXIT_SUCCESS);
+ 		default:
+-			usage();
++			usage(EXIT_FAILURE);
+ 		}
+ 	}
+ 
+@@ -667,7 +683,7 @@ int main(int argc, char *argv[]) {
+ 	if (!action && !server.session_name)
+ 		exit(list_session());
+ 	if (!action || !server.session_name)
+-		usage();
++		usage(EXIT_FAILURE);
+ 
+ 	if (!passthrough && tcgetattr(STDIN_FILENO, &orig_term) != -1) {
+ 		server.term = orig_term;
+diff --git a/config.def.h b/config.def.h
+index 4fb3a94..5ff11c5 100644
+--- a/config.def.h
++++ b/config.def.h
+@@ -1,5 +1,3 @@
+-/* default command to execute if non is given and $ABDUCO_CMD is unset */
+-#define ABDUCO_CMD "dvtm"
+ /* default detach key, can be overriden at run time using -e option */
+ static char KEY_DETACH = CTRL('\\');
+ /* redraw key to send a SIGWINCH signal to underlying process
+@@ -12,8 +10,6 @@ static struct Dir {
+ 	char *env;     /* environment variable to use if (set) */
+ 	bool personal; /* if false a user owned sub directory will be created */
+ } socket_dirs[] = {
+-	{ .env  = "ABDUCO_SOCKET_DIR", false },
+-	{ .env  = "HOME",              true  },
+ 	{ .env  = "TMPDIR",            false },
+ 	{ .path = "/tmp",              false },
+ };
