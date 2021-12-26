@@ -1,0 +1,24 @@
+mode autotools
+require lmdb perl
+
+check() {
+  url https://bitbucket.org/mutt/mutt/downloads/
+  match version 2.1.4 'mutt-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://bitbucket.org/mutt/mutt/downloads/mutt-2.1.4.tar.gz
+  tree 0d64cbcabdc19aa91d03a61478fb4321945d44ee84c43765509f5ff93a520705
+}
+
+config-extra --docdir=/lib/doc/mutt --disable-{pgp,smime} \
+  --enable-{hcache,imap,pop,sidebar,smtp} --with-{lmdb,ssl} \
+  --with-homespool=Maildir SENDMAIL=/bin/sendmail
+
+post-config() {
+  sed -i '/MUTTLIBS =/s/-llmdb/-Wl,-Bstatic \0 -Wl,-Bdynamic/' Makefile
+}
+
+post-install() {
+  rm -f /dst/bin/flea /dst/bin/muttbug
+}
