@@ -13,9 +13,11 @@ prepare() {
   tree 0e8289d2b35857871d5c47780f997cfe5c381686f7397895bcaa16d1b81077b5
 }
 
-config-extra --disable-{chfn-chsh,cramfs,last,login,lslogins,mesg,minix} \
-  --disable-{more,newgrp,nologin,{pivot,switch}_root,su,utmpdump,vipw,wall} \
-  --enable-{line,shared,fs-paths-default=/bin} ADJTIME_PATH=/var/lib/adjtime
+config-extra --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \
+  --disable-{minix,more,newgrp,nologin,pivot_root,switch_root,su,ul} \
+  --disable-{use-tty-group,utmpdump,vipw,wall,whereis} \
+  --enable-{fs-paths-default=/bin,shared,sulogin-emergency-mount} \
+  ADJTIME_PATH=/var/lib/adjtime
 
 post-config() {
   find . -type f -name Makefile | while read FILE; do
@@ -29,6 +31,7 @@ post-config() {
 }
 
 post-install() {
-  rm -f -r /dst/bin/chkdupexec /dst/lib/{getopt,bash-completion}
+  rm -f /dst/bin/{chkdupexec,isosize,mcookie}
+  rm -f -r /dst/lib/{getopt,bash-completion}
   find /dst/bin -lname setarch -delete
 }
