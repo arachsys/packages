@@ -25,13 +25,12 @@ pre-config() {
   ar rcs fts/libfts.a fts/fts.o
 }
 
-config-extra --with-{group-queue,user-queue,user-smtpd}=smtp \
-  --with-libs=-lfts --with-path-{pidfile,socket}=/run \
+config-extra --sysconfdir=/etc/mail --with-path-{pidfile,socket}=/run \
   --with-path-{empty=/run/empty,mbox=/var/mail,queue=/var/lib/smtpd} \
-  CFLAGS=-I/src/fts LDFLAGS=-L/src/fts
+  --with-{group-queue,user-queue,user-smtpd}=mail \
+  --with-libfts CFLAGS=-I/src/fts LDFLAGS=-L/src/fts
 
 post-install() {
-  chmod u+w /dst/{bin,lib/opensmtpd}/*
   ln -s smtpctl /dst/bin/sendmail
   image - requires libevent
 }
