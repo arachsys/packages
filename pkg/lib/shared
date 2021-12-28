@@ -218,6 +218,7 @@ tidy() {
   find "$@" -type d -exec chown -f 0:0 {} + -exec chmod -f u=rwx,go=rx {} +
   find "$@" -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
     -exec chmod -f u=rwX,go=rX {} +
+  find "$@" -type f -perm /ug+s -exec chmod -f u+rw,go+r {} +
 
   for IMG in "$@"; do
     if [[ -d $IMG ]]; then
