@@ -4,19 +4,32 @@ enable rpaths
 check() {
   url https://dovecot.org/download
   match version 2.3.17.1 'dovecot-([0-9.]+)\.tar'
+
+  url https://pigeonhole.dovecot.org/download.html
+  match pigeonhole 0.5.17.1 'dovecot-[0-9.]+-pigeonhole-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack https://dovecot.org/releases/2.3/dovecot-2.3.17.1.tar.gz
+  unpack -d pigeonhole \
+    https://pigeonhole.dovecot.org/releases/2.3/dovecot-2.3-pigeonhole-0.5.17.1.tar.gz
   apply paths.diff
-  tree 20a88740c73d03373214fd692432e2f6e998f506a34e9a70b7f7fe7082d478c2
+  apply users.diff
+  tree 2eeeae4a6ac5cee3f2071809f988db6b7e61a4e460520010ec4a7676cb7859db
 }
 
 config-extra --with-moduledir=/lib/dovecot/modules --with-rundir=/run/dovecot
-compile-extra pkglibdir=/lib/dovecot/shared
-install-extra pkglibdir=/lib/dovecot/shared
+compile-extra pkgsysconfdir=/etc/mail pkglibdir=/lib/dovecot/shared
+install-extra pkgsysconfdir=/etc/mail pkglibdir=/lib/dovecot/shared
+
+post-compile() (
+  cd /src/pigeonhole
+  /src/pigeonhole/configure "${CONFIGARGS[@]}" --with-dovecot=/src
+  make "${COMPILEARGS[@]}"
+)
 
 post-install() {
-  rm -f /dst/bin/dovecot-sysreport /dst/lib/dovecot/**/{*.a,decode2test.sh}
-  rm -f -r /dst/lib/{aclocal,include}
+  make -C /src/pigeonhole "${INSTALLARGS[@]}"
+  rm -f -r /dst/bin/dovecot-sysreport /dst/bin/sieve-dump /dst/lib/aclocal \
+    /dst/lib/dovecot/**/{*.a,decode2test.sh} /dst/lib/include
 }

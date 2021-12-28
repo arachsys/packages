@@ -1,0 +1,58 @@
+diff --git a/src/config/all-settings.c b/src/config/all-settings.c
+index 391da6d..aa6c0e4 100644
+--- a/src/config/all-settings.c
++++ b/src/config/all-settings.c
+@@ -4018,9 +4018,9 @@ struct master_settings master_default_settings = {
+ 	.protocols = "imap pop3 lmtp",
+ 	.listen = "*, ::",
+ 	.ssl = "yes:no:required",
+-	.default_internal_user = "dovecot",
+-	.default_internal_group = "dovecot",
+-	.default_login_user = "dovenull",
++	.default_internal_user = "mail",
++	.default_internal_group = "mail",
++	.default_login_user = "nobody",
+ 	.default_process_limit = 100,
+ 	.default_client_limit = 1000,
+ 	.default_idle_kill = 60,
+@@ -4028,9 +4028,9 @@ struct master_settings master_default_settings = {
+ 
+ 	.version_ignore = FALSE,
+ 
+-	.first_valid_uid = 500,
++	.first_valid_uid = 1000,
+ 	.last_valid_uid = 0,
+-	.first_valid_gid = 1,
++	.first_valid_gid = 1000,
+ 	.last_valid_gid = 0,
+ 
+ #ifndef CONFIG_BINARY
+diff --git a/src/master/master-settings.c b/src/master/master-settings.c
+index 7cfaa35..4a8f7fb 100644
+--- a/src/master/master-settings.c
++++ b/src/master/master-settings.c
+@@ -210,9 +210,9 @@ static const struct master_settings master_default_settings = {
+ 	.protocols = "imap pop3 lmtp",
+ 	.listen = "*, ::",
+ 	.ssl = "yes:no:required",
+-	.default_internal_user = "dovecot",
+-	.default_internal_group = "dovecot",
+-	.default_login_user = "dovenull",
++	.default_internal_user = "mail",
++	.default_internal_group = "mail",
++	.default_login_user = "nobody",
+ 	.default_process_limit = 100,
+ 	.default_client_limit = 1000,
+ 	.default_idle_kill = 60,
+@@ -220,9 +220,9 @@ static const struct master_settings master_default_settings = {
+ 
+ 	.version_ignore = FALSE,
+ 
+-	.first_valid_uid = 500,
++	.first_valid_uid = 1000,
+ 	.last_valid_uid = 0,
+-	.first_valid_gid = 1,
++	.first_valid_gid = 1000,
+ 	.last_valid_gid = 0,
+ 
+ #ifndef CONFIG_BINARY
