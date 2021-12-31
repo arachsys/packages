@@ -1,0 +1,20 @@
+require go
+
+check() {
+  url https://api.github.com/repos/arachsys/tinyacme/branches/master
+  match snapshot 20211231 \
+    '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
+}
+
+prepare() {
+  unpack tinyacme-20211231-92a05b86.tar.gz \
+    https://github.com/arachsys/tinyacme/archive/92a05b862a6e9cc31735d728f9f96b80ceac4789.tar.gz
+  GOPATH=/tmp/go go mod vendor
+  tree 2346c6166f2f500e0a154eb76fdbe464e35986c56a859ab0318e7103cfd715a3
+}
+
+build() {
+  GOPATH=/tmp/go HOME=/tmp go build acmeproxy.go
+  GOPATH=/tmp/go HOME=/tmp go build tinyacme.go
+  install -D -t /dst/bin acmeproxy tinyacme
+}
