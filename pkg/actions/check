@@ -15,6 +15,7 @@ shift $(($OPTIND - 1))
 mkdir -p "$CACHEDIR" "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+chmod 0755 "$ROOT"
 
 populate "$ROOT" build
 mkdir -p "$ROOT/pkg"

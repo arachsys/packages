@@ -23,6 +23,8 @@ PKG=$(locate "$PKGDIR" "$1")
 mkdir -p "$CACHEDIR" "$IMGDIR"
 
 ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
+chmod 0755 "$ROOT"
+
 if [[ -n $DEBUG ]]; then
   trap 'echo "Build root left in $ROOT" >&2' EXIT
 else

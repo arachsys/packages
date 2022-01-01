@@ -33,6 +33,7 @@ fi
 mkdir -p "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+chmod 0755 "$ROOT"
 
 mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,run,sys,var,var/lib,var/log}
 mkdir -m 1777 -p "$ROOT"/{run/shm,tmp}

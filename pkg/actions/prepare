@@ -9,6 +9,7 @@ mkdir -p "$CACHEDIR" "$IMGDIR"
 
 ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+chmod 0755 "$ROOT"
 
 helper() {
   PKG=$PKG SRC= pkg contain "$ROOT" pkg helper "$@"
