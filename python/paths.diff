@@ -293,7 +293,7 @@ index daf9f00..30cc0d8 100644
 +            'platstdlib': '{userbase}/{platlibdir}/python',
 +            'purelib': '{userbase}/lib/python/site-packages',
 +            'platlib': '{userbase}/lib/python/site-packages',
-+            'include': '{userbase}/include/python',
++            'include': '{userbase}/lib/include/python',
              'scripts': '{userbase}/bin',
              'data': '{userbase}',
              },
