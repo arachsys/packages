@@ -11,10 +11,16 @@ prepare() {
   tree 4e52cddbafe042dd1f276f781e04adcfb5d66a956d7ab44b3384184a2e7fcf7c
 }
 
-config-extra --disable-{rpath,shared} --with-conf-file=/etc/unbound.conf \
-  --with-{libexpat,ssl}=/lib --with-run-dir=/run/unbound --with-username=dns
+config-extra --disable-{rpath,shared} --enable-subnet --with-chroot-dir= \
+  --with-conf-file=/etc/unbound.conf --with-{libexpat,ssl}=/lib \
+  --with-pidfile=/run/unbound.pid --with-run-dir=/var/lib/unbound \
+  --with-username=dns
+
+post-config() {
+  sed -i 's/-lexpat/-Wl,-Bstatic,\0,-Bdynamic/' Makefile
+}
 
 post-install() {
-  rm -f -r /dst/include /dst/lib
-  image - requires expat
+  rm -f -r /dst/bin/unbound-control-setup /dst/include /dst/lib
+  ln -s unbound-host /dst/bin/host
 }
