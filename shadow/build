@@ -3,14 +3,14 @@ enable setuid setgid
 
 check() {
   url https://github.com/shadow-maint/shadow/releases
-  match version 4.10 'shadow-([0-9.]+)\.tar'
+  match version 4.11.1 'shadow-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/v4.10/shadow-4.10.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/v4.11.1/shadow-4.11.1.tar.xz
   apply bcrypt.diff
   apply paths.diff
-  tree ae1c3196c7d041e6bd845ab9ebd9ed6cfcdbcdc2f1e1d6fa53d5c8f856edf9d4
+  tree 86dea580fe29b9aaa03c712c9c8119ac28c02fc57234becbc776affeee48e23f
 }
 
 config-extra --disable-shared --without-{audit,libpam} --with-bcrypt
