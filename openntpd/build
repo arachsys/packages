@@ -8,8 +8,10 @@ check() {
 
 prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.8p1.tar.gz
+  apply adjtimex.diff
   apply paths.diff
-  tree 2da4b11de1f851c8553ae19d0bc67b78fdd5899dd8a800e8d7f8d1dfb5a1da28
+  apply threshold.diff
+  tree f936b9e61754ee9348543d4a4549eeb30be24febe5863ef021defb68a0b3445b
 }
 
-config-extra --enable-https-constraint --with-privsep-{path=/run/empty,user=ntp}
+config-extra --enable-https-constraint --with-privsep-user=ntp

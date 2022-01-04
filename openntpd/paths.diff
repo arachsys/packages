@@ -1,8 +1,21 @@
+diff --git a/src/ntpd.c b/src/ntpd.c
+index cc0a804..a214b3f 100644
+--- a/src/ntpd.c
++++ b/src/ntpd.c
+@@ -330,7 +330,7 @@ main(int argc, char *argv[])
+ 	 */
+ 	if (unveil(tls_default_ca_cert_file(), "r") == -1)
+ 		err(1, "unveil");
+-	if (unveil("/usr/sbin/ntpd", "x") == -1)
++	if (unveil("/bin/ntpd", "x") == -1)
+ 		err(1, "unveil");
+ 	if (pledge("stdio rpath inet settime proc exec id", NULL) == -1)
+ 		err(1, "pledge");
 diff --git a/src/ntpd.h b/src/ntpd.h
-index 39b8e7b..124109b 100644
+index ced81b9..3872efc 100644
 --- a/src/ntpd.h
 +++ b/src/ntpd.h
-@@ -36,7 +36,7 @@
+@@ -37,7 +37,7 @@
  #define MAXIMUM(a, b)	((a) > (b) ? (a) : (b))
  
  #ifndef NTPD_USER
@@ -11,7 +24,7 @@ index 39b8e7b..124109b 100644
  #endif
  
  #ifndef	SYSCONFDIR
-@@ -47,8 +47,8 @@
+@@ -48,8 +48,8 @@
  #ifndef	LOCALSTATEDIR
  #define	LOCALSTATEDIR	"/var"
  #endif
@@ -20,5 +33,5 @@ index 39b8e7b..124109b 100644
 +#define	DRIFTFILE	LOCALSTATEDIR "/lib/ntpd.drift"
 +#define	CTLSOCKET	"/run/ntpd.sock"
  
- #if defined(SO_SETFIB)
- #define	SO_RTABLE	SO_SETFIB
+ #define	INTERVAL_QUERY_NORMAL		30	/* sync to peers every n secs */
+ #define	INTERVAL_QUERY_PATHETIC		60
