@@ -5,19 +5,19 @@ check() {
   match version 5.1 'bash-([0-9]+\.[0-9]+)\.tar\.gz'
 
   url https://ftp.gnu.org/gnu/bash/bash-5.1-patches/
-  match version 5.1.12 'bash51-0*([0-9]+)' '5.1.\1'
+  match version 5.1.16 'bash51-0*([0-9]+)' '5.1.\1'
 }
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/bash/bash-5.1.tar.gz
-  set https://ftp.gnu.org/gnu/bash/bash-5.1-patches/bash51-{001..012}
+  set https://ftp.gnu.org/gnu/bash/bash-5.1-patches/bash51-{001..016}
   while [[ $# -gt 0 ]]; do
     apply -p 0 bash-5.1.${1##*-*(0)}.diff $1
     shift
   done
   apply config.diff
   apply paths.diff
-  tree 66c5731ced3b1da2bfc9f3fe23aff88ef69658afbbd61b84e6c6be73a0ccb6ab
+  tree 85066aaeff47525c44e5e1e68af190872c96edcfa6c40cb7cc35671a2e758b36
 }
 
 config-extra --without-bash-malloc --with-installed-readline
