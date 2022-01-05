@@ -12,3 +12,7 @@ prepare() {
 }
 
 config-extra --libexecdir='${prefix}/bin' --localstatedir=/var/lib/misc
+
+post-install() {
+  rm -f /dst/bin/{frcode,locate,updatedb}
+}
