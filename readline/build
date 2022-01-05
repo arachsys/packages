@@ -2,22 +2,22 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/readline/
-  match version 8.1 'readline-([0-9.]+)\.tar\.gz'
+  match version 8.1 'readline-([0-9]+\.[0-9]+)\.tar\.gz'
 
   url https://ftp.gnu.org/gnu/readline/readline-8.1-patches/
-  match version 8.1.1 'readline81-0*([0-9]+)' '8.1.1'
+  match version 8.1.2 'readline81-0*([0-9]+)' '8.1.\1'
 }
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/readline/readline-8.1.tar.gz
-  set https://ftp.gnu.org/gnu/readline/readline-8.1-patches/readline81-{001..001}
+  set https://ftp.gnu.org/gnu/readline/readline-8.1-patches/readline81-{001..002}
   while [[ $# -gt 0 ]]; do
     apply -p 0 readline-8.1.${1##*-*(0)}.diff $1
     shift
   done
   apply config.diff
   apply rpath.diff
-  tree 8caa8336b53ae591ecdce1acc28e1d0f7272442f2691a54a0f7ea2e81caef13c
+  tree 19575a989193d5a57e2ddfb62d0631400cf22052922db6e104efb433130a16b9
 }
 
 config-extra --disable-install-examples
