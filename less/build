@@ -2,14 +2,15 @@ mode autotools
 
 check() {
   url http://www.greenwoodsoftware.com/less/download.html
-  match version 598 'less-([0-9.]+)\.tar'
+  match version 600 'less-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack http://www.greenwoodsoftware.com/less/less-598.tar.gz
-  tree 60517f2f55c5803fcaec24089f264ea9afadf166dac4ef2fef9f6d66595102d2
+  unpack http://www.greenwoodsoftware.com/less/less-600.tar.gz
+  tree 0f947facc9a18871c7620a1bcf3e6f81a76cffe3604e8299bf898c3fa7544bcb
 }
 
 post-install() {
+  rm -f /dst/bin/lesskey /dst/lib/man/man1/lesskey.1
   ln -s less /dst/bin/more
 }
