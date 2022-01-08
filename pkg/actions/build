@@ -22,7 +22,7 @@ fi
 PKG=$(locate "$PKGDIR" "$1")
 mkdir -p "$CACHEDIR" "$IMGDIR"
 
-ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
+ROOT=$(mktemp -d "$IMGDIR/${PKG##*/}.XXXXXX")
 chmod 0755 "$ROOT"
 
 if [[ -n $DEBUG ]]; then
