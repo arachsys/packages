@@ -278,7 +278,6 @@ tidy() {
   done | [[ -z $(tee /dev/stderr) ]]
 
   hardlink -q -t "$@"
-  find "$@" -depth -exec touch -d $(date +@%s) {} +
   find "$@" -depth -type d -empty -delete
 }
 

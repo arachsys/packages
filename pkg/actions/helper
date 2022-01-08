@@ -35,6 +35,7 @@ elif [[ $1 == prepare ]] && [[ -d /src ]]; then
     die "Cannot unpack sources: directory is not empty"
   fi
   cd /src && prepare "${@:2}"
+  find /src -depth -exec touch -r /src {} +
 elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
   image() (
     if [[ $2 == contains ]] && [[ $1 != ?(-) ]]; then
@@ -59,11 +60,11 @@ elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
 
   if ( set -- /src/* && [[ $# -eq 0 ]] ); then
     cd /src && prepare "${@:2}"
+    find /src -depth -exec touch -r /src {} +
   fi
   cd /src && build "${@:2}" 2>&1
 
   tidy /img/*
-  find /img -mindepth 1 -maxdepth 1 -type d -empty -delete
   for IMG in /img/*; do
     if [[ -d "$IMG" ]]; then
       mkdir -p "$IMG/info"
@@ -73,6 +74,7 @@ elif [[ $1 == build ]] && [[ -d /src ]] && [[ -d /dst ]]; then
       sort -o "$IMG/info/requirements" -u "$IMG/info/requirements"
     fi
   done
+  find /img -depth -exec touch -d $(date +@%s) {} +
 else
   die "$0 helper action is for internal use only"
 fi
