@@ -21,10 +21,10 @@ index 7acaebe..ac03d87 100644
          # Change the permission of a file that already exists[BUG #7694]
          begin
 diff --git a/lib/irb/init.rb b/lib/irb/init.rb
-index 78ef2fa..6e12afd 100644
+index d2baee2..ace5863 100644
 --- a/lib/irb/init.rb
 +++ b/lib/irb/init.rb
-@@ -55,7 +55,7 @@ module IRB # :nodoc:
+@@ -57,7 +57,7 @@ module IRB # :nodoc:
      @CONF[:VERBOSE] = nil
  
      @CONF[:EVAL_HISTORY] = nil
@@ -33,7 +33,7 @@ index 78ef2fa..6e12afd 100644
  
      @CONF[:BACK_TRACE_LIMIT] = 16
  
-@@ -357,7 +357,8 @@ module IRB # :nodoc:
+@@ -378,7 +378,8 @@ module IRB # :nodoc:
        yield proc{|rc| irb_home + "/irb#{rc}"}
      end
      if home = ENV["HOME"]
