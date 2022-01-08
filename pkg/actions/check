@@ -28,14 +28,14 @@ check() {
 }
 
 if [[ $# -eq 0 ]]; then
+  trap wait EXIT
   for PKGBUILD in "$PKGDIR"/*/build; do
     check "${PKGBUILD%/build}"
   done
-  wait
 else
+  trap wait EXIT
   for PKG in "$@"; do
     PKG=$(locate "$PKGDIR" "$PKG")
     check "$PKG"
   done
-  wait
 fi | sort -k 1 -t :
