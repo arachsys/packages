@@ -1,0 +1,184 @@
+diff --git a/runtime/autoload/dist/ft.vim b/runtime/autoload/dist/ft.vim
+index 9933ace..a0eae6a 100644
+--- a/runtime/autoload/dist/ft.vim
++++ b/runtime/autoload/dist/ft.vim
+@@ -635,7 +635,7 @@ endfunc
+ let s:ft_rules_udev_rules_pattern = '^\s*\cudev_rules\s*=\s*"\([^"]\{-1,}\)/*".*'
+ func dist#ft#FTRules()
+   let path = expand('<amatch>:p')
+-  if path =~ '/\(etc/udev/\%(rules\.d/\)\=.*\.rules\|\%(usr/\)\=lib/udev/\%(rules\.d/\)\=.*\.rules\)$'
++  if path =~ '/\(etc/udev/\%(rules\.d/\)\=.*\.rules\|lib/udev/\%(rules\.d/\)\=.*\.rules\)$'
+     setf udevrules
+     return
+   endif
+@@ -643,7 +643,7 @@ func dist#ft#FTRules()
+     setf conf  " Better than hog
+     return
+   endif
+-  if path =~ '^/\(etc\|usr/share\)/polkit-1/rules\.d'
++  if path =~ '^/\(etc\|lib\)/polkit-1/rules\.d'
+     setf javascript
+     return
+   endif
+diff --git a/runtime/filetype.vim b/runtime/filetype.vim
+index 09abccf..156897f 100644
+--- a/runtime/filetype.vim
++++ b/runtime/filetype.vim
+@@ -115,7 +115,7 @@ au BufNewFile,BufRead *.am
+ 	\ if expand("<afile>") !~? 'Makefile.am\>' | setf elf | endif
+ 
+ " ALSA configuration
+-au BufNewFile,BufRead .asoundrc,*/usr/share/alsa/alsa.conf,*/etc/asound.conf setf alsaconf
++au BufNewFile,BufRead .asoundrc,*/lib/alsa/alsa.conf,*/etc/asound.conf setf alsaconf
+ 
+ " Arc Macro Language
+ au BufNewFile,BufRead *.aml			setf aml
+@@ -699,7 +699,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
+ " GPG
+ au BufNewFile,BufRead */.gnupg/options		setf gpg
+ au BufNewFile,BufRead */.gnupg/gpg.conf		setf gpg
+-au BufNewFile,BufRead */usr/*/gnupg/options.skel setf gpg
++au BufNewFile,BufRead */lib/gnupg/options.skel  setf gpg
+ if !empty($GNUPGHOME)
+   au BufNewFile,BufRead $GNUPGHOME/options	setf gpg
+   au BufNewFile,BufRead $GNUPGHOME/gpg.conf	setf gpg
+@@ -1168,7 +1168,7 @@ au BufNewFile,BufRead Neomuttrc			setf neomuttrc
+ au BufNewFile,BufRead .netrc			setf netrc
+ 
+ " Nginx
+-au BufNewFile,BufRead *.nginx,nginx*.conf,*nginx.conf,*/etc/nginx/*,*/usr/local/nginx/conf/*,*/nginx/*.conf			setf nginx
++au BufNewFile,BufRead *.nginx,nginx*.conf,*nginx.conf,*/etc/nginx/*,*/nginx/*.conf			setf nginx
+ 
+ " Ninja file
+ au BufNewFile,BufRead *.ninja			setf ninja
+@@ -1941,8 +1941,8 @@ au BufNewFile,BufRead *.uc			setf uc
+ au BufNewFile,BufRead */etc/updatedb.conf	setf updatedb
+ 
+ " Upstart (init(8)) config files
+-au BufNewFile,BufRead */usr/share/upstart/*.conf	       setf upstart
+-au BufNewFile,BufRead */usr/share/upstart/*.override	       setf upstart
++au BufNewFile,BufRead */lib/upstart/*.conf	       setf upstart
++au BufNewFile,BufRead */lib/upstart/*.override	       setf upstart
+ au BufNewFile,BufRead */etc/init/*.conf,*/etc/init/*.override  setf upstart
+ au BufNewFile,BufRead */.init/*.conf,*/.init/*.override	       setf upstart
+ au BufNewFile,BufRead */.config/upstart/*.conf		       setf upstart
+diff --git a/runtime/ftplugin/debchangelog.vim b/runtime/ftplugin/debchangelog.vim
+index a78f781..c27fa10 100644
+--- a/runtime/ftplugin/debchangelog.vim
++++ b/runtime/ftplugin/debchangelog.vim
+@@ -351,12 +351,12 @@ except ImportError:
+     vim.command('echoerr \'python-launchpadlib >= 1.5.4 needs to be installed to use Launchpad bug completion\'')
+ EOF
+     else
+-      if ! filereadable('/usr/sbin/apt-listbugs')
++      if ! filereadable('/bin/apt-listbugs')
+         echoerr 'apt-listbugs not found, you should install it to use Closes bug completion'
+         return
+       endif
+       let pkgsrc = DebGetPkgSrcName(line('.'))
+-      let listbugs_output = system('/usr/sbin/apt-listbugs -s ' . g:debchangelog_listbugs_severities . ' list ' . pkgsrc . ' | grep "^ #" 2> /dev/null')
++      let listbugs_output = system('/bin/apt-listbugs -s ' . g:debchangelog_listbugs_severities . ' list ' . pkgsrc . ' | grep "^ #" 2> /dev/null')
+       let bug_lines = split(listbugs_output, '\n')
+     endif
+     let completions = []
+diff --git a/runtime/ftplugin/j.vim b/runtime/ftplugin/j.vim
+index 3cd0cb8..7d5ba26 100644
+--- a/runtime/ftplugin/j.vim
++++ b/runtime/ftplugin/j.vim
+@@ -17,7 +17,7 @@ setlocal comments=:NB.
+ setlocal commentstring=NB.\ %s
+ setlocal formatoptions-=t
+ setlocal matchpairs=(:)
+-setlocal path-=/usr/include
++setlocal path-=/lib/include
+ 
+ " Includes. To make the shorthand form "require 'web/cgi'" work, double the
+ " last path component. Also strip off leading folder names like "~addons/".
+diff --git a/runtime/ftplugin/javascript.vim b/runtime/ftplugin/javascript.vim
+index 9a0b29e..1ac09f3 100644
+--- a/runtime/ftplugin/javascript.vim
++++ b/runtime/ftplugin/javascript.vim
+@@ -46,7 +46,7 @@ setlocal suffixes+=.snap
+ 
+ " Remove irrelevant part of 'path'.
+ " User is expected to augment it with contextually-relevant paths
+-setlocal path-=/usr/include
++setlocal path-=/lib/include
+ 
+ " Matchit configuration
+ if exists("loaded_matchit")
+diff --git a/runtime/scripts.vim b/runtime/scripts.vim
+index e41405a..946fa67 100644
+--- a/runtime/scripts.vim
++++ b/runtime/scripts.vim
+@@ -35,8 +35,8 @@ let s:line1 = getline(1)
+ if s:line1 =~# "^#!"
+   " A script that starts with "#!".
+ 
+-  " Check for a line like "#!/usr/bin/env {options} bash".  Turn it into
+-  " "#!/usr/bin/bash" to make matching easier.
++  " Check for a line like "#!/bin/env {options} bash".  Turn it into
++  " "#!/bin/bash" to make matching easier.
+   " Recognize only a few {options} that are commonly used.
+   if s:line1 =~# '^#!\s*\S*\<env\s'
+     let s:line1 = substitute(s:line1, '\S\+=\S\+', '', 'g')
+@@ -47,9 +47,9 @@ if s:line1 =~# "^#!"
+   " Get the program name.
+   " Only accept spaces in PC style paths: "#!c:/program files/perl [args]".
+   " If the word env is used, use the first word after the space:
+-  " "#!/usr/bin/env perl [path/args]"
++  " "#!/bin/env perl [path/args]"
+   " If there is no path use the first word: "#!perl [path/args]".
+-  " Otherwise get the last word after a slash: "#!/usr/bin/perl [path/args]".
++  " Otherwise get the last word after a slash: "#!/bin/perl [path/args]".
+   if s:line1 =~# '^#!\s*\a:[/\\]'
+     let s:name = substitute(s:line1, '^#!.*[/\\]\(\i\+\).*', '\1', '')
+   elseif s:line1 =~# '^#!.*\<env\>'
+diff --git a/runtime/syntax/sh.vim b/runtime/syntax/sh.vim
+index 731a514..55a4d87 100644
+--- a/runtime/syntax/sh.vim
++++ b/runtime/syntax/sh.vim
+@@ -27,8 +27,6 @@ elseif !exists("g:is_kornshell") && !exists("g:is_bash") && !exists("g:is_posix"
+  let s:shell = ""
+  if executable("/bin/sh")
+   let s:shell = resolve("/bin/sh")
+- elseif executable("/usr/bin/sh")
+-  let s:shell = resolve("/usr/bin/sh")
+  endif
+  if     s:shell =~ '\<ksh\>'
+   let b:is_kornshell= 1
+diff --git a/runtime/termcap b/runtime/termcap
+index 38790c4..99c5337 100644
+--- a/runtime/termcap
++++ b/runtime/termcap
+@@ -36,7 +36,7 @@ M3|sun-17|Sun 17-line window:\
+ 
+ v9|925a|tvi925a|TeleVideo Model 925:\
+ 	:al=\EE:am:bs:bt=\EI:bw:cd=\EY:ce=\ET:cl=^Z:cm=\E=%+ %+ :co#80:dc=\EW:\
+-	:dl=\ER:do=^V:ei=:ic=\EQ:if=/usr/share/lib/tabset/std:im=:kb=^H:kd=^V:\
++	:dl=\ER:do=^V:ei=:ic=\EQ:if=/lib/tabset/std:im=:kb=^H:kd=^V:\
+ 	:kh=^^:kl=^H:kn#12:kr=^L:ku=^K:li#24:nd=^L:pt:se=\EG0:sg#1:so=\EG4:\
+ 	:ue=\EG0:ug#1:ul:up=^K:us=\EG8:is=\El\
+ 	:vb=\Eb\200\200\200\200\200\200\200\200\200\200\200\200\200\200\Ed:\
+@@ -47,7 +47,7 @@ d0|vt100|vt100-am|vt100am|dec vt100:\
+ 	:le=^H:bs:am:cm=5\E[%i%d;%dH:nd=2\E[C:up=2\E[A:\
+ 	:ce=3\E[K:cd=50\E[J:so=2\E[7m:se=2\E[m:us=2\E[4m:ue=2\E[m:\
+ 	:md=2\E[1m:mr=2\E[7m:mb=2\E[5m:me=2\E[m:is=\E[1;24r\E[24;1H:\
+-	:rf=/usr/share/lib/tabset/vt100:\
++	:rf=/lib/tabset/vt100:\
+ 	:rs=\E>\E[?3l\E[?4l\E[?5l\E[?7h\E[?8h:ks=\E[?1h\E=:ke=\E[?1l\E>:\
+ 	:ku=\EOA:kd=\EOB:kr=\EOC:kl=\EOD:kb=^H:\
+ 	:ho=\E[H:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:pt:sr=5\EM:vt#3:xn:\
+diff --git a/src/optiondefs.h b/src/optiondefs.h
+index cc4ad9e..c611524 100644
+--- a/src/optiondefs.h
++++ b/src/optiondefs.h
+@@ -1888,7 +1888,7 @@ static struct vimoption options[] =
+ #if defined(AMIGA) || defined(MSWIN)
+ 			    (char_u *)".,,",
+ #else
+-			    (char_u *)".,/usr/include,,",
++			    (char_u *)".,/lib/include,,",
+ #endif
+ 				(char_u *)0L} SCTX_INIT},
+     {"perldll",     NULL,   P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,

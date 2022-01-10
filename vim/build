@@ -1,0 +1,18 @@
+mode autotools
+
+prepare() {
+  unpack vim-8.2.4058.tar.gz \
+    https://github.com/vim/vim/archive/refs/tags/v8.2.4058.tar.gz
+  apply paths.diff
+  tree 612377d9353c199b54682dc7142f5309b4b1074270093f4eb5c9a35a8ee45ddd
+}
+
+config-extra --enable-{multibyte,terminal} --without-local-dir
+compile-extra VIMRTLOC=/lib/vim
+install-extra VIMRTLOC=/lib/vim
+
+post-install() {
+  ln -s vim /dst/bin/vi
+  rm -r /dst/bin/{rview,rvim,vimtutor} /dst/lib/{applications,icons} \
+    /dst/lib/vim/{**/README.*,*_example.vim,tools}
+}
