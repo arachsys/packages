@@ -9,10 +9,10 @@ check() {
 
 prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.8p1.tar.gz
-  apply askpass.diff
+  apply config.diff
   apply dnssegv.diff
   apply sftp.diff
-  tree 120250d4e2eb0e363aaf435a9b95f261731801cc9eff87e436d1c10228be16a0
+  tree 3650d574a4ea30f94dce56e5e8e3fad22bd83cda71dfdfd97736d22d421274fd
 }
 
 config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \

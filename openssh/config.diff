@@ -1,0 +1,54 @@
+diff --git a/hostfile.c b/hostfile.c
+index ce00cd7..7116fe1 100644
+--- a/hostfile.c
++++ b/hostfile.c
+@@ -475,13 +475,14 @@ write_host_entry(FILE *f, const char *host, const char *ip,
+ void
+ hostfile_create_user_ssh_dir(const char *filename, int notify)
+ {
+-	char *dotsshdir = NULL, *p;
++	char *configdir = NULL, *dotsshdir = NULL, *p;
+ 	size_t len;
+ 	struct stat st;
+ 
+ 	if ((p = strrchr(filename, '/')) == NULL)
+ 		return;
+ 	len = p - filename;
++	configdir = tilde_expand_filename("~/" _PATH_CFG_USER_DIR, getuid());
+ 	dotsshdir = tilde_expand_filename("~/" _PATH_SSH_USER_DIR, getuid());
+ 	if (strlen(dotsshdir) > len || strncmp(filename, dotsshdir, len) != 0)
+ 		goto out; /* not ~/.ssh prefixed */
+@@ -493,7 +494,10 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
+ #ifdef WITH_SELINUX
+ 		ssh_selinux_setfscreatecon(dotsshdir);
+ #endif
+-		if (mkdir(dotsshdir, 0700) == -1)
++		if (mkdir(configdir, 0777) == -1) /* respect umask */
++			error("Could not create directory '%.200s' (%s).",
++			    configdir, strerror(errno));
++		else if (mkdir(dotsshdir, 0777) == -1) /* respect umask */
+ 			error("Could not create directory '%.200s' (%s).",
+ 			    dotsshdir, strerror(errno));
+ 		else if (notify)
+@@ -503,6 +507,7 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
+ #endif
+ 	}
+  out:
++	free(configdir);
+ 	free(dotsshdir);
+ }
+ 
+diff --git a/pathnames.h b/pathnames.h
+index f7ca5a7..6d02690 100644
+--- a/pathnames.h
++++ b/pathnames.h
+@@ -57,7 +57,8 @@
+  * The directory in user's home directory in which the files reside. The
+  * directory should be world-readable (though not all files are).
+  */
+-#define _PATH_SSH_USER_DIR		".ssh"
++#define _PATH_SSH_USER_DIR		".config/ssh"
++#define _PATH_CFG_USER_DIR		".config"
+ 
+ /*
+  * Per-user file containing host keys of known hosts.  This file need not be
