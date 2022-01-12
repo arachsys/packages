@@ -1,0 +1,68 @@
+diff --git a/usr.sbin/smtpd/lka_session.c b/usr.sbin/smtpd/lka_session.c
+index 999e01d..4296f64 100644
+--- a/usr.sbin/smtpd/lka_session.c
++++ b/usr.sbin/smtpd/lka_session.c
+@@ -120,7 +120,7 @@ lka_session_forward_reply(struct forward_req *fwreq, int fd)
+ 	switch (fwreq->status) {
+ 	case 0:
+ 		/* permanent failure while lookup ~/.forward */
+-		log_trace(TRACE_EXPAND, "expand: ~/.forward failed for user %s",
++		log_trace(TRACE_EXPAND, "expand: ~/.config/mail/forward failed for user %s",
+ 		    fwreq->user);
+ 		lks->error = LKA_PERMFAIL;
+ 		break;
+@@ -128,17 +128,17 @@ lka_session_forward_reply(struct forward_req *fwreq, int fd)
+ 		if (fd == -1) {
+ 			dsp = dict_get(env->sc_dispatchers, lks->rule->dispatcher);
+ 			if (dsp->u.local.forward_only) {
+-				log_trace(TRACE_EXPAND, "expand: no .forward "
++				log_trace(TRACE_EXPAND, "expand: no ~/.config/mail/forward "
+ 				    "for user %s on forward-only rule", fwreq->user);
+ 				lks->error = LKA_TEMPFAIL;
+ 			}
+ 			else if (dsp->u.local.expand_only) {
+-				log_trace(TRACE_EXPAND, "expand: no .forward "
++				log_trace(TRACE_EXPAND, "expand: no ~/.config/mail/forward "
+ 				    "for user %s and no default action on rule", fwreq->user);
+ 				lks->error = LKA_PERMFAIL;
+ 			}
+ 			else {
+-				log_trace(TRACE_EXPAND, "expand: no .forward for "
++				log_trace(TRACE_EXPAND, "expand: no ~/.config/mail/forward for "
+ 				    "user %s, just deliver", fwreq->user);
+ 				lka_submit(lks, rule, xn);
+ 			}
+@@ -159,17 +159,17 @@ lka_session_forward_reply(struct forward_req *fwreq, int fd)
+ 			}
+ 			else if (ret == 0) {
+ 				if (dsp->u.local.forward_only) {
+-					log_trace(TRACE_EXPAND, "expand: empty .forward "
++					log_trace(TRACE_EXPAND, "expand: empty ~/.config/mail/forward "
+ 					    "for user %s on forward-only rule", fwreq->user);
+ 					lks->error = LKA_TEMPFAIL;
+ 				}
+ 				else if (dsp->u.local.expand_only) {
+-					log_trace(TRACE_EXPAND, "expand: empty .forward "
++					log_trace(TRACE_EXPAND, "expand: empty ~/.config/mail/forward "
+ 					    "for user %s and no default action on rule", fwreq->user);
+ 					lks->error = LKA_PERMFAIL;
+ 				}
+ 				else {
+-					log_trace(TRACE_EXPAND, "expand: empty .forward "
++					log_trace(TRACE_EXPAND, "expand: empty ~/.config/mail/forward "
+ 					    "for user %s, just deliver", fwreq->user);
+ 					lka_submit(lks, rule, xn);
+ 				}
+diff --git a/usr.sbin/smtpd/smtpd.c b/usr.sbin/smtpd/smtpd.c
+index 9307fc3..190f754 100644
+--- a/usr.sbin/smtpd/smtpd.c
++++ b/usr.sbin/smtpd/smtpd.c
+@@ -1846,7 +1846,7 @@ parent_forward_open(char *username, char *directory, uid_t uid, gid_t gid)
+ 	int		fd;
+ 	struct stat	sb;
+ 
+-	if (!bsnprintf(pathname, sizeof (pathname), "%s/.forward",
++	if (!bsnprintf(pathname, sizeof (pathname), "%s/.config/mail/forward",
+ 		directory)) {
+ 		log_warnx("warn: smtpd: %s: pathname too large", pathname);
+ 		return -1;
