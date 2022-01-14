@@ -40,14 +40,14 @@ index 5038a967d..5ac2ce0aa 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index e9cc7662e..f6e45c261 100644
+index 007ca9f7f..98dbce6c5 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
 @@ -197,38 +197,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
--    // Copies the CRT objects.
+-    // Copies the libc and CRT objects.
 -    //
 -    // rustc historically provides a more self-contained installation for musl targets
 -    // not requiring the presence of a native musl toolchain. For example, it can fall back
@@ -58,7 +58,7 @@ index e9cc7662e..f6e45c261 100644
 -        let srcdir = builder.musl_libdir(target).unwrap_or_else(|| {
 -            panic!("Target {:?} does not have a \"musl-libdir\" key", target.triple)
 -        });
--        for &obj in &["crt1.o", "Scrt1.o", "rcrt1.o", "crti.o", "crtn.o"] {
+-        for &obj in &["libc.a", "crt1.o", "Scrt1.o", "rcrt1.o", "crti.o", "crtn.o"] {
 -            copy_and_stamp(
 -                builder,
 -                &libdir_self_contained,
@@ -105,10 +105,10 @@ index e9cc7662e..f6e45c261 100644
          // so that it can be found when the newly built `rustc` is run.
          dist::maybe_install_llvm_runtime(builder, target_compiler.host, &sysroot);
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index d4875cfe1..52eae8c9c 100644
+index 09ea84a08..b2d6578ad 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -419,10 +419,6 @@ impl Step for Rustc {
+@@ -417,10 +417,6 @@ impl Step for Rustc {
                  }
              }
  
@@ -119,7 +119,7 @@ index d4875cfe1..52eae8c9c 100644
              // Man pages
              t!(fs::create_dir_all(image.join("share/man/man1")));
              let man_src = builder.src.join("src/doc/man");
-@@ -1004,7 +1000,7 @@ impl Step for Cargo {
+@@ -1002,7 +998,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -129,7 +129,7 @@ index d4875cfe1..52eae8c9c 100644
          }
  
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 2d4e15278..b67f103d2 100644
+index 1667dfc3f..8fbb38ef5 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
 @@ -273,6 +273,7 @@ pub struct Build {
