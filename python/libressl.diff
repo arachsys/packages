@@ -1,31 +1,3 @@
-diff --git a/Modules/_hashopenssl.c b/Modules/_hashopenssl.c
-index b9e68c0..1395bbe 100644
---- a/Modules/_hashopenssl.c
-+++ b/Modules/_hashopenssl.c
-@@ -40,10 +40,12 @@
- 
- #define MUNCH_SIZE INT_MAX
- 
-+#ifndef LIBRESSL_VERSION_NUMBER
- #define PY_OPENSSL_HAS_SCRYPT 1
- #define PY_OPENSSL_HAS_SHA3 1
- #define PY_OPENSSL_HAS_SHAKE 1
- #define PY_OPENSSL_HAS_BLAKE2 1
-+#endif
- 
- static PyModuleDef _hashlibmodule;
- 
-@@ -1812,7 +1814,9 @@ _hashlib_get_fips_mode_impl(PyObject *module)
- /*[clinic end generated code: output=87eece1bab4d3fa9 input=2db61538c41c6fef]*/
- 
- {
--#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-+#ifdef LIBRESSL_VERSION_NUMBER
-+    return 0;
-+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
-     return EVP_default_properties_is_fips_enabled(NULL);
- #else
-     ERR_clear_error();
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
 index 6c63301..f45c090 100644
 --- a/Modules/_ssl.c
@@ -297,3 +269,15 @@ index b59b129..4493b3e 100644
  
  PyDoc_STRVAR(_ssl__SSLSocket_get_unverified_chain__doc__,
  "get_unverified_chain($self, /)\n"
+diff --git a/setup.py b/setup.py
+index 43e807f..933cf8f 100644
+--- a/setup.py
++++ b/setup.py
+@@ -432,6 +432,7 @@ class PyBuildExt(build_ext):
+         # files.
+         sysconf_built = sysconfig.get_config_var('MODBUILT_NAMES').split()
+         sysconf_dis = sysconfig.get_config_var('MODDISABLED_NAMES').split()
++        sysconf_dis.append('_hashlib')
+ 
+         mods_built = []
+         mods_disabled = []
