@@ -284,7 +284,7 @@ index d78598d..1daea63 100644
  	return bchu_data(bcache_fs_open(fs_path), op);
  }
 diff --git a/cmd_debug.c b/cmd_debug.c
-index eac9c38..3d6c489 100644
+index 71e729c..4152e6e 100644
 --- a/cmd_debug.c
 +++ b/cmd_debug.c
 @@ -23,13 +23,14 @@
@@ -484,7 +484,7 @@ index eac9c38..3d6c489 100644
  	struct journal_replay *p;
  	struct jset_entry *entry;
 diff --git a/cmd_device.c b/cmd_device.c
-index c5d516b..7a6b908 100644
+index ef2dfa1..b701d90 100644
 --- a/cmd_device.c
 +++ b/cmd_device.c
 @@ -24,17 +24,17 @@
@@ -540,16 +540,21 @@ index c5d516b..7a6b908 100644
  }
  
  int cmd_device_add(int argc, char *argv[])
-@@ -77,7 +77,7 @@ int cmd_device_add(int argc, char *argv[])
+@@ -77,11 +77,11 @@ int cmd_device_add(int argc, char *argv[])
  		switch (opt) {
  		case 'S':
  			if (bch2_strtoull_h(optarg, &dev_opts.size))
 -				die("invalid filesystem size");
 +				die("Invalid filesystem size");
- 
- 			dev_opts.size >>= 9;
  			break;
-@@ -109,7 +109,7 @@ int cmd_device_add(int argc, char *argv[])
+ 		case 'B':
+ 			if (bch2_strtoull_h(optarg, &dev_opts.bucket_size))
+-				die("bad bucket_size %s", optarg);
++				die("Bad bucket_size %s", optarg);
+ 			break;
+ 		case 'D':
+ 			dev_opts.discard = true;
+@@ -107,7 +107,7 @@ int cmd_device_add(int argc, char *argv[])
  		die("Please supply a device");
  
  	if (argc)
@@ -558,7 +563,7 @@ index c5d516b..7a6b908 100644
  
  	struct bchfs_handle fs = bcache_fs_open(fs_path);
  
-@@ -139,17 +139,18 @@ int cmd_device_add(int argc, char *argv[])
+@@ -137,17 +137,18 @@ int cmd_device_add(int argc, char *argv[])
  
  static void device_remove_usage(void)
  {
@@ -585,7 +590,7 @@ index c5d516b..7a6b908 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -211,12 +212,12 @@ int cmd_device_remove(int argc, char *argv[])
+@@ -209,12 +210,12 @@ int cmd_device_remove(int argc, char *argv[])
  static void device_online_usage(void)
  {
  	puts("bcachefs device online - readd a device to a running filesystem\n"
@@ -601,7 +606,7 @@ index c5d516b..7a6b908 100644
  }
  
  int cmd_device_online(int argc, char *argv[])
-@@ -236,7 +237,7 @@ int cmd_device_online(int argc, char *argv[])
+@@ -234,7 +235,7 @@ int cmd_device_online(int argc, char *argv[])
  		die("Please supply a device");
  
  	if (argc)
@@ -610,7 +615,7 @@ index c5d516b..7a6b908 100644
  
  	int dev_idx;
  	struct bchfs_handle fs = bchu_fs_open_by_dev(dev, &dev_idx);
-@@ -247,13 +248,13 @@ int cmd_device_online(int argc, char *argv[])
+@@ -245,13 +246,13 @@ int cmd_device_online(int argc, char *argv[])
  static void device_offline_usage(void)
  {
  	puts("bcachefs device offline - take a device offline, without removing it\n"
@@ -628,7 +633,7 @@ index c5d516b..7a6b908 100644
  }
  
  int cmd_device_offline(int argc, char *argv[])
-@@ -281,7 +282,7 @@ int cmd_device_offline(int argc, char *argv[])
+@@ -279,7 +280,7 @@ int cmd_device_offline(int argc, char *argv[])
  		die("Please supply a device");
  
  	if (argc)
@@ -637,7 +642,7 @@ index c5d516b..7a6b908 100644
  
  	int dev_idx;
  	struct bchfs_handle fs = bchu_fs_open_by_dev(dev, &dev_idx);
-@@ -292,12 +293,12 @@ int cmd_device_offline(int argc, char *argv[])
+@@ -290,12 +291,12 @@ int cmd_device_offline(int argc, char *argv[])
  static void device_evacuate_usage(void)
  {
  	puts("bcachefs device evacuate - move data off of a given device\n"
@@ -653,7 +658,7 @@ index c5d516b..7a6b908 100644
  }
  
  int cmd_device_evacuate(int argc, char *argv[])
-@@ -317,7 +318,7 @@ int cmd_device_evacuate(int argc, char *argv[])
+@@ -315,7 +316,7 @@ int cmd_device_evacuate(int argc, char *argv[])
  		die("Please supply a device");
  
  	if (argc)
@@ -662,7 +667,7 @@ index c5d516b..7a6b908 100644
  
  	int dev_idx;
  	struct bchfs_handle fs = bchu_fs_open_by_dev(dev_path, &dev_idx);
-@@ -342,17 +343,18 @@ int cmd_device_evacuate(int argc, char *argv[])
+@@ -340,17 +341,18 @@ int cmd_device_evacuate(int argc, char *argv[])
  static void device_set_state_usage(void)
  {
  	puts("bcachefs device set-state\n"
@@ -689,7 +694,7 @@ index c5d516b..7a6b908 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -412,7 +414,7 @@ int cmd_device_set_state(int argc, char *argv[])
+@@ -410,7 +412,7 @@ int cmd_device_set_state(int argc, char *argv[])
  
  		int ret = bch2_read_super(dev_str, &opts, &sb);
  		if (ret)
@@ -698,7 +703,7 @@ index c5d516b..7a6b908 100644
  
  		struct bch_member *m = bch2_sb_get_members(sb.sb)->members + sb.sb->dev_idx;
  
-@@ -449,11 +451,12 @@ int cmd_device_set_state(int argc, char *argv[])
+@@ -447,11 +449,12 @@ int cmd_device_set_state(int argc, char *argv[])
  static void device_resize_usage(void)
  {
  	puts("bcachefs device resize \n"
@@ -714,7 +719,7 @@ index c5d516b..7a6b908 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -483,7 +486,7 @@ int cmd_device_resize(int argc, char *argv[])
+@@ -481,7 +484,7 @@ int cmd_device_resize(int argc, char *argv[])
  	if (!size_arg)
  		size = get_size(dev, dev_fd);
  	else if (bch2_strtoull_h(size_arg, &size))
@@ -723,7 +728,7 @@ index c5d516b..7a6b908 100644
  
  	size >>= 9;
  
-@@ -495,7 +498,7 @@ int cmd_device_resize(int argc, char *argv[])
+@@ -493,7 +496,7 @@ int cmd_device_resize(int argc, char *argv[])
  	struct mntent *mount = dev_to_mount(dev);
  	if (mount) {
  		if (!S_ISBLK(dev_stat.st_mode))
@@ -732,7 +737,7 @@ index c5d516b..7a6b908 100644
  
  		printf("Doing online resize of %s\n", dev);
  
-@@ -505,11 +508,11 @@ int cmd_device_resize(int argc, char *argv[])
+@@ -503,11 +506,11 @@ int cmd_device_resize(int argc, char *argv[])
  
  		struct bch_sb *sb = bchu_read_super(fs, -1);
  		if (idx >= sb->nr_devices)
@@ -746,7 +751,7 @@ index c5d516b..7a6b908 100644
  
  		/* could also just read this out of sysfs... meh */
  		struct bch_member *m = mi->members + idx;
-@@ -526,14 +529,14 @@ int cmd_device_resize(int argc, char *argv[])
+@@ -524,14 +527,14 @@ int cmd_device_resize(int argc, char *argv[])
  
  		struct bch_fs *c = bch2_fs_open(&dev, 1, bch2_opts_empty());
  		if (IS_ERR(c))
@@ -763,7 +768,7 @@ index c5d516b..7a6b908 100644
  			resize = ca;
  			percpu_ref_get(&resize->io_ref);
  		}
-@@ -557,11 +560,12 @@ int cmd_device_resize(int argc, char *argv[])
+@@ -555,11 +558,12 @@ int cmd_device_resize(int argc, char *argv[])
  static void device_resize_journal_usage(void)
  {
  	puts("bcachefs device resize-journal \n"
@@ -779,7 +784,7 @@ index c5d516b..7a6b908 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -591,7 +595,7 @@ int cmd_device_resize_journal(int argc, char *argv[])
+@@ -589,7 +593,7 @@ int cmd_device_resize_journal(int argc, char *argv[])
  	if (!size_arg)
  		die("Please supply a journal size");
  	else if (bch2_strtoull_h(size_arg, &size))
@@ -788,7 +793,7 @@ index c5d516b..7a6b908 100644
  
  	size >>= 9;
  
-@@ -603,7 +607,7 @@ int cmd_device_resize_journal(int argc, char *argv[])
+@@ -601,7 +605,7 @@ int cmd_device_resize_journal(int argc, char *argv[])
  	struct mntent *mount = dev_to_mount(dev);
  	if (mount) {
  		if (!S_ISBLK(dev_stat.st_mode))
@@ -797,7 +802,7 @@ index c5d516b..7a6b908 100644
  
  		struct bchfs_handle fs = bcache_fs_open(mount->mnt_dir);
  
-@@ -611,11 +615,11 @@ int cmd_device_resize_journal(int argc, char *argv[])
+@@ -609,11 +613,11 @@ int cmd_device_resize_journal(int argc, char *argv[])
  
  		struct bch_sb *sb = bchu_read_super(fs, -1);
  		if (idx >= sb->nr_devices)
@@ -811,7 +816,7 @@ index c5d516b..7a6b908 100644
  
  		/* could also just read this out of sysfs... meh */
  		struct bch_member *m = mi->members + idx;
-@@ -629,14 +633,14 @@ int cmd_device_resize_journal(int argc, char *argv[])
+@@ -627,14 +631,14 @@ int cmd_device_resize_journal(int argc, char *argv[])
  
  		struct bch_fs *c = bch2_fs_open(&dev, 1, bch2_opts_empty());
  		if (IS_ERR(c))
@@ -829,7 +834,7 @@ index c5d516b..7a6b908 100644
  			percpu_ref_get(&resize->io_ref);
  		}
 diff --git a/cmd_format.c b/cmd_format.c
-index 2c610af..eed25a4 100644
+index cc16b31..c38191e 100644
 --- a/cmd_format.c
 +++ b/cmd_format.c
 @@ -51,34 +51,34 @@ x('h',	help,			no_argument)
@@ -888,14 +893,12 @@ index 2c610af..eed25a4 100644
  
  			opt_set(fs_opts, metadata_replicas, v);
  			opt_set(fs_opts, data_replicas, v);
-@@ -162,13 +162,13 @@ int cmd_format(int argc, char *argv[])
+@@ -162,17 +162,17 @@ int cmd_format(int argc, char *argv[])
  			break;
  		case O_fs_size:
  			if (bch2_strtoull_h(optarg, &dev_opts.size))
 -				die("invalid filesystem size");
 +				die("Invalid filesystem size");
- 
- 			dev_opts.size >>= 9;
  			break;
  		case O_superblock_size:
  			if (bch2_strtouint_h(optarg, &opts.superblock_size))
@@ -904,7 +907,14 @@ index 2c610af..eed25a4 100644
  
  			opts.superblock_size >>= 9;
  			break;
-@@ -191,11 +191,11 @@ int cmd_format(int argc, char *argv[])
+ 		case O_bucket_size:
+ 			if (bch2_strtoull_h(optarg, &dev_opts.bucket_size))
+-				die("bad bucket_size %s", optarg);
++				die("Bad bucket_size %s", optarg);
+ 			break;
+ 		case O_label:
+ 		case 'l':
+@@ -189,11 +189,11 @@ int cmd_format(int argc, char *argv[])
  		case O_durability:
  			if (kstrtouint(optarg, 10, &dev_opts.durability) ||
  			    dev_opts.durability > BCH_REPLICAS_MAX)
@@ -918,16 +928,16 @@ index 2c610af..eed25a4 100644
  			break;
  		case O_no_initialize:
  			initialize = false;
-@@ -258,7 +258,7 @@ int cmd_format(int argc, char *argv[])
+@@ -256,7 +256,7 @@ int cmd_format(int argc, char *argv[])
  						darray_size(device_paths),
  						bch2_opts_empty());
  		if (IS_ERR(c))
--			die("error opening %s: %s", device_paths.item,
-+			die("Error opening %s: %s", device_paths.item,
+-			die("error opening %s: %s", device_paths.item[0],
++			die("Error opening %s: %s", device_paths.item[0],
  			    strerror(-PTR_ERR(c)));
  
  		bch2_fs_stop(c);
-@@ -272,13 +272,14 @@ int cmd_format(int argc, char *argv[])
+@@ -270,13 +270,14 @@ int cmd_format(int argc, char *argv[])
  static void show_super_usage(void)
  {
  	puts("bcachefs show-super \n"
@@ -947,7 +957,7 @@ index 2c610af..eed25a4 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -313,9 +314,9 @@ int cmd_show_super(int argc, char *argv[])
+@@ -311,9 +312,9 @@ int cmd_show_super(int argc, char *argv[])
  
  	char *dev = arg_pop();
  	if (!dev)
@@ -1069,7 +1079,7 @@ index 6052cb0..9534943 100644
  
  	bch2_write_super(c);
 diff --git a/cmd_migrate.c b/cmd_migrate.c
-index b1475b2..12a6ff1 100644
+index fc863f8..4cf1b75 100644
 --- a/cmd_migrate.c
 +++ b/cmd_migrate.c
 @@ -58,7 +58,7 @@ static char *dev_t_to_path(dev_t dev)
@@ -1160,7 +1170,7 @@ index b1475b2..12a6ff1 100644
  
  	if (fchdir(src_fd))
  		die("chdir error: %m");
-@@ -638,12 +638,13 @@ static void migrate_usage(void)
+@@ -636,12 +636,13 @@ static void migrate_usage(void)
  	     "Usage: bcachefs migrate [OPTION]...\n"
  	     "\n"
  	     "Options:\n"
@@ -1180,7 +1190,7 @@ index b1475b2..12a6ff1 100644
  }
  
  static const struct option migrate_opts[] = {
-@@ -740,8 +741,8 @@ static int migrate_fs(const char		*fs_path,
+@@ -738,8 +739,8 @@ static int migrate_fs(const char		*fs_path,
  	       "The new filesystem will have a file at /old_migrated_filestem\n"
  	       "referencing all disk space that might be used by the existing\n"
  	       "filesystem. That file can be deleted once the old filesystem is\n"
@@ -1191,7 +1201,7 @@ index b1475b2..12a6ff1 100644
  	       sb_offset, dev.path, dev.path, sb_offset);
  	return 0;
  }
-@@ -797,10 +798,11 @@ static void migrate_superblock_usage(void)
+@@ -795,10 +796,11 @@ static void migrate_superblock_usage(void)
  	     "Usage: bcachefs migrate-superblock [OPTION]...\n"
  	     "\n"
  	     "Options:\n"
@@ -1369,10 +1379,10 @@ index f031ea1..6ce8591 100644
  	if (__builtin_constant_p(size)) {
  		if (!size)
 diff --git a/libbcachefs.c b/libbcachefs.c
-index 1e95007..5eb9e9d 100644
+index f78ebf0..a3afcb8 100644
 --- a/libbcachefs.c
 +++ b/libbcachefs.c
-@@ -60,7 +60,7 @@ static void init_layout(struct bch_sb_layout *l,
+@@ -54,7 +54,7 @@ static void init_layout(struct bch_sb_layout *l,
  	}
  
  	if (sb_pos > sb_end)
@@ -1385,12 +1395,12 @@ index 1e95007..5eb9e9d 100644
  
  	if (!dev->bucket_size) {
  		if (dev->size < min_size(opts.block_size))
--			die("cannot format %s, too small (%llu sectors, min %llu)",
-+			die("Cannot format %s, too small (%llu sectors, min %llu)",
+-			die("cannot format %s, too small (%llu bytes, min %llu)",
++			die("Cannot format %s, too small (%llu bytes, min %llu)",
  			    dev->path, dev->size, min_size(opts.block_size));
  
  		/* Bucket size must be >= block size: */
-@@ -159,7 +159,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+@@ -162,7 +162,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  	if (!opt_defined(fs_opts, block_size)) {
  		opt_set(fs_opts, block_size, max_dev_block_size);
  	} else if (fs_opts.block_size < max_dev_block_size)
@@ -1399,7 +1409,7 @@ index 1e95007..5eb9e9d 100644
  		    fs_opts.block_size, max_dev_block_size);
  
  	/* calculate bucket sizes: */
-@@ -181,7 +181,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+@@ -184,7 +184,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  		uuid_generate(opts.uuid.b);
  
  	if (bch2_sb_realloc(&sb, 0))
@@ -1408,7 +1418,7 @@ index 1e95007..5eb9e9d 100644
  
  	sb.sb->version		= le16_to_cpu(opts.version);
  	sb.sb->version_min	= le16_to_cpu(opts.version);
-@@ -213,7 +213,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+@@ -216,7 +216,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  
  	struct timespec now;
  	if (clock_gettime(CLOCK_REALTIME, &now))
@@ -1417,16 +1427,16 @@ index 1e95007..5eb9e9d 100644
  
  	sb.sb->time_base_lo	= cpu_to_le64(now.tv_sec * NSEC_PER_SEC + now.tv_nsec);
  	sb.sb->time_precision	= cpu_to_le32(1);
-@@ -247,7 +247,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
+@@ -249,7 +249,7 @@ struct bch_sb *bch2_format(struct bch_opt_strs	fs_opt_strs,
  
  		idx = bch2_disk_path_find_or_create(&sb, i->label);
  		if (idx < 0)
--			die("error creating disk path: %s", idx);
-+			die("Error creating disk path: %s", idx);
+-			die("error creating disk path: %s", strerror(-idx));
++			die("Error creating disk path: %s", strerror(-idx));
  
- 		SET_BCH_MEMBER_GROUP(m,	idx + 1);
- 	}
-@@ -340,7 +340,7 @@ struct bch_sb *__bch2_super_read(int fd, u64 sector)
+ 		/*
+ 		 * Recompute mi and m after each sb modification: its location
+@@ -354,7 +354,7 @@ struct bch_sb *__bch2_super_read(int fd, u64 sector)
  	xpread(fd, &sb, sizeof(sb), sector << 9);
  
  	if (memcmp(&sb.magic, &BCACHE_MAGIC, sizeof(sb.magic)))
@@ -1435,7 +1445,7 @@ index 1e95007..5eb9e9d 100644
  
  	size_t bytes = vstruct_bytes(&sb);
  
-@@ -895,7 +895,7 @@ struct bchfs_handle bcache_fs_open(const char *path)
+@@ -904,7 +904,7 @@ struct bchfs_handle bcache_fs_open(const char *path)
  
  		struct bch_ioctl_query_uuid uuid;
  		if (ioctl(ret.ioctl_fd, BCH_IOCTL_QUERY_UUID, &uuid) < 0)
@@ -1444,7 +1454,7 @@ index 1e95007..5eb9e9d 100644
  
  		ret.uuid = uuid.uuid;
  
-@@ -932,7 +932,7 @@ struct bchfs_handle bchu_fs_open_by_dev(const char *path, int *idx)
+@@ -941,7 +941,7 @@ struct bchfs_handle bchu_fs_open_by_dev(const char *path, int *idx)
  	if (len > 0) {
  		char *p = strrchr(buf, '/');
  		if (!p || sscanf(p + 1, "dev-%u", idx) != 1)
@@ -1453,7 +1463,7 @@ index 1e95007..5eb9e9d 100644
  
  		*p = '\0';
  		p = strrchr(buf, '/');
-@@ -977,7 +977,7 @@ int bchu_data(struct bchfs_handle fs, struct bch_ioctl_data cmd)
+@@ -986,7 +986,7 @@ int bchu_data(struct bchfs_handle fs, struct bch_ioctl_data cmd)
  		struct bch_ioctl_data_event e;
  
  		if (read(progress_fd, &e, sizeof(e)) != sizeof(e))
@@ -1462,7 +1472,7 @@ index 1e95007..5eb9e9d 100644
  
  		if (e.type)
  			continue;
-@@ -1116,7 +1116,7 @@ struct bch_opts bch2_parse_opts(struct bch_opt_strs strs)
+@@ -1125,7 +1125,7 @@ struct bch_opts bch2_parse_opts(struct bch_opt_strs strs)
  void bch2_opts_usage(unsigned opt_types)
  {
  	const struct bch_option *opt;
@@ -1472,10 +1482,10 @@ index 1e95007..5eb9e9d 100644
  
  
 diff --git a/libbcachefs/opts.h b/libbcachefs/opts.h
-index aadd395..fac438d 100644
+index c325a09..c1363e2 100644
 --- a/libbcachefs/opts.h
 +++ b/libbcachefs/opts.h
-@@ -95,13 +95,13 @@ enum opt_type {
+@@ -96,13 +96,13 @@ enum opt_type {
  	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS,	\
  	  OPT_UINT(512, 1U << 16),					\
  	  BCH_SB_BLOCK_SIZE,		8,				\
@@ -1491,7 +1501,7 @@ index aadd395..fac438d 100644
  	x(errors,			u8,				\
  	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
  	  OPT_STR(bch2_error_actions),					\
-@@ -132,7 +132,7 @@ enum opt_type {
+@@ -133,7 +133,7 @@ enum opt_type {
  	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS|OPT_SB_FIELD_ILOG2,\
  	  OPT_UINT(4096, 2U << 20),					\
  	  BCH_SB_ENCODED_EXTENT_MAX_BITS, 64 << 10,			\
@@ -1500,7 +1510,7 @@ index aadd395..fac438d 100644
  	x(metadata_checksum,		u8,				\
  	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
  	  OPT_STR(bch2_csum_opts),					\
-@@ -162,22 +162,22 @@ enum opt_type {
+@@ -163,22 +163,22 @@ enum opt_type {
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_FN(bch2_opt_target),					\
  	  BCH_SB_METADATA_TARGET,	0,				\
@@ -1527,7 +1537,7 @@ index aadd395..fac438d 100644
  	x(erasure_code,			u16,				\
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_BOOL(),							\
-@@ -337,7 +337,7 @@ enum opt_type {
+@@ -343,7 +343,7 @@ enum opt_type {
  	  OPT_MOUNT,							\
  	  OPT_UINT(0, S64_MAX),						\
  	  NO_SB_OPT,			BCH_SB_SECTOR,			\
@@ -1536,7 +1546,7 @@ index aadd395..fac438d 100644
  	x(read_only,			u8,				\
  	  OPT_FS,							\
  	  OPT_BOOL(),							\
-@@ -368,18 +368,18 @@ enum opt_type {
+@@ -374,18 +374,18 @@ enum opt_type {
  	  OPT_DEVICE,							\
  	  OPT_UINT(0, S64_MAX),						\
  	  NO_SB_OPT,			0,				\
@@ -1573,7 +1583,7 @@ index 762e5aa..7f87761 100644
  }
  
 diff --git a/tools-util.c b/tools-util.c
-index acae27d..99e2b73 100644
+index 9491779..bcf11a7 100644
 --- a/tools-util.c
 +++ b/tools-util.c
 @@ -45,7 +45,7 @@ char *mprintf(const char *fmt, ...)
@@ -1612,6 +1622,15 @@ index acae27d..99e2b73 100644
  
  	return p;
  }
+@@ -99,7 +99,7 @@ void xpwrite(int fd, const void *buf, size_t count, off_t offset, const char *ms
+ 	ssize_t r = pwrite(fd, buf, count, offset);
+ 
+ 	if (r != count)
+-		die("error writing %s (ret %zi err %m)", msg, r);
++		die("Error writing %s (ret %zi err %m)", msg, r);
+ }
+ 
+ struct stat xfstatat(int dirfd, const char *path, int flags)
 @@ -310,7 +310,7 @@ bool ask_yn(void)
  	fflush(stdout);
  
@@ -1621,16 +1640,7 @@ index acae27d..99e2b73 100644
  
  	ret = strchr(short_yes, buf[0]);
  	free(buf);
-@@ -408,7 +408,7 @@ unsigned hatoi_validate(const char *s, const char *msg)
- 	u64 v;
- 
- 	if (bch2_strtoull_h(s, &v))
--		die("bad %s %s", msg, s);
-+		die("Bad %s %s", msg, s);
- 
- 	v /= 512;
- 
-@@ -585,7 +585,7 @@ char *dev_to_name(dev_t dev)
+@@ -567,7 +567,7 @@ char *dev_to_name(dev_t dev)
  
  	FILE *f = fopen("/proc/partitions", "r");
  	if (!f)
@@ -1639,7 +1649,7 @@ index acae27d..99e2b73 100644
  
  	while (getline(&line, &n, f) != -1) {
  		unsigned ma, mi;
-@@ -623,7 +623,7 @@ struct mntent *dev_to_mount(char *dev)
+@@ -605,7 +605,7 @@ struct mntent *dev_to_mount(char *dev)
  	struct mntent *mnt, *ret = NULL;
  	FILE *f = setmntent("/proc/mounts", "r");
  	if (!f)
@@ -1648,7 +1658,7 @@ index acae27d..99e2b73 100644
  
  	struct stat d1 = xstat(dev);
  
-@@ -675,14 +675,14 @@ struct bpos bpos_parse(char *buf)
+@@ -657,14 +657,14 @@ struct bpos bpos_parse(char *buf)
  
  	if (!(field = strsep(&s, ":")) ||
  	    kstrtoull(field, 10, &inode_v))
