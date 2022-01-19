@@ -1,0 +1,49 @@
+if [[ $# -lt 1 ]] || [[ ! -d "$1" ]]; then
+  die "${0##*/} sandbox is for internal use only"
+elif [[ $# -lt 2 ]]; then
+  set -- "$1" bash -l
+fi
+
+if [[ $UID -ne 0 ]]; then
+  exec unshare -r --map-auto "$0" sandbox "$@"
+elif [[ $$ -ne 1 ]]; then
+  exec unshare -f -m -p --kill-child "$0" sandbox "$@"
+fi
+
+mount -o bind "$1" "$1" && cd "$1"
+
+[[ -d proc ]] && mount -t proc proc proc
+[[ -d run ]] && mount -t tmpfs -o mode=0755 tmpfs run
+[[ -d run ]] && mkdir -m 1777 run/lock run/shm
+[[ -d tmp ]] && mount -t tmpfs -o mode=1777 tmpfs tmp
+
+if [[ -d dev ]]; then
+  mount -t tmpfs -o mode=0755 tmpfs dev
+  for NODE in full null random tty urandom zero; do
+    touch dev/$NODE && mount -o bind /dev/$NODE dev/$NODE
+  done
+
+  mkdir -p dev/pts
+  mount -t devpts -o ptmxmode=0666 devpts dev/pts
+  ln -s pts/ptmx dev/ptmx
+
+  ln -s /proc/self/fd dev/fd
+  ln -s fd/0 dev/stdin
+  ln -s fd/1 dev/stdout
+  ln -s fd/2 dev/stderr
+fi
+
+[[ -d img ]] && mount -o bind img img
+[[ -d pkg ]] && mount -o bind "${PKG:-pkg}" pkg
+[[ -d src ]] && mount -o bind "${SRC:-src}" src
+[[ -d var ]] && mount -o bind var var
+
+if [[ -d var/cache ]] && [[ -d $CACHEDIR ]]; then
+  mount -o bind "$CACHEDIR" var/cache
+fi
+
+mount -o bind,remount,ro .
+pivot .
+
+exec /bin/env -i HOME=/ PATH=/bin TERM="$TERM" "${@:2}"
+

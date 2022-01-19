@@ -19,4 +19,4 @@ done
 shift $(($OPTIND - 1))
 
 populate "$ROOT" "${@+base}" "${@-build}"
-SRC=$SRC pkg contain "$ROOT" bash -l
+SRC=$SRC pkg sandbox "$ROOT" bash -l

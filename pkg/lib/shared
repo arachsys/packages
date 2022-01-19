@@ -157,7 +157,7 @@ mode() {
 }
 
 populate() {
-  mkdir -m 0755 -p "$1"/{bin,dev,etc,lib,proc,run,sys,var,var/cache}
+  mkdir -m 0755 -p "$1"/{bin,dev,etc,lib,proc,run,var,var/cache}
   mkdir -m 1777 -p "$1"/{run/shm,tmp}
   cp -n -t "$1/etc" -L -R /etc/{protocols,resolv.conf,services,ssl} \
     "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"

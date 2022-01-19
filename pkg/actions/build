@@ -32,7 +32,7 @@ else
 fi
 
 helper() {
-  PKG=$PKG SRC=$SRC pkg contain "$ROOT" pkg helper "$@"
+  PKG=$PKG SRC=$SRC pkg sandbox "$ROOT" pkg helper "$@"
 }
 
 populate "$ROOT" build

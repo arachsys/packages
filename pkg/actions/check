@@ -24,7 +24,7 @@ check() {
   while set -- "$1" $(jobs -p) && [[ $# -gt ${JOBS:-16} ]]; do
     wait -n
   done
-  PKG=$1 pkg contain "$ROOT" pkg helper check "${1##*/}" &
+  PKG=$1 pkg sandbox "$ROOT" pkg helper check "${1##*/}" &
 }
 
 if [[ $# -eq 0 ]]; then

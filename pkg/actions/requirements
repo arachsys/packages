@@ -11,4 +11,4 @@ chmod 0755 "$ROOT"
 
 populate "$ROOT" base
 mkdir -p "$ROOT/pkg"
-PKG=$PKG pkg contain "$ROOT" pkg helper requirements "${PKG##*/}" "${@:2}"
+PKG=$PKG pkg sandbox "$ROOT" pkg helper requirements "${PKG##*/}" "${@:2}"

@@ -12,7 +12,7 @@ trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 chmod 0755 "$ROOT"
 
 helper() {
-  PKG=$PKG SRC= pkg contain "$ROOT" pkg helper "$@"
+  PKG=$PKG SRC= pkg sandbox "$ROOT" pkg helper "$@"
 }
 
 populate "$ROOT" build
