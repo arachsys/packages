@@ -10,7 +10,8 @@ prepare() {
   unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.37/util-linux-2.37.2.tar.xz
   apply logger.diff
   apply paths.diff
-  tree 0e8289d2b35857871d5c47780f997cfe5c381686f7397895bcaa16d1b81077b5
+  apply unshare.diff
+  tree 513409e1dc5e8ce664e1d5c01046d49abb51576cd40e62e83e271c2b36441006
 }
 
 config-extra --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \
