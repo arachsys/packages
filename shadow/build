@@ -9,8 +9,10 @@ check() {
 prepare() {
   unpack https://github.com/shadow-maint/shadow/releases/download/v4.11.1/shadow-4.11.1.tar.xz
   apply bcrypt.diff
+  apply idmap.diff
+  apply nss.diff
   apply paths.diff
-  tree 86dea580fe29b9aaa03c712c9c8119ac28c02fc57234becbc776affeee48e23f
+  tree 8ec4bde40f833863cdc57af7e7b2d5b45b9bb4c8c886da0d1c885895df8935ba
 }
 
 config-extra --disable-shared --without-{audit,libpam} --with-bcrypt
