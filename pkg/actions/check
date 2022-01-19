@@ -1,41 +1,76 @@
-unset JOBS
-while getopts :p: OPTION; do
-  case $OPTION in
-    p)
-      if [[ $OPTARG == [1-9]*([0-9]) ]]; then
-        JOBS=$OPTARG
-      else
-        die "Invalid parallel job limit: $OPTARG"
-      fi
-      ;;
-  esac
-done
-shift $(($OPTIND - 1))
-
-mkdir -p "$CACHEDIR" "$IMGDIR"
-ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
-trap 'rm -f -r --one-file-system "$ROOT"' EXIT
-chmod 0755 "$ROOT"
-
-populate "$ROOT" build
-mkdir -p "$ROOT/pkg"
-
-check() {
-  while set -- "$1" $(jobs -p) && [[ $# -gt ${JOBS:-16} ]]; do
-    wait -n
+action() {
+  unset JOBS
+  while getopts :p: OPTION; do
+    case $OPTION in
+      p)
+        if [[ $OPTARG == [1-9]*([0-9]) ]]; then
+          JOBS=$OPTARG
+        else
+          die "Invalid parallel job limit: $OPTARG"
+        fi
+        ;;
+    esac
   done
-  PKG=$1 pkg sandbox "$ROOT" pkg helper check "${1##*/}" &
+  shift $(($OPTIND - 1))
+
+  mkdir -p "$CACHEDIR" "$IMGDIR"
+  ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
+  trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+  chmod 0755 "$ROOT"
+
+  populate "$ROOT" build
+  mkdir -p "$ROOT/pkg"
+
+  check() {
+    while set -- "$1" $(jobs -p) && [[ $# -gt ${JOBS:-16} ]]; do
+      wait -n
+    done
+    PKG=$1 pkg sandbox "$ROOT" pkg check "${1##*/}" &
+  }
+
+  if [[ $# -eq 0 ]]; then
+    trap wait EXIT
+    for PKGBUILD in "$PKGDIR"/*/build; do
+      check "${PKGBUILD%/build}"
+    done
+  else
+    trap wait EXIT
+    for PKG in "$@"; do
+      PKG=$(locate "$PKGDIR" "$PKG")
+      check "$PKG"
+    done
+  fi | sort -k 1 -t :
 }
 
-if [[ $# -eq 0 ]]; then
-  trap wait EXIT
-  for PKGBUILD in "$PKGDIR"/*/build; do
-    check "${PKGBUILD%/build}"
-  done
+helper() {
+  match() {
+    PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
+      while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
+        print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
+          substr($0, RSTART, RLENGTH));
+        $0 = substr($0, RSTART + RLENGTH);
+      }
+    }' | sort -V | tail -n 1 | if ! read VERSION; then
+      warn "$PKGNAME: $1 not found"
+    elif [[ $2 != $VERSION ]]; then
+      echo "$PKGNAME: $1 $VERSION available"
+    fi
+  }
+
+  url() {
+    exec < <(curl -f -m 30 -s -L -- "$1" || die "$PKGNAME: failed to get $1")
+  }
+
+  PKG=/pkg
+  PKGNAME=$1
+  setup "${@:2}"
+  source /pkg/build
+
+  cd /pkg && check "${@:2}" </dev/null
+}
+
+if [[ $$ -eq 1 ]]; then
+  helper "$@"
 else
-  trap wait EXIT
-  for PKG in "$@"; do
-    PKG=$(locate "$PKGDIR" "$PKG")
-    check "$PKG"
-  done
-fi | sort -k 1 -t :
+  action "$@"
+fi

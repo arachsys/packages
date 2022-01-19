@@ -1,58 +1,111 @@
-unset DEBUG SRC
-while getopts :ds: OPTION; do
-  case $OPTION in
-    d)
-      DEBUG=1
-      ;;
-    s)
-      if [[ -d $OPTARG ]]; then
-        SRC=$OPTARG
+action() {
+  unset DEBUG SRC
+  while getopts :ds: OPTION; do
+    case $OPTION in
+      d)
+        DEBUG=1
+        ;;
+      s)
+        if [[ -d $OPTARG ]]; then
+          SRC=$OPTARG
+        else
+          die "Prepared source tree $OPTARG not found"
+        fi
+        ;;
+    esac
+  done
+  shift $(($OPTIND - 1))
+
+  if [[ $# -lt 1 ]]; then
+    die "$(< $LIBRARY/help)"
+  fi
+
+  PKG=$(locate "$PKGDIR" "$1")
+  mkdir -p "$CACHEDIR" "$IMGDIR"
+
+  ROOT=$(mktemp -d "$IMGDIR/${PKG##*/}.XXXXXX")
+  chmod 0755 "$ROOT"
+
+  if [[ -n $DEBUG ]]; then
+    trap 'echo "Build root left in $ROOT" >&2' EXIT
+  else
+    trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+  fi
+
+  helper() {
+    PKG=$PKG SRC=$SRC pkg sandbox "$ROOT" pkg "$@"
+  }
+
+  populate "$ROOT" build
+  mkdir -p "$ROOT/img/${PKG##*/}" "$ROOT/pkg" "$ROOT/src"
+  ln -s "img/${PKG##*/}" "$ROOT/dst"
+  mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:2}")
+  populate "$ROOT" "${REQUIRED[@]}"
+  helper build "${PKG##*/}" "${@:2}"
+
+  if [[ -n $DEBUG ]]; then
+    echo "Debug mode: not installing or replacing images"
+  else
+    for IMG in "$ROOT"/img/*; do
+      if [[ -e "$IMGDIR/${IMG##*/}" ]]; then
+        echo "Replacing existing image in $IMGDIR/${IMG##*/}"
+        rm -f -r "$IMGDIR/${IMG##*/}"
+        mv "$IMG" "$IMGDIR/${IMG##*/}"
       else
-        die "Prepared source tree $OPTARG not found"
+        echo "Installing new image in $IMGDIR/${IMG##*/}"
+        mv "$IMG" "$IMGDIR/${IMG##*/}"
       fi
-      ;;
-  esac
-done
-shift $(($OPTIND - 1))
-
-if [[ $# -lt 1 ]]; then
-  die "$(< $LIBRARY/help)"
-fi
-
-PKG=$(locate "$PKGDIR" "$1")
-mkdir -p "$CACHEDIR" "$IMGDIR"
-
-ROOT=$(mktemp -d "$IMGDIR/${PKG##*/}.XXXXXX")
-chmod 0755 "$ROOT"
-
-if [[ -n $DEBUG ]]; then
-  trap 'echo "Build root left in $ROOT" >&2' EXIT
-else
-  trap 'rm -f -r --one-file-system "$ROOT"' EXIT
-fi
-
-helper() {
-  PKG=$PKG SRC=$SRC pkg sandbox "$ROOT" pkg helper "$@"
+    done
+  fi
 }
 
-populate "$ROOT" build
-mkdir -p "$ROOT/img/${PKG##*/}" "$ROOT/pkg" "$ROOT/src"
-ln -s "img/${PKG##*/}" "$ROOT/dst"
-mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:2}")
-populate "$ROOT" "${REQUIRED[@]}"
-helper build "${PKG##*/}" "${@:2}"
-
-if [[ -n $DEBUG ]]; then
-  echo "Debug mode: not installing or replacing images"
-else
-  for IMG in "$ROOT"/img/*; do
-    if [[ -e "$IMGDIR/${IMG##*/}" ]]; then
-      echo "Replacing existing image in $IMGDIR/${IMG##*/}"
-      rm -f -r "$IMGDIR/${IMG##*/}"
-      mv "$IMG" "$IMGDIR/${IMG##*/}"
+helper() {
+  image() (
+    if [[ $2 == contains ]] && [[ $1 != ?(-) ]]; then
+      cd /dst && mkdir -p "/img/$1"
+      while [[ $# -gt 2 ]]; do
+        cp -a -l -t "/img/$1" --parents -- "${3#/dst/}"
+        rm -f -r -- "${3#/dst/}"
+        set -- "$1" "$2" "${@:4}"
+      done
+    elif [[ $2 == requires ]] && [[ $# -gt 2 ]]; then
+      if [[ $1 == ?(-) ]]; then
+        mkdir -p /dst/info
+        printf '%s\n' "${@:3}" >>/dst/info/requirements
+      else
+        mkdir -p "/img/$1/info"
+        printf '%s\n' "${@:3}" >>/img/$1/info/requirements
+      fi
     else
-      echo "Installing new image in $IMGDIR/${IMG##*/}"
-      mv "$IMG" "$IMGDIR/${IMG##*/}"
+      die "Invalid command: image $*"
+    fi
+  )
+
+  PKG=/pkg
+  setup "${@:2}"
+  source /pkg/build
+
+  if ( set -- /src/* && [[ $# -eq 0 ]] ); then
+    cd /src && prepare "${@:2}"
+    find /src -depth -exec touch -r /src {} +
+  fi
+  cd /src && build "${@:2}" 2>&1
+
+  tidy /img/*
+  for IMG in /img/*; do
+    if [[ -d "$IMG" ]]; then
+      mkdir -p "$IMG/info"
+      printf '%s\n' "$2" >"$IMG/info/source"
+    fi
+    if [[ -f "$IMG/info/requirements" ]]; then
+      sort -o "$IMG/info/requirements" -u "$IMG/info/requirements"
     fi
   done
+  find /img -depth -exec touch -d $(date +@%s) {} +
+}
+
+if [[ $$ -eq 1 ]]; then
+  helper "$@"
+else
+  action "$@"
 fi

@@ -1,14 +1,32 @@
-if [[ $# -lt 1 ]]; then
-  die "$(< $LIBRARY/help)"
+action() {
+  if [[ $# -lt 1 ]]; then
+    die "$(< $LIBRARY/help)"
+  fi
+
+  PKG=$(locate "$PKGDIR" "$1")
+  mkdir -p "$IMGDIR"
+
+  ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
+  trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+  chmod 0755 "$ROOT"
+
+  populate "$ROOT" build
+  mkdir -p "$ROOT/pkg"
+  PKG=$PKG pkg sandbox "$ROOT" pkg requirements "${PKG##*/}" "${@:2}"
+}
+
+helper() {
+  PKG=/pkg
+  setup "${@:2}"
+  source /pkg/build
+
+  if [[ ${#REQUIREMENTS[@]} -gt 0 ]]; then
+    printf '%s\n' "${!REQUIREMENTS[@]}"
+  fi
+}
+
+if [[ $$ -eq 1 ]]; then
+  helper "$@"
+else
+  action "$@"
 fi
-
-PKG=$(locate "$PKGDIR" "$1")
-mkdir -p "$CACHEDIR" "$IMGDIR"
-
-ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
-trap 'rm -f -r --one-file-system "$ROOT"' EXIT
-chmod 0755 "$ROOT"
-
-populate "$ROOT" base
-mkdir -p "$ROOT/pkg"
-PKG=$PKG pkg sandbox "$ROOT" pkg helper requirements "${PKG##*/}" "${@:2}"

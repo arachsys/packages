@@ -1,26 +1,46 @@
-if [[ $# -lt 1 ]]; then
-  die "$(< $LIBRARY/help)"
-elif [[ $2 != ?(-) ]] && [[ -e "$2" ]]; then
-  die "Cannot unpack sources: $2 already exists"
-fi
+action() {
+  if [[ $# -lt 1 ]]; then
+    die "$(< $LIBRARY/help)"
+  elif [[ $2 != ?(-) ]] && [[ -e "$2" ]]; then
+    die "Cannot unpack sources: $2 already exists"
+  fi
 
-PKG=$(locate "$PKGDIR" "$1")
-mkdir -p "$CACHEDIR" "$IMGDIR"
+  PKG=$(locate "$PKGDIR" "$1")
+  mkdir -p "$CACHEDIR" "$IMGDIR"
 
-ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
-trap 'rm -f -r --one-file-system "$ROOT"' EXIT
-chmod 0755 "$ROOT"
+  ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
+  trap 'rm -f -r --one-file-system "$ROOT"' EXIT
+  chmod 0755 "$ROOT"
 
-helper() {
-  PKG=$PKG SRC= pkg sandbox "$ROOT" pkg helper "$@"
+  helper() {
+    PKG=$PKG SRC= pkg sandbox "$ROOT" pkg "$@"
+  }
+
+  populate "$ROOT" build
+  mkdir -p "$ROOT"/{pkg,src}
+  mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:3}")
+  populate "$ROOT" "${REQUIRED[@]}"
+  helper prepare "${PKG##*/}" "${@:3}"
+
+  if [[ $2 != ?(-) ]]; then
+    mv "$ROOT/src" "$2"
+  fi
 }
 
-populate "$ROOT" build
-mkdir -p "$ROOT"/{pkg,src}
-mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:3}")
-populate "$ROOT" "${REQUIRED[@]}"
-helper prepare "${PKG##*/}" "${@:3}"
+helper() {
+  PKG=/pkg
+  setup "${@:2}"
+  source /pkg/build
 
-if [[ $2 != ?(-) ]]; then
-  mv "$ROOT/src" "$2"
+  if ( set -- /src/* && [[ $# -ne 0 ]] ); then
+    die "Cannot unpack sources: directory is not empty"
+  fi
+  cd /src && prepare "${@:2}"
+  find /src -depth -exec touch -r /src {} +
+}
+
+if [[ $$ -eq 1 ]]; then
+  helper "$@"
+else
+  action "$@"
 fi
