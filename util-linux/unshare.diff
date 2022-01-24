@@ -31,20 +31,6 @@ index 55244cd..db9c751 100644
  #define _PATH_PROC_UIDMAP	"/proc/self/uid_map"
  #define _PATH_PROC_GIDMAP	"/proc/self/gid_map"
  #define _PATH_PROC_SETGROUPS	"/proc/self/setgroups"
-diff --git a/include/strutils.h b/include/strutils.h
-index 6e95707..a84d295 100644
---- a/include/strutils.h
-+++ b/include/strutils.h
-@@ -106,8 +106,8 @@ static inline char *mem2strcpy(char *dest, const void *src, size_t n, size_t nma
- 	if (n + 1 > nmax)
- 		n = nmax - 1;
- 
-+	memset(dest, '\0', nmax);
- 	memcpy(dest, src, n);
--	dest[nmax-1] = '\0';
- 	return dest;
- }
- 
 diff --git a/sys-utils/unshare.1.adoc b/sys-utils/unshare.1.adoc
 index f0fdf50..2051c4a 100644
 --- a/sys-utils/unshare.1.adoc
