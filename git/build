@@ -3,15 +3,15 @@ enabled perl && require perl
 
 check() {
   url https://www.kernel.org/pub/software/scm/git/
-  match version 2.34.1 'git-([0-9.]+)\.tar'
+  match version 2.35.0 'git-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/software/scm/git/git-2.34.1.tar.xz
+  unpack https://www.kernel.org/pub/software/scm/git/git-2.35.0.tar.xz
   apply add-i.diff
   apply filter-branch.diff
   apply usage.diff
-  tree 335ba73886a251f72e45542e7af84efe302390a9353bb046ffd2304a0408aa50
+  tree 25379a1bb27aa517cd62202e26745a1653636bdf2bac58c8b12b3412a795dbf0
 }
 
 build() {
