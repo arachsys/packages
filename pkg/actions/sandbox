@@ -10,40 +10,39 @@ elif [[ $$ -ne 1 ]]; then
   exec unshare -f -m -p --kill-child "$0" sandbox "$@"
 fi
 
-mount -o bind "$1" "$1" && cd "$1"
+mount -o bind "$1" "$1"
 
-[[ -d proc ]] && mount -t proc proc proc
-[[ -d run ]] && mount -t tmpfs -o mode=0755 tmpfs run
-[[ -d run ]] && mkdir -m 1777 run/lock run/shm
-[[ -d tmp ]] && mount -t tmpfs -o mode=1777 tmpfs tmp
+[[ -d $1/proc ]] && mount -t proc proc "$1/proc"
+[[ -d $1/run ]] && mount -t tmpfs -o mode=0755 tmpfs "$1/run"
+[[ -d $1/run ]] && mkdir -m 1777 "$1/run/lock" "$1/run/shm"
+[[ -d $1/tmp ]] && mount -t tmpfs -o mode=1777 tmpfs "$1/tmp"
 
-if [[ -d dev ]]; then
-  mount -t tmpfs -o mode=0755 tmpfs dev
+if [[ -d $1/dev ]]; then
+  mount -t tmpfs -o mode=0755 tmpfs "$1/dev"
   for NODE in full null random tty urandom zero; do
-    touch dev/$NODE && mount -o bind /dev/$NODE dev/$NODE
+    touch "$1/dev/$NODE" && mount -o bind /dev/$NODE "$1/dev/$NODE"
   done
 
-  mkdir -p dev/pts
-  mount -t devpts -o ptmxmode=0666 devpts dev/pts
-  ln -s pts/ptmx dev/ptmx
+  mkdir -p "$1/dev/pts"
+  mount -t devpts -o ptmxmode=0666 devpts "$1/dev/pts"
+  ln -s pts/ptmx "$1/dev/ptmx"
 
-  ln -s /proc/self/fd dev/fd
-  ln -s fd/0 dev/stdin
-  ln -s fd/1 dev/stdout
-  ln -s fd/2 dev/stderr
+  ln -s /proc/self/fd "$1/dev/fd"
+  ln -s fd/0 "$1/dev/stdin"
+  ln -s fd/1 "$1/dev/stdout"
+  ln -s fd/2 "$1/dev/stderr"
 fi
 
-[[ -d img ]] && mount -o bind img img
-[[ -d pkg ]] && mount -o bind "${PKG:-pkg}" pkg
-[[ -d src ]] && mount -o bind "${SRC:-src}" src
-[[ -d var ]] && mount -o bind var var
+[[ -d $1/img ]] && mount -o bind "$1/img" "$1/img"
+[[ -d $1/pkg ]] && mount -o bind "${PKG:-$1/pkg}" "$1/pkg"
+[[ -d $1/src ]] && mount -o bind "${SRC:-$1/src}" "$1/src"
+[[ -d $1/var ]] && mount -o bind "$1/var" "$1/var"
 
-if [[ -d var/cache ]] && [[ -d $CACHEDIR ]]; then
-  mount -o bind "$CACHEDIR" var/cache
+if [[ -d $1/var/cache ]] && [[ -d $CACHEDIR ]]; then
+  mount -o bind "$CACHEDIR" "$1/var/cache"
 fi
 
-mount -o bind,remount,ro .
-pivot .
-
-exec /bin/env -i HOME=/ PATH=/bin TERM="$TERM" "${@:2}"
+mount -o bind,remount,ro "$1"
+pivot "$1"
+exec /bin/env -i -C / HOME=/ PATH=/bin TERM="$TERM" "${@:2}"
 
