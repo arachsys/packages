@@ -2,13 +2,13 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/findutils/
-  match version 4.8.0 'findutils-([0-9.]+)\.tar'
+  match version 4.9.0 'findutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/findutils/findutils-4.8.0.tar.xz
+  unpack https://ftp.gnu.org/gnu/findutils/findutils-4.9.0.tar.xz
   apply paths.diff
-  tree 3827368db69f3e09e6f1ab45d6ff2c70d302b1b8d3b5c752475eebc018d2e276
+  tree c0e980af529f59e1f813d9522adfda2e6d7ffecd82b0204ddf6d4fd1df33de53
 }
 
 config-extra --libexecdir='${prefix}/bin' --localstatedir=/var/lib/misc
