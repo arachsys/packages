@@ -51,7 +51,7 @@ index 2877bc1..aae1bd1 100644
              COMPILER:COMPILER_VENDOR, COMPILER_VERSION);
  
 diff --git a/src/app/main/main.c b/src/app/main/main.c
-index 8956449..d5c9f92 100644
+index bc9d535..d5c9f92 100644
 --- a/src/app/main/main.c
 +++ b/src/app/main/main.c
 @@ -576,25 +576,17 @@ tor_init(int argc, char *argv[])
@@ -77,7 +77,7 @@ index 8956449..d5c9f92 100644
 -
 -    log_notice(LD_GENERAL, "Tor can't help you if you use it wrong! "
 -               "Learn how to be safe at "
--               "https://www.torproject.org/download/download#warning");
+-               "https://support.torproject.org/faq/staying-anonymous/");
 +                 tor_compress_version_str(ZSTD_METHOD) : "N/A");
  
      if (strstr(version, "alpha") || strstr(version, "beta"))
