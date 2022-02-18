@@ -9,10 +9,10 @@ index bd26a40..20d2819 100755
 +$DLDFLAGS << " -L$(top_srcdir)"
 +$arch_hdrdir = "/src/.ext/include/$(arch)"
  create_makefile 'debug/debug'
-diff --git a/.bundle/gems/rbs-2.0.0/ext/rbs_extension/extconf.rb b/.bundle/gems/rbs-2.0.0/ext/rbs_extension/extconf.rb
+diff --git a/.bundle/gems/rbs-2.1.0/ext/rbs_extension/extconf.rb b/.bundle/gems/rbs-2.1.0/ext/rbs_extension/extconf.rb
 index ef68154..03557a5 100644
---- a/.bundle/gems/rbs-2.0.0/ext/rbs_extension/extconf.rb
-+++ b/.bundle/gems/rbs-2.0.0/ext/rbs_extension/extconf.rb
+--- a/.bundle/gems/rbs-2.1.0/ext/rbs_extension/extconf.rb
++++ b/.bundle/gems/rbs-2.1.0/ext/rbs_extension/extconf.rb
 @@ -1,3 +1,5 @@
  require 'mkmf'
  $INCFLAGS << " -I$(top_srcdir)" if $extmk
