@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://github.com/libexpat/libexpat/releases
-  match version 2.4.4 'expat-([0-9.]+)\.tar'
+  match version 2.4.5 'expat-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/libexpat/libexpat/releases/download/R_2_4_4/expat-2.4.4.tar.xz
-  tree 150d6701448449fb31340328912dee4045bfbb30b0e3f76ddf51a021a703a8a9
+  unpack https://github.com/libexpat/libexpat/releases/download/R_2_4_5/expat-2.4.5.tar.xz
+  tree cd1630eb33b70b0150a135af6756e88d7661210249e860c7cb7aa481a1ff56fe
 }
 
 post-install() {
