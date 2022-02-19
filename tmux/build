@@ -1,0 +1,16 @@
+mode autotools
+require libevent
+
+check() {
+  url https://github.com/tmux/tmux/releases
+  match version 3.2a 'tmux-([0-9.]+[a-z]?)\.tar'
+}
+
+prepare() {
+  unpack https://github.com/tmux/tmux/releases/download/3.2a/tmux-3.2a.tar.gz
+  tree e78a4cc0d501d779b44cb29dcd0df42bdc3a2e95fc8fa063a44a64f2a6c4796c
+}
+
+post-config() {
+  sed -i 's:-l\(event[^ ]*\):/lib/static/lib\1.a:g' Makefile
+}
