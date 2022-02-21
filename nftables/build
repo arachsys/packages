@@ -3,7 +3,7 @@ require bison flex
 
 check() {
   url https://www.netfilter.org/projects/nftables/files/
-  match nftables 1.0.1 'nftables-([0-9.]+)\.tar'
+  match nftables 1.0.2 'nftables-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libmnl/files/
   match libmnl 1.0.4 'libmnl-([0-9.]+)\.tar'
@@ -14,10 +14,10 @@ check() {
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
-  unpack $NFP/nftables/files/nftables-1.0.1.tar.bz2
+  unpack $NFP/nftables/files/nftables-1.0.2.tar.bz2
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.4.tar.bz2
   unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.1.tar.bz2
-  tree 3b1d59c2aed4d14dc1b303f3b85b5b499930893238ac87f25921a2a88a52b783
+  tree 7deda0181dda608aea1490080855a66880b83cb1d6f865c3c4498fe7a24faf35
 }
 
 pre-config() {
@@ -31,6 +31,8 @@ pre-config() {
     LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl"
   make install
   cd /src
+
+  sed -i '/^SUBDIRS =/s/ examples//' Makefile.in
 }
 
 config-extra --disable-shared --with-cli=readline --with-mini-gmp \
