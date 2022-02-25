@@ -40,10 +40,10 @@ index 5038a967d..5ac2ce0aa 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index 007ca9f7f..98dbce6c5 100644
+index 043b38ece..05017415b 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -197,38 +197,7 @@ fn copy_self_contained_objects(
+@@ -198,38 +198,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -83,43 +83,11 @@ index 007ca9f7f..98dbce6c5 100644
          let srcdir = builder
              .wasi_root(target)
              .unwrap_or_else(|| {
-@@ -1153,20 +1122,6 @@ impl Step for Assemble {
-             }
-         }
- 
--        // Similarly, copy `llvm-dwp` into libdir for Split DWARF. Only copy it when the LLVM
--        // backend is used to avoid unnecessarily building LLVM and because LLVM is not checked
--        // out by default when the LLVM backend is not enabled.
--        if builder.config.rust_codegen_backends.contains(&INTERNER.intern_str("llvm")) {
--            let src_exe = exe("llvm-dwp", target_compiler.host);
--            let dst_exe = exe("rust-llvm-dwp", target_compiler.host);
--            let llvm_config_bin = builder.ensure(native::Llvm { target: target_compiler.host });
--            if !builder.config.dry_run {
--                let llvm_bin_dir = output(Command::new(llvm_config_bin).arg("--bindir"));
--                let llvm_bin_dir = Path::new(llvm_bin_dir.trim());
--                builder.copy(&llvm_bin_dir.join(&src_exe), &libdir_bin.join(&dst_exe));
--            }
--        }
--
-         // Ensure that `libLLVM.so` ends up in the newly build compiler directory,
-         // so that it can be found when the newly built `rustc` is run.
-         dist::maybe_install_llvm_runtime(builder, target_compiler.host, &sysroot);
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 09ea84a08..b2d6578ad 100644
+index 7d9b3da48..547d08370 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -417,10 +417,6 @@ impl Step for Rustc {
-                 }
-             }
- 
--            // Copy over llvm-dwp if it's there
--            let exe = exe("rust-llvm-dwp", compiler.host);
--            builder.copy(&src_dir.join(&exe), &dst_dir.join(&exe));
--
-             // Man pages
-             t!(fs::create_dir_all(image.join("share/man/man1")));
-             let man_src = builder.src.join("src/doc/man");
-@@ -1002,7 +998,7 @@ impl Step for Cargo {
+@@ -998,7 +998,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -129,10 +97,10 @@ index 09ea84a08..b2d6578ad 100644
          }
  
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 1667dfc3f..8fbb38ef5 100644
+index 8569089f7..0e071274f 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
-@@ -273,6 +273,7 @@ pub struct Build {
+@@ -272,6 +272,7 @@ pub struct Build {
          RefCell<HashMap<TargetSelection, HashMap<String, (&'static str, PathBuf, Vec<String>)>>>,
  }
  

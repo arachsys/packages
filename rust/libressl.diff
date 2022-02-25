@@ -1,52 +1,41 @@
 diff --git a/vendor/openssl-sys/build/cfgs.rs b/vendor/openssl-sys/build/cfgs.rs
-index 18b3e3deb..fabe9d0d8 100644
+index 18b3e3deb..c1d9ddd5a 100644
 --- a/vendor/openssl-sys/build/cfgs.rs
 +++ b/vendor/openssl-sys/build/cfgs.rs
 @@ -34,6 +34,12 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
          if libressl_version >= 0x3_03_02_00_0 {
              cfgs.push("libressl332");
          }
-+        if libressl_version >= 0x3_03_03_00_0 {
-+            cfgs.push("libressl333");
-+        }
 +        if libressl_version >= 0x3_04_00_00_0 {
 +            cfgs.push("libressl340");
++        }
++        if libressl_version >= 0x3_05_00_00_0 {
++            cfgs.push("libressl350");
 +        }
      } else {
          let openssl_version = openssl_version.unwrap();
  
 diff --git a/vendor/openssl-sys/build/main.rs b/vendor/openssl-sys/build/main.rs
-index 88752d995..50c4088ab 100644
+index 88752d995..83b5119f4 100644
 --- a/vendor/openssl-sys/build/main.rs
 +++ b/vendor/openssl-sys/build/main.rs
-@@ -237,6 +237,9 @@ See rust-openssl README for more information:
+@@ -237,6 +237,11 @@ See rust-openssl README for more information:
              (3, 3, 0) => ('3', '3', '0'),
              (3, 3, 1) => ('3', '3', '1'),
              (3, 3, _) => ('3', '3', 'x'),
 +            (3, 4, 0) => ('3', '4', '0'),
 +            (3, 4, 1) => ('3', '4', '1'),
 +            (3, 4, _) => ('3', '4', 'x'),
++            (3, 5, 0) => ('3', '5', '0'),
++            (3, 5, _) => ('3', '5', 'x'),
              _ => version_error(),
          };
  
-diff --git a/vendor/openssl-sys/src/ssl.rs b/vendor/openssl-sys/src/ssl.rs
-index 8c2a34db9..e4882aa2b 100644
---- a/vendor/openssl-sys/src/ssl.rs
-+++ b/vendor/openssl-sys/src/ssl.rs
-@@ -327,7 +327,7 @@ cfg_if! {
-     if #[cfg(ossl102)] {
-         pub const SSL_OP_NO_DTLSv1: ssl_op_type!() = 0x04000000;
-         pub const SSL_OP_NO_DTLSv1_2: ssl_op_type!() = 0x08000000;
--    } else if #[cfg(libressl332)] {
-+    } else if #[cfg(libressl340)] {
-         pub const SSL_OP_NO_DTLSv1: ssl_op_type!() = 0x40000000;
-         pub const SSL_OP_NO_DTLSv1_2: ssl_op_type!() = 0x80000000;
-     }
 diff --git a/vendor/openssl/build.rs b/vendor/openssl/build.rs
-index 688c96240..d90ebc17d 100644
+index 688c96240..b1dbfda1b 100644
 --- a/vendor/openssl/build.rs
 +++ b/vendor/openssl/build.rs
-@@ -74,5 +74,9 @@ fn main() {
+@@ -74,5 +74,13 @@ fn main() {
          if version >= 0x3_03_02_00_0 {
              println!("cargo:rustc-cfg=libressl332");
          }
@@ -54,28 +43,9 @@ index 688c96240..d90ebc17d 100644
 +        if version >= 0x3_04_00_00_0 {
 +            println!("cargo:rustc-cfg=libressl340");
 +        }
++
++        if version >= 0x3_05_00_00_0 {
++            println!("cargo:rustc-cfg=libressl350");
++        }
      }
  }
-diff --git a/vendor/openssl/src/ssl/mod.rs b/vendor/openssl/src/ssl/mod.rs
-index 36951a83a..54cc2029e 100644
---- a/vendor/openssl/src/ssl/mod.rs
-+++ b/vendor/openssl/src/ssl/mod.rs
-@@ -219,14 +219,14 @@ bitflags! {
- 
-         /// Disables the use of DTLSv1.0
-         ///
--        /// Requires OpenSSL 1.0.2 or LibreSSL 3.3.2 or newer.
--        #[cfg(any(ossl102, ossl110, libressl332))]
-+        /// Requires OpenSSL 1.0.2 or LibreSSL 3.4.0 or newer.
-+        #[cfg(any(ossl102, ossl110, libressl340))]
-         const NO_DTLSV1 = ffi::SSL_OP_NO_DTLSv1;
- 
-         /// Disables the use of DTLSv1.2.
-         ///
--        /// Requires OpenSSL 1.0.2 or LibreSSL 3.3.2 or newer.
--        #[cfg(any(ossl102, ossl110, libressl332))]
-+        /// Requires OpenSSL 1.0.2 or LibreSSL 3.4.0 or newer.
-+        #[cfg(any(ossl102, ossl110, libressl340))]
-         const NO_DTLSV1_2 = ffi::SSL_OP_NO_DTLSv1_2;
- 
-         /// Disables the use of all (D)TLS protocol versions.

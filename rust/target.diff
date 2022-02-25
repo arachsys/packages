@@ -15,10 +15,10 @@ index 000000000..469d8622e
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
-index c9fffd213..43b070d78 100644
+index ca1949b9f..20230d157 100644
 --- a/compiler/rustc_target/src/spec/mod.rs
 +++ b/compiler/rustc_target/src/spec/mod.rs
-@@ -621,6 +621,9 @@ impl ToJson for StackProbeType {
+@@ -799,6 +799,9 @@ macro_rules! supported_targets {
  }
  
  supported_targets! {
