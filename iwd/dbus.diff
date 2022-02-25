@@ -213,10 +213,10 @@ index 0b02605..e015d93 100644
  						replace_existing, queue,
  						callback, user_data);
 diff --git a/src/main.c b/src/main.c
-index b67c74d..8eb14fc 100644
+index a3d8553..add3029 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -530,14 +530,16 @@ int main(int argc, char *argv[])
+@@ -585,14 +585,16 @@ int main(int argc, char *argv[])
  		l_netlink_set_debug(rtnl, do_debug, "[RTNL] ", NULL);
  
  	dbus = l_dbus_new_default(L_DBUS_SYSTEM_BUS);
@@ -238,9 +238,9 @@ index b67c74d..8eb14fc 100644
 +					NULL, NULL);
 +	}
  
- 	exit_status = l_main_run_with_signal(signal_handler, NULL);
- 
-@@ -545,7 +547,6 @@ int main(int argc, char *argv[])
+ 	if (!setup_system_key())
+ 		goto failed_storage;
+@@ -606,7 +608,6 @@ failed_storage:
  	dbus_exit();
  	l_dbus_destroy(dbus);
  

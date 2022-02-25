@@ -2,18 +2,18 @@ mode autotools
 
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/network/wireless/
-  match version 1.24 'iwd-([0-9.]+)\.tar'
+  match version 1.25 'iwd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.24.tar.xz
+  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.25.tar.xz
   apply clang.diff
   apply dbus.diff
   apply ipv6.diff
   apply paths.diff
   apply resolve.diff
   apply syslog.diff
-  tree 433370fd168452ab84615dcf8b07fae699f4e82f52279785aabc8c44a4dd3819
+  tree 41e0f1ba55fcd2f8ff0165a8488ec5723e190500884dee8009e3e3cc81ba21c9
 }
 
 config-extra --disable-dbus-policy --disable-systemd-service \
