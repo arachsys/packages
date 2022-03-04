@@ -1,8 +1,8 @@
 mode autotools
 
 check() {
-  url https://github.com/libevent/libevent/releases
-  match version 2.1.12 'libevent-([0-9.]+)-stable\.tar'
+  url https://github.com/libevent/libevent/tags
+  match version 2.1.12 'releases/tag/release-([0-9.]+)-stable'
 }
 
 prepare() {
