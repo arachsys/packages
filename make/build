@@ -8,5 +8,5 @@ check() {
 prepare() {
   unpack https://ftp.gnu.org/gnu/make/make-4.3.tar.gz
   apply paths.diff
-  tree a5666e9dfbdc1e7cbf638921a419c3538f57f2c805832b985dc8ad60be75683f
+  tree a442f08a11ab396638dea0aa71d6e7f3bca5a2115a5578347c8b801b92604b8d
 }

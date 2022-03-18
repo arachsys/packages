@@ -1,3 +1,16 @@
+diff --git a/src/default.c b/src/default.c
+index 751ea15..30de636 100644
+--- a/src/default.c
++++ b/src/default.c
+@@ -530,7 +530,7 @@ static const char *default_variables[] =
+     "OBJC", "gcc",
+ #else
+     "CC", "cc",
+-    "CXX", "g++",
++    "CXX", "c++",
+     "OBJC", "cc",
+ #endif
+ 
 diff --git a/src/read.c b/src/read.c
 index fa197fb..5a2d72b 100644
 --- a/src/read.c
