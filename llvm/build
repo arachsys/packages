@@ -116,12 +116,10 @@ build() {
   rm -f -r /dst/lib/{cmake,libclang.so*,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
   mv /dst/include /dst/lib/include
 
-  if [[ $CHOST != @(amd64|x86_64)-* ]]; then
-    RUNTIME=$(/dst/bin/clang -print-libgcc-file-name)
-    UNWIND=$(readlink /dst/lib/libunwind.so)
-    rm -f /dst/lib/libunwind.so
-    echo "INPUT ( $UNWIND ..${RUNTIME#/dst/lib} )" >/dst/lib/libunwind.so
-  fi
+  RUNTIME=$(/dst/bin/clang -print-libgcc-file-name)
+  UNWIND=$(readlink /dst/lib/libunwind.so)
+  rm -f /dst/lib/libunwind.so
+  echo "INPUT ( $UNWIND ../${RUNTIME#/*/lib/} )" >/dst/lib/libunwind.so
 
   image lldb contains /dst/bin/lldb* /dst/lib/liblldb*.{a,so,so.*}
   image lldb requires libedit
