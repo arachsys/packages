@@ -39,6 +39,11 @@ prepare() {
   tree 8482adb28b73649ec2e445db8217273a1d9d5b815a32c96e1cedbb64611492af
 }
 
+pre-config() {
+  # Work around a bug in parallel make install:
+  sed -i '/^install-libctf:/s/$/ maybe-install-bfd/' Makefile.in
+}
+
 config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
   --disable-libstdc++-pch --disable-multilib --disable-symvers \
   --disable-werror --enable-__cxa_atexit --enable-clocale=gnu \
