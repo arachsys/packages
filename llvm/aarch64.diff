@@ -1,0 +1,13 @@
+diff --git a/clang/lib/Driver/ToolChains/Arch/AArch64.cpp b/clang/lib/Driver/ToolChains/Arch/AArch64.cpp
+index 0e354a49b..5b5106f7c 100644
+--- a/clang/lib/Driver/ToolChains/Arch/AArch64.cpp
++++ b/clang/lib/Driver/ToolChains/Arch/AArch64.cpp
+@@ -126,6 +126,8 @@ getAArch64ArchFeaturesFromMarch(const Driver &D, StringRef March,
+   std::pair<StringRef, StringRef> Split = StringRef(MarchLowerCase).split("+");
+ 
+   llvm::AArch64::ArchKind ArchKind = llvm::AArch64::parseArch(Split.first);
++  if (Split.first == "native")
++    ArchKind = llvm::AArch64::getCPUArchKind(llvm::sys::getHostCPUName().str());
+   if (ArchKind == llvm::AArch64::ArchKind::INVALID ||
+       !llvm::AArch64::getArchFeatures(ArchKind, Features) ||
+       (Split.second.size() &&
