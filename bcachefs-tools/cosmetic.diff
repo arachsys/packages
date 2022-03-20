@@ -154,9 +154,27 @@ index 4f2cd55..57524d7 100644
  	exit(EXIT_FAILURE);
  }
 diff --git a/cmd_attr.c b/cmd_attr.c
-index 736554c..422dddb 100644
+index 736554c..eda1fda 100644
 --- a/cmd_attr.c
 +++ b/cmd_attr.c
+@@ -24,7 +24,7 @@ static void propagate_recurse(int dirfd)
+ 		int ret = ioctl(dirfd, BCHFS_IOC_REINHERIT_ATTRS,
+ 			    d->d_name);
+ 		if (ret < 0) {
+-			fprintf(stderr, "error propagating attributes to %s: %m\n",
++			fprintf(stderr, "Error propagating attributes to %s: %m\n",
+ 				d->d_name);
+ 			continue;
+ 		}
+@@ -39,7 +39,7 @@ static void propagate_recurse(int dirfd)
+ 
+ 		int fd = openat(dirfd, d->d_name, O_RDONLY);
+ 		if (fd < 0) {
+-			fprintf(stderr, "error opening %s: %m\n", d->d_name);
++			fprintf(stderr, "Error opening %s: %m\n", d->d_name);
+ 			continue;
+ 		}
+ 		propagate_recurse(fd);
 @@ -72,7 +72,7 @@ static void do_setattr(char *path, struct bch_opt_strs opts)
  
  	int dirfd = open(path, O_RDONLY);
@@ -184,6 +202,15 @@ index 736554c..422dddb 100644
  }
  
  int cmd_setattr(int argc, char *argv[])
+@@ -98,7 +99,7 @@ int cmd_setattr(int argc, char *argv[])
+ 
+ 	for (i = 1; i < argc; i++)
+ 		if (argv[i][0] == '-') {
+-			printf("invalid option %s\n", argv[i]);
++			fprintf(stderr, "Invalid option %s\n", argv[i]);
+ 			setattr_usage();
+ 			exit(EXIT_FAILURE);
+ 		}
 diff --git a/cmd_data.c b/cmd_data.c
 index d78598d..1daea63 100644
 --- a/cmd_data.c
@@ -284,10 +311,10 @@ index d78598d..1daea63 100644
  	return bchu_data(bcache_fs_open(fs_path), op);
  }
 diff --git a/cmd_debug.c b/cmd_debug.c
-index 71e729c..4152e6e 100644
+index 33c4a1b..e2df1fe 100644
 --- a/cmd_debug.c
 +++ b/cmd_debug.c
-@@ -23,13 +23,14 @@
+@@ -24,14 +24,15 @@
  static void dump_usage(void)
  {
  	puts("bcachefs dump - dump filesystem metadata\n"
@@ -297,17 +324,19 @@ index 71e729c..4152e6e 100644
  	     "Options:\n"
 -	     "  -o output     Output qcow2 image(s)\n"
 -	     "  -f            Force; overwrite when needed\n"
+-	     "  -j            Dump entire journal, not just dirty entries\n"
 -	     "  -h            Display this help and exit\n"
 -	     "Report bugs to <linux-bcache@vger.kernel.org>");
 +	     "  -o FILE                   Output qcow2 image(s)\n"
 +	     "  -f                        Force: overwrite when needed\n"
++	     "  -j                        Dump entire journal, not just dirty entries\n"
 +	     "  -h                        Display this help and exit\n"
 +	     "\n"
 +	     "Report bugs to <linux-bcachefs@vger.kernel.org>");
  }
  
- static void dump_one_device(struct bch_fs *c, struct bch_dev *ca, int fd)
-@@ -87,7 +88,7 @@ static void dump_one_device(struct bch_fs *c, struct bch_dev *ca, int fd)
+ static void dump_one_device(struct bch_fs *c, struct bch_dev *ca, int fd,
+@@ -91,7 +92,7 @@ static void dump_one_device(struct bch_fs *c, struct bch_dev *ca, int fd,
  		}
  
  		if (ret)
@@ -316,7 +345,7 @@ index 71e729c..4152e6e 100644
  
  		b = c->btree_roots[i].b;
  		if (!btree_node_fake(b)) {
-@@ -149,7 +150,7 @@ int cmd_dump(int argc, char *argv[])
+@@ -156,7 +157,7 @@ int cmd_dump(int argc, char *argv[])
  
  	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
  	if (IS_ERR(c))
@@ -325,7 +354,7 @@ index 71e729c..4152e6e 100644
  
  	down_read(&c->gc_lock);
  
-@@ -229,7 +230,7 @@ static void list_btree_formats(struct bch_fs *c, enum btree_id btree_id, unsigne
+@@ -240,7 +241,7 @@ static void list_btree_formats(struct bch_fs *c, enum btree_id btree_id, unsigne
  	bch2_trans_iter_exit(&trans, &iter);
  
  	if (ret)
@@ -333,8 +362,8 @@ index 71e729c..4152e6e 100644
 +		die("Error %s walking btree nodes", strerror(-ret));
  
  	bch2_trans_exit(&trans);
- }
-@@ -256,7 +257,7 @@ static void list_nodes(struct bch_fs *c, enum btree_id btree_id, unsigned level,
+ 	printbuf_exit(&buf);
+@@ -269,7 +270,7 @@ static void list_nodes(struct bch_fs *c, enum btree_id btree_id, unsigned level,
  	bch2_trans_iter_exit(&trans, &iter);
  
  	if (ret)
@@ -342,8 +371,24 @@ index 71e729c..4152e6e 100644
 +		die("Error %s walking btree nodes", strerror(-ret));
  
  	bch2_trans_exit(&trans);
- }
-@@ -306,13 +307,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
+ 	printbuf_exit(&buf);
+@@ -284,13 +285,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
+ 	unsigned offset = 0;
+ 
+ 	if (bch2_bkey_pick_read_device(c, bkey_i_to_s_c(&b->key), NULL, &pick) <= 0) {
+-		printf("error getting device to read from\n");
++		printf("Error getting device to read from\n");
+ 		return;
+ 	}
+ 
+ 	ca = bch_dev_bkey_exists(c, pick.ptr.dev);
+ 	if (!bch2_dev_get_ioref(ca, READ)) {
+-		printf("error getting device to read from\n");
++		printf("Error getting device to read from\n");
+ 		return;
+ 	}
+ 
+@@ -320,13 +321,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
  			i = &n_ondisk->keys;
  
  			if (!bch2_checksum_type_valid(c, BSET_CSUM_TYPE(i)))
@@ -359,7 +404,7 @@ index 71e729c..4152e6e 100644
  
  			bset_encrypt(c, i, offset << 9);
  
-@@ -326,13 +327,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
+@@ -340,13 +341,13 @@ static void print_node_ondisk(struct bch_fs *c, struct btree *b)
  				break;
  
  			if (!bch2_checksum_type_valid(c, BSET_CSUM_TYPE(i)))
@@ -375,7 +420,7 @@ index 71e729c..4152e6e 100644
  
  			bset_encrypt(c, i, offset << 9);
  
-@@ -381,7 +382,7 @@ static void list_nodes_ondisk(struct bch_fs *c, enum btree_id btree_id, unsigned
+@@ -398,7 +399,7 @@ static void list_nodes_ondisk(struct bch_fs *c, enum btree_id btree_id, unsigned
  	bch2_trans_iter_exit(&trans, &iter);
  
  	if (ret)
@@ -383,8 +428,8 @@ index 71e729c..4152e6e 100644
 +		die("Error %s walking btree nodes", strerror(-ret));
  
  	bch2_trans_exit(&trans);
- }
-@@ -416,7 +417,7 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
+ 	printbuf_exit(&buf);
+@@ -436,7 +437,7 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
  	bch2_trans_iter_exit(&trans, &iter);
  
  	if (ret)
@@ -392,8 +437,8 @@ index 71e729c..4152e6e 100644
 +		die("Error %s walking btree nodes", strerror(-ret));
  
  	bch2_trans_exit(&trans);
- }
-@@ -424,20 +425,22 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
+ 	printbuf_exit(&buf);
+@@ -445,20 +446,22 @@ static void list_nodes_keys(struct bch_fs *c, enum btree_id btree_id, unsigned l
  static void list_keys_usage(void)
  {
  	puts("bcachefs list - list filesystem metadata to stdout\n"
@@ -427,7 +472,7 @@ index 71e729c..4152e6e 100644
  }
  
  #define LIST_MODES()		\
-@@ -485,7 +488,7 @@ int cmd_list(int argc, char *argv[])
+@@ -506,7 +509,7 @@ int cmd_list(int argc, char *argv[])
  			break;
  		case 'l':
  			if (kstrtouint(optarg, 10, &level) || level >= BTREE_MAX_DEPTH)
@@ -436,7 +481,7 @@ index 71e729c..4152e6e 100644
  			break;
  		case 's':
  			start	= bpos_parse(optarg);
-@@ -495,7 +498,7 @@ int cmd_list(int argc, char *argv[])
+@@ -516,7 +519,7 @@ int cmd_list(int argc, char *argv[])
  			break;
  		case 'i':
  			if (kstrtoull(optarg, 10, &inum))
@@ -445,7 +490,7 @@ index 71e729c..4152e6e 100644
  			start	= POS(inum, 0);
  			end	= POS(inum + 1, 0);
  			break;
-@@ -521,7 +524,7 @@ int cmd_list(int argc, char *argv[])
+@@ -542,7 +545,7 @@ int cmd_list(int argc, char *argv[])
  
  	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
  	if (IS_ERR(c))
@@ -454,7 +499,7 @@ index 71e729c..4152e6e 100644
  
  
  	for (btree_id = btree_id_start;
-@@ -554,13 +557,14 @@ int cmd_list(int argc, char *argv[])
+@@ -575,13 +578,14 @@ int cmd_list(int argc, char *argv[])
  
  static void list_journal_usage(void)
  {
@@ -473,8 +518,8 @@ index 71e729c..4152e6e 100644
 +	     "Report bugs to <linux-bcachefs@vger.kernel.org>");
  }
  
- int cmd_list_journal(int argc, char *argv[])
-@@ -591,7 +595,7 @@ int cmd_list_journal(int argc, char *argv[])
+ static void star_start_of_lines(char *buf)
+@@ -624,7 +628,7 @@ int cmd_list_journal(int argc, char *argv[])
  
  	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
  	if (IS_ERR(c))
@@ -484,7 +529,7 @@ index 71e729c..4152e6e 100644
  	struct journal_replay *p;
  	struct jset_entry *entry;
 diff --git a/cmd_device.c b/cmd_device.c
-index ef2dfa1..b701d90 100644
+index ef2dfa1..f8972ca 100644
 --- a/cmd_device.c
 +++ b/cmd_device.c
 @@ -24,17 +24,17 @@
@@ -751,7 +796,15 @@ index ef2dfa1..b701d90 100644
  
  		/* could also just read this out of sysfs... meh */
  		struct bch_member *m = mi->members + idx;
-@@ -524,14 +527,14 @@ int cmd_device_resize(int argc, char *argv[])
+@@ -517,21 +520,21 @@ int cmd_device_resize(int argc, char *argv[])
+ 		if (nbuckets < le64_to_cpu(m->nbuckets))
+ 			die("Shrinking not supported yet");
+ 
+-		printf("resizing %s to %llu buckets\n", dev, nbuckets);
++		printf("Resizing %s to %llu buckets\n", dev, nbuckets);
+ 		bchu_disk_resize(fs, idx, nbuckets);
+ 	} else {
+ 		printf("Doing offline resize of %s\n", dev);
  
  		struct bch_fs *c = bch2_fs_open(&dev, 1, bch2_opts_empty());
  		if (IS_ERR(c))
@@ -768,6 +821,19 @@ index ef2dfa1..b701d90 100644
  			resize = ca;
  			percpu_ref_get(&resize->io_ref);
  		}
+@@ -541,10 +544,10 @@ int cmd_device_resize(int argc, char *argv[])
+ 		if (nbuckets < le64_to_cpu(resize->mi.nbuckets))
+ 			die("Shrinking not supported yet");
+ 
+-		printf("resizing %s to %llu buckets\n", dev, nbuckets);
++		printf("Resizing %s to %llu buckets\n", dev, nbuckets);
+ 		int ret = bch2_dev_resize(c, resize, nbuckets);
+ 		if (ret)
+-			fprintf(stderr, "resize error: %s\n", strerror(-ret));
++			fprintf(stderr, "Resize error: %s\n", strerror(-ret));
+ 
+ 		percpu_ref_put(&resize->io_ref);
+ 		bch2_fs_stop(c);
 @@ -555,11 +558,12 @@ int cmd_device_resize(int argc, char *argv[])
  static void device_resize_journal_usage(void)
  {
@@ -802,7 +868,7 @@ index ef2dfa1..b701d90 100644
  
  		struct bchfs_handle fs = bcache_fs_open(mount->mnt_dir);
  
-@@ -609,11 +613,11 @@ int cmd_device_resize_journal(int argc, char *argv[])
+@@ -609,39 +613,39 @@ int cmd_device_resize_journal(int argc, char *argv[])
  
  		struct bch_sb *sb = bchu_read_super(fs, -1);
  		if (idx >= sb->nr_devices)
@@ -816,7 +882,14 @@ index ef2dfa1..b701d90 100644
  
  		/* could also just read this out of sysfs... meh */
  		struct bch_member *m = mi->members + idx;
-@@ -627,14 +631,14 @@ int cmd_device_resize_journal(int argc, char *argv[])
+ 
+ 		u64 nbuckets = size / le16_to_cpu(m->bucket_size);
+ 
+-		printf("resizing journal on %s to %llu buckets\n", dev, nbuckets);
++		printf("Resizing journal on %s to %llu buckets\n", dev, nbuckets);
+ 		bchu_disk_resize_journal(fs, idx, nbuckets);
+ 	} else {
+ 		printf("%s is offline - starting:\n", dev);
  
  		struct bch_fs *c = bch2_fs_open(&dev, 1, bch2_opts_empty());
  		if (IS_ERR(c))
@@ -833,8 +906,16 @@ index ef2dfa1..b701d90 100644
  			resize = ca;
  			percpu_ref_get(&resize->io_ref);
  		}
+ 
+ 		u64 nbuckets = size / le16_to_cpu(resize->mi.bucket_size);
+ 
+-		printf("resizing journal on %s to %llu buckets\n", dev, nbuckets);
++		printf("Resizing journal on %s to %llu buckets\n", dev, nbuckets);
+ 		int ret = bch2_set_nr_journal_buckets(c, resize, nbuckets);
+ 		if (ret)
+ 			fprintf(stderr, "resize error: %s\n", strerror(-ret));
 diff --git a/cmd_format.c b/cmd_format.c
-index cc16b31..c38191e 100644
+index 058d415..e44974c 100644
 --- a/cmd_format.c
 +++ b/cmd_format.c
 @@ -51,34 +51,34 @@ x('h',	help,			no_argument)
@@ -928,16 +1009,16 @@ index cc16b31..c38191e 100644
  			break;
  		case O_no_initialize:
  			initialize = false;
-@@ -256,7 +256,7 @@ int cmd_format(int argc, char *argv[])
+@@ -269,7 +269,7 @@ int cmd_format(int argc, char *argv[])
  						darray_size(device_paths),
- 						bch2_opts_empty());
+ 						mount_opts);
  		if (IS_ERR(c))
 -			die("error opening %s: %s", device_paths.item[0],
 +			die("Error opening %s: %s", device_paths.item[0],
  			    strerror(-PTR_ERR(c)));
  
  		bch2_fs_stop(c);
-@@ -270,13 +270,14 @@ int cmd_format(int argc, char *argv[])
+@@ -283,13 +283,14 @@ int cmd_format(int argc, char *argv[])
  static void show_super_usage(void)
  {
  	puts("bcachefs show-super \n"
@@ -957,7 +1038,7 @@ index cc16b31..c38191e 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -311,9 +312,9 @@ int cmd_show_super(int argc, char *argv[])
+@@ -324,9 +325,9 @@ int cmd_show_super(int argc, char *argv[])
  
  	char *dev = arg_pop();
  	if (!dev)
@@ -970,10 +1051,10 @@ index cc16b31..c38191e 100644
  	struct bch_opts opts = bch2_opts_empty();
  
 diff --git a/cmd_fs.c b/cmd_fs.c
-index f8c4642..1749e85 100644
+index 6bf00c0..d1ce309 100644
 --- a/cmd_fs.c
 +++ b/cmd_fs.c
-@@ -198,10 +198,10 @@ static void print_fs_usage(const char *path, enum units units)
+@@ -279,10 +279,10 @@ static void fs_usage_to_text(struct printbuf *out, const char *path)
  int fs_usage(void)
  {
         puts("bcachefs fs - manage a running filesystem\n"
@@ -987,7 +1068,7 @@ index f8c4642..1749e85 100644
              "Report bugs to <linux-bcachefs@vger.kernel.org>");
         return 0;
 diff --git a/cmd_fsck.c b/cmd_fsck.c
-index 247e207..67d37cd 100644
+index 247e207..36b133d 100644
 --- a/cmd_fsck.c
 +++ b/cmd_fsck.c
 @@ -9,16 +9,17 @@
@@ -1015,6 +1096,15 @@ index 247e207..67d37cd 100644
 +	     "\n"
  	     "Report bugs to <linux-bcachefs@vger.kernel.org>");
  }
+ 
+@@ -89,7 +90,7 @@ int cmd_fsck(int argc, char *argv[])
+ 
+ 	struct bch_fs *c = bch2_fs_open(argv, argc, opts);
+ 	if (IS_ERR(c)) {
+-		fprintf(stderr, "error opening %s: %s\n", argv[0], strerror(-PTR_ERR(c)));
++		fprintf(stderr, "Error opening %s: %s\n", argv[0], strerror(-PTR_ERR(c)));
+ 		exit(8);
+ 	}
  
 diff --git a/cmd_fusemount.c b/cmd_fusemount.c
 index 216094f..784d0d3 100644
@@ -1079,7 +1169,7 @@ index 6052cb0..9534943 100644
  
  	bch2_write_super(c);
 diff --git a/cmd_migrate.c b/cmd_migrate.c
-index fc863f8..4cf1b75 100644
+index 4da3ab1..3073b40 100644
 --- a/cmd_migrate.c
 +++ b/cmd_migrate.c
 @@ -58,7 +58,7 @@ static char *dev_t_to_path(dev_t dev)
@@ -1190,7 +1280,7 @@ index fc863f8..4cf1b75 100644
  }
  
  static const struct option migrate_opts[] = {
-@@ -738,8 +739,8 @@ static int migrate_fs(const char		*fs_path,
+@@ -739,8 +740,8 @@ static int migrate_fs(const char		*fs_path,
  	       "The new filesystem will have a file at /old_migrated_filestem\n"
  	       "referencing all disk space that might be used by the existing\n"
  	       "filesystem. That file can be deleted once the old filesystem is\n"
@@ -1201,7 +1291,7 @@ index fc863f8..4cf1b75 100644
  	       sb_offset, dev.path, dev.path, sb_offset);
  	return 0;
  }
-@@ -795,10 +796,11 @@ static void migrate_superblock_usage(void)
+@@ -796,10 +797,11 @@ static void migrate_superblock_usage(void)
  	     "Usage: bcachefs migrate-superblock [OPTION]...\n"
  	     "\n"
  	     "Options:\n"
@@ -1379,7 +1469,7 @@ index f031ea1..6ce8591 100644
  	if (__builtin_constant_p(size)) {
  		if (!size)
 diff --git a/libbcachefs.c b/libbcachefs.c
-index f78ebf0..a3afcb8 100644
+index 1c780be..5cc0296 100644
 --- a/libbcachefs.c
 +++ b/libbcachefs.c
 @@ -54,7 +54,7 @@ static void init_layout(struct bch_sb_layout *l,
@@ -1445,7 +1535,7 @@ index f78ebf0..a3afcb8 100644
  
  	size_t bytes = vstruct_bytes(&sb);
  
-@@ -904,7 +904,7 @@ struct bchfs_handle bcache_fs_open(const char *path)
+@@ -407,7 +407,7 @@ struct bchfs_handle bcache_fs_open(const char *path)
  
  		struct bch_ioctl_query_uuid uuid;
  		if (ioctl(ret.ioctl_fd, BCH_IOCTL_QUERY_UUID, &uuid) < 0)
@@ -1454,7 +1544,7 @@ index f78ebf0..a3afcb8 100644
  
  		ret.uuid = uuid.uuid;
  
-@@ -941,7 +941,7 @@ struct bchfs_handle bchu_fs_open_by_dev(const char *path, int *idx)
+@@ -444,7 +444,7 @@ struct bchfs_handle bchu_fs_open_by_dev(const char *path, int *idx)
  	if (len > 0) {
  		char *p = strrchr(buf, '/');
  		if (!p || sscanf(p + 1, "dev-%u", idx) != 1)
@@ -1463,7 +1553,7 @@ index f78ebf0..a3afcb8 100644
  
  		*p = '\0';
  		p = strrchr(buf, '/');
-@@ -986,7 +986,7 @@ int bchu_data(struct bchfs_handle fs, struct bch_ioctl_data cmd)
+@@ -489,7 +489,7 @@ int bchu_data(struct bchfs_handle fs, struct bch_ioctl_data cmd)
  		struct bch_ioctl_data_event e;
  
  		if (read(progress_fd, &e, sizeof(e)) != sizeof(e))
@@ -1472,7 +1562,7 @@ index f78ebf0..a3afcb8 100644
  
  		if (e.type)
  			continue;
-@@ -1125,7 +1125,7 @@ struct bch_opts bch2_parse_opts(struct bch_opt_strs strs)
+@@ -628,7 +628,7 @@ struct bch_opts bch2_parse_opts(struct bch_opt_strs strs)
  void bch2_opts_usage(unsigned opt_types)
  {
  	const struct bch_option *opt;
@@ -1482,10 +1572,10 @@ index f78ebf0..a3afcb8 100644
  
  
 diff --git a/libbcachefs/opts.h b/libbcachefs/opts.h
-index c325a09..c1363e2 100644
+index 70b507f..3be21db 100644
 --- a/libbcachefs/opts.h
 +++ b/libbcachefs/opts.h
-@@ -96,13 +96,13 @@ enum opt_type {
+@@ -97,13 +97,13 @@ enum opt_type {
  	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS,	\
  	  OPT_UINT(512, 1U << 16),					\
  	  BCH_SB_BLOCK_SIZE,		8,				\
@@ -1501,7 +1591,7 @@ index c325a09..c1363e2 100644
  	x(errors,			u8,				\
  	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
  	  OPT_STR(bch2_error_actions),					\
-@@ -133,7 +133,7 @@ enum opt_type {
+@@ -134,7 +134,7 @@ enum opt_type {
  	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS|OPT_SB_FIELD_ILOG2,\
  	  OPT_UINT(4096, 2U << 20),					\
  	  BCH_SB_ENCODED_EXTENT_MAX_BITS, 64 << 10,			\
@@ -1510,7 +1600,7 @@ index c325a09..c1363e2 100644
  	x(metadata_checksum,		u8,				\
  	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
  	  OPT_STR(bch2_csum_opts),					\
-@@ -163,22 +163,22 @@ enum opt_type {
+@@ -164,22 +164,22 @@ enum opt_type {
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_FN(bch2_opt_target),					\
  	  BCH_SB_METADATA_TARGET,	0,				\
@@ -1537,38 +1627,36 @@ index c325a09..c1363e2 100644
  	x(erasure_code,			u16,				\
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_BOOL(),							\
-@@ -343,7 +343,7 @@ enum opt_type {
+@@ -349,7 +349,7 @@ enum opt_type {
  	  OPT_MOUNT,							\
  	  OPT_UINT(0, S64_MAX),						\
- 	  NO_SB_OPT,			BCH_SB_SECTOR,			\
+ 	  BCH2_NO_SB_OPT,			BCH_SB_SECTOR,			\
 -	  "offset",	"Sector offset of superblock")			\
 +	  "OFFSET",	"Sector offset of superblock")			\
  	x(read_only,			u8,				\
  	  OPT_FS,							\
  	  OPT_BOOL(),							\
-@@ -374,18 +374,18 @@ enum opt_type {
+@@ -385,17 +385,17 @@ enum opt_type {
  	  OPT_DEVICE,							\
  	  OPT_UINT(0, S64_MAX),						\
- 	  NO_SB_OPT,			0,				\
+ 	  BCH2_NO_SB_OPT,		0,				\
 -	  "size",	"Size of filesystem on device")			\
 +	  "SIZE",	"Size of filesystem on device")			\
  	x(bucket,			u32,				\
  	  OPT_DEVICE,							\
  	  OPT_UINT(0, S64_MAX),						\
- 	  NO_SB_OPT,			0,				\
+ 	  BCH2_NO_SB_OPT,		0,				\
 -	  "size",	"Size of filesystem on device")			\
 +	  "SIZE",	"Size of filesystem on device")			\
  	x(durability,			u8,				\
  	  OPT_DEVICE,							\
  	  OPT_UINT(0, BCH_REPLICAS_MAX),				\
- 	  NO_SB_OPT,			1,				\
+ 	  BCH2_NO_SB_OPT,		1,				\
 -	  "n",		"Data written to this device will be considered\n"\
--			"to have already been replicated n times")
 +	  "N",		"Data written to this device will be considered\n"\
-+			"to have already been replicated N times")
+ 			"to have already been replicated n times")
  
  struct bch_opts {
- #define x(_name, _bits, ...)	unsigned _name##_defined:1;
 diff --git a/linux/blkdev.c b/linux/blkdev.c
 index 762e5aa..7f87761 100644
 --- a/linux/blkdev.c
@@ -1583,7 +1671,7 @@ index 762e5aa..7f87761 100644
  }
  
 diff --git a/tools-util.c b/tools-util.c
-index 9491779..bcf11a7 100644
+index 621ab42..0680f65 100644
 --- a/tools-util.c
 +++ b/tools-util.c
 @@ -45,7 +45,7 @@ char *mprintf(const char *fmt, ...)
@@ -1631,7 +1719,7 @@ index 9491779..bcf11a7 100644
  }
  
  struct stat xfstatat(int dirfd, const char *path, int flags)
-@@ -310,7 +310,7 @@ bool ask_yn(void)
+@@ -274,7 +274,7 @@ bool ask_yn(void)
  	fflush(stdout);
  
  	if (getline(&buf, &buflen, stdin) < 0)
@@ -1640,7 +1728,7 @@ index 9491779..bcf11a7 100644
  
  	ret = strchr(short_yes, buf[0]);
  	free(buf);
-@@ -567,7 +567,7 @@ char *dev_to_name(dev_t dev)
+@@ -531,7 +531,7 @@ char *dev_to_name(dev_t dev)
  
  	FILE *f = fopen("/proc/partitions", "r");
  	if (!f)
@@ -1649,7 +1737,7 @@ index 9491779..bcf11a7 100644
  
  	while (getline(&line, &n, f) != -1) {
  		unsigned ma, mi;
-@@ -605,7 +605,7 @@ struct mntent *dev_to_mount(char *dev)
+@@ -569,7 +569,7 @@ struct mntent *dev_to_mount(char *dev)
  	struct mntent *mnt, *ret = NULL;
  	FILE *f = setmntent("/proc/mounts", "r");
  	if (!f)
@@ -1658,7 +1746,7 @@ index 9491779..bcf11a7 100644
  
  	struct stat d1 = xstat(dev);
  
-@@ -657,14 +657,14 @@ struct bpos bpos_parse(char *buf)
+@@ -621,14 +621,14 @@ struct bpos bpos_parse(char *buf)
  
  	if (!(field = strsep(&s, ":")) ||
  	    kstrtoull(field, 10, &inode_v))
