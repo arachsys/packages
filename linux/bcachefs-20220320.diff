@@ -17756,10 +17756,10 @@ index 000000000000..d818d87661e8
 +#endif /* _BCACHEFS_BTREE_IO_H */
 diff --git a/fs/bcachefs/btree_iter.c b/fs/bcachefs/btree_iter.c
 new file mode 100644
-index 000000000000..7fd0379689d9
+index 000000000000..56c493c95d3a
 --- /dev/null
 +++ b/fs/bcachefs/btree_iter.c
-@@ -0,0 +1,3316 @@
+@@ -0,0 +1,3324 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -19578,21 +19578,29 @@ index 000000000000..7fd0379689d9
 +{
 +	struct btree_insert_entry *i;
 +
-+	pr_buf(buf, "transaction updates for %s journal seq %llu\n",
++	pr_buf(buf, "transaction updates for %s journal seq %llu",
 +	       trans->fn, trans->journal_res.seq);
++	pr_newline(buf);
++	pr_indent_push(buf, 2);
 +
 +	trans_for_each_update(trans, i) {
 +		struct bkey_s_c old = { &i->old_k, i->old_v };
 +
-+		pr_buf(buf, "update: btree %s %pS\n  old ",
++		pr_buf(buf, "update: btree %s %pS",
 +		       bch2_btree_ids[i->btree_id],
 +		       (void *) i->ip_allocated);
++		pr_newline(buf);
 +
++		pr_buf(buf, "  old ");
 +		bch2_bkey_val_to_text(buf, trans->c, old);
-+		pr_buf(buf, "\n  new ");
++		pr_newline(buf);
++
++		pr_buf(buf, "  new ");
 +		bch2_bkey_val_to_text(buf, trans->c, bkey_i_to_s_c(i->k));
-+		pr_buf(buf, "\n");
++		pr_newline(buf);
 +	}
++
++	pr_indent_pop(buf, 2);
 +}
 +
 +noinline __cold
