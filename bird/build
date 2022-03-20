@@ -8,5 +8,5 @@ check() {
 
 prepare() {
   unpack https://bird.network.cz/download/bird-2.0.9.tar.gz
-  tree c3cf5ddde6d6c723dd922297947a5e3d066fe29e4ee9261669de575f6bc4c280
+  tree 96f8bffebaeba1f48e1309e7fbaab2de6f62504d8fa3cc54c50349a4e7747591
 }
