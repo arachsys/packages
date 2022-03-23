@@ -1,9 +1,9 @@
 diff --git a/Makefile b/Makefile
-index 19bd163..7d83e22 100644
+index f621453..faf3ead 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -16,7 +16,7 @@ PREFIX?=/usr
- LIBDIR?=$(PREFIX)/lib
+@@ -17,7 +17,7 @@ endif
+ PREFIX?=/usr
  SBINDIR?=/sbin
  CONFDIR?=/etc/iproute2
 -NETNS_RUN_DIR?=/var/run/netns
@@ -25,15 +25,15 @@ index e47f9b5..d495e6b 100644
  
  #ifndef NETNS_ETC_DIR
 diff --git a/lib/fs.c b/lib/fs.c
-index ee0b130..4d47ff7 100644
+index 3752931..7d1cf87 100644
 --- a/lib/fs.c
 +++ b/lib/fs.c
-@@ -28,7 +28,7 @@
+@@ -32,7 +32,7 @@
  #define CGROUP2_FS_NAME "cgroup2"
  
  /* if not already mounted cgroup2 is mounted here for iproute2's use */
 -#define MNT_CGRP2_PATH  "/var/run/cgroup2"
 +#define MNT_CGRP2_PATH  "/sys/fs/cgroup"
  
- /* return mount path of first occurrence of given fstype */
- static char *find_fs_mount(const char *fs_to_find)
+ 
+ #ifndef HAVE_HANDLE_AT
