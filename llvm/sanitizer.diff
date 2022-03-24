@@ -1,8 +1,8 @@
 diff --git a/clang/lib/Driver/ToolChains/CommonArgs.cpp b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-index 0ffe95795..7b461e9ad 100644
+index dfcef2304..611547433 100644
 --- a/clang/lib/Driver/ToolChains/CommonArgs.cpp
 +++ b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-@@ -778,6 +778,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
+@@ -797,6 +797,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
        TC.getTriple().isOSNetBSD() ||
        TC.getTriple().isOSOpenBSD())
      CmdArgs.push_back("-lexecinfo");
@@ -12,10 +12,10 @@ index 0ffe95795..7b461e9ad 100644
  
  static void
 diff --git a/compiler-rt/cmake/Modules/AddCompilerRT.cmake b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-index bc69ec95c..6e5c7b3ca 100644
+index 4a496fc18..7010e42de 100644
 --- a/compiler-rt/cmake/Modules/AddCompilerRT.cmake
 +++ b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-@@ -503,7 +503,7 @@ endfunction()
+@@ -509,7 +509,7 @@ endfunction()
  
  macro(add_compiler_rt_resource_file target_name file_name component)
    set(src_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_name}")
@@ -24,37 +24,24 @@ index bc69ec95c..6e5c7b3ca 100644
    add_custom_command(OUTPUT ${dst_file}
      DEPENDS ${src_file}
      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_file} ${dst_file}
-diff --git a/compiler-rt/cmake/base-config-ix.cmake b/compiler-rt/cmake/base-config-ix.cmake
-index c11342e68..187e91793 100644
---- a/compiler-rt/cmake/base-config-ix.cmake
-+++ b/compiler-rt/cmake/base-config-ix.cmake
-@@ -121,7 +121,7 @@ set(COMPILER_RT_INSTALL_BINARY_DIR "${default_install_path}" CACHE PATH
- extend_install_path(default_install_path include)
- set(COMPILER_RT_INSTALL_INCLUDE_DIR "${default_install_path}" CACHE PATH
-   "Path where compiler-rt headers should be installed.")
--extend_install_path(default_install_path share)
-+extend_install_path(default_install_path lib)
- set(COMPILER_RT_INSTALL_DATA_DIR "${default_install_path}" CACHE PATH
-   "Path where compiler-rt data files should be installed.")
- 
 diff --git a/compiler-rt/cmake/config-ix.cmake b/compiler-rt/cmake/config-ix.cmake
-index 39b9120f0..05e9e36f9 100644
+index 4299a0589..d65e9121d 100644
 --- a/compiler-rt/cmake/config-ix.cmake
 +++ b/compiler-rt/cmake/config-ix.cmake
-@@ -814,7 +814,7 @@ endif()
+@@ -836,7 +836,7 @@ endif()
  # TODO(hctim): Enable this on Android again. Looks like it's causing a SIGSEGV
  # for Scudo and GWP-ASan, further testing needed.
- if (COMPILER_RT_HAS_SANITIZER_COMMON AND GWP_ASAN_SUPPORTED_ARCH AND
+ if (GWP_ASAN_SUPPORTED_ARCH AND COMPILER_RT_BUILD_GWP_ASAN AND
 -    OS_NAME MATCHES "Linux")
 +    OS_NAME MATCHES "Linux" AND NOT LIBCXX_HAS_MUSL_LIBC)
    set(COMPILER_RT_HAS_GWP_ASAN TRUE)
  else()
    set(COMPILER_RT_HAS_GWP_ASAN FALSE)
 diff --git a/compiler-rt/lib/dfsan/CMakeLists.txt b/compiler-rt/lib/dfsan/CMakeLists.txt
-index 45cb9c97e..ec4d96f01 100644
+index c5190584a..ec1d85966 100644
 --- a/compiler-rt/lib/dfsan/CMakeLists.txt
 +++ b/compiler-rt/lib/dfsan/CMakeLists.txt
-@@ -50,7 +50,7 @@ foreach(arch ${DFSAN_SUPPORTED_ARCH})
+@@ -53,7 +53,7 @@ foreach(arch ${DFSAN_SUPPORTED_ARCH})
      clang_rt.dfsan-${arch}-symbols)
  endforeach()
  
@@ -63,16 +50,3 @@ index 45cb9c97e..ec4d96f01 100644
  set(dfsan_abilist_filename ${dfsan_abilist_dir}/dfsan_abilist.txt)
  add_custom_target(dfsan_abilist ALL
    DEPENDS ${dfsan_abilist_filename})
-diff --git a/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp b/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
-index 9b7d87eb8..239a098a3 100644
---- a/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
-+++ b/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
-@@ -1811,7 +1811,7 @@ struct __sanitizer_esr_context {
- 
- static bool Aarch64GetESR(ucontext_t *ucontext, u64 *esr) {
-   static const u32 kEsrMagic = 0x45535201;
--  u8 *aux = ucontext->uc_mcontext.__reserved;
-+  u8 *aux = (u8 *) ucontext->uc_mcontext.__reserved;
-   while (true) {
-     _aarch64_ctx *ctx = (_aarch64_ctx *)aux;
-     if (ctx->size == 0) break;

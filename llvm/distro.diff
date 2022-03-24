@@ -1,5 +1,5 @@
 diff --git a/clang/include/clang/Driver/Distro.h b/clang/include/clang/Driver/Distro.h
-index 0e98d0076..3fd373545 100644
+index 2723f75e8..2c074a6b5 100644
 --- a/clang/include/clang/Driver/Distro.h
 +++ b/clang/include/clang/Driver/Distro.h
 @@ -29,6 +29,7 @@ public:
@@ -10,7 +10,7 @@ index 0e98d0076..3fd373545 100644
      ArchLinux,
      DebianLenny,
      DebianSqueeze,
-@@ -127,6 +128,8 @@ public:
+@@ -130,6 +131,8 @@ public:
  
    bool IsAlpineLinux() const { return DistroVal == AlpineLinux; }
  
@@ -20,7 +20,7 @@ index 0e98d0076..3fd373545 100644
  
    /// @}
 diff --git a/clang/lib/Driver/Distro.cpp b/clang/lib/Driver/Distro.cpp
-index ee4fe841e..ba2a25cb3 100644
+index 5ac38c34d..ff1a29170 100644
 --- a/clang/lib/Driver/Distro.cpp
 +++ b/clang/lib/Driver/Distro.cpp
 @@ -20,6 +20,7 @@
@@ -31,7 +31,7 @@ index ee4fe841e..ba2a25cb3 100644
  static Distro::DistroType DetectOsRelease(llvm::vfs::FileSystem &VFS) {
    llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> File =
        VFS.getBufferForFile("/etc/os-release");
-@@ -202,6 +203,7 @@ static Distro::DistroType DetectDistro(llvm::vfs::FileSystem &VFS) {
+@@ -199,6 +200,7 @@ static Distro::DistroType DetectDistro(llvm::vfs::FileSystem &VFS) {
  
    return Distro::UnknownDistro;
  }
@@ -39,7 +39,7 @@ index ee4fe841e..ba2a25cb3 100644
  
  static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
                                      const llvm::Triple &TargetOrHost) {
-@@ -220,7 +222,9 @@ static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
+@@ -217,7 +219,9 @@ static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
    llvm::Triple HostTriple(llvm::sys::getProcessTriple());
    if (!HostTriple.isOSLinux() && onRealFS)
      return Distro::UnknownDistro;
@@ -49,7 +49,7 @@ index ee4fe841e..ba2a25cb3 100644
    if (onRealFS) {
      // If we're backed by a real file system, perform
      // the detection only once and save the result.
-@@ -230,6 +234,7 @@ static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
+@@ -227,6 +231,7 @@ static Distro::DistroType GetDistro(llvm::vfs::FileSystem &VFS,
    // This is mostly for passing tests which uses llvm::vfs::InMemoryFileSystem,
    // which is not "real".
    return DetectDistro(VFS);

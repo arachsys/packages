@@ -2,26 +2,26 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/releases
-  match llvm 13.0.1 'llvm-project-([0-9.]+)\.src\.tar'
+  match llvm 14.0.0 'llvm-project-([0-9.]+)\.src\.tar'
 
   url https://github.com/Kitware/CMake/releases
   match cmake 3.22.3 'cmake-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-project-13.0.1.tar.xz \
-    https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/llvm-project-13.0.1.src.tar.xz
+  unpack llvm-project-14.0.0.tar.xz \
+    https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/llvm-project-14.0.0.src.tar.xz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.22.3/cmake-3.22.3.tar.gz
   apply aarch64.diff
+  apply cmake.diff
   apply config.diff
   apply distro.diff
   apply multiarch.diff
   apply paths.diff
-  apply prune.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 4551fe3c362b6b3ef2535df5c86362fa8955c18cc309c68a5efdb4ae3659bf40
+  tree 68cba4f670c940a7be1c37a39816d494b282e551e4b191c3930908e2b3bfea69
 }
 
 build() {
@@ -112,8 +112,10 @@ build() {
     -or -name '*.inc' -or -name '*.td' -or -delete
   rm -f -r $LLVMDIR/include/**/{CMakeFiles,config.h}
 
+  rm -f -r /dst/bin/{git-clang-format,hmaptool,lldb-vscode,llvm-pdbutil}
   rm -f -r /dst/include/{clang-c,llvm-c}
   rm -f -r /dst/lib/{cmake,libclang.so*,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
+  rm -f -r /dst/lib/opt-viewer /dst/lib/**/*.{applescript,css,el,py}
   mv /dst/include /dst/lib/include
 
   RUNTIME=$(/dst/bin/clang -print-libgcc-file-name)

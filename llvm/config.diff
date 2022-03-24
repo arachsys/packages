@@ -1,8 +1,8 @@
 diff --git a/lldb/source/Host/common/Editline.cpp b/lldb/source/Host/common/Editline.cpp
-index 026a05da4..e57effe1f 100644
+index 6898f8452..a3f848507 100644
 --- a/lldb/source/Host/common/Editline.cpp
 +++ b/lldb/source/Host/common/Editline.cpp
-@@ -213,14 +213,10 @@ private:
+@@ -219,14 +219,10 @@ private:
        FileSystem::Instance().GetHomeDirectory(lldb_history_file);
        llvm::sys::path::append(lldb_history_file, ".lldb");
  
@@ -20,7 +20,7 @@ index 026a05da4..e57effe1f 100644
          llvm::sys::path::append(lldb_history_file, filename);
          m_path = std::string(lldb_history_file.str());
        }
-@@ -1110,9 +1106,7 @@ void Editline::ConfigureEditor(bool multiline) {
+@@ -1139,9 +1135,7 @@ void Editline::ConfigureEditor(bool multiline) {
    ApplyTerminalSizeChange();
  
    if (m_history_sp && m_history_sp->IsValid()) {
@@ -32,10 +32,10 @@ index 026a05da4..e57effe1f 100644
    }
    el_set(m_editline, EL_CLIENTDATA, this);
 diff --git a/lldb/source/Interpreter/CommandInterpreter.cpp b/lldb/source/Interpreter/CommandInterpreter.cpp
-index fb503fe0a..dfbd1126c 100644
+index 59c23716b..9563ef5af 100644
 --- a/lldb/source/Interpreter/CommandInterpreter.cpp
 +++ b/lldb/source/Interpreter/CommandInterpreter.cpp
-@@ -2072,7 +2072,7 @@ int CommandInterpreter::GetOptionArgumentPosition(const char *in_string) {
+@@ -2247,7 +2247,7 @@ int CommandInterpreter::GetOptionArgumentPosition(const char *in_string) {
  
  static void GetHomeInitFile(llvm::SmallVectorImpl<char> &init_file,
                              llvm::StringRef suffix = {}) {
@@ -44,8 +44,8 @@ index fb503fe0a..dfbd1126c 100644
    if (!suffix.empty()) {
      init_file_name.append("-");
      init_file_name.append(suffix.str());
-@@ -2093,7 +2093,7 @@ static void GetHomeREPLInitFile(llvm::SmallVectorImpl<char> &init_file) {
-     return;
+@@ -2270,7 +2270,7 @@ static void GetHomeREPLInitFile(llvm::SmallVectorImpl<char> &init_file,
+   }
  
    std::string init_file_name =
 -      (llvm::Twine(".lldbinit-") +
