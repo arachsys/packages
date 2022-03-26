@@ -4740,10 +4740,10 @@ index 000000000000..a4ef9aabf274
 +#endif /* _BCACHEFS_H */
 diff --git a/fs/bcachefs/bcachefs_format.h b/fs/bcachefs/bcachefs_format.h
 new file mode 100644
-index 000000000000..bb54ac175b69
+index 000000000000..33823551d63f
 --- /dev/null
 +++ b/fs/bcachefs/bcachefs_format.h
-@@ -0,0 +1,1943 @@
+@@ -0,0 +1,1947 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_FORMAT_H
 +#define _BCACHEFS_FORMAT_H
@@ -6058,20 +6058,24 @@ index 000000000000..bb54ac175b69
 +#define BCH_JSET_VERSION_OLD			2
 +#define BCH_BSET_VERSION_OLD			3
 +
++#define BCH_METADATA_VERSIONS()				\
++	x(bkey_renumber,		10)		\
++	x(inode_btree_change,		11)		\
++	x(snapshot,			12)		\
++	x(inode_backpointers,		13)		\
++	x(btree_ptr_sectors_written,	14)		\
++	x(snapshot_2,			15)		\
++	x(reflink_p_fix,		16)		\
++	x(subvol_dirent,		17)		\
++	x(inode_v2,			18)		\
++	x(freespace,			19)
++
 +enum bcachefs_metadata_version {
-+	bcachefs_metadata_version_min			= 9,
-+	bcachefs_metadata_version_new_versioning	= 10,
-+	bcachefs_metadata_version_bkey_renumber		= 10,
-+	bcachefs_metadata_version_inode_btree_change	= 11,
-+	bcachefs_metadata_version_snapshot		= 12,
-+	bcachefs_metadata_version_inode_backpointers	= 13,
-+	bcachefs_metadata_version_btree_ptr_sectors_written = 14,
-+	bcachefs_metadata_version_snapshot_2		= 15,
-+	bcachefs_metadata_version_reflink_p_fix		= 16,
-+	bcachefs_metadata_version_subvol_dirent		= 17,
-+	bcachefs_metadata_version_inode_v2		= 18,
-+	bcachefs_metadata_version_freespace		= 19,
-+	bcachefs_metadata_version_max			= 20,
++	bcachefs_metadata_version_min = 9,
++#define x(t, n)	bcachefs_metadata_version_##t = n,
++	BCH_METADATA_VERSIONS()
++#undef x
++	bcachefs_metadata_version_max
 +};
 +
 +#define bcachefs_metadata_version_current	(bcachefs_metadata_version_max - 1)
@@ -11936,7 +11940,7 @@ index 000000000000..0d46534c3dcd
 +#endif /* _BCACHEFS_BSET_H */
 diff --git a/fs/bcachefs/btree_cache.c b/fs/bcachefs/btree_cache.c
 new file mode 100644
-index 000000000000..d91408c20a07
+index 000000000000..0dcdc30c6888
 --- /dev/null
 +++ b/fs/bcachefs/btree_cache.c
 @@ -0,0 +1,1160 @@
@@ -12594,6 +12598,8 @@ index 000000000000..d91408c20a07
 +	/* Try to cannibalize another cached btree node: */
 +	if (bc->alloc_lock == current) {
 +		b2 = btree_node_cannibalize(c);
++		bch2_btree_node_hash_remove(bc, b2);
++
 +		if (b) {
 +			swap(b->data, b2->data);
 +			swap(b->aux_data, b2->aux_data);
@@ -12606,8 +12612,6 @@ index 000000000000..d91408c20a07
 +		}
 +
 +		mutex_unlock(&bc->lock);
-+
-+		bch2_btree_node_hash_remove(bc, b);
 +
 +		trace_btree_node_cannibalize(c);
 +		goto out;
@@ -15411,7 +15415,7 @@ index 000000000000..0665f5941fcc
 +#endif /* _BCACHEFS_BTREE_GC_H */
 diff --git a/fs/bcachefs/btree_io.c b/fs/bcachefs/btree_io.c
 new file mode 100644
-index 000000000000..1df454f24b54
+index 000000000000..4b880ea59cad
 --- /dev/null
 +++ b/fs/bcachefs/btree_io.c
 @@ -0,0 +1,2111 @@
@@ -16491,7 +16495,7 @@ index 000000000000..1df454f24b54
 +
 +			bch2_bkey_val_to_text(&buf, c, u.s_c);
 +			btree_err(BTREE_ERR_FIXABLE, c, NULL, b, i,
-+				  "invalid bkey %s: %s", buf, invalid);
++				  "invalid bkey %s: %s", buf.buf, invalid);
 +			printbuf_exit(&buf);
 +
 +			btree_keys_account_key_drop(&b->nr, 0, k);
@@ -17308,7 +17312,7 @@ index 000000000000..1df454f24b54
 +	BUG_ON(BSET_BIG_ENDIAN(i) != CPU_BIG_ENDIAN);
 +	BUG_ON(i->seq != b->data->keys.seq);
 +
-+	i->version = c->sb.version < bcachefs_metadata_version_new_versioning
++	i->version = c->sb.version < bcachefs_metadata_version_bkey_renumber
 +		? cpu_to_le16(BCH_BSET_VERSION_OLD)
 +		: cpu_to_le16(c->sb.version);
 +	SET_BSET_OFFSET(i, b->written);
@@ -22563,7 +22567,7 @@ index 000000000000..67c970d727ac
 +
 diff --git a/fs/bcachefs/btree_types.h b/fs/bcachefs/btree_types.h
 new file mode 100644
-index 000000000000..788b9811148f
+index 000000000000..993f04f52149
 --- /dev/null
 +++ b/fs/bcachefs/btree_types.h
 @@ -0,0 +1,712 @@
@@ -22895,7 +22899,7 @@ index 000000000000..788b9811148f
 +	struct btree_bkey_cached_common c;
 +
 +	unsigned long		flags;
-+	u8			u64s;
++	u16			u64s;
 +	bool			valid;
 +	u32			btree_trans_barrier_seq;
 +	struct bkey_cached_key	key;
@@ -25986,10 +25990,10 @@ index 000000000000..e72eb8795616
 +#endif /* _BCACHEFS_BTREE_UPDATE_INTERIOR_H */
 diff --git a/fs/bcachefs/btree_update_leaf.c b/fs/bcachefs/btree_update_leaf.c
 new file mode 100644
-index 000000000000..fec09f00c4e3
+index 000000000000..8d185c7c10ef
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_leaf.c
-@@ -0,0 +1,1740 @@
+@@ -0,0 +1,1741 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -26341,7 +26345,7 @@ index 000000000000..fec09f00c4e3
 +{
 +	struct bch_fs *c = trans->c;
 +	struct bkey_cached *ck = (void *) path->l[0].b;
-+	unsigned new_u64s;
++	unsigned old_u64s = ck->u64s, new_u64s;
 +	struct bkey_i *new_k;
 +
 +	EBUG_ON(path->level);
@@ -26375,7 +26379,8 @@ index 000000000000..fec09f00c4e3
 +	 * transaction restart:
 +	 */
 +	trace_trans_restart_key_cache_key_realloced(trans->fn, _RET_IP_,
-+					     path->btree_id, &path->pos);
++					     path->btree_id, &path->pos,
++					     old_u64s, new_u64s);
 +	/*
 +	 * Not using btree_trans_restart() because we can't unlock here, we have
 +	 * write locks held:
@@ -50363,7 +50368,7 @@ index 000000000000..2337ecfc600e
 +#endif /* _BCACHEFS_INODE_H */
 diff --git a/fs/bcachefs/io.c b/fs/bcachefs/io.c
 new file mode 100644
-index 000000000000..cf97594b7c6f
+index 000000000000..36929451af2c
 --- /dev/null
 +++ b/fs/bcachefs/io.c
 @@ -0,0 +1,2416 @@
@@ -51428,7 +51433,7 @@ index 000000000000..cf97594b7c6f
 +	struct bch_write_op *op = container_of(cl, struct bch_write_op, cl);
 +	struct bch_fs *c = op->c;
 +	struct write_point *wp;
-+	struct bio *bio;
++	struct bio *bio = NULL;
 +	bool skip_put = true;
 +	unsigned nofs_flags;
 +	int ret;
@@ -53147,7 +53152,7 @@ index 000000000000..78bff13d36f2
 +#endif /* _BCACHEFS_IO_TYPES_H */
 diff --git a/fs/bcachefs/journal.c b/fs/bcachefs/journal.c
 new file mode 100644
-index 000000000000..6d91a2c8f6b5
+index 000000000000..505e8367b5f2
 --- /dev/null
 +++ b/fs/bcachefs/journal.c
 @@ -0,0 +1,1410 @@
@@ -54399,7 +54404,7 @@ index 000000000000..6d91a2c8f6b5
 +	pr_buf(out, "last_seq_ondisk:\t%llu\n",		j->last_seq_ondisk);
 +	pr_buf(out, "flushed_seq_ondisk:\t%llu\n",	j->flushed_seq_ondisk);
 +	pr_buf(out, "prereserved:\t\t%u/%u\n",		j->prereserved.reserved, j->prereserved.remaining);
-+	pr_buf(out, "watermark:\t\t%u\n",		bch2_journal_watermarks[j->watermark]);
++	pr_buf(out, "watermark:\t\t%s\n",		bch2_journal_watermarks[j->watermark]);
 +	pr_buf(out, "each entry reserved:\t%u\n",	j->entry_u64s_reserved);
 +	pr_buf(out, "nr flush writes:\t%llu\n",		j->nr_flush_writes);
 +	pr_buf(out, "nr noflush writes:\t%llu\n",	j->nr_noflush_writes);
@@ -55091,10 +55096,10 @@ index 000000000000..e7321c327d9d
 +#endif /* _BCACHEFS_JOURNAL_H */
 diff --git a/fs/bcachefs/journal_io.c b/fs/bcachefs/journal_io.c
 new file mode 100644
-index 000000000000..abb3e657c965
+index 000000000000..e61b88930a7f
 --- /dev/null
 +++ b/fs/bcachefs/journal_io.c
-@@ -0,0 +1,1691 @@
+@@ -0,0 +1,1700 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#include "bcachefs.h"
 +#include "alloc_background.h"
@@ -56063,7 +56068,16 @@ index 000000000000..abb3e657c965
 +	}
 +	mutex_unlock(&jlist->lock);
 +
-+	BUG_ON(ja->sectors_free == ca->mi.bucket_size);
++	if (ja->bucket_seq[ja->cur_idx] &&
++	    ja->sectors_free == ca->mi.bucket_size) {
++		bch_err(c, "ja->sectors_free == ca->mi.bucket_size");
++		bch_err(c, "cur_idx %u/%u", ja->cur_idx, ja->nr);
++		for (i = 0; i < 3; i++) {
++			unsigned idx = ja->cur_idx - 1 + i;
++			bch_err(c, "bucket_seq[%u] = %llu", idx, ja->bucket_seq[idx]);
++		}
++		ja->sectors_free = 0;
++	}
 +
 +	/*
 +	 * Set dirty_idx to indicate the entire journal is full and needs to be
@@ -56677,7 +56691,7 @@ index 000000000000..abb3e657c965
 +	BUG_ON(vstruct_sectors(jset, c->block_bits) > w->sectors);
 +
 +	jset->magic		= cpu_to_le64(jset_magic(c));
-+	jset->version		= c->sb.version < bcachefs_metadata_version_new_versioning
++	jset->version		= c->sb.version < bcachefs_metadata_version_bkey_renumber
 +		? cpu_to_le32(BCH_JSET_VERSION_OLD)
 +		: cpu_to_le32(c->sb.version);
 +
@@ -57792,7 +57806,7 @@ index 000000000000..0fd1af120db5
 +#endif /* _BCACHEFS_JOURNAL_RECLAIM_H */
 diff --git a/fs/bcachefs/journal_sb.c b/fs/bcachefs/journal_sb.c
 new file mode 100644
-index 000000000000..0a8a0077b6f1
+index 000000000000..8efe7b7e3dcb
 --- /dev/null
 +++ b/fs/bcachefs/journal_sb.c
 @@ -0,0 +1,222 @@
@@ -57929,13 +57943,13 @@ index 000000000000..0a8a0077b6f1
 +
 +	if (b[0].start < le16_to_cpu(m->first_bucket)) {
 +		pr_buf(err, "journal bucket %llu before first bucket %u",
-+		       b[0], le16_to_cpu(m->first_bucket));
++		       b[0].start, le16_to_cpu(m->first_bucket));
 +		goto err;
 +	}
 +
 +	if (b[nr - 1].end > le64_to_cpu(m->nbuckets)) {
 +		pr_buf(err, "journal bucket %llu past end of device (nbuckets %llu)",
-+		       b[nr - 1], le64_to_cpu(m->nbuckets));
++		       b[nr - 1].end - 1, le64_to_cpu(m->nbuckets));
 +		goto err;
 +	}
 +
@@ -61061,10 +61075,10 @@ index 000000000000..922738247d03
 +#endif /* _BCACHEFS_MOVINGGC_H */
 diff --git a/fs/bcachefs/opts.c b/fs/bcachefs/opts.c
 new file mode 100644
-index 000000000000..e78d3b75f6fb
+index 000000000000..77fbb7d2194e
 --- /dev/null
 +++ b/fs/bcachefs/opts.c
-@@ -0,0 +1,561 @@
+@@ -0,0 +1,560 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include <linux/kernel.h>
@@ -61076,7 +61090,12 @@ index 000000000000..e78d3b75f6fb
 +#include "super-io.h"
 +#include "util.h"
 +
-+#define x(t, n) #t,
++#define x(t, n) [n] = #t,
++
++const char * const bch2_metadata_versions[] = {
++	BCH_METADATA_VERSIONS()
++	NULL
++};
 +
 +const char * const bch2_error_actions[] = {
 +	BCH_ERROR_ACTIONS()
@@ -61286,42 +61305,43 @@ index 000000000000..e78d3b75f6fb
 +	return bch2_opt_lookup(name);
 +}
 +
-+static int bch2_opt_validate(const struct bch_option *opt, const char *msg, u64 v)
++int bch2_opt_validate(const struct bch_option *opt, u64 v, struct printbuf *err)
 +{
 +	if (v < opt->min) {
-+		if (msg)
-+			pr_err("invalid %s%s: too small (min %llu)",
-+			       msg, opt->attr.name, opt->min);
++		if (err)
++			pr_buf(err, "%s: too small (min %llu)",
++			       opt->attr.name, opt->min);
 +		return -ERANGE;
 +	}
 +
 +	if (opt->max && v >= opt->max) {
-+		if (msg)
-+			pr_err("invalid %s%s: too big (max %llu)",
-+			       msg, opt->attr.name, opt->max);
++		if (err)
++			pr_buf(err, "%s: too big (max %llu)",
++			       opt->attr.name, opt->max);
 +		return -ERANGE;
 +	}
 +
 +	if ((opt->flags & OPT_SB_FIELD_SECTORS) && (v & 511)) {
-+		if (msg)
-+			pr_err("invalid %s %s: not a multiple of 512",
-+			       msg, opt->attr.name);
++		if (err)
++			pr_buf(err, "%s: not a multiple of 512",
++			       opt->attr.name);
 +		return -EINVAL;
 +	}
 +
 +	if ((opt->flags & OPT_MUST_BE_POW_2) && !is_power_of_2(v)) {
-+		if (msg)
-+			pr_err("invalid %s%s: must be a power of two",
-+			       msg, opt->attr.name);
++		if (err)
++			pr_buf(err, "%s: must be a power of two",
++			       opt->attr.name);
 +		return -EINVAL;
 +	}
 +
 +	return 0;
 +}
 +
-+int bch2_opt_parse(struct bch_fs *c, const char *msg,
++int bch2_opt_parse(struct bch_fs *c,
 +		   const struct bch_option *opt,
-+		   const char *val, u64 *res)
++		   const char *val, u64 *res,
++		   struct printbuf *err)
 +{
 +	ssize_t ret;
 +
@@ -61354,7 +61374,7 @@ index 000000000000..e78d3b75f6fb
 +			return ret;
 +	}
 +
-+	return bch2_opt_validate(opt, msg, *res);
++	return bch2_opt_validate(opt, *res, err);
 +}
 +
 +void bch2_opt_to_text(struct printbuf *out,
@@ -61434,6 +61454,7 @@ index 000000000000..e78d3b75f6fb
 +	char *copied_opts, *copied_opts_start;
 +	char *opt, *name, *val;
 +	int ret, id;
++	struct printbuf err = PRINTBUF;
 +	u64 v;
 +
 +	if (!options)
@@ -61453,8 +61474,7 @@ index 000000000000..e78d3b75f6fb
 +			if (id < 0)
 +				goto bad_opt;
 +
-+			ret = bch2_opt_parse(c, "mount option ",
-+					     &bch2_opt_table[id], val, &v);
++			ret = bch2_opt_parse(c, &bch2_opt_table[id], val, &v, &err);
 +			if (ret < 0)
 +				goto bad_val;
 +		} else {
@@ -61497,7 +61517,7 @@ index 000000000000..e78d3b75f6fb
 +	ret = -1;
 +	goto out;
 +bad_val:
-+	pr_err("Invalid value %s for mount option %s", val, name);
++	pr_err("Invalid mount option %s", err.buf);
 +	ret = -1;
 +	goto out;
 +no_val:
@@ -61506,6 +61526,7 @@ index 000000000000..e78d3b75f6fb
 +	goto out;
 +out:
 +	kfree(copied_opts_start);
++	printbuf_exit(&err);
 +	return ret;
 +}
 +
@@ -61532,22 +61553,14 @@ index 000000000000..e78d3b75f6fb
 +int bch2_opts_from_sb(struct bch_opts *opts, struct bch_sb *sb)
 +{
 +	unsigned id;
-+	int ret;
 +
 +	for (id = 0; id < bch2_opts_nr; id++) {
 +		const struct bch_option *opt = bch2_opt_table + id;
-+		u64 v;
 +
 +		if (opt->get_sb == BCH2_NO_SB_OPT)
 +			continue;
 +
-+		v = bch2_opt_from_sb(sb, id);
-+
-+		ret = bch2_opt_validate(opt, "superblock option ", v);
-+		if (ret)
-+			return ret;
-+
-+		bch2_opt_set_by_id(opts, id, v);
++		bch2_opt_set_by_id(opts, id, bch2_opt_from_sb(sb, id));
 +	}
 +
 +	return 0;
@@ -61628,10 +61641,10 @@ index 000000000000..e78d3b75f6fb
 +}
 diff --git a/fs/bcachefs/opts.h b/fs/bcachefs/opts.h
 new file mode 100644
-index 000000000000..70b507fb0de2
+index 000000000000..8bc67d07afb9
 --- /dev/null
 +++ b/fs/bcachefs/opts.h
-@@ -0,0 +1,515 @@
+@@ -0,0 +1,517 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_OPTS_H
 +#define _BCACHEFS_OPTS_H
@@ -61642,6 +61655,7 @@ index 000000000000..70b507fb0de2
 +#include <linux/sysfs.h>
 +#include "bcachefs_format.h"
 +
++extern const char * const bch2_metadata_versions[];
 +extern const char * const bch2_error_actions[];
 +extern const char * const bch2_sb_features[];
 +extern const char * const bch2_sb_compat[];
@@ -61908,7 +61922,7 @@ index 000000000000..70b507fb0de2
 +	  NULL,		"Extra debugging information during mount/recovery")\
 +	x(journal_flush_delay,		u32,				\
 +	  OPT_FS|OPT_MOUNT|OPT_RUNTIME,					\
-+	  OPT_UINT(0, U32_MAX),						\
++	  OPT_UINT(1, U32_MAX),						\
 +	  BCH_SB_JOURNAL_FLUSH_DELAY,	1000,				\
 +	  NULL,		"Delay in milliseconds before automatic journal commits")\
 +	x(journal_flush_disabled,	u8,				\
@@ -62116,8 +62130,9 @@ index 000000000000..70b507fb0de2
 +void bch2_opt_set_sb(struct bch_fs *, const struct bch_option *, u64);
 +
 +int bch2_opt_lookup(const char *);
-+int bch2_opt_parse(struct bch_fs *, const char *, const struct bch_option *,
-+		   const char *, u64 *);
++int bch2_opt_validate(const struct bch_option *, u64, struct printbuf *);
++int bch2_opt_parse(struct bch_fs *, const struct bch_option *,
++		   const char *, u64 *, struct printbuf *);
 +
 +#define OPT_SHOW_FULL_LIST	(1 << 0)
 +#define OPT_SHOW_MOUNT_STYLE	(1 << 1)
@@ -68642,10 +68657,10 @@ index 000000000000..9410b9587591
 +#endif /* _BCACHEFS_SUBVOLUME_TYPES_H */
 diff --git a/fs/bcachefs/super-io.c b/fs/bcachefs/super-io.c
 new file mode 100644
-index 000000000000..95af515a01cd
+index 000000000000..71abf87114df
 --- /dev/null
 +++ b/fs/bcachefs/super-io.c
-@@ -0,0 +1,1572 @@
+@@ -0,0 +1,1601 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -68896,17 +68911,19 @@ index 000000000000..95af515a01cd
 +	return 0;
 +}
 +
-+static int bch2_sb_validate(struct bch_sb_handle *disk_sb, struct printbuf *out)
++static int bch2_sb_validate(struct bch_sb_handle *disk_sb, struct printbuf *out,
++			    int rw)
 +{
 +	struct bch_sb *sb = disk_sb->sb;
 +	struct bch_sb_field *f;
 +	struct bch_sb_field_members *mi;
++	enum bch_opt_id opt_id;
 +	u32 version, version_min;
 +	u16 block_size;
 +	int ret;
 +
 +	version		= le16_to_cpu(sb->version);
-+	version_min	= version >= bcachefs_metadata_version_new_versioning
++	version_min	= version >= bcachefs_metadata_version_bkey_renumber
 +		? le16_to_cpu(sb->version_min)
 +		: version;
 +
@@ -68970,6 +68987,33 @@ index 000000000000..95af515a01cd
 +		pr_buf(out, "Invalid time precision: %u (min 1, max %lu)",
 +		       le32_to_cpu(sb->time_precision), NSEC_PER_SEC);
 +		return -EINVAL;
++	}
++
++	if (rw == READ) {
++		/*
++		 * Been seeing a bug where these are getting inexplicably
++		 * zeroed, so we'r now validating them, but we have to be
++		 * careful not to preven people's filesystems from mounting:
++		 */
++		if (!BCH_SB_JOURNAL_FLUSH_DELAY(sb))
++			SET_BCH_SB_JOURNAL_FLUSH_DELAY(sb, 1000);
++		if (!BCH_SB_JOURNAL_RECLAIM_DELAY(sb))
++			SET_BCH_SB_JOURNAL_RECLAIM_DELAY(sb, 1000);
++	}
++
++	for (opt_id = 0; opt_id < bch2_opts_nr; opt_id++) {
++		const struct bch_option *opt = bch2_opt_table + opt_id;
++
++		if (opt->get_sb != BCH2_NO_SB_OPT) {
++			u64 v = bch2_opt_from_sb(sb, opt_id);
++
++			pr_buf(out, "Invalid option ");
++			ret = bch2_opt_validate(opt, v, out);
++			if (ret)
++				return ret;
++
++			printbuf_reset(out);
++		}
 +	}
 +
 +	/* validate layout */
@@ -69162,7 +69206,7 @@ index 000000000000..95af515a01cd
 +	}
 +
 +	version		= le16_to_cpu(sb->sb->version);
-+	version_min	= version >= bcachefs_metadata_version_new_versioning
++	version_min	= version >= bcachefs_metadata_version_bkey_renumber
 +		? le16_to_cpu(sb->sb->version_min)
 +		: version;
 +
@@ -69323,7 +69367,7 @@ index 000000000000..95af515a01cd
 +	ret = 0;
 +	sb->have_layout = true;
 +
-+	ret = bch2_sb_validate(sb, &err);
++	ret = bch2_sb_validate(sb, &err, READ);
 +	if (ret) {
 +		printk(KERN_ERR "bcachefs (%s): error validating superblock: %s",
 +		       path, err.buf);
@@ -69439,7 +69483,7 @@ index 000000000000..95af515a01cd
 +	for_each_online_member(ca, c, i) {
 +		printbuf_reset(&err);
 +
-+		ret = bch2_sb_validate(&ca->disk_sb, &err);
++		ret = bch2_sb_validate(&ca->disk_sb, &err, WRITE);
 +		if (ret) {
 +			bch2_fs_inconsistent(c, "sb invalid before write: %s", err.buf);
 +			percpu_ref_put(&ca->io_ref);
@@ -70124,12 +70168,12 @@ index 000000000000..95af515a01cd
 +
 +	pr_buf(out, "Version:");
 +	pr_tab(out);
-+	pr_buf(out, "%u", le16_to_cpu(sb->version));
++	pr_buf(out, "%s", bch2_metadata_versions[le16_to_cpu(sb->version)]);
 +	pr_newline(out);
 +
 +	pr_buf(out, "Oldest version on disk:");
 +	pr_tab(out);
-+	pr_buf(out, "%u", le16_to_cpu(sb->version_min));
++	pr_buf(out, "%s", bch2_metadata_versions[le16_to_cpu(sb->version_min)]);
 +	pr_newline(out);
 +
 +	pr_buf(out, "Created:");
@@ -70352,7 +70396,7 @@ index 000000000000..14a25f6fe29a
 +#endif /* _BCACHEFS_SUPER_IO_H */
 diff --git a/fs/bcachefs/super.c b/fs/bcachefs/super.c
 new file mode 100644
-index 000000000000..6464e8c08ebf
+index 000000000000..4a071711d363
 --- /dev/null
 +++ b/fs/bcachefs/super.c
 @@ -0,0 +1,1966 @@
@@ -71220,7 +71264,7 @@ index 000000000000..6464e8c08ebf
 +	if (!p.pos)
 +		pr_buf(&p, "(null)");
 +
-+	bch_info(c, "mounted with opts: %s", p.buf);
++	bch_info(c, "mounted version=%s opts=%s", bch2_metadata_versions[c->sb.version], p.buf);
 +	printbuf_exit(&p);
 +}
 +
@@ -72645,7 +72689,7 @@ index 000000000000..89419fc7930d
 +#endif /* _BCACHEFS_SUPER_TYPES_H */
 diff --git a/fs/bcachefs/sysfs.c b/fs/bcachefs/sysfs.c
 new file mode 100644
-index 000000000000..d018e8bc2677
+index 000000000000..2594fec4b821
 --- /dev/null
 +++ b/fs/bcachefs/sysfs.c
 @@ -0,0 +1,889 @@
@@ -73277,7 +73321,7 @@ index 000000000000..d018e8bc2677
 +		goto err;
 +	}
 +
-+	ret = bch2_opt_parse(c, NULL, opt, strim(tmp), &v);
++	ret = bch2_opt_parse(c, opt, strim(tmp), &v, NULL);
 +	kfree(tmp);
 +
 +	if (ret < 0)
@@ -75572,10 +75616,10 @@ index 000000000000..37fc20413764
 +}
 diff --git a/fs/bcachefs/util.h b/fs/bcachefs/util.h
 new file mode 100644
-index 000000000000..d6d7f1bc16b8
+index 000000000000..aa56c94d6bd1
 --- /dev/null
 +++ b/fs/bcachefs/util.h
-@@ -0,0 +1,874 @@
+@@ -0,0 +1,875 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_UTIL_H
 +#define _BCACHEFS_UTIL_H
@@ -75860,7 +75904,8 @@ index 000000000000..d6d7f1bc16b8
 +	return buf->pos - buf->last_newline;
 +}
 +
-+void bch2_pr_buf(struct printbuf *out, const char *fmt, ...);
++void bch2_pr_buf(struct printbuf *out, const char *fmt, ...)
++	__attribute__ ((format (printf, 2, 3)));
 +
 +#define pr_buf(_out, ...) bch2_pr_buf(_out, __VA_ARGS__)
 +
@@ -76664,7 +76709,7 @@ index 000000000000..53a694d71967
 +#endif /* _VSTRUCTS_H */
 diff --git a/fs/bcachefs/xattr.c b/fs/bcachefs/xattr.c
 new file mode 100644
-index 000000000000..1c680b16b924
+index 000000000000..8d23b4c2449e
 --- /dev/null
 +++ b/fs/bcachefs/xattr.c
 @@ -0,0 +1,629 @@
@@ -77195,7 +77240,7 @@ index 000000000000..1c680b16b924
 +		memcpy(buf, value, size);
 +		buf[size] = '\0';
 +
-+		ret = bch2_opt_parse(c, NULL, opt, buf, &v);
++		ret = bch2_opt_parse(c, opt, buf, &v, NULL);
 +		kfree(buf);
 +
 +		if (ret < 0)
@@ -78409,10 +78454,10 @@ index 6e022cc712e6..7095928a5152 100644
  extern void *__vmalloc(unsigned long size, gfp_t gfp_mask) __alloc_size(1);
 diff --git a/include/trace/events/bcachefs.h b/include/trace/events/bcachefs.h
 new file mode 100644
-index 000000000000..0fd2fc11b86b
+index 000000000000..08de7e617247
 --- /dev/null
 +++ b/include/trace/events/bcachefs.h
-@@ -0,0 +1,957 @@
+@@ -0,0 +1,991 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#undef TRACE_SYSTEM
 +#define TRACE_SYSTEM bcachefs
@@ -79358,12 +79403,46 @@ index 000000000000..0fd2fc11b86b
 +		  __entry->bytes)
 +);
 +
-+DEFINE_EVENT(transaction_restart_iter,	trans_restart_key_cache_key_realloced,
++TRACE_EVENT(trans_restart_key_cache_key_realloced,
 +	TP_PROTO(const char *trans_fn,
 +		 unsigned long caller_ip,
 +		 enum btree_id btree_id,
-+		 struct bpos *pos),
-+	TP_ARGS(trans_fn, caller_ip, btree_id, pos)
++		 struct bpos *pos,
++		 unsigned old_u64s,
++		 unsigned new_u64s),
++	TP_ARGS(trans_fn, caller_ip, btree_id, pos, old_u64s, new_u64s),
++
++	TP_STRUCT__entry(
++		__array(char,			trans_fn, 24	)
++		__field(unsigned long,		caller_ip	)
++		__field(enum btree_id,		btree_id	)
++		__field(u64,			inode		)
++		__field(u64,			offset		)
++		__field(u32,			snapshot	)
++		__field(u32,			old_u64s	)
++		__field(u32,			new_u64s	)
++	),
++
++	TP_fast_assign(
++		strncpy(__entry->trans_fn, trans_fn, sizeof(__entry->trans_fn));
++		__entry->caller_ip	= caller_ip;
++		__entry->btree_id	= btree_id;
++		__entry->inode		= pos->inode;
++		__entry->offset		= pos->offset;
++		__entry->snapshot	= pos->snapshot;
++		__entry->old_u64s	= old_u64s;
++		__entry->new_u64s	= new_u64s;
++	),
++
++	TP_printk("%s %pS btree %s pos %llu:%llu:%u old_u64s %u new_u64s %u",
++		  __entry->trans_fn,
++		  (void *) __entry->caller_ip,
++		  bch2_btree_ids[__entry->btree_id],
++		  __entry->inode,
++		  __entry->offset,
++		  __entry->snapshot,
++		  __entry->old_u64s,
++		  __entry->new_u64s)
 +);
 +
 +#endif /* _TRACE_BCACHE_H */
