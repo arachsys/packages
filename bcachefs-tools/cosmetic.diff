@@ -915,10 +915,10 @@ index ef2dfa1..f8972ca 100644
  		if (ret)
  			fprintf(stderr, "resize error: %s\n", strerror(-ret));
 diff --git a/cmd_format.c b/cmd_format.c
-index 058d415..e44974c 100644
+index d25163a..4e028fa 100644
 --- a/cmd_format.c
 +++ b/cmd_format.c
-@@ -51,34 +51,34 @@ x('h',	help,			no_argument)
+@@ -52,35 +52,35 @@ x('h',	help,			no_argument)
  static void usage(void)
  {
  	puts("bcachefs format - create a new bcachefs filesystem on one or more devices\n"
@@ -952,8 +952,10 @@ index 058d415..e44974c 100644
  	     "\n"
  	     "  -f, --force\n"
 -	     "  -q, --quiet                 Only print errors\n"
+-	     "  -v, --verbose               Verbose filesystem initialization\n"
 -	     "  -h, --help                  Display this help and exit\n"
 +	     "  -q, --quiet               Only print errors\n"
++	     "  -v, --verbose             Verbose filesystem initialization\n"
 +	     "  -h, --help                Display this help and exit\n"
  	     "\n"
 -	     "Device specific options must come before corresponding devices, e.g.\n"
@@ -965,7 +967,7 @@ index 058d415..e44974c 100644
  }
  
  enum {
-@@ -136,7 +136,7 @@ int cmd_format(int argc, char *argv[])
+@@ -138,7 +138,7 @@ int cmd_format(int argc, char *argv[])
  			if (kstrtouint(optarg, 10, &v) ||
  			    !v ||
  			    v > BCH_REPLICAS_MAX)
@@ -974,7 +976,7 @@ index 058d415..e44974c 100644
  
  			opt_set(fs_opts, metadata_replicas, v);
  			opt_set(fs_opts, data_replicas, v);
-@@ -162,17 +162,17 @@ int cmd_format(int argc, char *argv[])
+@@ -164,17 +164,17 @@ int cmd_format(int argc, char *argv[])
  			break;
  		case O_fs_size:
  			if (bch2_strtoull_h(optarg, &dev_opts.size))
@@ -995,7 +997,7 @@ index 058d415..e44974c 100644
  			break;
  		case O_label:
  		case 'l':
-@@ -189,11 +189,11 @@ int cmd_format(int argc, char *argv[])
+@@ -191,11 +191,11 @@ int cmd_format(int argc, char *argv[])
  		case O_durability:
  			if (kstrtouint(optarg, 10, &dev_opts.durability) ||
  			    dev_opts.durability > BCH_REPLICAS_MAX)
@@ -1009,7 +1011,7 @@ index 058d415..e44974c 100644
  			break;
  		case O_no_initialize:
  			initialize = false;
-@@ -269,7 +269,7 @@ int cmd_format(int argc, char *argv[])
+@@ -273,7 +273,7 @@ int cmd_format(int argc, char *argv[])
  						darray_size(device_paths),
  						mount_opts);
  		if (IS_ERR(c))
@@ -1018,7 +1020,7 @@ index 058d415..e44974c 100644
  			    strerror(-PTR_ERR(c)));
  
  		bch2_fs_stop(c);
-@@ -283,13 +283,14 @@ int cmd_format(int argc, char *argv[])
+@@ -287,13 +287,14 @@ int cmd_format(int argc, char *argv[])
  static void show_super_usage(void)
  {
  	puts("bcachefs show-super \n"
@@ -1038,7 +1040,7 @@ index 058d415..e44974c 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -324,9 +325,9 @@ int cmd_show_super(int argc, char *argv[])
+@@ -328,9 +329,9 @@ int cmd_show_super(int argc, char *argv[])
  
  	char *dev = arg_pop();
  	if (!dev)
@@ -1469,7 +1471,7 @@ index f031ea1..6ce8591 100644
  	if (__builtin_constant_p(size)) {
  		if (!size)
 diff --git a/libbcachefs.c b/libbcachefs.c
-index 1c780be..5cc0296 100644
+index ceca428..41662b1 100644
 --- a/libbcachefs.c
 +++ b/libbcachefs.c
 @@ -54,7 +54,7 @@ static void init_layout(struct bch_sb_layout *l,
@@ -1572,10 +1574,10 @@ index 1c780be..5cc0296 100644
  
  
 diff --git a/libbcachefs/opts.h b/libbcachefs/opts.h
-index 70b507f..3be21db 100644
+index 8bc67d0..5695a38 100644
 --- a/libbcachefs/opts.h
 +++ b/libbcachefs/opts.h
-@@ -97,13 +97,13 @@ enum opt_type {
+@@ -98,13 +98,13 @@ enum opt_type {
  	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS,	\
  	  OPT_UINT(512, 1U << 16),					\
  	  BCH_SB_BLOCK_SIZE,		8,				\
@@ -1591,7 +1593,7 @@ index 70b507f..3be21db 100644
  	x(errors,			u8,				\
  	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
  	  OPT_STR(bch2_error_actions),					\
-@@ -134,7 +134,7 @@ enum opt_type {
+@@ -135,7 +135,7 @@ enum opt_type {
  	  OPT_HUMAN_READABLE|OPT_MUST_BE_POW_2|OPT_SB_FIELD_SECTORS|OPT_SB_FIELD_ILOG2,\
  	  OPT_UINT(4096, 2U << 20),					\
  	  BCH_SB_ENCODED_EXTENT_MAX_BITS, 64 << 10,			\
@@ -1600,7 +1602,7 @@ index 70b507f..3be21db 100644
  	x(metadata_checksum,		u8,				\
  	  OPT_FS|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,			\
  	  OPT_STR(bch2_csum_opts),					\
-@@ -164,22 +164,22 @@ enum opt_type {
+@@ -165,22 +165,22 @@ enum opt_type {
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_FN(bch2_opt_target),					\
  	  BCH_SB_METADATA_TARGET,	0,				\
@@ -1627,7 +1629,7 @@ index 70b507f..3be21db 100644
  	x(erasure_code,			u16,				\
  	  OPT_FS|OPT_INODE|OPT_FORMAT|OPT_MOUNT|OPT_RUNTIME,		\
  	  OPT_BOOL(),							\
-@@ -349,7 +349,7 @@ enum opt_type {
+@@ -350,7 +350,7 @@ enum opt_type {
  	  OPT_MOUNT,							\
  	  OPT_UINT(0, S64_MAX),						\
  	  BCH2_NO_SB_OPT,			BCH_SB_SECTOR,			\
@@ -1636,7 +1638,7 @@ index 70b507f..3be21db 100644
  	x(read_only,			u8,				\
  	  OPT_FS,							\
  	  OPT_BOOL(),							\
-@@ -385,17 +385,17 @@ enum opt_type {
+@@ -386,17 +386,17 @@ enum opt_type {
  	  OPT_DEVICE,							\
  	  OPT_UINT(0, S64_MAX),						\
  	  BCH2_NO_SB_OPT,		0,				\
