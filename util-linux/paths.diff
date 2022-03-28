@@ -38,7 +38,7 @@ index 449cbe0..c885601 100644
  			done
  			COMPREPLY=( $(compgen -W "$TERM_LIST" -- $cur) )
 diff --git a/disk-utils/fsck.8.adoc b/disk-utils/fsck.8.adoc
-index 703e989..bea40fc 100644
+index 803bd74..41a0f34 100644
 --- a/disk-utils/fsck.8.adoc
 +++ b/disk-utils/fsck.8.adoc
 @@ -20,7 +20,7 @@ fsck - check and repair a Linux filesystem
@@ -60,7 +60,7 @@ index 703e989..bea40fc 100644
  Please see the filesystem-specific checker manual pages for further details.
  
 diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index fe114d7..8b280bd 100644
+index 505952c..793f568 100644
 --- a/disk-utils/fsck.c
 +++ b/disk-utils/fsck.c
 @@ -154,7 +154,7 @@ static int kill_sent;
@@ -86,7 +86,7 @@ index 5566908..096b36c 100644
  
  #ifdef HAVE_LOCALE_H
 diff --git a/include/pathnames.h b/include/pathnames.h
-index 9be2baa..55244cd 100644
+index d86d9d5..521027d 100644
 --- a/include/pathnames.h
 +++ b/include/pathnames.h
 @@ -16,21 +16,12 @@
@@ -140,7 +140,7 @@ index 9be2baa..55244cd 100644
  
  #define _PATH_TERMCOLORS_DIRNAME "terminal-colors.d"
  #define _PATH_TERMCOLORS_DIR	"/etc/" _PATH_TERMCOLORS_DIRNAME
-@@ -78,13 +69,13 @@
+@@ -78,15 +69,15 @@
  #define _PATH_ISSUEDIR		"/etc/" _PATH_ISSUE_DIRNAME
  
  #define _PATH_OS_RELEASE_ETC	"/etc/os-release"
@@ -148,6 +148,8 @@ index 9be2baa..55244cd 100644
 +#define _PATH_OS_RELEASE_USR	"/lib/os-release"
  #define _PATH_NUMLOCK_ON	_PATH_RUNSTATEDIR "/numlock-on"
  #define _PATH_LOGINDEFS		"/etc/login.defs"
+ 
+ #define _PATH_SD_UNITSLOAD	_PATH_RUNSTATEDIR "/systemd/systemd-units-load"
  
  /* misc paths */
 -#define _PATH_WORDS             "/usr/share/dict/words"
@@ -157,7 +159,7 @@ index 9be2baa..55244cd 100644
  
  /* mount paths */
  #define _PATH_FILESYSTEMS	"/etc/filesystems"
-@@ -121,7 +112,7 @@
+@@ -127,7 +118,7 @@
  # ifdef MOUNTED					/* deprecated */
  #  define _PATH_MOUNTED		MOUNTED
  # else
@@ -166,7 +168,7 @@ index 9be2baa..55244cd 100644
  # endif
  #endif
  
-@@ -159,7 +150,7 @@
+@@ -165,7 +156,7 @@
  #ifdef CONFIG_ADJTIME_PATH
  # define _PATH_ADJTIME		CONFIG_ADJTIME_PATH
  #else
@@ -189,7 +191,7 @@ index 9bf47a5..8ef9eb6 100644
  #if defined (__alpha__) || defined (__powerpc__) || \
      defined (__ia64__) || defined (__hppa__)
 diff --git a/libblkid/src/topology/dm.c b/libblkid/src/topology/dm.c
-index 37fce6d..f3c06de 100644
+index b210a80..32eb5e5 100644
 --- a/libblkid/src/topology/dm.c
 +++ b/libblkid/src/topology/dm.c
 @@ -30,9 +30,7 @@ static int probe_dm_tp(blkid_probe pr,
@@ -204,7 +206,7 @@ index 37fce6d..f3c06de 100644
  	int dmpipe[] = { -1, -1 }, stripes, stripesize;
  	const char *cmd = NULL;
 diff --git a/libblkid/src/topology/lvm.c b/libblkid/src/topology/lvm.c
-index bd079d4..508fa25 100644
+index 6ab7a50..39cbdf2 100644
 --- a/libblkid/src/topology/lvm.c
 +++ b/libblkid/src/topology/lvm.c
 @@ -36,9 +36,7 @@ static int probe_lvm_tp(blkid_probe pr,
@@ -259,10 +261,10 @@ index 353a893..8aae7ac 100644
  	"This is similar to:\n" \
  	"\n" \
 diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
-index 8c0a20e..1c19783 100644
+index 1fc3ff2..7d88701 100644
 --- a/libmount/src/context_mount.c
 +++ b/libmount/src/context_mount.c
-@@ -1849,7 +1849,7 @@ int mnt_context_get_mount_excode(
+@@ -1919,7 +1919,7 @@ int mnt_context_get_mount_excode(
  		else if (mnt_fs_is_netfs(mnt_context_get_fs(cxt)))
  			snprintf(buf, bufsz,
  				_("bad option; for several filesystems (e.g. nfs, cifs) "
@@ -285,7 +287,7 @@ index fbe821f..d718828 100644
  #define UUIDD_OP_GETPID			0
  #define UUIDD_OP_GET_MAXOP		1
 diff --git a/login-utils/login.1.adoc b/login-utils/login.1.adoc
-index 412b85d..cc313f5 100644
+index a3404f3..7d48d24 100644
 --- a/login-utils/login.1.adoc
 +++ b/login-utils/login.1.adoc
 @@ -26,7 +26,7 @@ The user is then prompted for a password, where appropriate. Echoing is disabled
@@ -297,7 +299,7 @@ index 412b85d..cc313f5 100644
  
  The environment variable *$TERM* will be preserved, if it exists, else it will be initialized to the terminal type on your tty. Other environment variables are preserved if the *-p* option is given.
  
-@@ -63,7 +63,7 @@ Display version information and exit.
+@@ -61,7 +61,7 @@ include::man-common/help-version.adoc[]
  *MOTD_FILE* (string)::
  Specifies a ":" delimited list of "message of the day" files and directories to be displayed upon login. If the specified path is a directory then displays all files with .motd file extension in version-sort order from the directory.
  +
@@ -306,7 +308,7 @@ index 412b85d..cc313f5 100644
  +
  The directories in the *MOTD_FILE* are supported since version 2.36.
  +
-@@ -129,19 +129,19 @@ Note that logging unknown usernames may be a security issue if a user enters the
+@@ -127,19 +127,19 @@ Note that logging unknown usernames may be a security issue if a user enters the
  
  *ENV_PATH* (string)::
  
@@ -331,10 +333,10 @@ index 412b85d..cc313f5 100644
  _/etc/passwd_,
  _/etc/nologin_,
 diff --git a/login-utils/runuser.1.adoc b/login-utils/runuser.1.adoc
-index b2ba32e..4144086 100644
+index 3872d8d..ac1b060 100644
 --- a/login-utils/runuser.1.adoc
 +++ b/login-utils/runuser.1.adoc
-@@ -85,16 +85,16 @@ Display help text and exit.
+@@ -83,16 +83,16 @@ include::man-common/help-version.adoc[]
  *runuser* reads the _/etc/default/runuser_ and _/etc/login.defs_ configuration files. The following configuration items are relevant for *runuser*:
  
  *ENV_PATH* (string)::
@@ -347,7 +349,7 @@ index b2ba32e..4144086 100644
 +Defines the *PATH* environment variable for root. *ENV_SUPATH* takes precedence. The default value is _/bin_.
  
  *ALWAYS_SET_PATH* (boolean)::
- If set to _yes_ and --login and --preserve-environment were not specified *runuser* initializes *PATH*.
+ If set to _yes_ and *--login* and *--preserve-environment* were not specified *runuser* initializes *PATH*.
  
 -The environment variable *PATH* may be different on systems where _/bin_ and _/sbin_ are merged into _/usr_; this variable is also affected by the *--login* command-line option and the PAM system setting (e.g., *pam_env*(8)).
 +The environment variable *PATH* is affected by the *--login* command-line option and the PAM system setting (e.g., *pam_env*(8)).
@@ -355,7 +357,7 @@ index b2ba32e..4144086 100644
  == EXIT STATUS
  
 diff --git a/login-utils/su.1.adoc b/login-utils/su.1.adoc
-index 4ebfd2d..9df71b2 100644
+index 36a892f..13ce418 100644
 --- a/login-utils/su.1.adoc
 +++ b/login-utils/su.1.adoc
 @@ -92,16 +92,16 @@ Upon receiving either *SIGINT*, *SIGQUIT* or *SIGTERM*, *su* terminates its chil
@@ -379,7 +381,7 @@ index 4ebfd2d..9df71b2 100644
  == EXIT STATUS
  
 diff --git a/misc-utils/kill.1.adoc b/misc-utils/kill.1.adoc
-index 4e5626b..b6fe72b 100644
+index 4a6996a..c904cee 100644
 --- a/misc-utils/kill.1.adoc
 +++ b/misc-utils/kill.1.adoc
 @@ -55,7 +55,7 @@ All processes invoked using this _name_ will be signaled.
@@ -392,19 +394,19 @@ index 4e5626b..b6fe72b 100644
  Similar to *-l*, but it will print signal names and their corresponding numbers.
  *-a*, *--all*::
 diff --git a/misc-utils/look.1.adoc b/misc-utils/look.1.adoc
-index e4d798e..7c37870 100644
+index 35b8978..f34a9d5 100644
 --- a/misc-utils/look.1.adoc
 +++ b/misc-utils/look.1.adoc
 @@ -52,7 +52,7 @@ look - display lines beginning with a given string
  
- The *look* utility displays any lines in _file_ which contain _string_. As *look* performs a binary search, the lines in _file_ must be sorted (where *sort*(1) was given the same options *-d* and/or *-f* that *look* is invoked with).
+ The *look* utility displays any lines in _file_ which contain _string_ as a prefix. As *look* performs a binary search, the lines in _file_ must be sorted (where *sort*(1) was given the same options *-d* and/or *-f* that *look* is invoked with).
  
 -If _file_ is not specified, the file _/usr/share/dict/words_ is used, only alphanumeric characters are compared and the case of alphabetic characters is ignored.
 +If _file_ is not specified, the file _/lib/dict/words_ is used, only alphanumeric characters are compared and the case of alphabetic characters is ignored.
  
  == OPTIONS
  
-@@ -85,10 +85,10 @@ Path to a dictionary file. The environment variable has greater priority than th
+@@ -81,10 +81,10 @@ Path to a dictionary file. The environment variable has greater priority than th
  
  == FILES
  
@@ -433,7 +435,7 @@ index 7943945..a84a8d6 100644
  UUIDD_GROUP=uuidd
  UUIDD_DIR=@runstatedir@/uuidd
 diff --git a/misc-utils/whereis.1.adoc b/misc-utils/whereis.1.adoc
-index 8d84b20..9006b9d 100644
+index 2b07a96..0dec2d6 100644
 --- a/misc-utils/whereis.1.adoc
 +++ b/misc-utils/whereis.1.adoc
 @@ -63,10 +63,10 @@ searches for "ls" and "tr" binaries and man pages, and for "gcc" man pages only.
@@ -449,7 +451,7 @@ index 8d84b20..9006b9d 100644
  
  == OPTIONS
  
-@@ -114,9 +114,9 @@ enables debug output.
+@@ -110,9 +110,9 @@ enables debug output.
  
  == EXAMPLES
  
@@ -555,10 +557,10 @@ index db092ce..08ed311 100644
  };
  
 diff --git a/sys-utils/hwclock.8.adoc b/sys-utils/hwclock.8.adoc
-index e45d989..125d6f8 100644
+index 0d32b0a..0dda060 100644
 --- a/sys-utils/hwclock.8.adoc
 +++ b/sys-utils/hwclock.8.adoc
-@@ -330,11 +330,11 @@ A discussion on date-time configuration would be incomplete without addressing t
+@@ -331,11 +331,11 @@ A discussion on date-time configuration would be incomplete without addressing t
  //TRANSLATORS: Keep {plus} untranslated.
  There are two separate databases in the zoneinfo system, posix and 'right'. 'Right' (now named zoneinfo-leaps) includes leap seconds and posix does not. To use the 'right' database the System Clock must be set to (UTC {plus} leap seconds), which is equivalent to (TAI - 10). This allows calculating the exact number of seconds between two dates that cross a leap second epoch. The System Clock is then converted to the correct civil time, including UTC, by using the 'right' timezone files which subtract the leap seconds. Note: this configuration is considered experimental and is known to have issues.
  
@@ -573,7 +575,7 @@ index e45d989..125d6f8 100644
  
  Attempting to mix and match files from these separate databases will not work, because they each require the System Clock to use a different timescale. The zoneinfo database must be configured to use either posix or 'right', as described above, or by assigning a database path to the _TZDIR_ environment variable.
  
-@@ -364,7 +364,7 @@ The configuration and state file for hwclock.
+@@ -365,7 +365,7 @@ The configuration and state file for *hwclock*. See also *adjtime_config*(5).
  _/etc/localtime_::
  The system timezone file.
  
@@ -583,19 +585,19 @@ index e45d989..125d6f8 100644
  
  Device files *hwclock* may try for Hardware Clock access: _/dev/rtc0_ _/dev/rtc_ _/dev/misc/rtc_ _/dev/efirtc_ _/dev/misc/efirtc_
 diff --git a/sys-utils/mount.8.adoc b/sys-utils/mount.8.adoc
-index 37fb49d..ab69584 100644
+index 343d7e2..aa1ad2c 100644
 --- a/sys-utils/mount.8.adoc
 +++ b/sys-utils/mount.8.adoc
-@@ -294,7 +294,7 @@ mount --make-unbindable /foo
+@@ -296,7 +296,7 @@ mount --make-unbindable /foo
  
  The full set of mount options used by an invocation of *mount* is determined by first extracting the mount options for the filesystem from the _fstab_ table, then applying any options specified by the *-o* argument, and finally applying a *-r* or *-w* option, when present.
  
--The *mount* command does not pass all command-line options to the **/sbin/mount.**__suffix__ mount helpers. The interface between *mount* and the mount helpers is described below in the section *EXTERNAL HELPERS*.
-+The *mount* command does not pass all command-line options to the **/bin/mount.**__suffix__ mount helpers. The interface between *mount* and the mount helpers is described below in the section *EXTERNAL HELPERS*.
+-The *mount* command does not pass all command-line options to the **/sbin/mount.**__suffix__ mount helpers. The interface between *mount* and the mount helpers is described below in the *EXTERNAL HELPERS* section.
++The *mount* command does not pass all command-line options to the **/bin/mount.**__suffix__ mount helpers. The interface between *mount* and the mount helpers is described below in the *EXTERNAL HELPERS* section.
  
  Command-line options available for the *mount* command are:
  
-@@ -313,16 +313,16 @@ Remount a subtree somewhere else (so that its contents are available in both pla
+@@ -317,16 +317,16 @@ Remount a subtree somewhere else (so that its contents are available in both pla
  *-c*, *--no-canonicalize*::
  Don't canonicalize paths. The *mount* command canonicalizes all paths (from the command line or _fstab_) by default. This option can be used together with the *-f* flag for already canonicalized absolute paths. The option is designed for mount helpers which call *mount -i*. It is strongly recommended to not use this command-line option for normal mount operations.
  +
@@ -615,7 +617,7 @@ index 37fb49d..ab69584 100644
  
  *-L*, *--label* _label_::
  Mount the partition that has the specified _label_.
-@@ -401,7 +401,7 @@ mounts all from system _fstab_ to _/chroot_, all missing mountpoint are created
+@@ -408,7 +408,7 @@ mounts all from system _fstab_ to _/chroot_, all missing mountpoint are created
  *-T*, *--fstab* _path_::
  Specifies an alternative _fstab_ file. If _path_ is a directory, then the files in the directory are sorted by *strverscmp*(3); files that start with "." or without an _.fstab_ extension are ignored. The option can be specified more than once. This option is mostly designed for initramfs or chroot scripts where additional configuration is specified beyond standard system configuration.
  +
@@ -624,7 +626,7 @@ index 37fb49d..ab69584 100644
  
  *-t*, *--types* _fstype_::
  The argument following the *-t* is used to indicate the filesystem type. The filesystem types which are currently supported depend on the running kernel. See _/proc/filesystems_ and _/lib/modules/$(uname -r)/kernel/fs_ for a complete list of the filesystems. The most common are ext2, ext3, ext4, xfs, btrfs, vfat, sysfs, proc, nfs and cifs.
-@@ -421,7 +421,7 @@ The prefix *no* can be meaningful with the *-a* option. For example, the command
+@@ -428,7 +428,7 @@ The prefix *no* can be meaningful with the *-a* option. For example, the command
  +
  mounts all filesystems except those of type _msdos_ and _smbfs_.
  +
@@ -633,7 +635,7 @@ index 37fb49d..ab69584 100644
  
  *-U*, *--uuid* _uuid_::
  Mount the partition that has the specified _uuid_.
-@@ -660,7 +660,7 @@ What options are supported depends a bit on the running kernel. Further informat
+@@ -664,7 +664,7 @@ What options are supported depends a bit on the running kernel. Further informat
  Set the owner and group of the files in the filesystem (default: uid=gid=0).
  
  **ownmask=**__value__ and **othmask=**__value__::
@@ -642,7 +644,7 @@ index 37fb49d..ab69584 100644
  
  === Mount options for affs
  
-@@ -1386,9 +1386,9 @@ The command *mount -a* returns 0 (all succeeded), 32 (all failed), or 64 (some f
+@@ -1496,9 +1496,9 @@ The command *mount -a* returns 0 (all succeeded), 32 (all failed), or 64 (some f
  
  The syntax of external mount helpers is:
  
@@ -655,10 +657,10 @@ index 37fb49d..ab69584 100644
  The command *mount* does not pass the mount options *unbindable*, *runbindable*, *private*, *rprivate*, *slave*, *rslave*, *shared*, *rshared*, *auto*, *noauto*, *comment*, *x-**, *loop*, *offset* and *sizelimit* to the mount.<suffix> helpers. All other options are used in a comma-separated list as an argument to the *-o* option.
  
 diff --git a/sys-utils/pivot_root.8.adoc b/sys-utils/pivot_root.8.adoc
-index c486d34..85c9a1c 100644
+index 9eba290..e6eea36 100644
 --- a/sys-utils/pivot_root.8.adoc
 +++ b/sys-utils/pivot_root.8.adoc
-@@ -60,7 +60,7 @@ mount -o ro 10.0.0.1:/my_root /mnt
+@@ -56,7 +56,7 @@ mount -o ro 10.0.0.1:/my_root /mnt
  killall portmap   # portmap keeps old root busy
  cd /mnt
  pivot_root . old_root
@@ -668,7 +670,7 @@ index c486d34..85c9a1c 100644
  ....
  
 diff --git a/sys-utils/readprofile.8.adoc b/sys-utils/readprofile.8.adoc
-index a334d0e..1a511e5 100644
+index 62613c3..70b5dd7 100644
 --- a/sys-utils/readprofile.8.adoc
 +++ b/sys-utils/readprofile.8.adoc
 @@ -34,7 +34,7 @@ Print individual histogram-bin counts.
@@ -680,7 +682,7 @@ index a334d0e..1a511e5 100644
  
  *-M*, *--multiplier* _multiplier_::
  On some architectures it is possible to alter the frequency at which the kernel delivers profiling interrupts to each CPU. This option allows you to set the frequency, as a multiplier of the system clock frequency, HZ. Linux 2.6.16 dropped multiplier support for most systems. This option also resets the profiling buffer, and requires superuser privileges.
-@@ -62,10 +62,10 @@ Display help text and exit.
+@@ -58,10 +58,10 @@ include::man-common/help-version.adoc[]
  _/proc/profile_::
  A binary snapshot of the profiling buffer.
  
@@ -694,7 +696,7 @@ index a334d0e..1a511e5 100644
  
  == BUGS
 diff --git a/sys-utils/rtcwake.8.adoc b/sys-utils/rtcwake.8.adoc
-index 73960ec..ee42587 100644
+index 481a586..d6ea447 100644
 --- a/sys-utils/rtcwake.8.adoc
 +++ b/sys-utils/rtcwake.8.adoc
 @@ -76,7 +76,7 @@ ACPI state S3 (Suspend-to-RAM). This state offers significant power savings as e
@@ -707,7 +709,7 @@ index 73960ec..ee42587 100644
  *no*;;
  Don't suspend, only set the RTC wakeup time.
 diff --git a/sys-utils/setpriv.1.adoc b/sys-utils/setpriv.1.adoc
-index 32904dc..ae931c3 100644
+index a0ad6f8..508bdf9 100644
 --- a/sys-utils/setpriv.1.adoc
 +++ b/sys-utils/setpriv.1.adoc
 @@ -85,7 +85,7 @@ Request a particular SELinux transition (using a transition on exec, not dyntran
@@ -733,7 +735,7 @@ index 37140b3..d06ceea 100644
  *-t*, *--time* _milliseconds_::
  is the amount of time in jiffies that the driver waits if the printer doesn't take a character for the number of tries dictated by the *-c* parameter. 10 is the default value. If you want fastest possible printing, and don't care about system load, you may set this to 0. If you don't care how fast your printer goes, or are printing text on a slow printer with a buffer, then 500 (5 seconds) should be fine, and will give you very low system load. This value generally should be lower for printing graphics than text, by a factor of approximately 10, for best performance.
 diff --git a/sys-utils/umount.8.adoc b/sys-utils/umount.8.adoc
-index a76a0bb..3428fec 100644
+index 9101ed8..92c96a2 100644
 --- a/sys-utils/umount.8.adoc
 +++ b/sys-utils/umount.8.adoc
 @@ -62,7 +62,7 @@ Do not canonicalize paths. The paths canonicalization is based on *stat*(2) and
@@ -746,7 +748,7 @@ index a76a0bb..3428fec 100644
  *-d*, *--detach-loop*::
  When the unmounted device was a loop device, also free this loop device. This option is unnecessary for devices initialized by *mount*(8), in this case "autoclear" functionality is enabled by default.
 @@ -76,7 +76,7 @@ Force an unmount (in case of an unreachable NFS system).
- Note that this option does not guarantee that umount command does not hang. It's strongly recommended to use absolute paths without symlinks to avoid unwanted readlink and stat system calls on unreachable NFS in *umount*.
+ Note that this option does not guarantee that umount command does not hang. It's strongly recommended to use absolute paths without symlinks to avoid unwanted *readlink*(2) and *stat*(2) system calls on unreachable NFS in *umount*.
  
  *-i*, *--internal-only*::
 -Do not call the **/sbin/umount.**__filesystem__ helper even if it exists. By default such a helper program is called if it exists.
@@ -754,20 +756,20 @@ index a76a0bb..3428fec 100644
  
  *-l*, *--lazy*::
  Lazy unmount. Detach the filesystem from the file hierarchy now, and clean up all references to this filesystem as soon as it is not busy anymore.
-@@ -147,7 +147,7 @@ ____
+@@ -143,7 +143,7 @@ ____
  
  A **uhelper=**__something__ marker (unprivileged helper) can appear in the _/etc/mtab_ file when ordinary users need to be able to unmount a mountpoint that is not defined in _/etc/fstab_ (for example for a device that was mounted by *udisks*(1)).
  
--A **helper=**__type__ marker in the mtab file will redirect all unmount requests to the **/sbin/umount.**__type__ helper independently of UID.
-+A **helper=**__type__ marker in the mtab file will redirect all unmount requests to the **/bin/umount.**__type__ helper independently of UID.
+-A **helper=**__type__ marker in the _mtab_ file will redirect all unmount requests to the **/sbin/umount.**__type__ helper independently of UID.
++A **helper=**__type__ marker in the _mtab_ file will redirect all unmount requests to the **/bin/umount.**__type__ helper independently of UID.
  
- Note that _/etc/mtab_ is currently deprecated and *helper=* and other userspace mount options are maintained by libmount.
+ Note that _/etc/mtab_ is currently deprecated and *helper=* and other userspace mount options are maintained by *libmount*.
  
 diff --git a/term-utils/agetty.8.adoc b/term-utils/agetty.8.adoc
-index 371811a..a492fc9 100644
+index 123134e..f80ccb6 100644
 --- a/term-utils/agetty.8.adoc
 +++ b/term-utils/agetty.8.adoc
-@@ -193,25 +193,25 @@ This section shows examples for the process field of an entry in the _/etc/initt
+@@ -189,25 +189,25 @@ This section shows examples for the process field of an entry in the _/etc/initt
  For a hardwired line or a console tty:
  
  ____
@@ -797,7 +799,7 @@ index 371811a..a492fc9 100644
  ____
  
  == SECURITY NOTICE
-@@ -224,7 +224,7 @@ Some programs use "--" to indicate that the rest of the command line should not
+@@ -220,7 +220,7 @@ Some programs use "--" to indicate that the rest of the command line should not
  
  The default issue file is _/etc/issue_. If the file exists, then *agetty* also checks for _/etc/issue.d_ directory. The directory is optional extension to the default issue file and content of the directory is printed after _/etc/issue_ content. If the _/etc/issue_ does not exist, then the directory is ignored. All files *with .issue extension* from the directory are printed in version-sort order. The directory can be used to maintain 3rd-party messages independently on the primary system _/etc/issue_ file.
  
@@ -806,7 +808,7 @@ index 371811a..a492fc9 100644
  
  The default path maybe overridden by *--issue-file* option. In this case specified path has to be file or directory and all the default issue file and directory locations are ignored.
  
-@@ -253,7 +253,7 @@ s::
+@@ -249,7 +249,7 @@ s::
  Insert the system name (the name of the operating system). Same as 'uname -s'. See also the \S escape code.
  
  S or S{VARIABLE}::
@@ -815,7 +817,7 @@ index 371811a..a492fc9 100644
  
  l::
  Insert the name of the current tty line.
-@@ -305,7 +305,7 @@ the system status file.
+@@ -301,7 +301,7 @@ the system status file.
  _/etc/issue_::
  printed before the login prompt.
  

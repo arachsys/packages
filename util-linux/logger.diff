@@ -1,8 +1,8 @@
 diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index d51cd59..daeaf2a 100644
+index 50ae211..de48a86 100644
 --- a/misc-utils/logger.c
 +++ b/misc-utils/logger.c
-@@ -420,7 +420,7 @@ static char const *rfc3164_current_time(void)
+@@ -412,7 +412,7 @@ static char const *rfc3164_current_time(void)
  	};
  
  	logger_gettimeofday(&tv, NULL);
