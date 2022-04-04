@@ -5,14 +5,14 @@ check() {
   match llvm 14.0.0 'llvm-project-([0-9.]+)\.src\.tar'
 
   url https://github.com/Kitware/CMake/releases
-  match cmake 3.22.3 'cmake-([0-9.]+)\.tar'
+  match cmake 3.23.0 'cmake-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-project-14.0.0.tar.xz \
     https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/llvm-project-14.0.0.src.tar.xz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.22.3/cmake-3.22.3.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.23.0/cmake-3.23.0.tar.gz
   apply aarch64.diff
   apply cmake.diff
   apply config.diff
@@ -21,7 +21,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 68cba4f670c940a7be1c37a39816d494b282e551e4b191c3930908e2b3bfea69
+  tree 4d2e7fde4bd8b1f7273e140746696be11efa73dad853fea3c8772132b52f6db5
 }
 
 build() {
@@ -71,6 +71,7 @@ build() {
     -DLIBCXX_HAS_MUSL_LIBC=Yes \
     -DLIBCXX_USE_COMPILER_RT=Yes \
     -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
+    -DCLANG_DEFAULT_PIE_ON_LINUX=Yes \
     -DCLANG_DEFAULT_RTLIB=compiler-rt \
     -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
     -DLLD_SYMLINKS_TO_CREATE="ld;wasm-ld" \
