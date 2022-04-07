@@ -40,10 +40,10 @@ index 5038a967d..5ac2ce0aa 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index 043b38ece..05017415b 100644
+index f05d1dcf4..ea8f42a15 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -198,38 +198,7 @@ fn copy_self_contained_objects(
+@@ -198,40 +198,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -76,18 +76,20 @@ index 043b38ece..05017415b 100644
 -            target_deps.push((target, DependencyType::TargetSelfContained));
 -        }
 -
--        let libunwind_path = copy_llvm_libunwind(builder, target, &libdir_self_contained);
--        target_deps.push((libunwind_path, DependencyType::TargetSelfContained));
+-        if !target.starts_with("s390x") {
+-            let libunwind_path = copy_llvm_libunwind(builder, target, &libdir_self_contained);
+-            target_deps.push((libunwind_path, DependencyType::TargetSelfContained));
+-        }
 -    } else if target.ends_with("-wasi") {
 +    if target.ends_with("-wasi") {
          let srcdir = builder
              .wasi_root(target)
              .unwrap_or_else(|| {
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 7d9b3da48..547d08370 100644
+index f5ae8103c..a771597a3 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -998,7 +998,7 @@ impl Step for Cargo {
+@@ -981,7 +981,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -97,10 +99,10 @@ index 7d9b3da48..547d08370 100644
          }
  
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 8569089f7..0e071274f 100644
+index 3130dcc27..abd41ad21 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
-@@ -272,6 +272,7 @@ pub struct Build {
+@@ -271,6 +271,7 @@ pub struct Build {
          RefCell<HashMap<TargetSelection, HashMap<String, (&'static str, PathBuf, Vec<String>)>>>,
  }
  
