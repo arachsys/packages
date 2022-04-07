@@ -1,8 +1,8 @@
 diff --git a/ldso/dynlink.c b/ldso/dynlink.c
-index afec985..fa1ad04 100644
+index 6cb6762..97215a4 100644
 --- a/ldso/dynlink.c
 +++ b/ldso/dynlink.c
-@@ -1779,12 +1779,10 @@ void __dls3(size_t *sp, size_t *auxv)
+@@ -1818,12 +1818,10 @@ void __dls3(size_t *sp, size_t *auxv)
  		}
  		argv[-1] = (void *)(argc - (argv-argv_orig));
  		if (!argv[0]) {

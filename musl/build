@@ -1,14 +1,13 @@
 check() {
   url https://musl.libc.org/releases/
-  match version 1.2.2 'musl-([0-9.]+)\.tar'
+  match version 1.2.3 'musl-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://musl.libc.org/releases/musl-1.2.2.tar.gz
+  unpack https://musl.libc.org/releases/musl-1.2.3.tar.gz
   apply paths.diff
-  apply strerror.diff
   apply usage.diff
-  tree 7fe8b8add3b110debb0b22870a3a0c89c6b231342cbae45f8d082bc7447305e9
+  tree 24564380f0e0047c39690eaf7dec67a7bc64fb639643470d22b37d6bcd7ef327
 }
 
 build() {

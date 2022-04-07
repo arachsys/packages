@@ -1,5 +1,5 @@
 diff --git a/include/paths.h b/include/paths.h
-index 67de6b3..760ba6b 100644
+index 67de6b3..9c37621 100644
 --- a/include/paths.h
 +++ b/include/paths.h
 @@ -1,8 +1,8 @@
@@ -47,10 +47,10 @@ index 67de6b3..760ba6b 100644
  
  #endif
 diff --git a/ldso/dynlink.c b/ldso/dynlink.c
-index fa1ad04..5e92b90 100644
+index 5b9c8be..6cb6762 100644
 --- a/ldso/dynlink.c
 +++ b/ldso/dynlink.c
-@@ -1074,7 +1074,7 @@ static struct dso *load_library(const char *name, struct dso *needed_by)
+@@ -1095,7 +1095,7 @@ static struct dso *load_library(const char *name, struct dso *needed_by)
  					sys_path = "";
  				}
  			}
@@ -73,7 +73,7 @@ index 79784bd..ea9e9ee 100644
  	return buf;
  }
 diff --git a/src/passwd/nscd_query.c b/src/passwd/nscd_query.c
-index d38e371..c610863 100644
+index dc3406b..c41e01d 100644
 --- a/src/passwd/nscd_query.c
 +++ b/src/passwd/nscd_query.c
 @@ -12,7 +12,7 @@ static const struct {
@@ -86,10 +86,10 @@ index d38e371..c610863 100644
  
  FILE *__nscd_query(int32_t req, const char *key, int32_t *buf, size_t len, int *swap)
 diff --git a/src/thread/sem_open.c b/src/thread/sem_open.c
-index de8555c..966b25f 100644
+index 0ad29de..d7ab90f 100644
 --- a/src/thread/sem_open.c
 +++ b/src/thread/sem_open.c
-@@ -108,7 +108,7 @@ sem_t *sem_open(const char *name, int flags, ...)
+@@ -115,7 +115,7 @@ sem_t *sem_open(const char *name, int flags, ...)
  		/* Create a temp file with the new semaphore contents
  		 * and attempt to atomically link it as the new name */
  		clock_gettime(CLOCK_REALTIME, &ts);
