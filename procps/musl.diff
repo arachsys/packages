@@ -1,31 +1,32 @@
-diff --git a/proc/escape.c b/proc/escape.c
-index 2e8fb7d..ff3a934 100644
---- a/proc/escape.c
-+++ b/proc/escape.c
-@@ -25,13 +25,11 @@
- #include "escape.h"
- #include "readproc.h"
- 
--#if (__GNU_LIBRARY__ >= 6) && (!defined(__UCLIBC__) || defined(__UCLIBC_HAS_WCHAR__))
--# include <wchar.h>
--# include <wctype.h>
--# include <stdlib.h>  /* MB_CUR_MAX */
--# include <ctype.h>
--# include <langinfo.h>
--#endif
-+#include <wchar.h>
-+#include <wctype.h>
-+#include <stdlib.h>  /* MB_CUR_MAX */
-+#include <ctype.h>
-+#include <langinfo.h>
- 
- #define SECURE_ESCAPE_ARGS(dst, bytes, cells) do { \
-   if ((bytes) <= 0) return 0; \
+diff --git a/proc/readproc.c b/proc/readproc.c
+index a956f43..0ea361a 100644
+--- a/proc/readproc.c
++++ b/proc/readproc.c
+@@ -32,6 +32,7 @@
+ #include <sys/stat.h>
+ #include <limits.h>
+ #include <stdint.h>
++#include <stddef.h>
+ #ifdef WITH_SYSTEMD
+ #include <systemd/sd-login.h>
+ #endif
+@@ -655,9 +656,9 @@ static void smaps2proc (const char *s, proc_t *restrict P) {
+     // 1st proc_t data field
+   #define fZERO tid
+     // a smaptab entry generator
+-  #define mkENT(F) { #F ":", -1, (int)((void*)&q->smap_ ## F - (void*)&q->fZERO) }
++  #define mkENT(F) { #F ":", -1, (int) offsetof(proc_t, smap_ ## F) }
+     // make a target field
+-  #define mkOBJ(X) ( (unsigned long *)((void *)&P->fZERO + smaptab[X].offs) )
++  #define mkOBJ(X) ( (unsigned long *)((void *)&P + smaptab[X].offs) )
+     static const proc_t *q;
+     static struct {
+         const char *item;
 diff --git a/w.c b/w.c
-index 9d07ac9..c1fda14 100644
+index 612d41c..8dd6d89 100644
 --- a/w.c
 +++ b/w.c
-@@ -55,11 +55,7 @@
+@@ -43,11 +43,7 @@
  #include <termios.h>
  #include <time.h>
  #include <unistd.h>
@@ -37,4 +38,20 @@ index 9d07ac9..c1fda14 100644
 +#include <utmp.h>
  #include <arpa/inet.h>
  
- static int ignoreuser = 0;	/* for '-u' */
+ #include "c.h"
+diff --git a/watch.c b/watch.c
+index 0ba6b3f..fd51ce6 100644
+--- a/watch.c
++++ b/watch.c
+@@ -52,10 +52,8 @@
+ # define _XOPEN_SOURCE_EXTENDED 1
+ # include <wchar.h>
+ # include <wctype.h>
+-# include <ncursesw/ncurses.h>
+-#else
+-# include <ncurses.h>
+ #endif	/* WITH_WATCH8BIT */
++#include <ncurses.h>
+ 
+ #ifdef FORCE_8BIT
+ # undef isprint
