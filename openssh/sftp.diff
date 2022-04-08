@@ -1,10 +1,10 @@
 diff --git a/sftp.c b/sftp.c
-index 261d220..3eb7e59 100644
+index 4efc025..46a1982 100644
 --- a/sftp.c
 +++ b/sftp.c
-@@ -2076,8 +2076,10 @@
- 		signal(SIGINT, SIG_IGN);
- 
+@@ -2228,8 +2228,10 @@ interactive_loop(struct sftp_conn *conn, char *file1, char *file2)
+ 			break;
+ 		}
  		if (el == NULL) {
 -			if (interactive)
 +			if (interactive) {
