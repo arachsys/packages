@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://www.libarchive.org/downloads/
-  match version 3.5.2 'libarchive-([0-9.]+)\.tar'
+  match version 3.6.1 'libarchive-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.libarchive.org/downloads/libarchive-3.5.2.tar.xz
-  tree 4fd1c29933a110385bbf009aa74b1dd04d81c0c6a7b3ad204d7396199ce637cb
+  unpack https://www.libarchive.org/downloads/libarchive-3.6.1.tar.xz
+  tree f6c45221417e84e00a28fcd0133ac19028113214c15f5b8b76eb4bd8b5a3be54
 }
 
 config-extra --disable-acl --enable-bsd{cat,cpio,tar}=dynamic \
