@@ -3,16 +3,16 @@ require libffi
 
 check() {
   url https://www.ruby-lang.org/en/downloads/
-  match version 3.1.1 'ruby-([0-9.]+)\.tar'
+  match version 3.1.2 'ruby-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.1.tar.gz
+  unpack https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.2.tar.gz
   apply extconf.diff
   apply irb.diff
   apply paths.diff
   apply plain.diff
-  tree 2b2900c2fb56f38165fa2018c74bab33de9f5f3fd4e80cf682608d31fa863b2f
+  tree f70b887e4b94ca9800c51bd32dfcae2cb52f511660c3d954d81d483326393c89
 }
 
 config-extra --disable-install-doc  --disable-rpath --enable-shared \
