@@ -2,15 +2,14 @@ require go
 
 check() {
   url https://github.com/tomnomnom/gron/releases
-  match version 0.6.1 'tags/v([0-9.]+)\.tar'
+  match version 0.7.1 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack gron-0.6.1.tar.gz \
-    https://github.com/tomnomnom/gron/archive/refs/tags/v0.6.1.tar.gz
-  apply mod.diff
+  unpack gron-0.7.1.tar.gz \
+    https://github.com/tomnomnom/gron/archive/refs/tags/v0.7.1.tar.gz
   GOPATH=/tmp/go go mod vendor
-  tree aea7e54505b7710577644ab3c695833b3a60fbcf5c822ac59ee1df1f23878905
+  tree 722086ba30e58153f4d1b367ce121363090ccd2c6cedccd488cf4b9445b1b382
 }
 
 build() {
