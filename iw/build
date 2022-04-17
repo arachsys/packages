@@ -5,15 +5,15 @@ check() {
   match iw 5.16 'iw-([0-9.]+)\.tar'
 
   url https://github.com/thom311/libnl/releases
-  match libnl 3.5.0 'libnl-([0-9.]+)\.tar'
+  match libnl 3.6.0 'libnl-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-5.16.tar.xz
   unpack -d libnl \
-    https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz
+    https://github.com/thom311/libnl/releases/download/libnl3_6_0/libnl-3.6.0.tar.gz
   apply paths.diff
-  tree 82c0d8aba88c7141e3253888f02c96e8eba0d637be94923854eef57c7e82082d
+  tree d3d5c2b0defd32b7d1498c3b87b8d95919bc139742ac6a7591ff3a25105da40e
 }
 
 build() {
