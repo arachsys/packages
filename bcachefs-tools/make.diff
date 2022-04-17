@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index a0196ec..7a06bee 100644
+index bed43bd..2960594 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -1,5 +1,4 @@
@@ -24,7 +24,7 @@ index a0196ec..7a06bee 100644
  CFLAGS+=$(call cc-disable-warning, shift-overflow)
  CFLAGS+=$(call cc-disable-warning, enum-conversion)
  
--PKGCONFIG_LIBS="blkid uuid liburcu libsodium zlib liblz4 libzstd libudev"
+-PKGCONFIG_LIBS="blkid uuid liburcu libsodium zlib liblz4 libzstd libudev libkeyutils"
  ifdef BCACHEFS_FUSE
 -	PKGCONFIG_LIBS+="fuse3 >= 3.7"
 +	LDLIBS+=-lfuse
@@ -49,7 +49,7 @@ index a0196ec..7a06bee 100644
  
  ifeq ($(PREFIX),/usr)
 diff --git a/tools-util.c b/tools-util.c
-index 99e2b73..df58bea 100644
+index bcd5b87..9711c10 100644
 --- a/tools-util.c
 +++ b/tools-util.c
 @@ -14,7 +14,7 @@
