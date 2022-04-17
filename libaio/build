@@ -1,11 +1,11 @@
 check() {
   url https://releases.pagure.org/libaio/
-  match version 0.3.112 'libaio-([0-9.]+)\.tar'
+  match version 0.3.113 'libaio-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://releases.pagure.org/libaio/libaio-0.3.112.tar.gz
-  tree 777c1b35b378cae5bf81d067e7d807cc6231a56737294bfa935bc03d4d3d361b
+  unpack https://releases.pagure.org/libaio/libaio-0.3.113.tar.gz
+  tree 722987fd11d0540030dce19f1f8d4f8601affa7a6140a9b03124c4c2ffd060dd
 }
 
 build() {
