@@ -2,13 +2,13 @@ mode autotools
 
 check() {
   url https://download.samba.org/pub/rsync/
-  match version 3.2.3 'rsync-([0-9.]+)\.tar'
+  match version 3.2.4 'rsync-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://download.samba.org/pub/rsync/rsync-3.2.3.tar.gz
+  unpack https://download.samba.org/pub/rsync/rsync-3.2.4.tar.gz
   apply paths.diff
-  tree 9609210e692a5c07b6460171a7bb9fe225cd81d0df4d6504cde58c1a134cea92
+  tree 3c935d16c514575c42433f80e719fbeaa10f81086917d407b09b53801374fbad
 }
 
 config-extra --disable-lz4 --disable-xxhash --with-included-popt
