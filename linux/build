@@ -3,7 +3,7 @@ check() {
   match linux 5.17.3 'linux-([0-9.]+)\.tar'
 
   url https://api.github.com/repos/koverstreet/bcachefs/branches/master
-  match 'bcachefs snapshot' 20220417 \
+  match 'bcachefs snapshot' 20220418 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
@@ -22,8 +22,8 @@ prepare() {
   tree 5ca05ec2af8b7e3d9ae6a8fa25c62834f2e97cfbbce2a6d8324c7629a125fc75
 
   if enabled bcachefs; then
-    apply bcachefs-20220417.diff
-    tree 57d26087b0e7d501a44e8d00bd950459200bc3564ad64741028007d263333b7e
+    apply bcachefs-20220418.diff
+    tree f9105db92cab01d82643dc6f22155d3b1316dc22a14b5d1d066daed70e9c0741
   fi
 }
 
