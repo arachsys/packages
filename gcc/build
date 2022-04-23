@@ -3,7 +3,7 @@ enabled bootstrap || require gcc
 
 check() {
   url https://ftp.gnu.org/gnu/gcc/
-  match gcc 11.2.0 'gcc-([0-9.]+)/'
+  match gcc 11.3.0 'gcc-([0-9.]+)/'
 
   url https://ftp.gnu.org/gnu/binutils/
   match binutils 2.36.1 'binutils-(2\.36\.[0-9.]+)\.tar'
@@ -23,7 +23,7 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.xz
-  unpack https://ftp.gnu.org/gnu/gcc/gcc-11.2.0/gcc-11.2.0.tar.xz
+  unpack https://ftp.gnu.org/gnu/gcc/gcc-11.3.0/gcc-11.3.0.tar.xz
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.xz
   unpack -d isl https://libisl.sourceforge.io/isl-0.24.tar.xz
   unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz
@@ -36,7 +36,7 @@ prepare() {
   apply pure64.diff
   apply rpath.diff
 
-  tree 8482adb28b73649ec2e445db8217273a1d9d5b815a32c96e1cedbb64611492af
+  tree 40066625c69c9d2a9815068f6fba0724982cbe98667a2883631d35ebc556990f
 }
 
 pre-config() {
