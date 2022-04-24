@@ -8,7 +8,8 @@ check() {
 prepare() {
   unpack libevent-2.1.12.tar.gz \
     https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
-  tree abfcd9d7c2f6a107ba06b69cb49818f19c53a09baf263cbd723745d70e16811a
+  apply libressl.diff
+  tree 3be65d98e315f36d87bdd5f70ccadab7aab52cd76591ca6dc441dab87f581d74
 }
 
 pre-config() {

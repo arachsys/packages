@@ -13,8 +13,8 @@ prepare() {
   apply system.diff
   apply target.diff
   sed -i 's/\("files":{\)[^}]*/\1/' \
-    vendor/{curl-sys,openssl,openssl-sys}/.cargo-checksum.json
-  tree 7369d8a6d1b03e47cf23bca12ed30324cd1436eaa3a78779b0b29fe5414479ca
+    vendor/{curl-sys,libssh2-sys,openssl,openssl-sys}/.cargo-checksum.json
+  tree c1f30e54bbdcaaa610791a0b7c5a8ec20bd94887dab5a84599a6fd1e769876c6
 }
 
 build() {

@@ -1,13 +1,13 @@
 mode autotools
 
 check() {
-  url https://www.libressl.org/
-  match version 3.4.3 'latest stable release is ([0-9.]*[0-9])'
+  url https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/
+  match version 3.5.2 'libressl-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.4.3.tar.gz
-  tree 670265fcc910939ba179e8665c6051e6a241a966be97c18375f0a058f691bebd
+  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.5.2.tar.gz
+  tree dee27f5e45b9947db5aede108446ba1dbfe9a3b9d37b80d41cc84956247cdece
 }
 
 config-extra --enable-nc

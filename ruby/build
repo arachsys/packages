@@ -10,9 +10,10 @@ prepare() {
   unpack https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.2.tar.gz
   apply extconf.diff
   apply irb.diff
+  apply libressl.diff
   apply paths.diff
   apply plain.diff
-  tree f70b887e4b94ca9800c51bd32dfcae2cb52f511660c3d954d81d483326393c89
+  tree 2f12da82a7b47ff37ff6fc4e444324889a908af00d217a19e6894c32c88c663d
 }
 
 config-extra --disable-install-doc  --disable-rpath --enable-shared \

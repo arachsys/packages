@@ -6,7 +6,8 @@ check() {
 prepare() {
   unpack https://www.nlnetlabs.nl/downloads/ldns/ldns-1.8.1.tar.gz
   fetch https://raw.githubusercontent.com/freebsd/freebsd-src/1c4f5adba92947a5faa1836449a621502a1678b8/contrib/ldns-host/ldns-host.c >ldns-host.c
-  tree 1409a0a6c6f54684234f14e57f963a5becbff71d00453737ff4994630ac1c669
+  apply libressl.diff
+  tree 5187d2dbbdc20465feb2a06e789404f1f04665dcc03974f63193902e1c6c818f
 }
 
 build() {
