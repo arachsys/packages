@@ -18321,10 +18321,10 @@ index 000000000000..8af853642123
 +#endif /* _BCACHEFS_BTREE_IO_H */
 diff --git a/fs/bcachefs/btree_iter.c b/fs/bcachefs/btree_iter.c
 new file mode 100644
-index 000000000000..e19a9699318c
+index 000000000000..e7541af9518f
 --- /dev/null
 +++ b/fs/bcachefs/btree_iter.c
-@@ -0,0 +1,3452 @@
+@@ -0,0 +1,3455 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -21251,6 +21251,9 @@ index 000000000000..e19a9699318c
 +	struct btree_path *path, *prev = NULL;
 +	unsigned i;
 +
++	if (!bch2_debug_check_iterators)
++		return;
++
 +	trans_for_each_path_inorder(trans, path, i) {
 +		if (prev && btree_path_cmp(prev, path) > 0) {
 +			bch2_dump_trans_paths_updates(trans);
@@ -24092,7 +24095,7 @@ index 000000000000..a40f3460fd62
 +#endif /* _BCACHEFS_BTREE_UPDATE_H */
 diff --git a/fs/bcachefs/btree_update_interior.c b/fs/bcachefs/btree_update_interior.c
 new file mode 100644
-index 000000000000..b51f2de5f931
+index 000000000000..686e51dfb487
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_interior.c
 @@ -0,0 +1,2253 @@
@@ -24627,7 +24630,7 @@ index 000000000000..b51f2de5f931
 +	struct bkey_i *k;
 +	int ret;
 +
-+	ret = darray_make_room(trans->extra_journal_entries, as->journal_u64s);
++	ret = darray_make_room(&trans->extra_journal_entries, as->journal_u64s);
 +	if (ret)
 +		return ret;
 +
@@ -26055,7 +26058,7 @@ index 000000000000..b51f2de5f931
 +	} else {
 +		BUG_ON(btree_node_root(c, b) != b);
 +
-+		ret = darray_make_room(trans->extra_journal_entries,
++		ret = darray_make_room(&trans->extra_journal_entries,
 +				       jset_u64s(new_key->k.u64s));
 +		if (ret)
 +			return ret;
@@ -26678,7 +26681,7 @@ index 000000000000..adfc6c24a7a4
 +#endif /* _BCACHEFS_BTREE_UPDATE_INTERIOR_H */
 diff --git a/fs/bcachefs/btree_update_leaf.c b/fs/bcachefs/btree_update_leaf.c
 new file mode 100644
-index 000000000000..2b4d080323d1
+index 000000000000..58bb687a3a8f
 --- /dev/null
 +++ b/fs/bcachefs/btree_update_leaf.c
 @@ -0,0 +1,1778 @@
@@ -28441,7 +28444,7 @@ index 000000000000..2b4d080323d1
 +	struct jset_entry_log *l;
 +	int ret;
 +
-+	ret = darray_make_room(trans->extra_journal_entries, jset_u64s(u64s));
++	ret = darray_make_room(&trans->extra_journal_entries, jset_u64s(u64s));
 +	if (ret)
 +		return ret;
 +
@@ -33948,7 +33951,7 @@ index 000000000000..1f3207a5ee16
 +#endif // _BCACHEFS_COUNTERS_H
 diff --git a/fs/bcachefs/darray.h b/fs/bcachefs/darray.h
 new file mode 100644
-index 000000000000..745b1cdb0d17
+index 000000000000..049e1d1e1342
 --- /dev/null
 +++ b/fs/bcachefs/darray.h
 @@ -0,0 +1,76 @@
@@ -33990,7 +33993,7 @@ index 000000000000..745b1cdb0d17
 +}
 +
 +#define darray_make_room(_d, _more)					\
-+	__darray_make_room((darray_void *) &(_d), sizeof((_d).data[0]), (_more))
++	__darray_make_room((darray_void *) (_d), sizeof((_d)->data[0]), (_more))
 +
 +#define darray_top(_d)		((_d).data[(_d).nr])
 +
@@ -33999,7 +34002,7 @@ index 000000000000..745b1cdb0d17
 +	int _ret = darray_make_room((_d), 1);				\
 +									\
 +	if (!_ret)							\
-+		(_d).data[(_d).nr++] = (_item);				\
++		(_d)->data[(_d)->nr++] = (_item);			\
 +	_ret;								\
 +})
 +
@@ -34008,7 +34011,7 @@ index 000000000000..745b1cdb0d17
 +	int _ret = darray_make_room((_d), 1);				\
 +									\
 +	if (!_ret)							\
-+		array_insert_item((_d).data, (_d).nr, (_pos), (_item));	\
++		array_insert_item((_d)->data, (_d)->nr, (_pos), (_item));\
 +	_ret;								\
 +})
 +
@@ -34017,13 +34020,13 @@ index 000000000000..745b1cdb0d17
 +
 +#define darray_init(_d)							\
 +do {									\
-+	(_d).data = NULL;						\
-+	(_d).nr = (_d).size = 0;					\
++	(_d)->data = NULL;						\
++	(_d)->nr = (_d)->size = 0;					\
 +} while (0)
 +
 +#define darray_exit(_d)							\
 +do {									\
-+	kfree((_d).data);						\
++	kfree((_d)->data);						\
 +	darray_init(_d);						\
 +} while (0)
 +
@@ -38601,10 +38604,10 @@ index 000000000000..6f5cf449361a
 +#endif /* _BCACHEFS_EXTENT_UPDATE_H */
 diff --git a/fs/bcachefs/extents.c b/fs/bcachefs/extents.c
 new file mode 100644
-index 000000000000..dffbcffa923d
+index 000000000000..2e541a4f55ac
 --- /dev/null
 +++ b/fs/bcachefs/extents.c
-@@ -0,0 +1,1288 @@
+@@ -0,0 +1,1300 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2010 Kent Overstreet <kent.overstreet@gmail.com>
@@ -38915,8 +38918,20 @@ index 000000000000..dffbcffa923d
 +			    lp.crc.uncompressed_size +
 +			    rp.crc.uncompressed_size > (c->opts.encoded_extent_max >> 9))
 +				return false;
++		}
 +
-+			if (lp.crc.uncompressed_size + rp.crc.uncompressed_size >
++		en_l = extent_entry_next(en_l);
++		en_r = extent_entry_next(en_r);
++	}
++
++	en_l = l_ptrs.start;
++	en_r = r_ptrs.start;
++	while (en_l < l_ptrs.end && en_r < r_ptrs.end) {
++		if (extent_entry_is_crc(en_l)) {
++			struct bch_extent_crc_unpacked crc_l = bch2_extent_crc_unpack(l.k, entry_to_crc(en_l));
++			struct bch_extent_crc_unpacked crc_r = bch2_extent_crc_unpack(r.k, entry_to_crc(en_r));
++
++			if (crc_l.uncompressed_size + crc_r.uncompressed_size >
 +			    bch2_crc_field_size_max[extent_entry_type(en_l)])
 +				return false;
 +		}
@@ -47951,7 +47966,7 @@ index 000000000000..9f4b57e30e2a
 +#endif /* _BCACHEFS_FS_H */
 diff --git a/fs/bcachefs/fsck.c b/fs/bcachefs/fsck.c
 new file mode 100644
-index 000000000000..abe09f062eee
+index 000000000000..f1abec95a740
 --- /dev/null
 +++ b/fs/bcachefs/fsck.c
 @@ -0,0 +1,2404 @@
@@ -48517,7 +48532,7 @@ index 000000000000..abe09f062eee
 +
 +static void inode_walker_exit(struct inode_walker *w)
 +{
-+	darray_exit(w->inodes);
++	darray_exit(&w->inodes);
 +}
 +
 +static struct inode_walker inode_walker_init(void)
@@ -48532,7 +48547,7 @@ index 000000000000..abe09f062eee
 +
 +	BUG_ON(bch2_inode_unpack(inode, &u));
 +
-+	return darray_push(w->inodes, ((struct inode_walker_entry) {
++	return darray_push(&w->inodes, ((struct inode_walker_entry) {
 +		.inode		= u,
 +		.snapshot	= snapshot_t(c, inode.k->p.snapshot)->equiv,
 +	}));
@@ -48585,7 +48600,7 @@ index 000000000000..abe09f062eee
 +		while (i && w->inodes.data[i - 1].snapshot > pos.snapshot)
 +			--i;
 +
-+		ret = darray_insert_item(w->inodes, i, w->inodes.data[ancestor_pos]);
++		ret = darray_insert_item(&w->inodes, i, w->inodes.data[ancestor_pos]);
 +		if (ret)
 +			return ret;
 +
@@ -49836,7 +49851,7 @@ index 000000000000..abe09f062eee
 +static int path_down(struct bch_fs *c, pathbuf *p,
 +		     u64 inum, u32 snapshot)
 +{
-+	int ret = darray_push(*p, ((struct pathbuf_entry) {
++	int ret = darray_push(p, ((struct pathbuf_entry) {
 +		.inum		= inum,
 +		.snapshot	= snapshot,
 +	}));
@@ -49994,7 +50009,7 @@ index 000000000000..abe09f062eee
 +
 +	BUG_ON(ret == -EINTR);
 +
-+	darray_exit(path);
++	darray_exit(&path);
 +
 +	bch2_trans_exit(&trans);
 +	return ret;
@@ -55555,10 +55570,10 @@ index 000000000000..4c5b67599007
 +}
 diff --git a/fs/bcachefs/journal.h b/fs/bcachefs/journal.h
 new file mode 100644
-index 000000000000..7fee0c05aa7d
+index 000000000000..59453dcfa4e9
 --- /dev/null
 +++ b/fs/bcachefs/journal.h
-@@ -0,0 +1,522 @@
+@@ -0,0 +1,520 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_JOURNAL_H
 +#define _BCACHEFS_JOURNAL_H
@@ -55706,8 +55721,6 @@ index 000000000000..7fee0c05aa7d
 +{
 +	return j->seq_ondisk + 1;
 +}
-+
-+void bch2_journal_set_has_inum(struct journal *, u64, u64);
 +
 +static inline int journal_state_count(union journal_res_state s, int idx)
 +{
@@ -60424,7 +60437,7 @@ index 000000000000..027efaa0d575
 +#endif /* _BCACHEFS_MIGRATE_H */
 diff --git a/fs/bcachefs/move.c b/fs/bcachefs/move.c
 new file mode 100644
-index 000000000000..15d80a43659c
+index 000000000000..f1fb2ab513df
 --- /dev/null
 +++ b/fs/bcachefs/move.c
 @@ -0,0 +1,1129 @@
@@ -60555,7 +60568,7 @@ index 000000000000..15d80a43659c
 +		}
 +	}
 +	bch2_trans_iter_exit(trans, &iter);
-+	darray_exit(s.ids);
++	darray_exit(&s.ids);
 +
 +	return ret;
 +}
@@ -68589,7 +68602,7 @@ index 000000000000..591bbb9f8beb
 +#endif /* _BCACHEFS_STR_HASH_H */
 diff --git a/fs/bcachefs/subvolume.c b/fs/bcachefs/subvolume.c
 new file mode 100644
-index 000000000000..63a57399cb7c
+index 000000000000..81bdcb7795ae
 --- /dev/null
 +++ b/fs/bcachefs/subvolume.c
 @@ -0,0 +1,1095 @@
@@ -69160,7 +69173,7 @@ index 000000000000..63a57399cb7c
 +{
 +	BUG_ON(snapshot_list_has_id(s, id));
 +
-+	return darray_push(*s, id);
++	return darray_push(s, id);
 +}
 +
 +static int bch2_snapshot_delete_keys_btree(struct btree_trans *trans,
@@ -69217,7 +69230,7 @@ index 000000000000..63a57399cb7c
 +	}
 +	bch2_trans_iter_exit(trans, &iter);
 +
-+	darray_exit(equiv_seen);
++	darray_exit(&equiv_seen);
 +
 +	return ret;
 +}
@@ -69317,7 +69330,7 @@ index 000000000000..63a57399cb7c
 +		}
 +	}
 +err:
-+	darray_exit(deleted);
++	darray_exit(&deleted);
 +	bch2_trans_exit(&trans);
 +	percpu_ref_put(&c->writes);
 +}
@@ -69483,7 +69496,7 @@ index 000000000000..63a57399cb7c
 +	while (!ret) {
 +		mutex_lock(&c->snapshots_unlinked_lock);
 +		s = c->snapshots_unlinked;
-+		darray_init(c->snapshots_unlinked);
++		darray_init(&c->snapshots_unlinked);
 +		mutex_unlock(&c->snapshots_unlinked_lock);
 +
 +		if (!s.nr)
@@ -69500,7 +69513,7 @@ index 000000000000..63a57399cb7c
 +			}
 +		}
 +
-+		darray_exit(s);
++		darray_exit(&s);
 +	}
 +
 +	percpu_ref_put(&c->writes);
@@ -69690,7 +69703,7 @@ index 000000000000..63a57399cb7c
 +}
 diff --git a/fs/bcachefs/subvolume.h b/fs/bcachefs/subvolume.h
 new file mode 100644
-index 000000000000..a44253893515
+index 000000000000..b1739d29c7d4
 --- /dev/null
 +++ b/fs/bcachefs/subvolume.h
 @@ -0,0 +1,126 @@
@@ -69772,7 +69785,7 @@ index 000000000000..a44253893515
 +
 +static inline int snapshots_seen_add(struct bch_fs *c, struct snapshots_seen *s, u32 id)
 +{
-+	int ret = darray_push(s->ids, id);
++	int ret = darray_push(&s->ids, id);
 +	if (ret)
 +		bch_err(c, "error reallocating snapshots_seen table (size %zu)",
 +			s->ids.size);
