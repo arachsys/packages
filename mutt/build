@@ -3,12 +3,12 @@ require lmdb perl
 
 check() {
   url https://bitbucket.org/mutt/mutt/downloads/
-  match version 2.2.3 'mutt-([0-9.]+)\.tar'
+  match version 2.2.4 'mutt-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://bitbucket.org/mutt/mutt/downloads/mutt-2.2.3.tar.gz
-  tree 7347ff1ab778998fefb0cb5b7d6086cb68b809182f3f9bfed0f4ff08b6e19fd6
+  unpack https://bitbucket.org/mutt/mutt/downloads/mutt-2.2.4.tar.gz
+  tree b95e660ceba3bc8b9ddbb8993cd2b7106148ecbf9c72dc613e09aa8b21648a37
 }
 
 config-extra --docdir=/lib/doc/mutt --disable-{pgp,smime} \
