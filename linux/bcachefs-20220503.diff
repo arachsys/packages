@@ -62694,10 +62694,10 @@ index 000000000000..385451ef865e
 +}
 diff --git a/fs/bcachefs/opts.h b/fs/bcachefs/opts.h
 new file mode 100644
-index 000000000000..85f029602eb5
+index 000000000000..6a1cd41e6374
 --- /dev/null
 +++ b/fs/bcachefs/opts.h
-@@ -0,0 +1,512 @@
+@@ -0,0 +1,504 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_OPTS_H
 +#define _BCACHEFS_OPTS_H
@@ -63149,17 +63149,9 @@ index 000000000000..85f029602eb5
 +	enum opt_flags		flags;
 +	u64			min, max;
 +
-+	union {
-+	struct {
-+	};
-+	struct {
-+		const char * const *choices;
-+	};
-+	struct {
-+		int (*parse)(struct bch_fs *, const char *, u64 *);
-+		void (*to_text)(struct printbuf *, struct bch_fs *, struct bch_sb *, u64);
-+	};
-+	};
++	const char * const *choices;
++	int (*parse)(struct bch_fs *, const char *, u64 *);
++	void (*to_text)(struct printbuf *, struct bch_fs *, struct bch_sb *, u64);
 +
 +	const char		*hint;
 +	const char		*help;
