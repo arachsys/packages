@@ -1,5 +1,5 @@
 diff --git a/gcc/config/aarch64/aarch64-linux.h b/gcc/config/aarch64/aarch64-linux.h
-index bf1327e..4329413 100644
+index 5e4553d79..10702c8b3 100644
 --- a/gcc/config/aarch64/aarch64-linux.h
 +++ b/gcc/config/aarch64/aarch64-linux.h
 @@ -21,10 +21,10 @@
@@ -16,7 +16,7 @@ index bf1327e..4329413 100644
  #undef  ASAN_CC1_SPEC
  #define ASAN_CC1_SPEC "%{%:sanitize(address):-funwind-tables}"
 diff --git a/gcc/config/aarch64/t-aarch64-linux b/gcc/config/aarch64/t-aarch64-linux
-index b989778..0d33b4c 100644
+index d0cd54600..204fa2ca8 100644
 --- a/gcc/config/aarch64/t-aarch64-linux
 +++ b/gcc/config/aarch64/t-aarch64-linux
 @@ -22,7 +22,4 @@ LIB1ASMSRC   = aarch64/lib1funcs.asm
@@ -28,7 +28,7 @@ index b989778..0d33b4c 100644
 -
 -MULTILIB_OSDIRNAMES += mabi.ilp32=../libilp32$(call if_multiarch,:aarch64$(AARCH_BE)-linux-gnu_ilp32)
 diff --git a/gcc/config/i386/linux64.h b/gcc/config/i386/linux64.h
-index f2d913e..0c196e3 100644
+index 8681e36f1..ba5e0cbef 100644
 --- a/gcc/config/i386/linux64.h
 +++ b/gcc/config/i386/linux64.h
 @@ -27,13 +27,13 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
@@ -52,7 +52,7 @@ index f2d913e..0c196e3 100644
 -#define MUSL_DYNAMIC_LINKERX32 "/lib/ld-musl-x32.so.1"
 +#define MUSL_DYNAMIC_LINKERX32 "/lib/ld.so"
 diff --git a/gcc/config/i386/t-linux64 b/gcc/config/i386/t-linux64
-index 8ea0faf..15436b7 100644
+index 5526ad0e6..8c199853b 100644
 --- a/gcc/config/i386/t-linux64
 +++ b/gcc/config/i386/t-linux64
 @@ -33,6 +33,3 @@
@@ -63,10 +63,10 @@ index 8ea0faf..15436b7 100644
 -MULTILIB_OSDIRNAMES+= m32=$(if $(wildcard $(shell echo $(SYSTEM_HEADER_DIR))/../../usr/lib32),../lib32,../lib)$(call if_multiarch,:i386-linux-gnu)
 -MULTILIB_OSDIRNAMES+= mx32=../libx32$(call if_multiarch,:x86_64-linux-gnux32)
 diff --git a/ld/emulparams/elf32_x86_64.sh b/ld/emulparams/elf32_x86_64.sh
-index 249553a..f760fda 100644
+index 4bff41287..c87cfddae 100644
 --- a/ld/emulparams/elf32_x86_64.sh
 +++ b/ld/emulparams/elf32_x86_64.sh
-@@ -34,19 +34,3 @@ if [ "x${host}" = "x${target}" ]; then
+@@ -38,19 +38,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -87,10 +87,10 @@ index 249553a..f760fda 100644
 -    ;;
 -esac
 diff --git a/ld/emulparams/elf_x86_64.sh b/ld/emulparams/elf_x86_64.sh
-index 2b34941..3356acd 100644
+index 5f2743ed4..3bcada2c5 100644
 --- a/ld/emulparams/elf_x86_64.sh
 +++ b/ld/emulparams/elf_x86_64.sh
-@@ -34,29 +34,3 @@ if [ "x${host}" = "x${target}" ]; then
+@@ -39,29 +39,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -108,7 +108,7 @@ index 2b34941..3356acd 100644
 -'
 -	PARSE_AND_LIST_ARGS_CASE_Z_BNDPLT='
 -      else if (strcmp (optarg, "bndplt") == 0)
--	params.bndplt = TRUE;
+-	params.bndplt = true;
 -'
 -	PARSE_AND_LIST_OPTIONS="$PARSE_AND_LIST_OPTIONS $PARSE_AND_LIST_OPTIONS_BNDPLT"
 -	PARSE_AND_LIST_ARGS_CASE_Z="$PARSE_AND_LIST_ARGS_CASE_Z $PARSE_AND_LIST_ARGS_CASE_Z_BNDPLT"

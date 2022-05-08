@@ -1,0 +1,12 @@
+diff --git a/gcc/system.h b/gcc/system.h
+index c5562cc49..f667b035a 100644
+--- a/gcc/system.h
++++ b/gcc/system.h
+@@ -43,6 +43,7 @@ along with GCC; see the file COPYING3.  If not see
+ # include <stddef.h>
+ #endif
+ 
++#include <pthread.h>
+ #include <stdio.h>
+ 
+ /* Define a generic NULL if one hasn't already been defined.  */

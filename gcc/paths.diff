@@ -1,8 +1,8 @@
-diff --git a/gcc/gcc.c b/gcc/gcc.c
-index 783755395..5ea28f84d 100644
---- a/gcc/gcc.c
-+++ b/gcc/gcc.c
-@@ -1586,10 +1586,10 @@ static const char *gcc_libexec_prefix;
+diff --git a/gcc/gcc.cc b/gcc/gcc.cc
+index bb07cc244..4bb8e3653 100644
+--- a/gcc/gcc.cc
++++ b/gcc/gcc.cc
+@@ -1593,10 +1593,10 @@ static const char *gcc_libexec_prefix;
  /* Default prefixes to attach to command names.  */
  
  #ifndef STANDARD_STARTFILE_PREFIX_1
@@ -15,7 +15,7 @@ index 783755395..5ea28f84d 100644
  #endif
  
  #ifdef CROSS_DIRECTORY_STRUCTURE  /* Don't use these prefixes for a cross compiler.  */
-@@ -7811,10 +7811,14 @@ is_directory (const char *path1, bool linker)
+@@ -7933,10 +7933,14 @@ is_directory (const char *path1, bool linker)
        && IS_DIR_SEPARATOR (path[0])
        && ((cp - path == 6
  	   && filename_ncmp (path + 1, "lib", 3) == 0)
@@ -47,11 +47,11 @@ index 02dd019d4..cf67f9e68 100644
  
  #endif /* !_ELF_HINTS_H_ */
 diff --git a/libffi/src/closures.c b/libffi/src/closures.c
-index 721ff00ea..63564bde1 100644
+index f7bead67b..352b7e33e 100644
 --- a/libffi/src/closures.c
 +++ b/libffi/src/closures.c
-@@ -392,7 +392,6 @@ static struct
- } open_temp_exec_file_opts[] = {
+@@ -702,7 +702,6 @@ static struct
+   { open_temp_exec_file_env, "LIBFFI_TMPDIR", 0 },
    { open_temp_exec_file_env, "TMPDIR", 0 },
    { open_temp_exec_file_dir, "/tmp", 0 },
 -  { open_temp_exec_file_dir, "/var/tmp", 0 },
@@ -59,27 +59,24 @@ index 721ff00ea..63564bde1 100644
    { open_temp_exec_file_env, "HOME", 0 },
  #ifdef HAVE_MNTENT
 diff --git a/libiberty/make-temp-file.c b/libiberty/make-temp-file.c
-index 7465cec5e..86f105c47 100644
+index 7bfc65ea6..bb0476e81 100644
 --- a/libiberty/make-temp-file.c
 +++ b/libiberty/make-temp-file.c
-@@ -81,10 +81,6 @@ try_dir (const char *dir, const char *base)
+@@ -95,8 +95,6 @@ try_dir (const char *dir, const char *base)
  }
  
  static const char tmp[] = { DIR_SEPARATOR, 't', 'm', 'p', 0 };
--static const char usrtmp[] =
--{ DIR_SEPARATOR, 'u', 's', 'r', DIR_SEPARATOR, 't', 'm', 'p', 0 };
 -static const char vartmp[] =
 -{ DIR_SEPARATOR, 'v', 'a', 'r', DIR_SEPARATOR, 't', 'm', 'p', 0 };
  
  #endif
  
-@@ -129,9 +125,7 @@ choose_tmpdir (void)
+@@ -141,8 +139,7 @@ choose_tmpdir (void)
  	base = try_dir (P_tmpdir, base);
  #endif
  
--      /* Try /var/tmp, /usr/tmp, then /tmp.  */
+-      /* Try /var/tmp, then /tmp.  */
 -      base = try_dir (vartmp, base);
--      base = try_dir (usrtmp, base);
 +      /* Try /tmp.  */
        base = try_dir (tmp, base);
        
