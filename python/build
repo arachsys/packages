@@ -37,6 +37,14 @@ post-install() {
   sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/2to3 /dst/bin/pip \
     /dst/bin/pydoc /dst/lib/python/config-3*/python-config.py
 
+  sed -e 's:{base}/include/python{:{base}/lib/include/python{:g' \
+    -e 's/{abiflags}//g' -e 's/{py_version_short}//g' -i \
+    /dst/lib/python/site-packages/pip/_vendor/distlib/_backport/sysconfig.cfg
+
+  sed -e 's:\$base/include/python:\$base/lib/include/python:g' \
+    -e 's/\$abiflags//g' -e 's/$py_version_short//g' -i \
+    /dst/lib/python/site-packages/setuptools/_distutils/command/install.py
+
   sed -i '/^disable_pip_version_check/,/^)/s/default=False/default=True/' \
     /dst/lib/python/site-packages/pip/_internal/cli/cmdoptions.py
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python -m compileall \
