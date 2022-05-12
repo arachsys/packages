@@ -3,15 +3,25 @@ mode autotools
 check() {
   url https://download.samba.org/pub/rsync/
   match version 3.2.4 'rsync-([0-9.]+)\.tar'
+
+  url https://github.com/Cyan4973/xxHash/releases
+  match xxhash 0.8.1 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack https://download.samba.org/pub/rsync/rsync-3.2.4.tar.gz
+  unpack -d xxhash xxhash-0.8.1.tar.gz \
+    https://github.com/Cyan4973/xxHash/archive/refs/tags/v0.8.1.tar.gz
   apply paths.diff
-  tree 3c935d16c514575c42433f80e719fbeaa10f81086917d407b09b53801374fbad
+  tree b8eddb9db8ef9ee33453f9ad2fd2da4315bb49eae2a2c12fdb7e56d696f34a54
 }
 
-config-extra --disable-lz4 --disable-xxhash --with-included-popt
+pre-config() {
+  make -C xxhash libxxhash.a
+}
+
+config-extra --disable-lz4 --enable-xxhash --with-included-popt \
+  CPPFLAGS=-I/src/xxhash LDFLAGS=-L/src/xxhash
 
 post-install() {
   rm -f /dst/{bin/rsync-ssl,lib/man/man1/rsync-ssl.1}
