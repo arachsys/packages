@@ -18,37 +18,50 @@ prepare() {
 }
 
 config-extra --enable-optimizations --enable-shared --with-dbmliborder= \
-  --with-ensurepip=install --with-lto --with-openssl=/lib \
+  --with-ensurepip=no --with-lto --with-openssl=/lib \
   CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
   LDFLAGS=-fno-semantic-interposition
 
 post-install() {
-  rm -f -r /dst/lib/python/{,*/}{test,tests}/ \
-    /dst/lib/python/{__phello__.foo.py,dbm,idlelib,LICENSE.txt} \
-    /dst/lib/python/{turtle*,tkinter,__pycache__/turtle.*} \
-    /dst/lib/python/venv/scripts/*/!(activate) \
-    /dst/bin/{2to3,easy_install*,idle*,pip3,pydoc3,python3,python*-config}
-  mv /dst/lib/python/venv/scripts/common/activate{,.sh}
-  mv /dst/bin/2to3-3.10 /dst/bin/2to3
-  mv /dst/bin/pip3.10 /dst/bin/pip
-  mv /dst/bin/pydoc3.10 /dst/bin/pydoc
-  mv /dst/bin/python3.10 /dst/bin/python3
-  ln -s python3 /dst/bin/python
-  sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/2to3 /dst/bin/pip \
-    /dst/bin/pydoc /dst/lib/python/config-3*/python-config.py
+  LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
+  LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/pip install wheel
 
-  sed -e 's:{base}/include/python{:{base}/lib/include/python{:g' \
-    -e 's/{abiflags}//g' -e 's/{py_version_short}//g' -i \
-    /dst/lib/python/site-packages/pip/_vendor/distlib/_backport/sysconfig.cfg
+  cd /dst/lib/python/ensurepip/_bundled
+  for WHEEL in pip-*.whl setuptools-*.whl; do
+    LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/python -m wheel unpack $WHEEL
+  done
 
-  sed -e 's:\$base/include/python:\$base/lib/include/python:g' \
-    -e 's/\$abiflags//g' -e 's/$py_version_short//g' -i \
-    /dst/lib/python/site-packages/setuptools/_distutils/command/install.py
+  sed -e 's:^\(datadir *=\).*:\1 /lib:' -e 's:^\(libdir *=\).*:\1 /lib:' \
+    -e 's:{py_version_short}::g' -e 's:{abiflags}::g' \
+    -e 's:{base}/include:{base}/lib/include:g' \
+    -e 's:{platbase}/include:{platbase}/lib/include:g' \
+    -i pip-*/pip/_vendor/distlib/_backport/sysconfig.cfg
 
   sed -i '/^disable_pip_version_check/,/^)/s/default=False/default=True/' \
-    /dst/lib/python/site-packages/pip/_internal/cli/cmdoptions.py
-  LD_LIBRARY_PATH=/dst/lib /dst/bin/python -m compileall \
-    /dst/lib/python/site-packages/pip/_internal/cli/cmdoptions.py
+    pip-*/pip/_internal/cli/cmdoptions.py
+
+  sed -e 's:\$py_version_short::g' -e 's:\$abiflags::g' \
+    -e 's:\$base/include:\$base/lib/include:g' \
+    -i setuptools-*/setuptools/_distutils/command/install.py
+
+  for WHEEL in pip-*/ setuptools-*/; do
+    LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/python -m wheel pack $WHEEL
+    rm -f -r $WHEEL
+  done
+
+  LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m ensurepip
+
+  rm -f -r /dst/bin/{idle*,python*-config} /dst/lib/python/**/test{,s}/ \
+    /dst/lib/python/{__phello__.foo.py,dbm,idlelib,LICENSE.txt} \
+    /dst/lib/python/{turtle*,__pycache__/turtle.*,tkinter,venv/scripts}
+
+  mv -f /dst/bin/2to3-* /dst/bin/2to3
+  mv -f /dst/bin/pip3.* /dst/bin/pip3 && ln -s pip3 /dst/bin/pip
+  mv -f /dst/bin/pydoc3.* /dst/bin/pydoc3 && ln -s pydoc3 /dst/bin/pydoc
+  mv -f /dst/bin/python3.* /dst/bin/python3 && ln -s python3 /dst/bin/python
+
+  sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/2to3 /dst/bin/pip3 \
+    /dst/bin/pydoc3 /dst/lib/python/config-3*/python-config.py
 
   image - requires libffi
 }
