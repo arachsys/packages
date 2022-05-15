@@ -1,0 +1,18 @@
+require go
+
+check() {
+  url https://github.com/zyedidia/micro/releases
+  match version 2.0.10 'tags/v([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack micro-2.0.10.tar.gz \
+    https://github.com/zyedidia/micro/archive/refs/tags/v2.0.10.tar.gz
+  GOPATH=/tmp/go go mod vendor
+  tree 6ddd49576e756a5bc3869448eaea8b97f6641624f3dc975eafa3638a8f6754c1
+}
+
+build() {
+  GOPATH=/tmp/go HOME=/tmp make build {HASH,VERSION}=2.0.10 DATE=$(date +%F)
+  install -D micro /dst/bin/micro
+}
