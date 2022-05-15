@@ -115,7 +115,7 @@ build() {
 
   rm -f -r /dst/bin/{git-clang-format,hmaptool,lldb-vscode,llvm-pdbutil}
   rm -f -r /dst/include/{clang-c,llvm-c}
-  rm -f -r /dst/lib/{cmake,libclang.so*,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
+  rm -f -r /dst/lib/{cmake,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
   rm -f -r /dst/lib/opt-viewer /dst/lib/**/*.{applescript,css,el,py}
   mv /dst/include /dst/lib/include
 
