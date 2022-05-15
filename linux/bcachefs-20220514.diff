@@ -31981,7 +31981,7 @@ index 000000000000..3a4890d39ff9
 +#endif /* _BCACHEFS_CHARDEV_H */
 diff --git a/fs/bcachefs/checksum.c b/fs/bcachefs/checksum.c
 new file mode 100644
-index 000000000000..425582f60d7a
+index 000000000000..50157b4013a5
 --- /dev/null
 +++ b/fs/bcachefs/checksum.c
 @@ -0,0 +1,665 @@
@@ -32411,7 +32411,7 @@ index 000000000000..425582f60d7a
 +	const struct user_key_payload *ukp;
 +	int ret;
 +
-+	keyring_key = request_key(&key_type_logon, key_description, NULL);
++	keyring_key = request_key(&key_type_user, key_description, NULL);
 +	if (IS_ERR(keyring_key))
 +		return PTR_ERR(keyring_key);
 +
@@ -33951,10 +33951,10 @@ index 000000000000..1f3207a5ee16
 +#endif // _BCACHEFS_COUNTERS_H
 diff --git a/fs/bcachefs/darray.h b/fs/bcachefs/darray.h
 new file mode 100644
-index 000000000000..049e1d1e1342
+index 000000000000..519ab9b96e67
 --- /dev/null
 +++ b/fs/bcachefs/darray.h
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,77 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_DARRAY_H
 +#define _BCACHEFS_DARRAY_H
@@ -34008,10 +34008,11 @@ index 000000000000..049e1d1e1342
 +
 +#define darray_insert_item(_d, _pos, _item)				\
 +({									\
++	size_t pos = (_pos);						\
 +	int _ret = darray_make_room((_d), 1);				\
 +									\
 +	if (!_ret)							\
-+		array_insert_item((_d)->data, (_d)->nr, (_pos), (_item));\
++		array_insert_item((_d)->data, (_d)->nr, pos, (_item));	\
 +	_ret;								\
 +})
 +
@@ -41618,10 +41619,10 @@ index 000000000000..dde237859514
 +#endif /* _BCACHEFS_FS_COMMON_H */
 diff --git a/fs/bcachefs/fs-io.c b/fs/bcachefs/fs-io.c
 new file mode 100644
-index 000000000000..4cb2b2eb4dbe
+index 000000000000..020e603c3faa
 --- /dev/null
 +++ b/fs/bcachefs/fs-io.c
-@@ -0,0 +1,3503 @@
+@@ -0,0 +1,3489 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#ifndef NO_BCACHEFS_FS
 +
@@ -43129,20 +43130,6 @@ index 000000000000..4cb2b2eb4dbe
 +	if (w.io)
 +		bch2_writepage_do_io(&w);
 +	blk_finish_plug(&plug);
-+	return ret;
-+}
-+
-+int bch2_writepage(struct page *page, struct writeback_control *wbc)
-+{
-+	struct bch_fs *c = page->mapping->host->i_sb->s_fs_info;
-+	struct bch_writepage_state w =
-+		bch_writepage_state_init(c, to_bch_ei(page->mapping->host));
-+	int ret;
-+
-+	ret = __bch2_writepage(page, wbc, &w);
-+	if (w.io)
-+		bch2_writepage_do_io(&w);
-+
 +	return ret;
 +}
 +
@@ -45127,10 +45114,10 @@ index 000000000000..4cb2b2eb4dbe
 +#endif /* NO_BCACHEFS_FS */
 diff --git a/fs/bcachefs/fs-io.h b/fs/bcachefs/fs-io.h
 new file mode 100644
-index 000000000000..b24efeaf343e
+index 000000000000..e073dc837ae9
 --- /dev/null
 +++ b/fs/bcachefs/fs-io.h
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,56 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _BCACHEFS_FS_IO_H
 +#define _BCACHEFS_FS_IO_H
@@ -45148,7 +45135,6 @@ index 000000000000..b24efeaf343e
 +				       struct bch_inode_info *,
 +				       loff_t, unsigned);
 +
-+int bch2_writepage(struct page *, struct writeback_control *);
 +int bch2_readpage(struct file *, struct page *);
 +
 +int bch2_writepages(struct address_space *, struct writeback_control *);
@@ -45806,10 +45792,10 @@ index 000000000000..f201980ef2c3
 +#endif /* _BCACHEFS_FS_IOCTL_H */
 diff --git a/fs/bcachefs/fs.c b/fs/bcachefs/fs.c
 new file mode 100644
-index 000000000000..d462c06899d6
+index 000000000000..c5801a3f636f
 --- /dev/null
 +++ b/fs/bcachefs/fs.c
-@@ -0,0 +1,1940 @@
+@@ -0,0 +1,1939 @@
 +// SPDX-License-Identifier: GPL-2.0
 +#ifndef NO_BCACHEFS_FS
 +
@@ -46924,7 +46910,6 @@ index 000000000000..d462c06899d6
 +};
 +
 +static const struct address_space_operations bch_address_space_operations = {
-+	.writepage	= bch2_writepage,
 +	.readpage	= bch2_readpage,
 +	.writepages	= bch2_writepages,
 +	.readahead	= bch2_readahead,
@@ -59975,7 +59960,7 @@ index 000000000000..4b3ff7d8a875
 +#endif /* _BCACHEFS_KEYLIST_TYPES_H */
 diff --git a/fs/bcachefs/lru.c b/fs/bcachefs/lru.c
 new file mode 100644
-index 000000000000..ce23b38382f5
+index 000000000000..d278331776dd
 --- /dev/null
 +++ b/fs/bcachefs/lru.c
 @@ -0,0 +1,219 @@
@@ -60111,7 +60096,7 @@ index 000000000000..ce23b38382f5
 +}
 +
 +static int bch2_check_lru_key(struct btree_trans *trans,
-+			      struct btree_iter *lru_iter, bool initial)
++			      struct btree_iter *lru_iter)
 +{
 +	struct bch_fs *c = trans->c;
 +	struct btree_iter iter;
@@ -60174,7 +60159,7 @@ index 000000000000..ce23b38382f5
 +	return ret;
 +}
 +
-+int bch2_check_lrus(struct bch_fs *c, bool initial)
++int bch2_check_lrus(struct bch_fs *c)
 +{
 +	struct btree_trans trans;
 +	struct btree_iter iter;
@@ -60188,7 +60173,7 @@ index 000000000000..ce23b38382f5
 +		ret = __bch2_trans_do(&trans, NULL, NULL,
 +				      BTREE_INSERT_NOFAIL|
 +				      BTREE_INSERT_LAZY_RW,
-+			bch2_check_lru_key(&trans, &iter, initial));
++			bch2_check_lru_key(&trans, &iter));
 +		if (ret)
 +			break;
 +	}
@@ -60200,7 +60185,7 @@ index 000000000000..ce23b38382f5
 +}
 diff --git a/fs/bcachefs/lru.h b/fs/bcachefs/lru.h
 new file mode 100644
-index 000000000000..bfe38a67e585
+index 000000000000..3decb7b1dde2
 --- /dev/null
 +++ b/fs/bcachefs/lru.h
 @@ -0,0 +1,19 @@
@@ -60220,7 +60205,7 @@ index 000000000000..bfe38a67e585
 +int bch2_lru_set(struct btree_trans *, u64, u64, u64 *);
 +int bch2_lru_change(struct btree_trans *, u64, u64, u64, u64 *, struct bkey_s_c);
 +
-+int bch2_check_lrus(struct bch_fs *, bool);
++int bch2_check_lrus(struct bch_fs *);
 +
 +#endif /* _BCACHEFS_LRU_H */
 diff --git a/fs/bcachefs/migrate.c b/fs/bcachefs/migrate.c
@@ -64616,10 +64601,10 @@ index 000000000000..7462a92e9598
 +#endif /* _BCACHEFS_REBALANCE_TYPES_H */
 diff --git a/fs/bcachefs/recovery.c b/fs/bcachefs/recovery.c
 new file mode 100644
-index 000000000000..ff483ff303da
+index 000000000000..36ab2e3bbc6d
 --- /dev/null
 +++ b/fs/bcachefs/recovery.c
-@@ -0,0 +1,1556 @@
+@@ -0,0 +1,1551 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include "bcachefs.h"
@@ -65878,11 +65863,10 @@ index 000000000000..ff483ff303da
 +
 +		bch_info(c, "checking lrus");
 +		err = "error checking lrus";
-+		ret = bch2_check_lrus(c, true);
++		ret = bch2_check_lrus(c);
 +		if (ret)
 +			goto err;
 +		bch_verbose(c, "done checking lrus");
-+
 +		set_bit(BCH_FS_CHECK_LRUS_DONE, &c->flags);
 +
 +		bch_info(c, "checking alloc to lru refs");
@@ -65890,12 +65874,8 @@ index 000000000000..ff483ff303da
 +		ret = bch2_check_alloc_to_lru_refs(c);
 +		if (ret)
 +			goto err;
-+		set_bit(BCH_FS_CHECK_ALLOC_TO_LRU_REFS_DONE, &c->flags);
-+
-+		ret = bch2_check_lrus(c, true);
-+		if (ret)
-+			goto err;
 +		bch_verbose(c, "done checking alloc to lru refs");
++		set_bit(BCH_FS_CHECK_ALLOC_TO_LRU_REFS_DONE, &c->flags);
 +	} else {
 +		set_bit(BCH_FS_MAY_GO_RW, &c->flags);
 +		set_bit(BCH_FS_INITIAL_GC_DONE, &c->flags);
