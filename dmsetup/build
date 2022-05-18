@@ -2,15 +2,15 @@ mode autotools
 
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match lvm2 2.03.15 'LVM2\.([0-9.]+)\.tgz'
+  match lvm2 2.03.16 'LVM2\.([0-9.]+)\.tgz'
 }
 
 prepare() {
-  unpack lvm2-2.03.15.tar.gz \
-    https://sourceware.org/ftp/lvm2/LVM2.2.03.15.tgz
+  unpack lvm2-2.03.16.tar.gz \
+    https://sourceware.org/ftp/lvm2/LVM2.2.03.16.tgz
   apply static.diff
   apply tidy.diff
-  tree 460f354250b11dfcde7207c186b1ea2aaf25a75035ce487a43c80857a67ba1e1
+  tree 0d06de312164d37c26e5c5dec6e7ac2429f53dcfb48947922810887b3e819613
 }
 
 config-extra --enable-{static-link,dmfilemapd} --without-{cache,thin,vdo}
