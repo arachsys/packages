@@ -2,11 +2,11 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/releases
-  match version 1.60.0 'tags/([0-9.]+)\.tar'
+  match version 1.61.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.60.0-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.61.0-src.tar.gz
   apply curl.diff
   apply libressl.diff
   apply nocred.diff
@@ -14,7 +14,7 @@ prepare() {
   apply target.diff
   sed -i 's/\("files":{\)[^}]*/\1/' \
     vendor/{curl-sys,libssh2-sys,openssl,openssl-sys}/.cargo-checksum.json
-  tree c1f30e54bbdcaaa610791a0b7c5a8ec20bd94887dab5a84599a6fd1e769876c6
+  tree e8f976466433837b46f7aa83c70aaf93d2ed1dd164d51a317efe28285dc368f1
 }
 
 build() {
@@ -24,9 +24,10 @@ build() {
      --enable-locked-deps --enable-use-libcxx --enable-vendor \
      --dist-compression-formats=gz --llvm-libunwind=system \
      --llvm-config=$(echo /lib/llvm/*/bin/llvm-config) --local-rust-root= \
-     --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
+     --tools=analysis,cargo,clippy,rust-analyzer,rustfmt \
+     --set=llvm.static-libstdcpp=false
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
-    RUSTFLAGS="-Lnative=/lib/shared -Lnative=/lib/static" python x.py install
+    python x.py install
   rm -f -r /dst/{bin/rust-*db*,etc,lib/rustlib/!($CHOST),share}
 }

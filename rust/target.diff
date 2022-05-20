@@ -1,6 +1,6 @@
 diff --git a/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs
 new file mode 100644
-index 000000000..469d8622e
+index 000000000..5681188f8
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs
 @@ -0,0 +1,10 @@
@@ -8,17 +8,17 @@ index 000000000..469d8622e
 +
 +pub fn target() -> Target {
 +    let mut base = super::aarch64_unknown_linux_musl::target();
-+    base.llvm_target = "aarch64-arachsys-linux-musl".to_string();
-+    base.options.vendor = "arachsys".to_string();
++    base.llvm_target = "aarch64-arachsys-linux-musl".into();
++    base.options.vendor = "arachsys".into();
 +    base.options.crt_static_default = false;
 +    base.options.static_position_independent_executables = true;
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
-index ca1949b9f..20230d157 100644
+index bd5b712c1..1f5681104 100644
 --- a/compiler/rustc_target/src/spec/mod.rs
 +++ b/compiler/rustc_target/src/spec/mod.rs
-@@ -799,6 +799,9 @@ macro_rules! supported_targets {
+@@ -808,6 +808,9 @@ macro_rules! supported_targets {
  }
  
  supported_targets! {
@@ -30,7 +30,7 @@ index ca1949b9f..20230d157 100644
      ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
 diff --git a/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
 new file mode 100644
-index 000000000..96c1f3e3c
+index 000000000..9555b7e87
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
 @@ -0,0 +1,10 @@
@@ -38,8 +38,8 @@ index 000000000..96c1f3e3c
 +
 +pub fn target() -> Target {
 +    let mut base = super::x86_64_unknown_linux_musl::target();
-+    base.llvm_target = "x86_64-arachsys-linux-musl".to_string();
-+    base.options.vendor = "arachsys".to_string();
++    base.llvm_target = "x86_64-arachsys-linux-musl".into();
++    base.options.vendor = "arachsys".into();
 +    base.options.crt_static_default = false;
 +    base.options.static_position_independent_executables = true;
 +    base

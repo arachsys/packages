@@ -1,8 +1,8 @@
 diff --git a/compiler/rustc_target/src/spec/crt_objects.rs b/compiler/rustc_target/src/spec/crt_objects.rs
-index 2fc9ab29f..15d5175f7 100644
+index 51f392a64..c4d1729d5 100644
 --- a/compiler/rustc_target/src/spec/crt_objects.rs
 +++ b/compiler/rustc_target/src/spec/crt_objects.rs
-@@ -62,6 +62,7 @@ pub(super) fn all(obj: &str) -> CrtObjects {
+@@ -63,6 +63,7 @@ pub(super) fn all(obj: &'static str) -> CrtObjects {
      ])
  }
  
@@ -10,7 +10,7 @@ index 2fc9ab29f..15d5175f7 100644
  pub(super) fn pre_musl_fallback() -> CrtObjects {
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crt1.o", "crti.o", "crtbegin.o"]),
-@@ -73,6 +74,7 @@ pub(super) fn pre_musl_fallback() -> CrtObjects {
+@@ -74,6 +75,7 @@ pub(super) fn pre_musl_fallback() -> CrtObjects {
      ])
  }
  
@@ -19,7 +19,7 @@ index 2fc9ab29f..15d5175f7 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/compiler/rustc_target/src/spec/linux_musl_base.rs b/compiler/rustc_target/src/spec/linux_musl_base.rs
-index 5038a967d..5ac2ce0aa 100644
+index 207a87ab0..0108e8dcb 100644
 --- a/compiler/rustc_target/src/spec/linux_musl_base.rs
 +++ b/compiler/rustc_target/src/spec/linux_musl_base.rs
 @@ -1,16 +1,7 @@
@@ -29,7 +29,7 @@ index 5038a967d..5ac2ce0aa 100644
  pub fn opts() -> TargetOptions {
      let mut base = super::linux_base::opts();
 -
-     base.env = "musl".to_string();
+     base.env = "musl".into();
 -    base.pre_link_objects_fallback = crt_objects::pre_musl_fallback();
 -    base.post_link_objects_fallback = crt_objects::post_musl_fallback();
 -    base.crt_objects_fallback = Some(CrtObjectsFallback::Musl);
@@ -40,10 +40,10 @@ index 5038a967d..5ac2ce0aa 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index f05d1dcf4..ea8f42a15 100644
+index afc333b50..1a99c3fa4 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -198,40 +198,7 @@ fn copy_self_contained_objects(
+@@ -196,40 +196,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -86,10 +86,10 @@ index f05d1dcf4..ea8f42a15 100644
              .wasi_root(target)
              .unwrap_or_else(|| {
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index f5ae8103c..a771597a3 100644
+index be965971d..37ce488a0 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -981,7 +981,7 @@ impl Step for Cargo {
+@@ -976,7 +976,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -99,10 +99,10 @@ index f5ae8103c..a771597a3 100644
          }
  
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 3130dcc27..abd41ad21 100644
+index 570a61742..dd383c8cc 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
-@@ -271,6 +271,7 @@ pub struct Build {
+@@ -311,6 +311,7 @@ pub struct Build {
          RefCell<HashMap<TargetSelection, HashMap<String, (&'static str, PathBuf, Vec<String>)>>>,
  }
  
@@ -111,7 +111,7 @@ index 3130dcc27..abd41ad21 100644
  struct Crate {
      name: Interned<String>,
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index d7db2cef2..a79117795 100644
+index 8c2899c1a..dda15d764 100644
 --- a/src/bootstrap/sanity.rs
 +++ b/src/bootstrap/sanity.rs
 @@ -11,7 +11,6 @@
@@ -122,7 +122,7 @@ index d7db2cef2..a79117795 100644
  use std::path::PathBuf;
  use std::process::Command;
  
-@@ -178,28 +177,6 @@ pub fn check(build: &mut Build) {
+@@ -177,28 +176,6 @@ pub fn check(build: &mut Build) {
              }
          }
  
@@ -152,10 +152,10 @@ index d7db2cef2..a79117795 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/tools/cargo/src/cargo/ops/registry/auth.rs b/src/tools/cargo/src/cargo/ops/registry/auth.rs
-index d10b1988e..9cc4aa014 100644
+index 648e051e6..924703ae5 100644
 --- a/src/tools/cargo/src/cargo/ops/registry/auth.rs
 +++ b/src/tools/cargo/src/cargo/ops/registry/auth.rs
-@@ -223,7 +223,7 @@ fn sysroot_credential(
+@@ -224,7 +224,7 @@ fn sysroot_credential(
          .parent()
          .and_then(|p| p.parent())
          .ok_or_else(|| format_err!("expected cargo path {}", cargo.display()))?;
