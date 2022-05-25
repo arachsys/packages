@@ -1,10 +1,6 @@
 check() {
   url https://www.kernel.org/
   match linux 5.17.9 'linux-([0-9.]+)\.tar'
-
-  url https://api.github.com/repos/koverstreet/bcachefs/branches/master
-  match 'bcachefs snapshot' 20220514 \
-    '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
@@ -20,11 +16,6 @@ prepare() {
     -i {} +
 
   tree 2a6a63b8816aef337acb14d6831ac528975c455ba00a5363440959da6b0dd742
-
-  if enabled bcachefs; then
-    apply bcachefs-20220514.diff
-    tree facbb732c99ce89612c8efc9faeee56fa1c4f69565dea0302787adf37a4ed76e
-  fi
 }
 
 build() {
