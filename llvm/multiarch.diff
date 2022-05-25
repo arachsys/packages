@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index f85c04df4..fd7ff3be9 100644
+index 83cb41159..e7221711e 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
 @@ -42,7 +42,8 @@ std::string Linux::getMultiarchTriple(const Driver &D,

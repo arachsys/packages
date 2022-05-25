@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Arch/AArch64.cpp b/clang/lib/Driver/ToolChains/Arch/AArch64.cpp
-index ca0ca4bf4..50f05c163 100644
+index 53610f090..c490a8e41 100644
 --- a/clang/lib/Driver/ToolChains/Arch/AArch64.cpp
 +++ b/clang/lib/Driver/ToolChains/Arch/AArch64.cpp
 @@ -151,6 +151,8 @@ getAArch64ArchFeaturesFromMarch(const Driver &D, StringRef March,
