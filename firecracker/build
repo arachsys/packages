@@ -9,11 +9,12 @@ check() {
 prepare() {
   unpack firecracker-1.1.0.tar.gz \
     https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.1.0.tar.gz
+  apply cosmetic.diff
   apply seccomp.diff
   ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
   ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
   mkdir -p .cargo && HOME=/tmp cargo vendor >.cargo/config
-  tree 54db07ba6e29cd09d9b9621e2fe0831d9eaca57562e6edb052ac14181d79c18b
+  tree c60c23f8f299eb5644cb0006b7a64c54753ca61cc1316237071efa37f59c0fef
 }
 
 build() {
