@@ -1,0 +1,17 @@
+check() {
+  url https://www.kernel.org/pub/linux/utils/raid/mdadm/
+  match version 4.2 'mdadm-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://www.kernel.org/pub/linux/utils/raid/mdadm/mdadm-4.2.tar.xz
+  apply paths.diff
+  apply systemd.diff
+  apply udisks.diff
+  tree 5bf9290993367b703728d8db26fac1bf0f28837cfe8bb9587f71d7c818887937
+}
+
+build() {
+  make install-bin CC=cc CXFLAGS="-DNO_LIBUDEV -Wno-unused-function -O2" \
+    DESTDIR=/dst
+}
