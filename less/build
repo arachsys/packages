@@ -10,6 +10,10 @@ prepare() {
   tree 9aa2782e31869f4209009a9db79beb2f248c910dfc3b26cc7adcceabf32ddfdf
 }
 
+post-config() {
+  sed -i '/#define LESSHISTFILE/s/".*"/"-"/' defines.h
+}
+
 post-install() {
   rm -f /dst/bin/lesskey /dst/lib/man/man1/lesskey.1
   ln -s less /dst/bin/more

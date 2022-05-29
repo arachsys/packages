@@ -17,7 +17,7 @@ prepare() {
   done
   apply config.diff
   apply paths.diff
-  tree 85066aaeff47525c44e5e1e68af190872c96edcfa6c40cb7cc35671a2e758b36
+  tree 155a38417e0999e747ec88795e77dce03a74d86cf19eb0a1372f1a0573885438
 }
 
 config-extra --without-bash-malloc --with-installed-readline
