@@ -3,19 +3,19 @@ enable rpaths
 
 check() {
   url https://dovecot.org/download
-  match version 2.3.18 'dovecot-([0-9.]+)\.tar'
+  match version 2.3.19 'dovecot-([0-9.]+)\.tar'
 
   url https://pigeonhole.dovecot.org/download.html
   match pigeonhole 0.5.19 'dovecot-[0-9.]+-pigeonhole-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dovecot.org/releases/2.3/dovecot-2.3.18.tar.gz
+  unpack https://dovecot.org/releases/2.3/dovecot-2.3.19.tar.gz
   unpack -d pigeonhole \
     https://pigeonhole.dovecot.org/releases/2.3/dovecot-2.3-pigeonhole-0.5.19.tar.gz
   apply paths.diff
   apply users.diff
-  tree cd2c913e575225b4c0a2a3b04487528a83d53be29e4152f06bc4ff5eb1e4fd24
+  tree 93c3d9d7752e4e97f361881a23171e793c8aaad45094dbee9ef2c9f04153967c
 }
 
 config-extra --with-moduledir=/lib/dovecot/modules --with-rundir=/run/dovecot
