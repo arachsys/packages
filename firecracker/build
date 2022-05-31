@@ -14,7 +14,7 @@ prepare() {
   ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
   ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
   mkdir -p .cargo && HOME=/tmp cargo vendor >.cargo/config
-  tree c60c23f8f299eb5644cb0006b7a64c54753ca61cc1316237071efa37f59c0fef
+  tree d8d4f93111f3c00d9cf5c04408a6cacb55e23f1bc2afa4e7dfd010dfdebbf7c5
 }
 
 build() {
