@@ -16,7 +16,7 @@ while getopts :s: OPTION; do
       ;;
   esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 populate "$ROOT" "${@+base}" "${@-build}"
 SRC=$SRC pkg sandbox "$ROOT" bash -l

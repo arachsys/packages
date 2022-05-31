@@ -19,7 +19,7 @@ apply() {
         ;;
     esac
   done
-  shift $(($OPTIND - 1))
+  shift $((OPTIND - 1))
 
   if [[ $# -eq 1 ]] && [[ -f $PKG/$1 ]]; then
     set -- "$PKG/$1"
@@ -109,7 +109,7 @@ fetch() {
 
 hashtree() {
   set -- . -mindepth 1 "$@"
-  local ARG; for (( ARG = 4; ARG <= $#; ARG += 4)); do
+  local ARG; for (( ARG = 4; ARG <= $#; ARG += 4 )); do
     set -- "${@:1:ARG - 1}" -path "./${!ARG}" -prune -or "${@:ARG + 1}"
   done
 
@@ -318,7 +318,7 @@ unpack() {
         ;;
     esac
   done
-  shift $(($OPTIND - 1))
+  shift $((OPTIND - 1))
 
   if [[ $# -eq 1 ]] && [[ -f $PKG/$1 ]]; then
     set -- "$PKG/$1"

@@ -11,7 +11,7 @@ action() {
         ;;
     esac
   done
-  shift $(($OPTIND - 1))
+  shift $((OPTIND - 1))
 
   mkdir -p "$CACHEDIR" "$IMGDIR"
   ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
