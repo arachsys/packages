@@ -3,12 +3,12 @@ require libevent
 
 check() {
   url https://github.com/tmux/tmux/releases
-  match version 3.2a 'tmux-([0-9.]+[a-z]?)\.tar'
+  match version 3.3 'tmux-([0-9.]+[a-z]?)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/tmux/tmux/releases/download/3.2a/tmux-3.2a.tar.gz
-  tree e78a4cc0d501d779b44cb29dcd0df42bdc3a2e95fc8fa063a44a64f2a6c4796c
+  unpack https://github.com/tmux/tmux/releases/download/3.3/tmux-3.3.tar.gz
+  tree 9c5855b1cf32b8ff2cf8b9e916723252e86730c8606d031911110c74bc753c41
 }
 
 post-config() {
