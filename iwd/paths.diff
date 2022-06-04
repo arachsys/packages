@@ -1,18 +1,18 @@
 diff --git a/configure b/configure
-index a2e161f..2a816ff 100755
+index 9c6f5d9..91d365a 100755
 --- a/configure
 +++ b/configure
-@@ -12889,7 +12889,7 @@ _ACEOF
+@@ -13518,7 +13518,7 @@ wired_storagedir=${wired_storagedir}
+ printf "%s\n" "#define DAEMON_STORAGEDIR \"${daemon_storagedir}\"" >>confdefs.h
  
  
- cat >>confdefs.h <<_ACEOF
--#define DAEMON_CONFIGDIR "/etc/iwd"
-+#define DAEMON_CONFIGDIR "/etc"
- _ACEOF
+-printf "%s\n" "#define DAEMON_CONFIGDIR \"/etc/iwd\"" >>confdefs.h
++printf "%s\n" "#define DAEMON_CONFIGDIR \"/etc\"" >>confdefs.h
+ 
  
  
 diff --git a/configure.ac b/configure.ac
-index c625040..a36812c 100644
+index 82da1c4..2fa2dba 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -121,7 +121,7 @@ AC_SUBST([wired_storagedir], [${wired_storagedir}])
@@ -53,11 +53,11 @@ index c3f27cf..6298ad2 100644
  	for (i = 0; !db && i < L_ARRAY_SIZE(paths); i++)
  		db = l_hwdb_new(paths[i]);
 diff --git a/src/iwd.config.5 b/src/iwd.config.5
-index b0f015c..d412180 100644
+index fdb734f..ba31e7d 100644
 --- a/src/iwd.config.5
 +++ b/src/iwd.config.5
 @@ -32,15 +32,15 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
- ..
+ iwd.config \- Configuration file for wireless daemon
  .SH SYNOPSIS
  .sp
 -Configuration file \fBmain.conf\fP
@@ -77,7 +77,7 @@ index b0f015c..d412180 100644
  .sp
  See \fIiwd.network\fP for details on the file format.
 diff --git a/src/iwd.config.rst b/src/iwd.config.rst
-index 78ec284..24fb513 100644
+index 356b39f..4719a03 100644
 --- a/src/iwd.config.rst
 +++ b/src/iwd.config.rst
 @@ -20,17 +20,17 @@ Configuration file for wireless daemon
@@ -116,10 +116,10 @@ index c719fbc..ef8d2b4 100644
  
  See *iwd.debug* for further environment variables for debugging.
 diff --git a/src/main.c b/src/main.c
-index 8eb14fc..8e530a1 100644
+index add3029..b3cd266 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -492,7 +492,7 @@ int main(int argc, char *argv[])
+@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
  
  	for (i = 0; config_dirs[i]; i++) {
  		L_AUTO_FREE_VAR(char *, path) =
@@ -129,10 +129,10 @@ index 8eb14fc..8e530a1 100644
  		if (!l_settings_load_from_file(iwd_config, path))
  			continue;
 diff --git a/src/resolve.c b/src/resolve.c
-index 9b72439..a01252e 100644
+index 6ce3fa7..d674409 100644
 --- a/src/resolve.c
 +++ b/src/resolve.c
-@@ -509,7 +509,7 @@ static struct resolve_ops resolvconf_ops = {
+@@ -510,7 +510,7 @@ static struct resolve_ops resolvconf_ops = {
  
  static int resolve_resolvconf_init(void)
  {

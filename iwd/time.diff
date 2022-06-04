@@ -1,0 +1,13 @@
+diff --git a/ell/time-private.h b/ell/time-private.h
+index 5295d94..0572d4e 100644
+--- a/ell/time-private.h
++++ b/ell/time-private.h
+@@ -20,6 +20,8 @@
+  *
+  */
+ 
++#include <sys/time.h>
++
+ uint64_t _time_pick_interval_secs(uint32_t min_secs, uint32_t max_secs);
+ uint64_t _time_fuzz_msecs(uint64_t ms);
+ uint64_t _time_fuzz_secs(uint32_t secs, uint32_t max_offset);
