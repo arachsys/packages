@@ -1,0 +1,185 @@
+diff --git a/lib/ipmi_isol.c b/lib/ipmi_isol.c
+index bc0b08b..01e09f1 100644
+--- a/lib/ipmi_isol.c
++++ b/lib/ipmi_isol.c
+@@ -365,16 +365,15 @@ suspendSelf(int bRestoreTty)
+ static void
+ printiSolEscapeSequences(void)
+ {
+-	printf(
+-		   "%c?\n\
+-	Supported escape sequences:\n\
+-	%c.  - terminate connection\n\
+-	%c^Z - suspend ipmitool\n\
+-	%c^X - suspend ipmitool, but don't restore tty on restart\n\
+-	%cB  - send break\n\
+-	%c?  - this message\n\
+-	%c%c  - send the escape character by typing it twice\n\
+-	(Note that escapes are only recognized immediately after newline.)\n",
++	printf("%c?\r\n\
++Supported escape sequences:\r\n\
++ %c.  - terminate connection\r\n\
++ %c^Z - suspend ipmitool\r\n\
++ %c^X - suspend ipmitool, but don't restore tty on restart\r\n\
++ %cB  - send break\r\n\
++ %c?  - this message\r\n\
++ %c%c  - send the escape character by typing it twice\r\n\
++(Note that escapes are only recognized immediately after newline.)\r\n",
+ 		   ISOL_ESCAPE_CHARACTER,
+ 		   ISOL_ESCAPE_CHARACTER,
+ 		   ISOL_ESCAPE_CHARACTER,
+@@ -484,21 +483,21 @@ processiSolUserInput(struct ipmi_intf * intf,
+ 			 */
+ 			switch (ch) {
+ 			case '.':
+-				printf("%c. [terminated ipmitool]\n", ISOL_ESCAPE_CHARACTER);
++				printf("%c. [terminated ipmitool]\r\n", ISOL_ESCAPE_CHARACTER);
+ 				retval = 1;
+ 				break;
+ 			case 'Z' - 64:
+-				printf("%c^Z [suspend ipmitool]\n", ISOL_ESCAPE_CHARACTER);
++				printf("%c^Z [suspend ipmitool]\r\n", ISOL_ESCAPE_CHARACTER);
+ 				suspendSelf(1); /* Restore tty back to raw */
+ 				continue;
+ 
+ 			case 'X' - 64:
+-				printf("%c^X [suspend ipmitool]\n", ISOL_ESCAPE_CHARACTER);
++				printf("%c^X [suspend ipmitool]\r\n", ISOL_ESCAPE_CHARACTER);
+ 				suspendSelf(0); /* Don't restore to raw mode */
+ 				continue;
+ 
+ 			case 'B':
+-				printf("%cb [send break]\n", ISOL_ESCAPE_CHARACTER);
++				printf("%cb [send break]\r\n", ISOL_ESCAPE_CHARACTER);
+ 				sendBreak(intf);
+ 				continue;
+ 
+diff --git a/lib/ipmi_sol.c b/lib/ipmi_sol.c
+index 3acd5bb..cf2875e 100644
+--- a/lib/ipmi_sol.c
++++ b/lib/ipmi_sol.c
+@@ -1230,15 +1230,15 @@ static void
+ printSolEscapeSequences(struct ipmi_intf * intf)
+ {
+ 	printf(
+-		   "%c?\n\
+-	Supported escape sequences:\n\
+-	%c.  - terminate connection\n\
+-	%c^Z - suspend ipmitool\n\
+-	%c^X - suspend ipmitool, but don't restore tty on restart\n\
+-	%cB  - send break\n\
+-	%c?  - this message\n\
+-	%c%c  - send the escape character by typing it twice\n\
+-	(Note that escapes are only recognized immediately after newline.)\n",
++		   "%c?\r\n\
++Supported escape sequences:\r\n\
++ %c.  - terminate connection\r\n\
++ %c^Z - suspend ipmitool\r\n\
++ %c^X - suspend ipmitool, but don't restore tty on restart\r\n\
++ %cB  - send break\r\n\
++ %c?  - this message\r\n\
++ %c%c  - send the escape character by typing it twice\r\n\
++(Note that escapes are only recognized immediately after newline.)\r\n",
+ 		   intf->ssn_params.sol_escape_char,
+ 		   intf->ssn_params.sol_escape_char,
+ 		   intf->ssn_params.sol_escape_char,
+@@ -1382,25 +1382,25 @@ processSolUserInput(
+ 			 */
+ 			switch (ch) {
+ 			case '.':
+-				printf("%c. [terminated ipmitool]\n",
++				printf("%c. [terminated ipmitool]\r\n",
+ 				       intf->ssn_params.sol_escape_char);
+ 				retval = 1;
+ 				break;
+ 
+ 			case 'Z' - 64:
+-				printf("%c^Z [suspend ipmitool]\n",
++				printf("%c^Z [suspend ipmitool]\r\n",
+ 				       intf->ssn_params.sol_escape_char);
+ 				suspendSelf(1); /* Restore tty back to raw */
+ 				continue;
+ 
+ 			case 'X' - 64:
+-				printf("%c^Z [suspend ipmitool]\n",
++				printf("%c^Z [suspend ipmitool]\r\n",
+ 				       intf->ssn_params.sol_escape_char);
+ 				suspendSelf(0); /* Don't restore to raw mode */
+ 				continue;
+ 
+ 			case 'B':
+-				printf("%cB [send break]\n",
++				printf("%cB [send break]\r\n",
+ 				       intf->ssn_params.sol_escape_char);
+ 				sendBreak(intf);
+ 				continue;
+diff --git a/lib/ipmi_tsol.c b/lib/ipmi_tsol.c
+index d89bcfd..9a8a2d8 100644
+--- a/lib/ipmi_tsol.c
++++ b/lib/ipmi_tsol.c
+@@ -179,12 +179,12 @@ static void
+ print_escape_seq(struct ipmi_intf *intf)
+ {
+ 	lprintf(LOG_NOTICE,
+-"       %c.  - terminate connection\n"
+-"       %c^Z - suspend ipmitool\n"
+-"       %c^X - suspend ipmitool, but don't restore tty on restart\n"
+-"       %c?  - this message\n"
+-"       %c%c  - send the escape character by typing it twice\n"
+-"       (Note that escapes are only recognized immediately after newline.)",
++" %c.  - terminate connection\r\n"
++" %c^Z - suspend ipmitool\r\n"
++" %c^X - suspend ipmitool, but don't restore tty on restart\r\n"
++" %c?  - this message\r\n"
++" %c%c  - send the escape character by typing it twice\r\n"
++"(Note that escapes are only recognized immediately after newline.)",
+ 			intf->ssn_params.sol_escape_char,
+ 			intf->ssn_params.sol_escape_char,
+ 			intf->ssn_params.sol_escape_char,
+@@ -280,23 +280,23 @@ do_inbuf_actions(struct ipmi_intf *intf, char *in_buff, int len)
+ 
+ 			switch (in_buff[i]) {
+ 			case '.':
+-				printf("%c. [terminated ipmitool]\n",
++				printf("%c. [terminated ipmitool]\r\n",
+ 						intf->ssn_params.sol_escape_char);
+ 				return -1;
+ 			case 'Z' - 64:
+-				printf("%c^Z [suspend ipmitool]\n",
++				printf("%c^Z [suspend ipmitool]\r\n",
+ 						intf->ssn_params.sol_escape_char);
+ 				/* Restore tty back to raw */
+ 				suspend_self(1);
+ 				break;
+ 			case 'X' - 64:
+-				printf("%c^X [suspend ipmitool]\n",
++				printf("%c^X [suspend ipmitool]\r\n",
+ 						intf->ssn_params.sol_escape_char);
+ 				/* Don't restore to raw mode */
+ 				suspend_self(0);
+ 				break;
+ 			case '?':
+-				printf("%c? [ipmitool help]\n",
++				printf("%c? [ipmitool help]\r\n",
+ 						intf->ssn_params.sol_escape_char);
+ 				print_escape_seq(intf);
+ 				break;
+@@ -486,9 +486,6 @@ ipmi_tsol_main(struct ipmi_intf *intf, int argc, char **argv)
+ 	printf("[Starting %sSOL with receiving address %s:%d]\n",
+ 			read_only ? "Read-only " : "", recvip, port);
+ 
+-	set_terminal_size(rows, cols);
+-	enter_raw_mode();
+-
+ 	/*
+ 	 * talk to smdc to start Console redirect - IP address and port as parameter
+ 	 * ipmitool -I lan -H 192.168.168.227 -U Administrator raw 0x30 0x06 0xC0 0xA8 0xA8 0x78 0x1A 0x0A
+@@ -503,6 +500,8 @@ ipmi_tsol_main(struct ipmi_intf *intf, int argc, char **argv)
+ 	printf("[SOL Session operational.  Use %c? for help]\n",
+ 			intf->ssn_params.sol_escape_char);
+ 
++	set_terminal_size(rows, cols);
++	enter_raw_mode();
+ 	gettimeofday(&_start_keepalive, 0);
+ 
+ 	fds_wait[0].fd = fd_socket;
