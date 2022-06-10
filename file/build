@@ -2,10 +2,10 @@ mode autotools
 
 check() {
   url http://ftp.astron.com/pub/file/
-  match version 5.41 'file-([0-9.]+)\.tar'
+  match version 5.42 'file-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack http://ftp.astron.com/pub/file/file-5.41.tar.gz
-  tree 98d343d4665d485e0a0fc1d2b4515c972baffa30db928b4aab634a7f0185ffa5
+  unpack http://ftp.astron.com/pub/file/file-5.42.tar.gz
+  tree b9f6a8843537db70d6fe21e2d418ba558f72942fc7fd7675ec8554ed27fe512a
 }
