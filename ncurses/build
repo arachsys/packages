@@ -7,8 +7,9 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz
+  sed -i 's_/.terminfo_/.config/terminfo_g' include/{term_entry,tic}.h
   sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src
-  tree b17abc3313bf7d72097558d800639d9d5a89c12ea8a40ec3b0b92369d93e2f91
+  tree 6decf7398d8a839358b3197cef3dc94a18bf3dd6e7928bd3694c978025d2dc1a
 }
 
 config-extra --disable-{rpath-hack,termcap} --enable-{const,widec} \
