@@ -7,11 +7,11 @@ check() {
 
 prepare() {
   unpack https://github.com/ipmitool/ipmitool/releases/download/IPMITOOL_1_8_18/ipmitool-1.8.18.tar.bz2
+  apply console.diff
   apply libressl.diff
   apply nocommon.diff
   apply overflows.diff
-  apply solhelp.diff
-  tree 8c0d36a324a3f4d70980d72bdd758ead8c814db970bad09ed2084f10d5229a9c
+  tree 19f5b5912d45d9ec9ad547ecb8621fda57ca109d2f8830134b4d72ef22891f38
 }
 
 config-extra --disable-intf-{bmc,free,imb,lipmi,lan,serial}
