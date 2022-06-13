@@ -1,0 +1,14 @@
+check() {
+  url https://mirrors.edge.kernel.org/pub/software/utils/i2c-tools/
+  match version 4.3 'i2c-tools-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://mirrors.edge.kernel.org/pub/software/utils/i2c-tools/i2c-tools-4.3.tar.xz
+  tree ad6579b91438775b9e892b555232ae1feacbb7fd523af8f9c7e5666a1e31d82b
+}
+
+build() {
+  make BUILD_DYNAMIC_LIB=0
+  install -s -t /dst/bin -D tools/i2c{detect,dump,get,set,transfer}
+}
