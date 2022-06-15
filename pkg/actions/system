@@ -1,5 +1,5 @@
-unset TEMPLATE WITHIMG WITHPKG
-while getopts :ipt: OPTION; do
+unset WITHIMG WITHPKG
+while getopts :ip OPTION; do
   case $OPTION in
     i)
       WITHIMG=1
@@ -7,20 +7,13 @@ while getopts :ipt: OPTION; do
     p)
       WITHPKG=1
       ;;
-    t)
-      if [[ -d $OPTARG ]]; then
-        TEMPLATE=$OPTARG
-      else
-        die "Template directory $OPTARG not found"
-      fi
-      ;;
   esac
 done
 shift $((OPTIND - 1))
 
 if [[ $# -lt 1 ]]; then
   die "$(< $LIBRARY/help)"
-elif [[ -e "$1" ]]; then
+elif [[ $1 != - ]] && [[ -e "$1" ]]; then
   die "Cannot construct system image: $1 already exists"
 fi
 
@@ -33,16 +26,11 @@ fi
 mkdir -p "$IMGDIR"
 ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
 trap 'rm -f -r --one-file-system "$ROOT"' EXIT
-chmod 0755 "$ROOT"
 
 mkdir -m 0755 -p "$ROOT"/{bin,dev,etc,lib,proc,run,sys,var,var/lib,var/log}
 mkdir -m 1777 -p "$ROOT"/{run/shm,tmp}
 cp -t "$ROOT/etc" -L -R /etc/{protocols,services,ssl} \
   "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"
-
-if [[ -n $TEMPLATE ]]; then
-  cp -a -T -- "$TEMPLATE" "$ROOT"
-fi
 
 if [[ -n $WITHPKG ]]; then
   mkdir -m 0755 -p "$ROOT"/{home,home/root,home/root/pkg}
@@ -60,9 +48,10 @@ resolve "${@:2}" | while read IMG; do
   fi
 done
 
-if [[ $1 == *.tar?(.gz|.bz2|.xz|.zstd) ]]; then
-  tar -a -c -f "$1" -C "$ROOT" --numeric-owner --strip-components=1 .
+chmod 0755 "$ROOT"
+if [[ $1 == - ]]; then
+  trap - EXIT
+  printf '%s\n' "$ROOT"
 else
-  chmod 0755 "$ROOT"
   mv -T "$ROOT" "$1"
 fi

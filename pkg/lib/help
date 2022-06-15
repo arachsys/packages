@@ -36,17 +36,14 @@ pkg requirements PKG [FEATURE]...
 
 pkg shell [PKG]...
   Start a login shell in a temporary chroot constructed from the images in
-  $IMGDIR, containing the base packages plus any specified additions. The
+  $IMGDIR, including the base packages plus any specified additions. The
   temporary root filesystem is deleted when the shell exits.
 
-pkg system [-i] [-p] [-t TEMPLATE] DIR [PKG]...
-  Construct a bootstrap system image in DIR from package images in $IMGDIR,
-  containing the base packages plus any specified additions. DIR must not
-  already exist. If DIR is of the form FILE.tar[.gz|.bz2|.xz|.zstd], a tar
-  archive is generated instead of a directory. The system can be populated
-  from a template directory using -t TEMPLATE. Use -i to hard-link included
-  images into /home/root/img. Use -p to copy the whole package recipe tree
-  from $PKGDIR into /home/root/pkg.
+pkg system [-i] [-p] DIR [PKG]...
+  Construct a system image in DIR from package images in $IMGDIR, including
+  the base packages plus any specified additions. DIR must not already
+  exist. Use -i to hard-link included images into /home/root/img. Use -p to
+  copy the whole package recipe tree from $PKGDIR into /home/root/pkg.
 
 pkg unpack [-d DIR] [-p STRIP] PATCH
   Unpack a source tree tar file from a remote URL or local file.
