@@ -12,7 +12,7 @@ prepare() {
   apply cosmetic.diff
   apply paths.diff
   apply settime.diff
-  tree 43d20747fd823819d74e3b128f387c1a81a5268e487444dfb4fe6f11d9367f62
+  tree 6eff5655d5cdf7ee5c39364b90d3bcfb7fae779a6d12ddb0ade1c8d6c44bf37a
 }
 
 config-extra --enable-https-constraint --with-privsep-user=ntp
