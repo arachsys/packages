@@ -1,10 +1,10 @@
 check() {
   url https://www.kernel.org/
-  match linux 5.18.4 'linux-([0-9.]+)\.tar'
+  match linux 5.18.5 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.18.4.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.18.5.tar.xz
   apply llvm.diff
   apply md.diff
   apply ncurses.diff
@@ -16,7 +16,7 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree a9be88a93b61264f21d04fdac031ff5921d95c0bb75d208db269a6f7d8c133b1
+  tree 951ac3107aed2382e0cba296ab15e9720bf114b3cf4197451201ef4876bdcb32
 }
 
 build() {
