@@ -1,0 +1,25 @@
+diff --git a/src/ntpd.c b/src/ntpd.c
+index 49f8f3a..3a5aa0c 100644
+--- a/src/ntpd.c
++++ b/src/ntpd.c
+@@ -115,9 +115,9 @@ usage(void)
+ 
+ 	if (strcmp(__progname, "ntpctl") == 0)
+ 		fprintf(stderr,
+-		    "usage: ntpctl -s all | peers | Sensors | status\n");
++		    "Usage: ntpctl -s a[ll] | p[eers] | S[ensors] | s[tatus]\n");
+ 	else
+-		fprintf(stderr, "usage: %s [-dnv] [-f file] [-p file]\n",
++		fprintf(stderr, "Usage: %s [-dnv] [-f FILE] [-p FILE]\n",
+ 		    __progname);
+ 	exit(1);
+ }
+@@ -417,7 +417,7 @@ main(int argc, char *argv[])
+ 
+ 	msgbuf_clear(&ibuf->w);
+ 	free(ibuf);
+-	log_info("Terminating");
++	log_info("terminating");
+ 	if (lconf.pid_file != NULL)
+ 		unlink(lconf.pid_file);
+ 	return (0);
