@@ -1,0 +1,13 @@
+check() {
+  url https://git.zx2c4.com/wireguard-tools
+  match version 1.0.20210914 'wireguard-tools-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210914.tar.xz
+  tree 3d37e9c5932ff034e8c0a38fc7a05b0d5ade5c579c75c1776fc9fafe5209a0bf
+}
+
+build() {
+  make -C src install DESTDIR=/dst PREFIX= MANDIR=/lib/man WITH_WGQUICK=no
+}
