@@ -1,0 +1,19 @@
+check() {
+  url https://api.github.com/repos/arachsys/tube/branches/master
+  match snapshot 20220623 \
+    '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
+}
+
+prepare() {
+  unpack tube-20220623-2a54e49f.tar.gz \
+    https://github.com/arachsys/tube/archive/2a54e49fd61cf2282176c50ce3a1ae2507bdc8c5.tar.gz
+  tree 3ad5b5fb8cdc61fb97eb901cbcedfa68d962d77c87ac23d444490da19f8a0863
+}
+
+build() {
+  if [[ $CHOST == aarch64-* ]]; then
+    make install DESTDIR=/dst CFLAGS='-mcpu=native -O3 -Wall -Wfatal-errors'
+  else
+    make install DESTDIR=/dst
+  fi
+}
