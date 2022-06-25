@@ -2,13 +2,13 @@ mode autotools
 
 check() {
   url https://www.sqlite.org/index.html
-  match version 3.38.5 'Version ([0-9.]*[0-9])'
+  match version 3.39.0 'Version ([0-9.]*[0-9])'
 }
 
 prepare() {
-  unpack sqlite-3.38.5.tar.gz \
-    https://www.sqlite.org/2022/sqlite-autoconf-3380500.tar.gz
-  tree e2ad011057b46b7bb7adc6cb0aab340aac227370eec0837c4e949a2b373ae14d
+  unpack sqlite-3.39.0.tar.gz \
+    https://www.sqlite.org/2022/sqlite-autoconf-3390000.tar.gz
+  tree 74e196ed2e3a11aa1e229da7497bfe3aede0d689b77052f51f1b01e7458b1bd8
 }
 
 config-extra --disable-static-shell
