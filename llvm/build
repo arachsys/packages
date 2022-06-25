@@ -2,15 +2,15 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/releases
-  match llvm 14.0.5 'llvm-project-([0-9.]+)\.src\.tar'
+  match llvm 14.0.6 'llvm-project-([0-9.]+)\.src\.tar'
 
   url https://github.com/Kitware/CMake/releases
   match cmake 3.23.2 'cmake-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-project-14.0.5.tar.xz \
-    https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.5/llvm-project-14.0.5.src.tar.xz
+  unpack llvm-project-14.0.6.tar.xz \
+    https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/llvm-project-14.0.6.src.tar.xz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2.tar.gz
   apply aarch64.diff
@@ -21,7 +21,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 11fa4e774ca7fcdfffeaf8a87a994cb8d085d3a0efc9fa5858e829eef2a8bd2b
+  tree 8fd31a9613f0b41a717219fc009d3b906e78c483fe42e5fac2c0fa3f235a284d
 }
 
 build() {
