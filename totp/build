@@ -1,13 +1,13 @@
 check() {
   url https://api.github.com/repos/arachsys/totp/branches/master
-  match snapshot 20210313 \
+  match snapshot 20220623 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack totp-20210313-7cf00a65.tar.gz \
-    https://github.com/arachsys/totp/archive/7cf00a65fcbdccb78517f96cee07bf19329c03bd.tar.gz
-  tree c67467eb7262840a752b29ae6a9e1d2eadb4b580c42ec58f7ad0683f0f029b82
+  unpack totp-20220623-210d9843.tar.gz \
+    https://github.com/arachsys/totp/archive/210d984360d6ce1dde6bca46cde6ad7d5dd7daac.tar.gz
+  tree ca60748eea293d3aeb87e42118e71f205da3caf50f1574c55fafdb82c94a080f
 }
 
 build() {
