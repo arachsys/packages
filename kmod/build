@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/
-  match version 29 'kmod-([0-9.]+)\.tar'
+  match version 30 'kmod-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-29.tar.xz
-  tree 191d974cc91aff535d0fdfd78b37449ffa00101302f6d4c29c551ecb9dab5fa5
+  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-30.tar.xz
+  tree 93a77128aada35b5ab01883b0d7d91832ee9c89236fa2485e6f0325165f1c4f9
 }
 
 config-extra --with-{xz,zlib} liblzma_CFLAGS=-I/lib/include \
