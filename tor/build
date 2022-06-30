@@ -9,8 +9,9 @@ check() {
 prepare() {
   unpack https://dist.torproject.org/tor-0.4.7.8.tar.gz
   apply cosmetic.diff
+  apply config.diff
   apply libressl.diff
-  tree 162094c8ff7229dc800b3e583cab2ae9e6bafb8e2f8881a4258ef83b6f4bdbeb
+  tree b5851305f25a28e8ea9dd02854137a5af59abe34dae9cde627c9b76772a7dace
 }
 
 config-extra --enable-lzma --enable-zstd CONFDIR=/etc \
