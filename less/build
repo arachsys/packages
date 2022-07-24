@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url http://www.greenwoodsoftware.com/less/download.html
-  match version 603 'less-([0-9.]+)(-beta)?\.tar'
+  match version 608 'less-([0-9.]+)(-beta)?\.tar'
 }
 
 prepare() {
-  unpack http://www.greenwoodsoftware.com/less/less-603-beta.tar.gz
-  tree 9aa2782e31869f4209009a9db79beb2f248c910dfc3b26cc7adcceabf32ddfdf
+  unpack http://www.greenwoodsoftware.com/less/less-608-beta.tar.gz
+  tree 6f754a576d3cb86272274d1d12bd386d2bd384d7a0aab3277dda98fa8189e777
 }
 
 post-config() {
