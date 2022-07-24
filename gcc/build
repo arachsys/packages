@@ -59,6 +59,8 @@ config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
   --with-slibdir='${prefix}/lib/shared' --with-system-zlib \
   libat_cv_have_ifunc=no
 
+enabled bootstrap && config-extra --without-isl
+
 compile-extra tooldir='${prefix}'
 install-extra tooldir='${prefix}'
 
