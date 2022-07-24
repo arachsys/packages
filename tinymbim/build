@@ -1,0 +1,15 @@
+check() {
+  url https://api.github.com/repos/arachsys/tinymbim/branches/master
+  match snapshot 20220724 \
+    '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
+}
+
+prepare() {
+  unpack tinymbim-20220724-c9469427.tar.gz \
+    https://github.com/arachsys/tinymbim/archive/c946942728d2b97c0ae988c5a72ee6d6097ba514.tar.gz
+  tree 257854445384d04277b977f66ae99217a8525ffdcd6444db7173d4aed9f6e537
+}
+
+build() {
+  make install DESTDIR=/dst
+}
