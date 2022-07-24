@@ -48,7 +48,7 @@ build() {
   if TARGETS=$(feature targets); then
     CONFIG+=( -DLLVM_TARGETS_TO_BUILD="Native;${TARGETS//,/;}" )
   else
-    CONFIG+=( -DLLVM_TARGETS_TO_BUILD="Native;AArch64;X86;BPF;WebAssembly" )
+    CONFIG+=( -DLLVM_TARGETS_TO_BUILD="Native;AArch64;ARM;X86;BPF;WebAssembly" )
   fi
 
   mkdir -p /src/build
