@@ -39,7 +39,7 @@ prepare() {
   apply pure64.diff
   apply rpath.diff
 
-  tree c4431bf27f3ca3db301a0e0801c78bfe2a052ef92b77a3b24fda4bec29116fff
+  tree cfdd99e8523a902a2f7bee02731eba69d284f9d4fcdcf9d974b8bd49df3f202c
 }
 
 pre-config() {
@@ -59,7 +59,20 @@ config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
   --with-slibdir='${prefix}/lib/shared' --with-system-zlib \
   libat_cv_have_ifunc=no
 
-enabled bootstrap && config-extra --without-isl
+if ! ${CC:-cc} --version | fgrep -i -q gcc; then
+  config-extra --without-isl
+fi
+
+case "$CHOST" in
+  aarch64-*)
+    config-extra --with-arch=armv8-a --with-abi=lp64
+    ;;
+  armv7-*)
+    config-extra --with-abi=aapcs-linux --with-arch=armv7-a \
+      --with-fpu=vfpv3-d16 --with-float=hard --with-mode=thumb \
+      --with-tune=generic-armv7-a
+    ;;
+esac
 
 compile-extra tooldir='${prefix}'
 install-extra tooldir='${prefix}'
