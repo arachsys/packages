@@ -48,6 +48,11 @@ resolve "${@:2}" | while read IMG; do
   fi
 done
 
+if [[ -n $WITHIMG ]]; then
+  find "$IMGDIR" -maxdepth 1 -type f \
+    -exec cp -a -l -t "$ROOT/home/root/img" {} +
+fi
+
 chmod 0755 "$ROOT"
 if [[ $1 == - ]]; then
   trap - EXIT
