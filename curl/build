@@ -13,7 +13,8 @@ prepare() {
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.48.0/nghttp2-1.48.0.tar.xz
   apply paths.diff
-  tree c41f636b5ca94ead2300cc6f7ad251733bb1f45b1559400a81980f23406dd1a8
+  apply sched.diff
+  tree c6f85c7251574b64bbc9a393f41525547f67ecc341340e88e595f3d27415a2a7
 }
 
 pre-config() {
