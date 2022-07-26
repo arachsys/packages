@@ -16,7 +16,7 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree 01d733c503086c670c5a4259ac7d2135c75b608c60a2f64c7a43fe58151f6110
+  tree 8e88e584fcc86841433c34c7b6e3af01b6de6d86157a9e5697a7a8a1a92706cd
 }
 
 build() {

@@ -6,8 +6,8 @@ index 7d5b0bfe7..bd7ae14fb 100644
  HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
  HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
  
-+LLVM = 1
-+LLVM_IAS = 1
++LLVM := $(shell $${CC:-cc} --version | fgrep -i -q clang && echo 1)
++LLVM_IAS := $(LLVM)
 +
  ifneq ($(LLVM),)
  ifneq ($(filter %/,$(LLVM)),)
