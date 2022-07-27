@@ -1,0 +1,19 @@
+require libnl-tiny
+
+check() {
+  url https://w1.fi/releases/
+  match version 2.10 'hostapd-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://w1.fi/releases/hostapd-2.10.tar.gz
+  apply help.diff
+  apply libnl.diff
+  tree 0b6f84aa0ee4b4a09e86459f81a98956d269c7639a3f1daab5f3639e52af6190
+}
+
+build() {
+  cp /pkg/config hostapd/.config
+  make -C hostapd hostapd
+  install -s -D hostapd/hostapd /dst/bin/hostapd
+}
