@@ -1,0 +1,20 @@
+check() {
+  url https://git.openwrt.org/project/libnl-tiny.git
+  match version 2022-05-23 '([0-9]{4}-[0-9]{2}-[0-9]{2})'
+}
+
+prepare() {
+  unpack libnl-tiny-2022-05-23.tar.gz \
+    'https://git.openwrt.org/?p=project/libnl-tiny.git;a=snapshot;h=28c44ca9;sf=tgz'
+  tree d513f6b251c7e8deff272b4834038c10c349528465a631dde013887c4075f9d7
+}
+
+build() {
+  mkdir -p /dst/lib/shared /dst/lib/static
+  cp -r include /dst/lib/include
+
+  cc -c -fpic -Iinclude -Os *.c
+  cc -shared -Wl,-Bsymbolic-functions -o /dst/lib/shared/libnl-tiny.so.1 *.o
+  ln -s libnl-tiny.so.1 /dst/lib/shared/libnl-tiny.so
+  ar rcs /dst/lib/static/libnl-tiny.a *.o
+}
