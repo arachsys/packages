@@ -1,0 +1,99 @@
+diff --git a/configure b/configure
+index 15a5e68..4c7f450 100755
+--- a/configure
++++ b/configure
+@@ -7004,7 +7004,7 @@ $as_echo "not found" >&6; }
+ 			case "$with_libnl" in
+ 
+ 			yes|if_available)
+-				incdir=-I/usr/include/libnl3
++				incdir=
+ 				libnldir=
+ 				;;
+ 
+@@ -7016,13 +7016,13 @@ $as_echo "not found" >&6; }
+ 				;;
+ 			esac
+ 
+-			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for nl_socket_alloc in -lnl-3" >&5
+-$as_echo_n "checking for nl_socket_alloc in -lnl-3... " >&6; }
+-if ${ac_cv_lib_nl_3_nl_socket_alloc+:} false; then :
++			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for nl_socket_alloc in -lnl-tiny" >&5
++$as_echo_n "checking for nl_socket_alloc in -lnl-tiny... " >&6; }
++if ${ac_cv_lib_nl_tiny_nl_socket_alloc+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lnl-3 ${incdir} ${libnldir} -lnl-genl-3 -lnl-3  $LIBS"
++LIBS="-lnl-tiny ${incdir} ${libnldir} -lnl-tiny $LIBS"
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+@@ -7042,22 +7042,22 @@ return nl_socket_alloc ();
+ }
+ _ACEOF
+ if ac_fn_c_try_link "$LINENO"; then :
+-  ac_cv_lib_nl_3_nl_socket_alloc=yes
++  ac_cv_lib_nl_tiny_nl_socket_alloc=yes
+ else
+-  ac_cv_lib_nl_3_nl_socket_alloc=no
++  ac_cv_lib_nl_tiny_nl_socket_alloc=no
+ fi
+ rm -f core conftest.err conftest.$ac_objext \
+     conftest$ac_exeext conftest.$ac_ext
+ LIBS=$ac_check_lib_save_LIBS
+ fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nl_3_nl_socket_alloc" >&5
+-$as_echo "$ac_cv_lib_nl_3_nl_socket_alloc" >&6; }
+-if test "x$ac_cv_lib_nl_3_nl_socket_alloc" = xyes; then :
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nl_tiny_nl_socket_alloc" >&5
++$as_echo "$ac_cv_lib_nl_tiny_nl_socket_alloc" >&6; }
++if test "x$ac_cv_lib_nl_tiny_nl_socket_alloc" = xyes; then :
+ 
+ 				#
+-				# Yes, we have libnl 3.x.
++				# Yes, we have libnl-tiny.
+ 				#
+-				LIBS="${libnldir} -lnl-genl-3 -lnl-3 $LIBS"
++				LIBS="${libnldir} -lnl-tiny $LIBS"
+ 
+ $as_echo "#define HAVE_LIBNL 1" >>confdefs.h
+ 
+diff --git a/configure.ac b/configure.ac
+index edb25ae..cb4420e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -891,7 +891,7 @@ linux)
+ 			case "$with_libnl" in
+ 
+ 			yes|if_available)
+-				incdir=-I/usr/include/libnl3
++				incdir=
+ 				libnldir=
+ 				;;
+ 
+@@ -903,12 +903,12 @@ linux)
+ 				;;
+ 			esac
+ 
+-			AC_CHECK_LIB(nl-3, nl_socket_alloc,
++			AC_CHECK_LIB(nl-tiny, nl_socket_alloc,
+ 			[
+ 				#
+-				# Yes, we have libnl 3.x.
++				# Yes, we have libnl-tiny.
+ 				#
+-				LIBS="${libnldir} -lnl-genl-3 -lnl-3 $LIBS"
++				LIBS="${libnldir} -lnl-tiny $LIBS"
+ 				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
+ 				V_INCLS="$V_INCLS ${incdir}"
+ 			],[
+@@ -920,7 +920,7 @@ linux)
+ 				if test x$with_libnl = xyes ; then
+ 					AC_MSG_ERROR([libnl support requested but libnl not found])
+ 				fi
+-			], ${incdir} ${libnldir} -lnl-genl-3 -lnl-3 )
++			], ${incdir} ${libnldir} -lnl-tiny )
+ 		fi
+ 	fi
+ 

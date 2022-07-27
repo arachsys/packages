@@ -1,28 +1,18 @@
-require bison flex
+require bison flex libnl-tiny
 
 check() {
   url https://mirrors.edge.kernel.org/pub/software/network/iw/
   match iw 5.19 'iw-([0-9.]+)\.tar'
-
-  url https://github.com/thom311/libnl/releases
-  match libnl 3.7.0 'libnl-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-5.19.tar.xz
-  unpack -d libnl \
-    https://github.com/thom311/libnl/releases/download/libnl3_7_0/libnl-3.7.0.tar.gz
   apply paths.diff
-  tree e94f9a838a29bd44e9de815fc160f04ddfb757c99d5644c3bc71bef2a2013963
+  tree 01ef9fc227ad9c5828c26386189e8a9ca306ab8522b2631138d4cc868cd9d22d
 }
 
 build() {
-  cd libnl
-  /src/libnl/configure --prefix=/src/libs --disable-shared
-  make install
-  cd /src
-
   make DESTDIR=/dst PREFIX= SBINDIR=/bin MANDIR=/lib/man NO_PKG_CONFIG=1 \
-    CFLAGS="-Os ${CFLAGS} -DCONFIG_LIBNL30 -I/src/libs/include/libnl3" \
-    LIBS="-L/src/libs/lib -lnl-genl-3 -lnl-3" install
+    CFLAGS="-Os ${CFLAGS} -D_GNU_SOURCE -DCONFIG_LIBNL30" \
+    LIBS="-Wl,-Bstatic -lnl-tiny -Wl,-Bdynamic" install
 }

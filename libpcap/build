@@ -1,5 +1,5 @@
 mode autotools
-require bison flex
+require bison flex libnl-tiny
 
 check() {
   url https://www.tcpdump.org/release/
@@ -8,10 +8,15 @@ check() {
 
 prepare() {
   unpack https://www.tcpdump.org/release/libpcap-1.10.1.tar.gz
-  tree a95beebfeaea163cc3d7ef5f193baf052624c3978ac006a46f3943a3bb5b534c
+  apply libnl.diff
+  tree 818112f99865e87ba9f1230bd38c6949617c8dc04d7e4ac736f53274d0cdf5a1
 }
 
 config-extra --with-pcap=linux
+
+post-config() {
+  sed -i 's/-lnl-tiny/-Wl,-Bstatic \0 -Wl,-Bdynamic/g' **/Makefile
+}
 
 post-install() {
   rm -f /dst/bin/pcap-config
