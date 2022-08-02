@@ -5,14 +5,14 @@ check() {
   match llvm 14.0.6 'llvm-project-([0-9.]+)\.src\.tar'
 
   url https://github.com/Kitware/CMake/releases
-  match cmake 3.23.2 'cmake-([0-9.]+)\.tar'
+  match cmake 3.23.3 'cmake-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-project-14.0.6.tar.xz \
     https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/llvm-project-14.0.6.src.tar.xz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3.tar.gz
   apply aarch64.diff
   apply cmake.diff
   apply config.diff
@@ -21,7 +21,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 8fd31a9613f0b41a717219fc009d3b906e78c483fe42e5fac2c0fa3f235a284d
+  tree 70b3e197bbada6fcb58db563d18a077d8cf094030b10abf989dc8213b226a4b9
 }
 
 build() {
