@@ -2,13 +2,14 @@ require bison flex
 
 check() {
   url https://www.kernel.org/pub/linux/utils/net/iproute2/
-  match version 5.18.0 'iproute2-([0-9.]+)\.tar'
+  match version 5.19.0 'iproute2-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.18.0.tar.xz
+  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.19.0.tar.xz
+  apply includes.diff
   apply paths.diff
-  tree 0f9cd28992a50aa8616a62361d6e8cc1c8c340dd51c85d4b21ddfeef552bb5c8
+  tree 1d538cdcb6b4500932c1891ad5c087ea6641a5baeaf5cd7ae1993f83aa813bd4
 }
 
 build() {
