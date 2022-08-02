@@ -3,18 +3,18 @@ require libffi sqlite
 
 check() {
   url https://www.python.org/downloads/source/
-  match version 3.10.5 'Python-([0-9.]+)\.tar'
+  match version 3.10.6 'Python-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack python-3.10.5.tar.xz \
-    https://www.python.org/ftp/python/3.10.5/Python-3.10.5.tar.xz
+  unpack python-3.10.6.tar.xz \
+    https://www.python.org/ftp/python/3.10.6/Python-3.10.6.tar.xz
   apply getpath.diff
   apply history.diff
   apply libressl.diff
   apply musl.diff
   apply paths.diff
-  tree 21fef9661e7d0b0276799966f8a42da681c0f09f744b5411c4cf7383f08457c6
+  tree dd2cb94ea07d3b061356afcaf82dd192b669fce8c088cdb03533d4ccef8af516
 }
 
 config-extra --enable-optimizations --enable-shared --with-dbmliborder= \
@@ -30,12 +30,6 @@ post-install() {
   for WHEEL in pip-*.whl setuptools-*.whl; do
     LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/python -m wheel unpack $WHEEL
   done
-
-  sed -e 's:^\(datadir *=\).*:\1 /lib:' -e 's:^\(libdir *=\).*:\1 /lib:' \
-    -e 's:{py_version_short}::g' -e 's:{abiflags}::g' \
-    -e 's:{base}/include:{base}/lib/include:g' \
-    -e 's:{platbase}/include:{platbase}/lib/include:g' \
-    -i pip-*/pip/_vendor/distlib/_backport/sysconfig.cfg
 
   sed -i '/^disable_pip_version_check/,/^)/s/default=False/default=True/' \
     pip-*/pip/_internal/cli/cmdoptions.py
