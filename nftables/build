@@ -32,7 +32,7 @@ pre-config() {
   make install
   cd /src
 
-  sed -i '/^SUBDIRS =/s/ examples//' Makefile.in
+  sed -i '/^SUBDIRS =/s/ \(examples\|files\)//g' Makefile.in
 }
 
 config-extra --disable-shared --with-cli=readline --with-mini-gmp \
