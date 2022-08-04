@@ -3,14 +3,14 @@ enable setuid setgid
 
 check() {
   url https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/refs/
-  match version 2.38 'util-linux-([0-9.]+)\.tar'
+  match version 2.38.1 'util-linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.38/util-linux-2.38.tar.xz
+  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.38/util-linux-2.38.1.tar.xz
   apply logger.diff
   apply paths.diff
-  tree 0e6baf3a75e7055cb6878aa5e129bdb1100146f68cfbcff740cc05568dc2dcb2
+  tree ca1adc9bda0e45bc6fe862525fd3389c6a1f14c06953fca1dedeb823f44d14c6
 }
 
 config-extra --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \
