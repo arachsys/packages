@@ -6,7 +6,7 @@ check() {
   match gcc 12.1.0 'gcc-([0-9.]+)/'
 
   url https://ftp.gnu.org/gnu/binutils/
-  match binutils 2.38 'binutils-([0-9.]+)\.tar'
+  match binutils 2.39 'binutils-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/gmp/
   match gmp 6.2.1 'gmp-([0-9.]+)\.tar'
@@ -23,7 +23,7 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/gcc/gcc-12.1.0/gcc-12.1.0.tar.xz
-  unpack -d bu https://ftp.gnu.org/gnu/binutils/binutils-2.38.tar.xz
+  unpack -d bu https://ftp.gnu.org/gnu/binutils/binutils-2.39.tar.xz
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.xz
   unpack -d isl https://libisl.sourceforge.io/isl-0.25.tar.xz
   unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.2.1.tar.gz
@@ -39,12 +39,12 @@ prepare() {
   apply pure64.diff
   apply rpath.diff
 
-  tree cfdd99e8523a902a2f7bee02731eba69d284f9d4fcdcf9d974b8bd49df3f202c
+  tree 5871da1a6c20fce69908d0cd4e8173dc3c052f403afd678ba5cb74621552a77d
 }
 
 pre-config() {
   # Work around a bug where makeinfo is required unconditionally:
-  sed -i 's/\(^INFO_DEPS *=\).*/\1/' gas/Makefile.in
+  sed -i 's/\(^INFO_DEPS *=\).*/\1/' {bfd,gas}/Makefile.in
 }
 
 config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
