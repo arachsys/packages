@@ -8,7 +8,7 @@ check() {
 prepare() {
   unpack micro-2.0.11.tar.gz \
     https://github.com/zyedidia/micro/archive/refs/tags/v2.0.11.tar.gz
-  GOPATH=/tmp/go go mod vendor
+  GOPATH=/tmp/go HOME=/tmp go mod vendor
   tree 8e822a90f51dd2c2fde0c391e85be96f1a985a5589eb9ba831a8724d26ddfc3e
 }
 
