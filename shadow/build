@@ -3,16 +3,20 @@ enable setuid setgid
 
 check() {
   url https://github.com/shadow-maint/shadow/releases
-  match version 4.11.1 'shadow-([0-9.]+)\.tar'
+  match version 4.12 'shadow-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/v4.11.1/shadow-4.11.1.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/4.12/shadow-4.12.tar.xz
   apply bcrypt.diff
   apply idmap.diff
   apply nss.diff
   apply paths.diff
-  tree 8ec4bde40f833863cdc57af7e7b2d5b45b9bb4c8c886da0d1c885895df8935ba
+  tree f1bd4021418c21c244355327ad413be5caf228d85df79c319e45f3f201196c8a
+}
+
+pre-config() {
+  mkdir man/uk && touch man/uk/Makefile.in
 }
 
 config-extra --disable-shared --without-{audit,libpam} --with-bcrypt

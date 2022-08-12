@@ -20,7 +20,7 @@ index af3e95a..5f9d155 100644
 +
 +bool nss_is_initialized(void) { return true; }
 +void nss_exit(void) { return; }
-+void nss_init(char *) { return; }
++void nss_init(const char *nsswitch_path) { return; }
 +struct subid_nss_ops *get_subid_nss_handle(void) { return NULL; };
 +
 +#endif /* __GLIBC__ */
