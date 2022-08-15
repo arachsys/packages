@@ -1,13 +1,13 @@
 check() {
   url https://api.github.com/repos/arachsys/tinymbim/branches/master
-  match snapshot 20220731 \
+  match snapshot 20220815 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack tinymbim-20220731-9968c30a.tar.gz \
-    https://github.com/arachsys/tinymbim/archive/9968c30af25dc66e74858341219a1e4e8b0df056.tar.gz
-  tree f717927d1b023f7f7b3968e2b2e61eeb1073555066c9db4c725afe2e8a58a0aa
+  unpack tinymbim-20220815-381bdbf9.tar.gz \
+    https://github.com/arachsys/tinymbim/archive/381bdbf94c18a104249d45f727d46c61f9f9b3db.tar.gz
+  tree 3015cfe1dc582ef1dddf351ea35350df86c568fcb19fab8fca5876d8634c9e80
 }
 
 build() {
