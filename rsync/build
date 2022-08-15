@@ -2,18 +2,18 @@ mode autotools
 
 check() {
   url https://download.samba.org/pub/rsync/
-  match version 3.2.4 'rsync-([0-9.]+)\.tar'
+  match version 3.2.5 'rsync-([0-9.]+)\.tar'
 
   url https://github.com/Cyan4973/xxHash/releases
   match xxhash 0.8.1 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://download.samba.org/pub/rsync/rsync-3.2.4.tar.gz
+  unpack https://download.samba.org/pub/rsync/rsync-3.2.5.tar.gz
   unpack -d xxhash xxhash-0.8.1.tar.gz \
     https://github.com/Cyan4973/xxHash/archive/refs/tags/v0.8.1.tar.gz
   apply paths.diff
-  tree b8eddb9db8ef9ee33453f9ad2fd2da4315bb49eae2a2c12fdb7e56d696f34a54
+  tree 34c8ac5c4a8df2fa43e7c4cd870aa6a3b27d33dbd3378b38ce47cea686fe4c38
 }
 
 pre-config() {
