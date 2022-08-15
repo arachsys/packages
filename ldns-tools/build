@@ -1,13 +1,12 @@
 check() {
   url https://www.nlnetlabs.nl/downloads/ldns/
-  match ldns 1.8.1 'ldns-([0-9.]+)\.tar'
+  match ldns 1.8.3 'ldns-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.nlnetlabs.nl/downloads/ldns/ldns-1.8.1.tar.gz
+  unpack https://www.nlnetlabs.nl/downloads/ldns/ldns-1.8.3.tar.gz
   fetch https://raw.githubusercontent.com/freebsd/freebsd-src/1c4f5adba92947a5faa1836449a621502a1678b8/contrib/ldns-host/ldns-host.c >ldns-host.c
-  apply libressl.diff
-  tree 5187d2dbbdc20465feb2a06e789404f1f04665dcc03974f63193902e1c6c818f
+  tree 250c40ff2a328c6e5b6c304205809d41ef0efc7f0b490bd577104aab88d39185
 }
 
 build() {
