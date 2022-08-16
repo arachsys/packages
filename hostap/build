@@ -1,0 +1,24 @@
+require libnl-tiny
+
+check() {
+  url https://w1.fi/cgit/hostap/refs/
+  match version 2.10 'hostap_([0-9]+)_([0-9]+)\.tar' '\1.\2'
+}
+
+prepare() {
+  unpack hostap-2.10.tar.gz \
+    https://w1.fi/cgit/hostap/snapshot/hostap_2_10.tar.gz
+  apply libnl.diff
+  apply tidy.diff
+  tree c766f46c558578ef7cb3ae497432c6883776d59de90f2a2dadfeb77abc076dc0
+}
+
+build() {
+  cp /pkg/config.hostapd hostapd/.config
+  make -C hostapd hostapd
+  install -s -D hostapd/hostapd /dst/bin/hostapd
+
+  cp /pkg/config.wpad wpa_supplicant/.config
+  make -C wpa_supplicant wpa_supplicant
+  install -s -D wpa_supplicant/wpa_supplicant /dst/bin/wpad
+}
