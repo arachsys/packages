@@ -2,10 +2,10 @@ mode autotools
 
 check() {
   url https://lttng.org/files/urcu/
-  match version 0.13.1 'userspace-rcu-([0-9.]+)\.tar'
+  match version 0.13.2 'userspace-rcu-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://lttng.org/files/urcu/userspace-rcu-0.13.1.tar.bz2
-  tree 0e955a3cabddc5ac2ecb2ccc2c48a7d58766159faf917faec992854de9aef21d
+  unpack https://lttng.org/files/urcu/userspace-rcu-0.13.2.tar.bz2
+  tree 4fa2ab4c370e11965ec7ec845899169fc59cea637d75651879b4d91f375bf22b
 }
