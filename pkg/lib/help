@@ -34,10 +34,17 @@ pkg prepare PKG SRC [FEATURE]...
 pkg requirements PKG [FEATURE]...
   List the build requirements for PKG with the specified FEATURE options.
 
-pkg shell [PKG]...
+pkg resolve [PKG]...
+  Expand the specified package image list by recursively adding runtime
+  requirements and the base packages. Run without arguments, pkg resolve
+  returns the standard build requirements.
+
+pkg shell [-s SRC] [PKG]...
   Start a login shell in a temporary chroot constructed from the images in
-  $IMGDIR, including the base packages plus any specified additions. The
-  temporary root filesystem is deleted when the shell exits.
+  $IMGDIR, including the base packages, specified additions and their
+  runtime requirements. If none are listed, the standard build requirements
+  are assumed. A source tree to bind at /src can be provided with the -s
+  option. The temporary root filesystem is deleted when the shell exits.
 
 pkg system DIR [PKG]...
   Construct a system image in DIR from package images in $IMGDIR, including
