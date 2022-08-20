@@ -39,13 +39,13 @@ pkg shell [PKG]...
   $IMGDIR, including the base packages plus any specified additions. The
   temporary root filesystem is deleted when the shell exits.
 
-pkg system [-i] [-p] DIR [PKG]...
+pkg system DIR [PKG]...
   Construct a system image in DIR from package images in $IMGDIR, including
-  the base packages plus any specified additions. DIR must not already
-  exist. Use -i to hard-link included images into /home/root/img. Use -p to
-  copy the whole package recipe tree from $PKGDIR into /home/root/pkg.
+  the base packages, specified additions and their runtime requirements. If
+  none are listed, the standard build requirements are used. DIR must not
+  already exist.
 
-pkg unpack [-d DIR] [-p STRIP] PATCH
+pkg unpack [-d DIR] [-p STRIP] TARFILE
   Unpack a source tree tar file from a remote URL or local file.
 
 Set the package source tree location with environment variable PKGDIR, the
