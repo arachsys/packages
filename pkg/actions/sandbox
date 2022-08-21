@@ -45,4 +45,4 @@ fi
 mount -o bind,remount,ro "$1"
 pivot "$1"
 cd / && [[ -d src ]] && cd src
-exec /bin/env -i HOME="$PWD" PATH=/bin TERM="$TERM" "${@:2}"
+exec /bin/env -i HOME=/ PATH=/bin TERM="$TERM" "${@:2}"
