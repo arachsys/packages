@@ -18,5 +18,12 @@ while getopts :s: OPTION; do
 done
 shift $((OPTIND - 1))
 
-populate "$ROOT" "${@+base}" "${@-build}"
-SRC=$SRC pkg sandbox "$ROOT" bash -l
+for (( CMD = 1; CMD <= $#; CMD++ )); do
+  [[ ${!CMD} == "--" ]] && break
+done
+
+(( CMD <= 1 )) && set -- build "$@" && let CMD++
+(( CMD >= $# )) && set -- "${@:1:CMD - 1}" -- bash -l
+
+populate "$ROOT" base "${@:1:CMD - 1}"
+SRC=$SRC pkg sandbox "$ROOT" "${@:CMD + 1}"
