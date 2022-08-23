@@ -4,7 +4,7 @@ trap 'rm -f -r --one-file-system "$ROOT"' EXIT
 chmod 0755 "$ROOT"
 
 unset SRC
-while getopts :s: OPTION; do
+while [[ ${!OPTIND} != "--" ]] && getopts :s: OPTION; do
   case $OPTION in
     s)
       if [[ -d $OPTARG ]]; then
