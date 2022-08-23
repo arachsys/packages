@@ -14,6 +14,9 @@ while [[ ${!OPTIND} != "--" ]] && getopts :s: OPTION; do
         die "Source tree $OPTARG not found"
       fi
       ;;
+    *)
+      die "$(< $LIBRARY/help)"
+      ;;
   esac
 done
 shift $((OPTIND - 1))

@@ -12,6 +12,9 @@ action() {
           die "Prepared source tree $OPTARG not found"
         fi
         ;;
+      *)
+        die "$(< $LIBRARY/help)"
+        ;;
     esac
   done
   shift $((OPTIND - 1))
