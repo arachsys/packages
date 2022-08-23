@@ -9,6 +9,9 @@ action() {
           die "Invalid parallel job limit: $OPTARG"
         fi
         ;;
+      *)
+        die "$(< $LIBRARY/help)"
+        ;;
     esac
   done
   shift $((OPTIND - 1))
