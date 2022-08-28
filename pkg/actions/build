@@ -98,7 +98,7 @@ helper() {
   for IMG in /img/*; do
     if [[ -d "$IMG" ]]; then
       mkdir -p "$IMG/info"
-      printf '%s\n' "$2" >"$IMG/info/source"
+      printf '%s\n' "$1" >"$IMG/info/source"
     fi
     if [[ -f "$IMG/info/requirements" ]]; then
       sort -o "$IMG/info/requirements" -u "$IMG/info/requirements"
