@@ -7,12 +7,13 @@ check() {
 
 prepare() {
   unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.0.tar.xz
+  apply hide.diff
   apply musl.diff
-  tree c08b3212ba5960973b9133cdfc47c9153269155fd3bff9b2c3e9af9a8be6d32c
+  tree 9692ad7a837aa84cd573bae7591190f5e5147c589be357ab4270b5ba46462d3e
 }
 
 config-extra --disable-{kill,modern-top,shared} --enable-watch8bit
 
 post-install() {
-  rm -f -r /dst/bin/w /dst/lib/{include,libprocps.a,man/man1/w.1,pkgconfig}
+  rm -f -r /dst/bin/w /dst/lib/{include,lib*.a,man/man1/w.1,pkgconfig}
 }
