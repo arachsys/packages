@@ -4,4 +4,16 @@ build() {
   for FILE in /pkg/list.*; do
     cp $FILE /img/${FILE##*/list.}
   done
+
+  if [[ $CHOST == @(aarch64|amd64|x86_64)* ]]; then
+    echo llvm-shared >>/img/base
+    echo llvm >>/img/build
+  elif [[ $CHOST == arm* ]]; then
+    echo gcc-shared >>/img/base
+    echo gcc >>/img/build
+  else
+    die "Default toolchain is not defined for this architecture"
+  fi
+
+  find /img -type f -exec sort -o {} -u {} \;
 }
