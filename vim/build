@@ -2,14 +2,14 @@ mode autotools
 
 check() {
   url https://github.com/vim/vim/tags
-  match version 9.0.0213 'v([0-9.]+)\.tar'
+  match version 9.0.0316 'v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack vim-9.0.0213.tar.gz \
-    https://github.com/vim/vim/archive/refs/tags/v9.0.0213.tar.gz
+  unpack vim-9.0.0316.tar.gz \
+    https://github.com/vim/vim/archive/refs/tags/v9.0.0316.tar.gz
   apply paths.diff
-  tree 91fc6b1e95529d4e66dcf0f5bcfe20ea82b26faadc321e004ae489403cf9f559
+  tree cbd6beb14ad556cdb9ccf343626bf30e28b68072f153af5817842ed064d34733
 }
 
 config-extra --enable-{multibyte,terminal} --without-local-dir
@@ -18,6 +18,6 @@ install-extra VIMRTLOC=/lib/vim
 
 post-install() {
   ln -s vim /dst/bin/vi
-  rm -r /dst/bin/{rview,rvim,vimtutor} /dst/lib/{applications,icons} \
+  rm -r /dst/bin/vimtutor /dst/lib/{applications,icons} \
     /dst/lib/vim/{**/README.*,*_example.vim,tools}
 }
