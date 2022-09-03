@@ -15,6 +15,7 @@ musl
 ncurses
 patch
 pcre
+pcre2
 procps
 readline
 sed
