@@ -59,7 +59,7 @@ config-extra --disable-bootstrap --disable-libsanitizer --disable-libssp \
   --with-slibdir='${prefix}/lib/shared' --with-system-zlib \
   libat_cv_have_ifunc=no
 
-if ! ${CC:-cc} --version | fgrep -i -q gcc; then
+if ! ${CC:-cc} --version | grep -i -q -F gcc; then
   config-extra --without-isl
 fi
 
