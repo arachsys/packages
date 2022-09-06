@@ -9,12 +9,13 @@ prepare() {
   unpack https://static.rust-lang.org/dist/rustc-1.63.0-src.tar.gz
   apply curl.diff
   apply libressl.diff
+  apply llvm15.diff
   apply nocred.diff
   apply system.diff
   apply target.diff
   sed -i 's/\("files":{\)[^}]*/\1/' \
     vendor/{curl-sys,libssh2-sys,openssl,openssl-sys}/.cargo-checksum.json
-  tree 48525fc0776e5ddf59da6e452902d71e8dec378bde5898eb60d46f277332ce75
+  tree 8f5e798e39a5ebd250017821b5fcd3dd631a485d05c30d450be5170c92b9790f
 }
 
 build() {

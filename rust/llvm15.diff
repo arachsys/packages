@@ -1,0 +1,76 @@
+diff --git a/compiler/rustc_codegen_llvm/src/common.rs b/compiler/rustc_codegen_llvm/src/common.rs
+index b69d7a000..d37aadeb5 100644
+--- a/compiler/rustc_codegen_llvm/src/common.rs
++++ b/compiler/rustc_codegen_llvm/src/common.rs
+@@ -109,8 +109,7 @@ impl<'ll> CodegenCx<'ll, '_> {
+     pub fn const_get_elt(&self, v: &'ll Value, idx: u64) -> &'ll Value {
+         unsafe {
+             assert_eq!(idx as c_uint as u64, idx);
+-            let us = &[idx as c_uint];
+-            let r = llvm::LLVMConstExtractValue(v, us.as_ptr(), us.len() as c_uint);
++            let r = llvm::LLVMGetAggregateElement(v, idx as c_uint).unwrap();
+ 
+             debug!("const_get_elt(v={:?}, idx={}, r={:?})", v, idx, r);
+ 
+diff --git a/compiler/rustc_codegen_llvm/src/llvm/ffi.rs b/compiler/rustc_codegen_llvm/src/llvm/ffi.rs
+index b83142399..d92d9d96f 100644
+--- a/compiler/rustc_codegen_llvm/src/llvm/ffi.rs
++++ b/compiler/rustc_codegen_llvm/src/llvm/ffi.rs
+@@ -1134,11 +1134,7 @@ extern "C" {
+     pub fn LLVMConstIntToPtr<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
+     pub fn LLVMConstBitCast<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
+     pub fn LLVMConstPointerCast<'a>(ConstantVal: &'a Value, ToType: &'a Type) -> &'a Value;
+-    pub fn LLVMConstExtractValue(
+-        AggConstant: &Value,
+-        IdxList: *const c_uint,
+-        NumIdx: c_uint,
+-    ) -> &Value;
++    pub fn LLVMGetAggregateElement(ConstantVal: &Value, Idx: c_uint) -> Option<&Value>;
+ 
+     // Operations on global variables, functions, and aliases (globals)
+     pub fn LLVMIsDeclaration(Global: &Value) -> Bool;
+diff --git a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+index 38fddbdba..0f4973ebf 100644
+--- a/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
++++ b/compiler/rustc_llvm/llvm-wrapper/PassWrapper.cpp
+@@ -985,7 +985,9 @@ LLVMRustOptimizeWithNewPassManager(
+     if (SanitizerOptions->SanitizeAddress) {
+       OptimizerLastEPCallbacks.push_back(
+         [SanitizerOptions](ModulePassManager &MPM, OptimizationLevel Level) {
++#if LLVM_VERSION_LT(15, 0)
+           MPM.addPass(RequireAnalysisPass<ASanGlobalsMetadataAnalysis, Module>());
++#endif
+ #if LLVM_VERSION_GE(14, 0)
+           AddressSanitizerOptions opts = AddressSanitizerOptions{
+             /*CompileKernel=*/false,
+diff --git a/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp b/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
+index a52d53402..7ac3157e7 100644
+--- a/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
++++ b/compiler/rustc_llvm/llvm-wrapper/RustWrapper.cpp
+@@ -411,8 +411,14 @@ LLVMRustInlineAsm(LLVMTypeRef Ty, char *AsmString, size_t AsmStringLen,
+ 
+ extern "C" bool LLVMRustInlineAsmVerify(LLVMTypeRef Ty, char *Constraints,
+                                         size_t ConstraintsLen) {
++#if LLVM_VERSION_LT(15, 0)
+   return InlineAsm::Verify(unwrap<FunctionType>(Ty),
+                            StringRef(Constraints, ConstraintsLen));
++#else
++  // llvm::Error converts to true if it is an error.
++  return !llvm::errorToBool(InlineAsm::verify(
++      unwrap<FunctionType>(Ty), StringRef(Constraints, ConstraintsLen)));
++#endif
+ }
+ 
+ extern "C" void LLVMRustAppendModuleInlineAsm(LLVMModuleRef M, const char *Asm,
+@@ -1865,3 +1871,11 @@ extern "C" void LLVMRustGetMangledName(LLVMValueRef V, RustStringRef Str) {
+   GlobalValue *GV = unwrap<GlobalValue>(V);
+   Mangler().getNameWithPrefix(OS, GV, true);
+ }
++
++// LLVMGetAggregateElement was added in LLVM 15. For earlier LLVM versions just
++// use its implementation.
++#if LLVM_VERSION_LT(15, 0)
++extern "C" LLVMValueRef LLVMGetAggregateElement(LLVMValueRef C, unsigned Idx) {
++    return wrap(unwrap<Constant>(C)->getAggregateElement(Idx));
++}
++#endif
