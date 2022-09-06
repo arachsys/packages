@@ -3,18 +3,18 @@ require libffi sqlite
 
 check() {
   url https://www.python.org/downloads/source/
-  match version 3.10.6 'Python-([0-9.]+)\.tar'
+  match version 3.10.7 'Python-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack python-3.10.6.tar.xz \
-    https://www.python.org/ftp/python/3.10.6/Python-3.10.6.tar.xz
+  unpack python-3.10.7.tar.xz \
+    https://www.python.org/ftp/python/3.10.7/Python-3.10.7.tar.xz
   apply getpath.diff
   apply history.diff
   apply libressl.diff
   apply musl.diff
   apply paths.diff
-  tree dd2cb94ea07d3b061356afcaf82dd192b669fce8c088cdb03533d4ccef8af516
+  tree 72f7e625bf5115e2054acb95a897148461198f0b3d7f585bef9fc9e4ce9b5d69
 }
 
 config-extra --enable-optimizations --enable-shared --with-dbmliborder= \

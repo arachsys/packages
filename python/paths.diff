@@ -148,7 +148,7 @@ index ae416a8..142e8b5 100644
  
  
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index c389685..8428f21 100644
+index b72ce08..4705b22 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -47,14 +47,6 @@ __all__ = [
@@ -167,7 +167,7 @@ index c389685..8428f21 100644
  
  inited = False
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index 1953746..5575f93 100644
+index 526f017..5575f93 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -185,7 +185,7 @@ index 1953746..5575f93 100644
      initial_slashes = path.startswith(sep)
 -    # POSIX allows one or two initial slashes, but treats three or more
 -    # as single slash.
--    # (see http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_13)
+-    # (see https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_13)
 -    if (initial_slashes and
 -        path.startswith(sep*2) and not path.startswith(sep*3)):
 -        initial_slashes = 2
@@ -230,7 +230,7 @@ index c182eea..471a176 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index daf9f00..30cc0d8 100644
+index daf9f00..11c5253 100644
 --- a/Lib/sysconfig.py
 +++ b/Lib/sysconfig.py
 @@ -25,14 +25,14 @@ _ALWAYS_STR = {
@@ -298,7 +298,7 @@ index daf9f00..30cc0d8 100644
              'data': '{userbase}',
              },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index 7b68212..9ff85bc 100644
+index 96da930..d3f9912 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
 @@ -170,7 +170,7 @@ def _candidate_tempdir_list():
@@ -323,7 +323,7 @@ index 5ae0a3e..43c286e 100644
          if executable is None:
              return None
 diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
-index ce1f5d7..02a169c 100644
+index 6f1af29..e5bf9d6 100644
 --- a/Lib/venv/__init__.py
 +++ b/Lib/venv/__init__.py
 @@ -125,19 +125,11 @@ class EnvBuilder:
@@ -388,10 +388,10 @@ index 0bdbd98..af8bc9f 100644
          return DECODE_LOCALE_ERR("VERSION macro", len);
      }
 diff --git a/configure b/configure
-index ca42c39..5031d97 100755
+index f8de055..940c384 100755
 --- a/configure
 +++ b/configure
-@@ -15678,7 +15678,7 @@ fi
+@@ -15656,7 +15656,7 @@ fi
  
  
  
@@ -400,7 +400,7 @@ index ca42c39..5031d97 100755
  
  
  # Check for --with-platlibdir
-@@ -15714,9 +15714,9 @@ fi
+@@ -15692,9 +15692,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then
@@ -413,7 +413,7 @@ index ca42c39..5031d97 100755
  
  
 diff --git a/setup.py b/setup.py
-index 43e807f..cefaa1a 100644
+index 6a78a3d..3c7ab02 100644
 --- a/setup.py
 +++ b/setup.py
 @@ -682,9 +682,11 @@ class PyBuildExt(build_ext):
@@ -444,7 +444,7 @@ index 43e807f..cefaa1a 100644
          finally:
              os.unlink(tmpfile)
  
-@@ -846,8 +850,8 @@ class PyBuildExt(build_ext):
+@@ -848,8 +852,8 @@ class PyBuildExt(build_ext):
              add_dir_to_list(self.compiler.include_dirs,
                              sysconfig.get_config_var("INCLUDEDIR"))
  
@@ -455,7 +455,7 @@ index 43e807f..cefaa1a 100644
          # lib_dirs and inc_dirs are used to search for files;
          # if a file is found in one of those directories, it can
          # be assumed that no additional -I,-L directives are needed.
-@@ -1145,11 +1149,11 @@ class PyBuildExt(build_ext):
+@@ -1147,11 +1151,11 @@ class PyBuildExt(build_ext):
              elif curses_library:
                  readline_libs.append(curses_library)
              elif self.compiler.find_library_file(self.lib_dirs +
@@ -469,7 +469,7 @@ index 43e807f..cefaa1a 100644
                                 extra_link_args=readline_extra_link_args,
                                 libraries=readline_libs))
          else:
-@@ -1163,7 +1167,7 @@ class PyBuildExt(build_ext):
+@@ -1165,7 +1169,7 @@ class PyBuildExt(build_ext):
          if curses_library == 'ncursesw':
              curses_defines.append(('HAVE_NCURSESW', '1'))
              if not CROSS_COMPILING:
@@ -478,7 +478,7 @@ index 43e807f..cefaa1a 100644
              # Bug 1464056: If _curses.so links with ncursesw,
              # _curses_panel.so must link with panelw.
              panel_library = 'panelw'
-@@ -1288,33 +1292,17 @@ class PyBuildExt(build_ext):
+@@ -1290,33 +1294,17 @@ class PyBuildExt(build_ext):
          # construct a list of paths to look for the header file in on
          # top of the normal inc_dirs.
          db_inc_paths = [
@@ -518,7 +518,7 @@ index 43e807f..cefaa1a 100644
  
          if CROSS_COMPILING:
              db_inc_paths = []
-@@ -1541,12 +1529,9 @@ class PyBuildExt(build_ext):
+@@ -1543,12 +1531,9 @@ class PyBuildExt(build_ext):
  
          # We hunt for #define SQLITE_VERSION "n.n.n"
          sqlite_incdir = sqlite_libdir = None
