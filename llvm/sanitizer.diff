@@ -1,21 +1,21 @@
 diff --git a/clang/lib/Driver/ToolChains/CommonArgs.cpp b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-index 8f9244cae..215f5109c 100644
+index 443725f7d..ac35b0341 100644
 --- a/clang/lib/Driver/ToolChains/CommonArgs.cpp
 +++ b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-@@ -809,6 +809,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
-       TC.getTriple().isOSNetBSD() ||
-       TC.getTriple().isOSOpenBSD())
-     CmdArgs.push_back("-lexecinfo");
+@@ -850,6 +850,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
+   if (TC.getTriple().isOSLinux() && !TC.getTriple().isAndroid() &&
+       !TC.getTriple().isMusl())
+     CmdArgs.push_back("-lresolv");
 +  if (TC.getTriple().isOSLinux())
 +    CmdArgs.push_back("-lunwind");
  }
  
  static void
 diff --git a/compiler-rt/cmake/Modules/AddCompilerRT.cmake b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-index 4a496fc18..7010e42de 100644
+index 00bb892be..4432db667 100644
 --- a/compiler-rt/cmake/Modules/AddCompilerRT.cmake
 +++ b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-@@ -509,7 +509,7 @@ endfunction()
+@@ -550,7 +550,7 @@ endfunction()
  
  macro(add_compiler_rt_resource_file target_name file_name component)
    set(src_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_name}")
@@ -25,10 +25,10 @@ index 4a496fc18..7010e42de 100644
      DEPENDS ${src_file}
      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_file} ${dst_file}
 diff --git a/compiler-rt/cmake/config-ix.cmake b/compiler-rt/cmake/config-ix.cmake
-index fc62d5ecc..71b549643 100644
+index cd45176cf..9ffbf6788 100644
 --- a/compiler-rt/cmake/config-ix.cmake
 +++ b/compiler-rt/cmake/config-ix.cmake
-@@ -837,7 +837,7 @@ endif()
+@@ -855,7 +855,7 @@ endif()
  # TODO(hctim): Enable this on Android again. Looks like it's causing a SIGSEGV
  # for Scudo and GWP-ASan, further testing needed.
  if (GWP_ASAN_SUPPORTED_ARCH AND COMPILER_RT_BUILD_GWP_ASAN AND

@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Cuda.cpp b/clang/lib/Driver/ToolChains/Cuda.cpp
-index 4a9f6d4c4..152fe058b 100644
+index 7ad990dda..ec73fd999 100644
 --- a/clang/lib/Driver/ToolChains/Cuda.cpp
 +++ b/clang/lib/Driver/ToolChains/Cuda.cpp
 @@ -161,15 +161,7 @@ CudaInstallationDetector::CudaInstallationDetector(
@@ -20,31 +20,51 @@ index 4a9f6d4c4..152fe058b 100644
  
    bool NoCudaLib = Args.hasArg(options::OPT_nogpulib);
 diff --git a/clang/lib/Driver/ToolChains/Gnu.cpp b/clang/lib/Driver/ToolChains/Gnu.cpp
-index 7a9570a68..9b7c21da0 100644
+index f203cae1d..b53ca1422 100644
 --- a/clang/lib/Driver/ToolChains/Gnu.cpp
 +++ b/clang/lib/Driver/ToolChains/Gnu.cpp
-@@ -2040,19 +2040,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
+@@ -2135,39 +2135,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
+     return;
    }
  
-   // Non-Solaris is much simpler - most systems just go with "/usr".
--  if (SysRoot.empty() && TargetTriple.getOS() == llvm::Triple::Linux) {
--    // Yet, still look for RHEL/CentOS devtoolsets and gcc-toolsets.
--    Prefixes.push_back("/opt/rh/gcc-toolset-10/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-10/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-9/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-8/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-7/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-6/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-4/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-3/root/usr");
--    Prefixes.push_back("/opt/rh/devtoolset-2/root/usr");
+-  // For Linux, if --sysroot is not specified, look for RHEL/CentOS devtoolsets
+-  // and gcc-toolsets.
+-  if (SysRoot.empty() && TargetTriple.getOS() == llvm::Triple::Linux &&
+-      D.getVFS().exists("/opt/rh")) {
+-    // Find the directory in /opt/rh/ starting with gcc-toolset-* or
+-    // devtoolset-* with the highest version number and add that
+-    // one to our prefixes.
+-    std::string ChosenToolsetDir;
+-    unsigned ChosenToolsetVersion = 0;
+-    std::error_code EC;
+-    for (llvm::vfs::directory_iterator LI = D.getVFS().dir_begin("/opt/rh", EC),
+-                                       LE;
+-         !EC && LI != LE; LI = LI.increment(EC)) {
+-      StringRef ToolsetDir = llvm::sys::path::filename(LI->path());
+-      unsigned ToolsetVersion;
+-      if ((!ToolsetDir.startswith("gcc-toolset-") &&
+-           !ToolsetDir.startswith("devtoolset-")) ||
+-          ToolsetDir.substr(ToolsetDir.rfind('-') + 1)
+-              .getAsInteger(10, ToolsetVersion))
+-        continue;
+-
+-      if (ToolsetVersion > ChosenToolsetVersion) {
+-        ChosenToolsetVersion = ToolsetVersion;
+-        ChosenToolsetDir = "/opt/rh/" + ToolsetDir.str();
+-      }
+-    }
+-
+-    if (ChosenToolsetVersion > 0)
+-      Prefixes.push_back(ChosenToolsetDir + "/root/usr");
 -  }
--  Prefixes.push_back(SysRoot.str() + "/usr");
+-
+-  // Fall back to /usr which is used by most non-Solaris systems.
+-  Prefixes.push_back(concat(SysRoot, "/usr"));
 +  Prefixes.push_back(SysRoot.str());
  }
  
  /*static*/ void Generic_GCC::GCCInstallationDetector::CollectLibDirsAndTriples(
-@@ -2913,14 +2901,12 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
+@@ -3043,14 +3011,12 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
    // Android never uses the libc++ headers installed alongside the toolchain,
    // which are generally incompatible with the NDK libraries anyway.
    if (!getTriple().isAndroid())
@@ -54,14 +74,14 @@ index 7a9570a68..9b7c21da0 100644
    // If this is a development, non-installed, clang, libcxx will
    // not be found at ../include/c++ but it likely to be found at
    // one of the following two locations:
--  if (AddIncludePath(SysRoot + "/usr/local/include"))
+-  if (AddIncludePath(concat(SysRoot, "/usr/local/include")))
 -    return;
--  if (AddIncludePath(SysRoot + "/usr/include"))
-+  if (AddIncludePath(SysRoot + "/lib/include"))
+-  if (AddIncludePath(concat(SysRoot, "/usr/include")))
++  if (AddIncludePath(concat(SysRoot, "/lib/include")))
      return;
  }
  
-@@ -2985,7 +2971,7 @@ bool Generic_GCC::addGCCLibStdCxxIncludePaths(
+@@ -3124,7 +3090,7 @@ bool Generic_GCC::addGCCLibStdCxxIncludePaths(
      return true;
  
    // Try /../include/c++/$version (gcc --print-multiarch is empty).
@@ -71,10 +91,10 @@ index 7a9570a68..9b7c21da0 100644
                                 CC1Args))
      return true;
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index e7221711e..58c53f838 100644
+index 71e1d9b16..3bcfa0ce0 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -123,7 +123,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -125,7 +125,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    return TargetTriple.str();
  }
  
@@ -87,7 +107,7 @@ index e7221711e..58c53f838 100644
    if (Triple.isMIPS()) {
      if (Triple.isAndroid()) {
        StringRef CPUName;
-@@ -177,13 +181,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -179,13 +183,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
  
    Distro Distro(D.getVFS(), Triple);
  
@@ -103,7 +123,7 @@ index e7221711e..58c53f838 100644
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
-@@ -221,7 +225,8 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -227,7 +231,8 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
    // Android loader does not support .gnu.hash until API 23.
    // Hexagon linker/loader does not support .gnu.hash
    if (!IsMips && !IsHexagon) {
@@ -113,7 +133,7 @@ index e7221711e..58c53f838 100644
          (Distro.IsUbuntu() && Distro >= Distro::UbuntuMaverick) ||
          (IsAndroid && !Triple.isAndroidVersionLT(23)))
        ExtraOpts.push_back("--hash-style=gnu");
-@@ -247,20 +252,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -253,20 +258,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
    // to the link paths.
    path_list &Paths = getFilePaths();
  
@@ -125,35 +145,35 @@ index e7221711e..58c53f838 100644
 -  // used. We need add both libo32 and /lib.
 -  if (Arch == llvm::Triple::mips || Arch == llvm::Triple::mipsel) {
 -    Generic_GCC::AddMultilibPaths(D, SysRoot, "libo32", MultiarchTriple, Paths);
--    addPathIfExists(D, SysRoot + "/libo32", Paths);
--    addPathIfExists(D, SysRoot + "/usr/libo32", Paths);
+-    addPathIfExists(D, concat(SysRoot, "/libo32"), Paths);
+-    addPathIfExists(D, concat(SysRoot, "/usr/libo32"), Paths);
 -  }
    Generic_GCC::AddMultilibPaths(D, SysRoot, OSLibDir, MultiarchTriple, Paths);
  
--  addPathIfExists(D, SysRoot + "/lib/" + MultiarchTriple, Paths);
--  addPathIfExists(D, SysRoot + "/lib/../" + OSLibDir, Paths);
-+  addPathIfExists(D, SysRoot + "/" + OSLibDir + "/shared", Paths);
-+  addPathIfExists(D, SysRoot + "/" + OSLibDir + "/static", Paths);
+-  addPathIfExists(D, concat(SysRoot, "/lib", MultiarchTriple), Paths);
+-  addPathIfExists(D, concat(SysRoot, "/lib/..", OSLibDir), Paths);
++  addPathIfExists(D, concat(SysRoot, "/", OSLibDir, "/shared"), Paths);
++  addPathIfExists(D, concat(SysRoot, "/", OSLibDir, "/static"), Paths);
  
    if (IsAndroid) {
      // Android sysroots contain a library directory for each supported OS
-@@ -273,32 +271,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -279,32 +277,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
          Paths);
    }
  
--  addPathIfExists(D, SysRoot + "/usr/lib/" + MultiarchTriple, Paths);
+-  addPathIfExists(D, concat(SysRoot, "/usr/lib", MultiarchTriple), Paths);
 -  // 64-bit OpenEmbedded sysroots may not have a /usr/lib dir. So they cannot
 -  // find /usr/lib64 as it is referenced as /usr/lib/../lib64. So we handle
 -  // this here.
 -  if (Triple.getVendor() == llvm::Triple::OpenEmbedded &&
 -      Triple.isArch64Bit())
--    addPathIfExists(D, SysRoot + "/usr/" + OSLibDir, Paths);
+-    addPathIfExists(D, concat(SysRoot, "/usr", OSLibDir), Paths);
 -  else
--    addPathIfExists(D, SysRoot + "/usr/lib/../" + OSLibDir, Paths);
+-    addPathIfExists(D, concat(SysRoot, "/usr/lib/..", OSLibDir), Paths);
 -  if (IsRISCV) {
 -    StringRef ABIName = tools::riscv::getRISCVABI(Args, Triple);
--    addPathIfExists(D, SysRoot + "/" + OSLibDir + "/" + ABIName, Paths);
--    addPathIfExists(D, SysRoot + "/usr/" + OSLibDir + "/" + ABIName, Paths);
+-    addPathIfExists(D, concat(SysRoot, "/", OSLibDir, ABIName), Paths);
+-    addPathIfExists(D, concat(SysRoot, "/usr", OSLibDir, ABIName), Paths);
 -  }
 -
    Generic_GCC::AddMultiarchPaths(D, SysRoot, OSLibDir, Paths);
@@ -165,12 +185,12 @@ index e7221711e..58c53f838 100644
 -      D.getVFS().exists(D.Dir + "/../lib/libc++.so"))
 -    addPathIfExists(D, D.Dir + "/../lib", Paths);
 -
--  addPathIfExists(D, SysRoot + "/lib", Paths);
--  addPathIfExists(D, SysRoot + "/usr/lib", Paths);
+-  addPathIfExists(D, concat(SysRoot, "/lib"), Paths);
+-  addPathIfExists(D, concat(SysRoot, "/usr/lib"), Paths);
  }
  
  ToolChain::RuntimeLibType Linux::GetDefaultRuntimeLibType() const {
-@@ -376,6 +349,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
+@@ -397,6 +370,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
  
    const Distro Distro(getDriver().getVFS(), Triple);
  
@@ -180,43 +200,44 @@ index e7221711e..58c53f838 100644
    if (Triple.isAndroid())
      return Triple.isArch64Bit() ? "/system/bin/linker64" : "/system/bin/linker";
  
-@@ -550,8 +526,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -576,8 +552,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (DriverArgs.hasArg(options::OPT_nostdlibinc))
      return;
  
 -  // LOCAL_INCLUDE_DIR
--  addSystemInclude(DriverArgs, CC1Args, SysRoot + "/usr/local/include");
+-  addSystemInclude(DriverArgs, CC1Args, concat(SysRoot, "/usr/local/include"));
    // TOOL_INCLUDE_DIR
    AddMultilibIncludeArgs(DriverArgs, CC1Args);
  
-@@ -572,9 +546,9 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -598,10 +572,10 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // /usr/include.
    std::string MultiarchIncludeDir = getMultiarchTriple(D, getTriple(), SysRoot);
    if (!MultiarchIncludeDir.empty() &&
--      D.getVFS().exists(SysRoot + "/usr/include/" + MultiarchIncludeDir))
-+      D.getVFS().exists(SysRoot + "/lib/include/" + MultiarchIncludeDir))
-     addExternCSystemInclude(DriverArgs, CC1Args,
--                            SysRoot + "/usr/include/" + MultiarchIncludeDir);
-+                            SysRoot + "/lib/include/" + MultiarchIncludeDir);
+-      D.getVFS().exists(concat(SysRoot, "/usr/include", MultiarchIncludeDir)))
++      D.getVFS().exists(concat(SysRoot, "/lib/include", MultiarchIncludeDir)))
+     addExternCSystemInclude(
+         DriverArgs, CC1Args,
+-        concat(SysRoot, "/usr/include", MultiarchIncludeDir));
++        concat(SysRoot, "/lib/include", MultiarchIncludeDir));
  
    if (getTriple().getOS() == llvm::Triple::RTEMS)
      return;
-@@ -582,9 +556,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -609,9 +583,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // Add an include of '/include' directly. This isn't provided by default by
    // system GCCs, but is often used with cross-compiling GCCs, and harmless to
    // add even when Clang is acting as-if it were a system compiler.
--  addExternCSystemInclude(DriverArgs, CC1Args, SysRoot + "/include");
+-  addExternCSystemInclude(DriverArgs, CC1Args, concat(SysRoot, "/include"));
 -
--  addExternCSystemInclude(DriverArgs, CC1Args, SysRoot + "/usr/include");
-+  addExternCSystemInclude(DriverArgs, CC1Args, SysRoot + "/lib/include");
+-  addExternCSystemInclude(DriverArgs, CC1Args, concat(SysRoot, "/usr/include"));
++  addExternCSystemInclude(DriverArgs, CC1Args, concat(SysRoot, "/lib/include"));
  
    if (!DriverArgs.hasArg(options::OPT_nobuiltininc) && getTriple().isMusl())
      addSystemInclude(DriverArgs, CC1Args, ResourceDirInclude);
 diff --git a/clang/lib/Driver/ToolChains/WebAssembly.cpp b/clang/lib/Driver/ToolChains/WebAssembly.cpp
-index 3614272a5..2cee2e349 100644
+index b051bff87..dacf51e2a 100644
 --- a/clang/lib/Driver/ToolChains/WebAssembly.cpp
 +++ b/clang/lib/Driver/ToolChains/WebAssembly.cpp
-@@ -410,9 +410,9 @@ void WebAssembly::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -416,9 +416,9 @@ void WebAssembly::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (getTriple().getOS() != llvm::Triple::UnknownOS) {
      const std::string MultiarchTriple =
          getMultiarchTriple(D, getTriple(), D.SysRoot);
@@ -228,25 +249,29 @@ index 3614272a5..2cee2e349 100644
  }
  
  void WebAssembly::AddClangCXXStdlibIncludeArgs(const ArgList &DriverArgs,
-@@ -423,11 +423,11 @@ void WebAssembly::AddClangCXXStdlibIncludeArgs(const ArgList &DriverArgs,
-       const std::string MultiarchTriple =
-           getMultiarchTriple(getDriver(), getTriple(), getDriver().SysRoot);
-       addSystemInclude(DriverArgs, CC1Args,
--                       getDriver().SysRoot + "/include/" + MultiarchTriple +
-+                       getDriver().SysRoot + "/lib/include/" + MultiarchTriple +
-                            "/c++/v1");
-     }
-     addSystemInclude(DriverArgs, CC1Args,
--                     getDriver().SysRoot + "/include/c++/v1");
-+                     getDriver().SysRoot + "/lib/include/c++/v1");
-   }
- }
- 
+@@ -471,7 +471,7 @@ void WebAssembly::addLibCxxIncludePaths(
+     llvm::opt::ArgStringList &CC1Args) const {
+   const Driver &D = getDriver();
+   std::string SysRoot = computeSysRoot();
+-  std::string LibPath = SysRoot + "/include";
++  std::string LibPath = SysRoot + "/lib/include";
+   const std::string MultiarchTriple =
+       getMultiarchTriple(D, getTriple(), SysRoot);
+   bool IsKnownOs = (getTriple().getOS() != llvm::Triple::UnknownOS);
+@@ -499,7 +499,7 @@ void WebAssembly::addLibStdCXXIncludePaths(
+   // to how we do it for libc++.
+   const Driver &D = getDriver();
+   std::string SysRoot = computeSysRoot();
+-  std::string LibPath = SysRoot + "/include";
++  std::string LibPath = SysRoot + "/lib/include";
+   const std::string MultiarchTriple =
+       getMultiarchTriple(D, getTriple(), SysRoot);
+   bool IsKnownOs = (getTriple().getOS() != llvm::Triple::UnknownOS);
 diff --git a/clang/tools/driver/CMakeLists.txt b/clang/tools/driver/CMakeLists.txt
-index 6b3e159d1..fba26db70 100644
+index d05b71db1..86719fa12 100644
 --- a/clang/tools/driver/CMakeLists.txt
 +++ b/clang/tools/driver/CMakeLists.txt
-@@ -46,7 +46,7 @@ clang_target_link_libraries(clang
+@@ -47,7 +47,7 @@ clang_target_link_libraries(clang
  if(WIN32 AND NOT CYGWIN)
    # Prevent versioning if the buildhost is targeting for Win32.
  else()
@@ -256,19 +281,19 @@ index 6b3e159d1..fba26db70 100644
  
  # Support plugins.
 diff --git a/llvm/runtimes/CMakeLists.txt b/llvm/runtimes/CMakeLists.txt
-index 05567b523..07b5aed56 100644
+index 701d35c0a..787eb4850 100644
 --- a/llvm/runtimes/CMakeLists.txt
 +++ b/llvm/runtimes/CMakeLists.txt
 @@ -85,7 +85,7 @@ function(builtin_default_target compiler_rt_path)
                             CMAKE_ARGS -DLLVM_LIBRARY_OUTPUT_INTDIR=${LLVM_LIBRARY_DIR}
                                        -DLLVM_RUNTIME_OUTPUT_INTDIR=${LLVM_TOOLS_BINARY_DIR}
-                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${TARGET_TRIPLE}
+                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${LLVM_TARGET_TRIPLE}
 -                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=${LLVM_ENABLE_PER_TARGET_RUNTIME_DIR_default}
 +                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
                                        -DCMAKE_C_COMPILER_WORKS=ON
                                        -DCMAKE_ASM_COMPILER_WORKS=ON
                                        ${COMMON_CMAKE_ARGS}
-@@ -120,7 +120,7 @@ function(builtin_register_target compiler_rt_path target)
+@@ -119,7 +119,7 @@ function(builtin_register_target compiler_rt_path target)
                             CMAKE_ARGS -DLLVM_LIBRARY_OUTPUT_INTDIR=${LLVM_LIBRARY_DIR}
                                        -DLLVM_RUNTIME_OUTPUT_INTDIR=${LLVM_TOOLS_BINARY_DIR}
                                        -DLLVM_DEFAULT_TARGET_TRIPLE=${target}
@@ -279,7 +304,7 @@ index 05567b523..07b5aed56 100644
                                        -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON
 @@ -237,7 +237,7 @@ function(runtime_default_target)
                                        -DLLVM_INCLUDE_TESTS=${LLVM_INCLUDE_TESTS}
-                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${TARGET_TRIPLE}
+                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${LLVM_TARGET_TRIPLE}
                                        -DLLVM_ENABLE_PROJECTS_USED=${LLVM_ENABLE_PROJECTS_USED}
 -                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=${LLVM_ENABLE_PER_TARGET_RUNTIME_DIR_default}
 +                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
