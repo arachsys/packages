@@ -1,8 +1,8 @@
 diff --git a/README.asciidoc b/README.asciidoc
-index 3409d3e..4465775 100644
+index f07cca4..a083cde 100644
 --- a/README.asciidoc
 +++ b/README.asciidoc
-@@ -312,7 +312,7 @@ Configuration
+@@ -322,7 +322,7 @@ Configuration
  
  There are two directories containing Kakoune's scripts:
  
@@ -11,7 +11,7 @@ index 3409d3e..4465775 100644
    contains the system scripts, installed with Kakoune.
  * `userconf`: located in `$XDG_CONFIG_HOME/kak/`, which will fallback
    to `$HOME/.config/kak/` if `$XDG_CONFIG_HOME` is not set, containing
-@@ -719,27 +719,27 @@ Kakrc
+@@ -729,27 +729,27 @@ Kakrc
  ~~~~~
  
  If not launched with the `-n` switch, Kakoune will source the
@@ -44,7 +44,7 @@ index 3409d3e..4465775 100644
  color schemes. If a scheme is duplicated in userspace, it will take
  precedence.
 diff --git a/doc/kak.1 b/doc/kak.1
-index be8b6ad..6cb6ecb 100644
+index 37fab36..5f823f8 100644
 --- a/doc/kak.1
 +++ b/doc/kak.1
 @@ -76,7 +76,7 @@ Display Kakoune version and quit.
@@ -56,7 +56,7 @@ index be8b6ad..6cb6ecb 100644
  .
  .It Fl l
  List existing sessions.
-@@ -187,7 +187,7 @@ to the path to
+@@ -201,7 +201,7 @@ to the path to
  binary location:
  .Pa <rtdir>
  =
@@ -66,10 +66,10 @@ index be8b6ad..6cb6ecb 100644
  .Pp
  If not started with the
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
-index 14d1b6d..15a5ab9 100644
+index 5fa9d08..63d480d 100644
 --- a/doc/pages/options.asciidoc
 +++ b/doc/pages/options.asciidoc
-@@ -245,7 +245,7 @@ are exclusively available to built-in options.
+@@ -255,7 +255,7 @@ are exclusively available to built-in options.
      actions should hook on this option changing for activation/deactivation
  
  *path* `str-list`::
@@ -79,7 +79,7 @@ index 14d1b6d..15a5ab9 100644
      `%/` represents the current buffer directory
  
 diff --git a/rc/tools/man.kak b/rc/tools/man.kak
-index 5e57dc0..2d4d28a 100644
+index d2b7a16..2ef3070 100644
 --- a/rc/tools/man.kak
 +++ b/rc/tools/man.kak
 @@ -63,7 +63,7 @@ define-command -hidden -params ..3 man-impl %{ evaluate-commands %sh{
@@ -92,7 +92,7 @@ index 5e57dc0..2d4d28a 100644
      -docstring %{
          man [<page>]: manpage viewer wrapper
 diff --git a/src/Makefile b/src/Makefile
-index 659b865..678c8c5 100644
+index 801a2e2..5661637 100644
 --- a/src/Makefile
 +++ b/src/Makefile
 @@ -52,10 +52,10 @@ PREFIX ?= /usr/local
@@ -111,7 +111,7 @@ index 659b865..678c8c5 100644
  os := $(shell uname)
  
 diff --git a/src/assert.cc b/src/assert.cc
-index 91abba8..604abef 100644
+index fd97c0b..604abef 100644
 --- a/src/assert.cc
 +++ b/src/assert.cc
 @@ -27,16 +27,7 @@ private:
@@ -122,7 +122,7 @@ index 91abba8..604abef 100644
 -    return MessageBox(NULL, msg.zstr(), "Kakoune: fatal error",
 -                      MB_OKCANCEL | MB_ICONERROR) == IDOK;
 -#elif defined(__linux__)
--    auto cmd = format("xmessage -buttons 'quit:0,ignore:1' '{}'", msg);
+-    auto cmd = format("xmessage -buttons 'quit:0,ignore:1' '{}'", replace(msg, "'", "'\\''"));
 -    int status = system(cmd.c_str());
 -    return (WIFEXITED(status)) ? (WEXITSTATUS(status)) == 1 : false;
 -#else
@@ -132,10 +132,10 @@ index 91abba8..604abef 100644
  
  void on_assert_failed(const char* message)
 diff --git a/src/main.cc b/src/main.cc
-index d04a85a..daaae84 100644
+index f72f452..c1a3c50 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -158,12 +158,12 @@ String runtime_directory()
+@@ -173,12 +173,12 @@ String runtime_directory()
          return runtime_directory;
  
      char relpath[PATH_MAX+1];
@@ -150,7 +150,7 @@ index d04a85a..daaae84 100644
  }
  
  String config_directory()
-@@ -515,7 +515,7 @@ void register_options()
+@@ -530,7 +530,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -159,7 +159,7 @@ index d04a85a..daaae84 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1250,7 +1250,7 @@ asm(R"(
+@@ -1277,7 +1277,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"

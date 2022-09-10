@@ -1,8 +1,8 @@
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
-index 88a81ce..3440a85 100644
+index b275d9c..5fa9d08 100644
 --- a/doc/pages/options.asciidoc
 +++ b/doc/pages/options.asciidoc
-@@ -367,6 +367,11 @@ are exclusively available to built-in options.
+@@ -377,6 +377,11 @@ are exclusively available to built-in options.
              reduce terminal output with sequences that could trigger flickering
              if unsynchronized (defaults to *false*)
  
@@ -15,10 +15,10 @@ index 88a81ce..3440a85 100644
  *startup_info_version* `int`::
      _default_ 0 +
 diff --git a/src/main.cc b/src/main.cc
-index b8649d0..fa8f2aa 100644
+index f0a688e..f72f452 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -555,7 +555,8 @@ void register_options()
+@@ -563,7 +563,8 @@ void register_options()
                         "    terminal_wheel_scroll_amount   int\n"
                         "    terminal_shift_function_key    int\n"
                         "    terminal_padding_char          codepoint\n"
@@ -29,7 +29,7 @@ index b8649d0..fa8f2aa 100644
      reg.declare_option("modelinefmt", "format string used to generate the modeline",
                         "%val{bufname} %val{cursor_line}:%val{cursor_char_column} {{context_info}} {{mode_info}} - %val{client}@[%val{session}]"_str);
 diff --git a/src/terminal_ui.cc b/src/terminal_ui.cc
-index 6746074..9dc3da4 100644
+index a20d27e..4a476d9 100644
 --- a/src/terminal_ui.cc
 +++ b/src/terminal_ui.cc
 @@ -226,13 +226,24 @@ void TerminalUI::Screen::set_face(const Face& face, Writer& writer)
@@ -76,7 +76,7 @@ index 6746074..9dc3da4 100644
          }
          else
              format_with(writer, "59");
-@@ -1490,6 +1503,8 @@ void TerminalUI::set_ui_options(const Options& options)
+@@ -1492,6 +1505,8 @@ void TerminalUI::set_ui_options(const Options& options)
  
      m_padding_char = find("terminal_padding_char").map([](StringView s) { return s.column_length() < 1 ? ' ' : s[0_char]; }).value_or(Codepoint{'~'});
      m_padding_fill = find("terminal_padding_fill").map(to_bool).value_or(false);

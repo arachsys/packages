@@ -1,8 +1,8 @@
 diff --git a/rc/filetype/c-family.kak b/rc/filetype/c-family.kak
-index 57ee4a1..d82bc0d 100644
+index 3682d32..b56cc07 100644
 --- a/rc/filetype/c-family.kak
 +++ b/rc/filetype/c-family.kak
-@@ -204,10 +204,10 @@ evaluate-commands %sh{
+@@ -207,10 +207,10 @@ evaluate-commands %sh{
              add-highlighter shared/$ft/comment region /\\* \\*/ fill comment
              add-highlighter shared/$ft/line_comment region // (?<!\\\\)(?=\\n) fill comment
              add-highlighter shared/$ft/disabled region -recurse "#\\h*if(?:def)?" ^\\h*?#\\h*if\\h+(?:0|FALSE)\\b "#\\h*(?:else|elif|endif)" fill comment
