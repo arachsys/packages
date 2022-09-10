@@ -6,7 +6,7 @@ check() {
 
 prepare() {
   unpack tube-20220627-8f86a286.tar.gz \
-    https://github.com/arachsys/tube/archive/8f86a286d4fecc9b263e61ffde088bc763cda6be.tar.gz
+    https://github.com/arachsys/tube/archive/8f86a286.tar.gz
   tree e98d241c249c897a578a92664ba1766a2fbd0fb1264b39966c9a9f5becfd3252
 }
 

@@ -6,7 +6,7 @@ check() {
 
 prepare() {
   unpack totp-20220623-210d9843.tar.gz \
-    https://github.com/arachsys/totp/archive/210d984360d6ce1dde6bca46cde6ad7d5dd7daac.tar.gz
+    https://github.com/arachsys/totp/archive/210d9843.tar.gz
   tree ca60748eea293d3aeb87e42118e71f205da3caf50f1574c55fafdb82c94a080f
 }
 

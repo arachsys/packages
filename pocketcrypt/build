@@ -6,7 +6,7 @@ check() {
 
 prepare() {
   unpack pocketcrypt-20220623-ee220371.tar.gz \
-    https://github.com/arachsys/pocketcrypt/archive/ee220371e8785a9a90a8fb004827c84736c6847f.tar.gz
+    https://github.com/arachsys/pocketcrypt/archive/ee220371.tar.gz
   tree 486776e963e70d72449cc1ed23b2e0753e332d85ed3b5beaee56b04147fc0f21
 }
 

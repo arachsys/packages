@@ -8,7 +8,7 @@ check() {
 
 prepare() {
   unpack tinyacme-20220101-60926804.tar.gz \
-    https://github.com/arachsys/tinyacme/archive/60926804a4529a6370363ea14a4f3279aa303cb1.tar.gz
+    https://github.com/arachsys/tinyacme/archive/60926804.tar.gz
   GOPATH=/tmp/go HOME=/tmp go mod vendor
   tree 61299f2580e604b77a978d024e97993e310b116c1300427d3e9356c5b19c5f98
 }
