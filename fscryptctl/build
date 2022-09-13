@@ -1,5 +1,5 @@
 check() {
-  url https://github.com/google/fscryptctl/releases
+  url https://github.com/google/fscryptctl/tags
   match version 1.0.0 'tags/v([0-9.]+)\.tar'
 }
 

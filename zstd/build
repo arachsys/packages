@@ -1,6 +1,6 @@
 check() {
-  url https://github.com/facebook/zstd/releases
-  match version 1.5.2 'zstd-([0-9.]+)\.tar'
+  url https://github.com/facebook/zstd/tags
+  match version 1.5.2 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {

@@ -4,8 +4,8 @@ check() {
   url https://curl.haxx.se/download/
   match curl 7.85.0 'curl-([0-9.]+)\.tar'
 
-  url https://github.com/nghttp2/nghttp2/releases
-  match nghttp2 1.49.0 'nghttp2-([0-9.]+)\.tar'
+  url https://github.com/nghttp2/nghttp2/tags
+  match nghttp2 1.49.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {

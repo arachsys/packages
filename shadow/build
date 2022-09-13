@@ -2,8 +2,8 @@ mode autotools
 enable setuid setgid
 
 check() {
-  url https://github.com/shadow-maint/shadow/releases
-  match version 4.12.3 'shadow-([0-9.]+)\.tar'
+  url https://github.com/shadow-maint/shadow/tags
+  match version 4.12.3 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {

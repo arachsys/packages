@@ -1,6 +1,6 @@
 check() {
-  url https://github.com/gavinhoward/bc/releases
-  match version 6.0.2 'bc-([0-9.]+)\.tar'
+  url https://github.com/gavinhoward/bc/tags
+  match version 6.0.2 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {

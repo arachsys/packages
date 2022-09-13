@@ -1,6 +1,6 @@
 check() {
-  url https://github.com/arachsys/libelf/releases
-  match version 0.187 'v([0-9.]+)\.tar'
+  url https://github.com/arachsys/libelf/tags
+  match version 0.187 'tags/v([0-9.]+)\.tar'
 
   url https://sourceware.org/git/elfutils.git/tags
   match 'upstream elfutils' 0.187 'elfutils-([0-9.]+)'

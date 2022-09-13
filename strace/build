@@ -1,8 +1,8 @@
 mode autotools
 
 check() {
-  url https://github.com/strace/strace/releases
-  match version 5.19 'strace-([0-9.]+)\.tar'
+  url https://github.com/strace/strace/tags
+  match version 5.19 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {

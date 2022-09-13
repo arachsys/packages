@@ -1,8 +1,8 @@
 mode autotools
 
 check() {
-  url https://github.com/ipmitool/ipmitool/releases
-  match version 1.8.18 'ipmitool-([0-9.]+)\.tar'
+  url https://github.com/ipmitool/ipmitool/tags
+  match version 1.8.18 'tags/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
 }
 
 prepare() {

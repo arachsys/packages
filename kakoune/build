@@ -1,5 +1,5 @@
 check() {
-  url https://github.com/mawww/kakoune/releases
+  url https://github.com/mawww/kakoune/tags
   match version 2021.11.08 'tags/v([0-9.]+)\.tar'
 }
 

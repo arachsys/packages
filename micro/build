@@ -1,7 +1,7 @@
 require go
 
 check() {
-  url https://github.com/zyedidia/micro/releases
+  url https://github.com/zyedidia/micro/tags
   match version 2.0.11 'tags/v([0-9.]+)\.tar'
 }
 

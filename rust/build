@@ -1,7 +1,7 @@
 require python rust
 
 check() {
-  url https://github.com/rust-lang/rust/releases
+  url https://github.com/rust-lang/rust/tags
   match version 1.63.0 'tags/([0-9.]+)\.tar'
 }
 

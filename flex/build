@@ -2,8 +2,8 @@ mode autotools
 require m4
 
 check() {
-  url https://github.com/westes/flex/releases
-  match version 2.6.4 'flex-([0-9.]+)\.tar'
+  url https://github.com/westes/flex/tags
+  match version 2.6.4 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {

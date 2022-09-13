@@ -4,7 +4,7 @@ check() {
   url https://download.samba.org/pub/rsync/
   match version 3.2.6 'rsync-([0-9.]+)\.tar'
 
-  url https://github.com/Cyan4973/xxHash/releases
+  url https://github.com/Cyan4973/xxHash/tags
   match xxhash 0.8.1 'tags/v([0-9.]+)\.tar'
 }
 

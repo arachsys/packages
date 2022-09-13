@@ -1,8 +1,8 @@
 mode autotools
 
 check() {
-  url https://github.com/pcre2project/pcre2/releases
-  match version 10.40 'pcre2-([0-9.]+)\.tar'
+  url https://github.com/pcre2project/pcre2/tags
+  match version 10.40 'tags/pcre2-([0-9.]+)\.tar'
 }
 
 prepare() {

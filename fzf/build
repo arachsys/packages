@@ -1,7 +1,7 @@
 require go
 
 check() {
-  url https://github.com/junegunn/fzf/releases
+  url https://github.com/junegunn/fzf/tags
   match version 0.33.0 'tags/([0-9.]+)\.tar'
 }
 

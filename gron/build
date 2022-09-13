@@ -1,7 +1,7 @@
 require go
 
 check() {
-  url https://github.com/tomnomnom/gron/releases
+  url https://github.com/tomnomnom/gron/tags
   match version 0.7.1 'tags/v([0-9.]+)\.tar'
 }
 

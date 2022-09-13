@@ -1,8 +1,8 @@
 mode autotools
 
 check() {
-  url https://github.com/dosfstools/dosfstools/releases
-  match version 4.2 'dosfstools-([0-9.]+)\.tar'
+  url https://github.com/dosfstools/dosfstools/tags
+  match version 4.2 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {

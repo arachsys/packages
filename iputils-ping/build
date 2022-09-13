@@ -1,7 +1,7 @@
 enable setuid
 
 check() {
-  url https://github.com/iputils/iputils/releases
+  url https://github.com/iputils/iputils/tags
   match iputils 20211215 'tags/([0-9.]+)\.tar'
 }
 
