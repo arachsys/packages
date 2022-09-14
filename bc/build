@@ -1,11 +1,11 @@
 check() {
   url https://github.com/gavinhoward/bc/tags
-  match version 6.0.2 'tags/([0-9.]+)\.tar'
+  match version 6.0.3 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/gavinhoward/bc/releases/download/6.0.2/bc-6.0.2.tar.xz
-  tree 24e44ea693d0794d75d878830f0ddb529f4555edcd8cd0e3f2741bda29d9bfa6
+  unpack https://github.com/gavinhoward/bc/releases/download/6.0.3/bc-6.0.3.tar.xz
+  tree 60da60adc28e0a2d9d6186f1906954aac8bf473d4df4061c912a8aa1cb369808
 }
 
 build() {
