@@ -2,8 +2,8 @@ mode autotools
 require libevent
 
 check() {
-  url https://github.com/tmux/tmux/releases
-  match version 3.3a 'tmux-([0-9.]+[a-z]?)\.tar'
+  url https://github.com/tmux/tmux/tags
+  match version 3.3a 'tags/([0-9.]+[a-z]?)\.tar'
 }
 
 prepare() {
