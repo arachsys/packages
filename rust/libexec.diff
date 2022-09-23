@@ -1,0 +1,26 @@
+diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
+index 260ff5bcf..ad2518322 100644
+--- a/src/bootstrap/dist.rs
++++ b/src/bootstrap/dist.rs
+@@ -372,7 +372,7 @@ impl Step for Rustc {
+                     target: compiler.host,
+                 })
+                 .expect("rust-analyzer-proc-macro-server always builds");
+-            builder.install(&ra_proc_macro_srv, &image.join("libexec"), 0o755);
++            builder.install(&ra_proc_macro_srv, &image.join("bin"), 0o755);
+ 
+             let libdir_relative = builder.libdir_relative(compiler);
+ 
+diff --git a/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs b/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs
+index eaab275bc..f5f7280be 100644
+--- a/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs
++++ b/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs
+@@ -320,7 +320,7 @@ impl GlobalState {
+                             if let Some(sysroot) = sysroot.as_ref() {
+                                 tracing::info!("Found a cargo workspace with a sysroot...");
+                                 let server_path =
+-                                    sysroot.root().join("libexec").join(&standalone_server_name);
++                                    sysroot.root().join("bin").join(&standalone_server_name);
+                                 if std::fs::metadata(&server_path).is_ok() {
+                                     tracing::info!(
+                                         "And the server exists at {}",

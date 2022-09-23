@@ -2,20 +2,20 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/tags
-  match version 1.63.0 'tags/([0-9.]+)\.tar'
+  match version 1.64.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.63.0-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.64.0-src.tar.gz
   apply curl.diff
+  apply libexec.diff
   apply libressl.diff
-  apply llvm15.diff
   apply nocred.diff
   apply system.diff
   apply target.diff
   sed -i 's/\("files":{\)[^}]*/\1/' \
     vendor/{curl-sys,libssh2-sys,openssl,openssl-sys}/.cargo-checksum.json
-  tree 8f5e798e39a5ebd250017821b5fcd3dd631a485d05c30d450be5170c92b9790f
+  tree b9b5ff2c6df6ef268426ec4d794d0199b69c2b9448d758119ec83fbc3b281ecd
 }
 
 build() {
@@ -30,5 +30,6 @@ build() {
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
     python x.py install
-  rm -f -r /dst/{bin/rust-*db*,etc,lib/rustlib/!($CHOST),share}
+  rm -f /dst/bin/{rust-*db*,rust-analyzer-proc-macro-srv}
+  rm -f -r /dst/{etc,lib/rustlib/!($CHOST),share}
 }
