@@ -2,22 +2,14 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/bash/
-  match version 5.1 'bash-([0-9]+\.[0-9]+)\.tar\.gz'
-
-  url https://ftp.gnu.org/gnu/bash/bash-5.1-patches/
-  match version 5.1.16 'bash51-0*([0-9]+)' '5.1.\1'
+  match version 5.2 'bash-([0-9.]+)\.tar\.gz'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/bash/bash-5.1.tar.gz
-  set https://ftp.gnu.org/gnu/bash/bash-5.1-patches/bash51-{001..016}
-  while [[ $# -gt 0 ]]; do
-    apply -p 0 bash-5.1.${1##*-*(0)}.diff $1
-    shift
-  done
+  unpack https://ftp.gnu.org/gnu/bash/bash-5.2.tar.gz
   apply config.diff
   apply paths.diff
-  tree 155a38417e0999e747ec88795e77dce03a74d86cf19eb0a1372f1a0573885438
+  tree f131014aea0b67d357b8018835364c88fa1b2c2ac670587aa7d014dd7fffd73f
 }
 
 config-extra --without-bash-malloc --with-installed-readline
