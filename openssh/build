@@ -4,16 +4,16 @@ require libedit
 
 check() {
   url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
-  match version 9.0p1 'openssh-([0-9.]+p[0-9]+)\.tar'
+  match version 9.1p1 'openssh-([0-9.]+p[0-9]+)\.tar'
 }
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.0p1.tar.gz
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.1p1.tar.gz
   apply config.diff
   apply dnssegv.diff
   apply home.diff
   apply sftp.diff
-  tree cd05cba0a212feb600aa6785203d21e0a09101f03d5d2fc49ff9d64861a4c45c
+  tree def1035d4db39fdfd0284cfc54740c1be6e7fb2470234b8c65d3c1ab8dcacc26
 }
 
 config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
