@@ -1,5 +1,5 @@
 diff --git a/builtin/help.c b/builtin/help.c
-index 222f994..8125513 100644
+index 6f2796f..eb7d8b4 100644
 --- a/builtin/help.c
 +++ b/builtin/help.c
 @@ -30,7 +30,8 @@ enum help_format {
@@ -12,7 +12,7 @@ index 222f994..8125513 100644
  };
  
  enum show_config_type {
-@@ -65,6 +66,8 @@ static struct option builtin_help_options[] = {
+@@ -67,6 +68,8 @@ static struct option builtin_help_options[] = {
  			HELP_FORMAT_WEB),
  	OPT_SET_INT('i', "info", &help_format, N_("show info page"),
  			HELP_FORMAT_INFO),
@@ -21,16 +21,16 @@ index 222f994..8125513 100644
  	OPT__VERBOSE(&verbose, N_("print command description")),
  
  	OPT_CMDMODE('g', "guides", &cmd_mode, N_("print list of useful guides"),
-@@ -81,7 +84,7 @@ static struct option builtin_help_options[] = {
+@@ -89,7 +92,7 @@ static struct option builtin_help_options[] = {
  
  static const char * const builtin_help_usage[] = {
  	"git help [-a|--all] [--[no-]verbose]] [--[no-]external-commands] [--[no-]aliases]",
--	N_("git help [[-i|--info] [-m|--man] [-w|--web]] [<command>]"),
-+	N_("git help [[-i|--info] [-m|--man] [-u|--usage] [-w|--web]] [<command>]"),
+-	N_("git help [[-i|--info] [-m|--man] [-w|--web]] [<command>|<doc>]"),
++	N_("git help [[-i|--info] [-m|--man] [-u|--usage] [-w|--web]] [<command>|<doc>]"),
  	"git help [-g|--guides]",
  	"git help [-c|--config]",
- 	NULL
-@@ -194,6 +197,8 @@ static enum help_format parse_help_format(const char *format)
+ 	"git help [--user-interfaces]",
+@@ -204,6 +207,8 @@ static enum help_format parse_help_format(const char *format)
  		return HELP_FORMAT_INFO;
  	if (!strcmp(format, "web") || !strcmp(format, "html"))
  		return HELP_FORMAT_WEB;
@@ -39,7 +39,7 @@ index 222f994..8125513 100644
  	/*
  	 * Please update _git_config() in git-completion.bash when you
  	 * add new help formats.
-@@ -615,6 +620,11 @@ static void opt_mode_usage(int argc, const char *opt_mode,
+@@ -627,6 +632,11 @@ static void opt_mode_usage(int argc, const char *opt_mode,
  	no_help_format(opt_mode, fmt);
  }
  
@@ -51,7 +51,7 @@ index 222f994..8125513 100644
  int cmd_help(int argc, const char **argv, const char *prefix)
  {
  	int nongit;
-@@ -696,6 +706,9 @@ int cmd_help(int argc, const char **argv, const char *prefix)
+@@ -716,6 +726,9 @@ int cmd_help(int argc, const char **argv, const char *prefix)
  	case HELP_FORMAT_WEB:
  		show_html_page(page);
  		break;
