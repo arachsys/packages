@@ -9,7 +9,3 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/grep/grep-3.8.tar.xz
   tree 6279e50c8d5af5f4901e766c0ad38f04b2cd2d39034aa257824649933b16b448
 }
-
-post-install() {
-  rm -f /dst/bin/egrep /dst/bin/fgrep
-}
