@@ -2,13 +2,14 @@ mode autotools
 
 check() {
   url https://thrysoee.dk/editline/
-  match version 20210910-3.1 'libedit-([-0-9.]+)\.tar'
+  match version 20221009-3.1 'libedit-([-0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://thrysoee.dk/editline/libedit-20210910-3.1.tar.gz
+  unpack https://thrysoee.dk/editline/libedit-20221009-3.1.tar.gz
   apply config.diff
-  tree 8e36334b05d2925d1293555388460cf1dcb218d890557efbace5a9c28c364ea9
+  apply musl.diff
+  tree 461e505171720c64e9d89878ec859d84253208fe7289acc75d5414cdac8c198c
 }
 
 compile-extra CFLAGS='-O2 -D__STDC_ISO_10646__=201103L'
