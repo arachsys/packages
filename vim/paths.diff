@@ -1,8 +1,8 @@
 diff --git a/runtime/autoload/dist/ft.vim b/runtime/autoload/dist/ft.vim
-index a96bdf5..ce3f9b1 100644
+index 48eaf3f..01997fd 100644
 --- a/runtime/autoload/dist/ft.vim
 +++ b/runtime/autoload/dist/ft.vim
-@@ -759,7 +759,7 @@ enddef
+@@ -768,7 +768,7 @@ enddef
  var ft_rules_udev_rules_pattern = '^\s*\cudev_rules\s*=\s*"\([^"]\{-1,}\)/*".*'
  export def FTRules()
    var path = expand('<amatch>:p')
@@ -11,7 +11,7 @@ index a96bdf5..ce3f9b1 100644
      setf udevrules
      return
    endif
-@@ -767,7 +767,7 @@ export def FTRules()
+@@ -776,7 +776,7 @@ export def FTRules()
      setf conf  # Better than hog
      return
    endif
@@ -21,7 +21,7 @@ index a96bdf5..ce3f9b1 100644
      return
    endif
 diff --git a/runtime/autoload/dist/script.vim b/runtime/autoload/dist/script.vim
-index 86070a0..4dcd78d 100644
+index 9e41969..ade2cd8 100644
 --- a/runtime/autoload/dist/script.vim
 +++ b/runtime/autoload/dist/script.vim
 @@ -21,8 +21,8 @@ enddef
@@ -48,7 +48,7 @@ index 86070a0..4dcd78d 100644
    if line1 =~ '^#!\s*\a:[/\\]'
      name = substitute(line1, '^#!.*[/\\]\(\i\+\).*', '\1', '')
 diff --git a/runtime/filetype.vim b/runtime/filetype.vim
-index c7c6eab..928fb87 100644
+index b4bcc80..5d3b618 100644
 --- a/runtime/filetype.vim
 +++ b/runtime/filetype.vim
 @@ -115,7 +115,7 @@ au BufNewFile,BufRead *.am
@@ -60,7 +60,7 @@ index c7c6eab..928fb87 100644
  
  " Arc Macro Language
  au BufNewFile,BufRead *.aml			setf aml
-@@ -731,7 +731,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
+@@ -759,7 +759,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
  " GPG
  au BufNewFile,BufRead */.gnupg/options		setf gpg
  au BufNewFile,BufRead */.gnupg/gpg.conf		setf gpg
@@ -69,16 +69,16 @@ index c7c6eab..928fb87 100644
  if !empty($GNUPGHOME)
    au BufNewFile,BufRead $GNUPGHOME/options	setf gpg
    au BufNewFile,BufRead $GNUPGHOME/gpg.conf	setf gpg
-@@ -1240,7 +1240,7 @@ au BufNewFile,BufRead Neomuttrc			setf neomuttrc
+@@ -1288,7 +1288,7 @@ au BufNewFile,BufRead Neomuttrc			setf neomuttrc
  au BufNewFile,BufRead .netrc			setf netrc
  
  " Nginx
 -au BufNewFile,BufRead *.nginx,nginx*.conf,*nginx.conf,*/etc/nginx/*,*/usr/local/nginx/conf/*,*/nginx/*.conf			setf nginx
 +au BufNewFile,BufRead *.nginx,nginx*.conf,*nginx.conf,*/etc/nginx/*,*/nginx/conf/*,*/nginx/*.conf			setf nginx
  
- " Ninja file
- au BufNewFile,BufRead *.ninja			setf ninja
-@@ -2061,8 +2061,8 @@ au BufNewFile,BufRead *.uc			setf uc
+ " Nim file
+ au BufNewFile,BufRead *.nim,*.nims,*.nimble	setf nim
+@@ -2131,8 +2131,8 @@ au BufNewFile,BufRead *.uc			setf uc
  au BufNewFile,BufRead */etc/updatedb.conf	setf updatedb
  
  " Upstart (init(8)) config files
@@ -90,10 +90,10 @@ index c7c6eab..928fb87 100644
  au BufNewFile,BufRead */.init/*.conf,*/.init/*.override	       setf upstart
  au BufNewFile,BufRead */.config/upstart/*.conf		       setf upstart
 diff --git a/runtime/ftplugin/debchangelog.vim b/runtime/ftplugin/debchangelog.vim
-index a78f781..c27fa10 100644
+index cf8dd17..f4d4cff 100644
 --- a/runtime/ftplugin/debchangelog.vim
 +++ b/runtime/ftplugin/debchangelog.vim
-@@ -351,12 +351,12 @@ except ImportError:
+@@ -358,12 +358,12 @@ except ImportError:
      vim.command('echoerr \'python-launchpadlib >= 1.5.4 needs to be installed to use Launchpad bug completion\'')
  EOF
      else
@@ -109,7 +109,7 @@ index a78f781..c27fa10 100644
      endif
      let completions = []
 diff --git a/runtime/ftplugin/j.vim b/runtime/ftplugin/j.vim
-index 3cd0cb8..7d5ba26 100644
+index ae235ab..4d55692 100644
 --- a/runtime/ftplugin/j.vim
 +++ b/runtime/ftplugin/j.vim
 @@ -17,7 +17,7 @@ setlocal comments=:NB.
@@ -135,7 +135,7 @@ index 9a0b29e..1ac09f3 100644
  " Matchit configuration
  if exists("loaded_matchit")
 diff --git a/runtime/syntax/sh.vim b/runtime/syntax/sh.vim
-index a0ff499..5dfee5b 100644
+index 822b1a9..7a02499 100644
 --- a/runtime/syntax/sh.vim
 +++ b/runtime/syntax/sh.vim
 @@ -27,8 +27,6 @@ elseif !exists("g:is_kornshell") && !exists("g:is_bash") && !exists("g:is_posix"
@@ -170,10 +170,10 @@ index 38790c4..99c5337 100644
  	:ku=\EOA:kd=\EOB:kr=\EOC:kl=\EOD:kb=^H:\
  	:ho=\E[H:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:pt:sr=5\EM:vt#3:xn:\
 diff --git a/src/optiondefs.h b/src/optiondefs.h
-index 03e472f..5fba7f3 100644
+index f9e10ae..9cc07c9 100644
 --- a/src/optiondefs.h
 +++ b/src/optiondefs.h
-@@ -1827,7 +1827,7 @@ static struct vimoption options[] =
+@@ -1803,7 +1803,7 @@ static struct vimoption options[] =
  #if defined(AMIGA) || defined(MSWIN)
  			    (char_u *)".,,",
  #else
