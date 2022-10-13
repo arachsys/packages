@@ -27,10 +27,10 @@ index 658b040d6..2f1879f85 100644
  #endif
  
 diff --git a/vendor/openssl-sys/build/cfgs.rs b/vendor/openssl-sys/build/cfgs.rs
-index 18b3e3deb..c1d9ddd5a 100644
+index 18b3e3deb..c8e18e427 100644
 --- a/vendor/openssl-sys/build/cfgs.rs
 +++ b/vendor/openssl-sys/build/cfgs.rs
-@@ -34,6 +34,12 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
+@@ -34,6 +34,15 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
          if libressl_version >= 0x3_03_02_00_0 {
              cfgs.push("libressl332");
          }
@@ -40,33 +40,41 @@ index 18b3e3deb..c1d9ddd5a 100644
 +        if libressl_version >= 0x3_05_00_00_0 {
 +            cfgs.push("libressl350");
 +        }
++        if libressl_version >= 0x3_06_00_00_0 {
++            cfgs.push("libressl360");
++        }
      } else {
          let openssl_version = openssl_version.unwrap();
  
 diff --git a/vendor/openssl-sys/build/main.rs b/vendor/openssl-sys/build/main.rs
-index 243f146bf..47525b1a8 100644
+index 243f146bf..25eb928f0 100644
 --- a/vendor/openssl-sys/build/main.rs
 +++ b/vendor/openssl-sys/build/main.rs
-@@ -254,6 +254,8 @@ See rust-openssl README for more information:
+@@ -254,6 +254,10 @@ See rust-openssl README for more information:
              (3, 3, _) => ('3', '3', 'x'),
              (3, 4, 0) => ('3', '4', '0'),
              (3, 4, _) => ('3', '4', 'x'),
 +            (3, 5, 0) => ('3', '5', '0'),
 +            (3, 5, _) => ('3', '5', 'x'),
++            (3, 6, 0) => ('3', '6', '0'),
++            (3, 6, _) => ('3', '6', 'x'),
              _ => version_error(),
          };
  
 diff --git a/vendor/openssl/build.rs b/vendor/openssl/build.rs
-index d90ebc17d..b1dbfda1b 100644
+index d90ebc17d..caa02805c 100644
 --- a/vendor/openssl/build.rs
 +++ b/vendor/openssl/build.rs
-@@ -78,5 +78,9 @@ fn main() {
+@@ -78,5 +78,12 @@ fn main() {
          if version >= 0x3_04_00_00_0 {
              println!("cargo:rustc-cfg=libressl340");
          }
 +
 +        if version >= 0x3_05_00_00_0 {
 +            println!("cargo:rustc-cfg=libressl350");
++        }
++        if version >= 0x3_06_00_00_0 {
++            println!("cargo:rustc-cfg=libressl360");
 +        }
      }
  }
