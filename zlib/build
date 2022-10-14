@@ -1,12 +1,11 @@
 check() {
   url https://zlib.net/
-  match version 1.2.12 'zlib-([0-9.]+)\.tar'
+  match version 1.2.13 'zlib-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://zlib.net/zlib-1.2.12.tar.xz
-  apply configure.diff
-  tree d5910084f532b246752665515461df66e8e64c3c1d4bb377fb9c59287984f2da
+  unpack https://zlib.net/zlib-1.2.13.tar.xz
+  tree 9b94a4bea18ab99eabc32b8394661eaf4b29d3f37b3c7ef5dd9ab47d0772e958
 }
 
 build() {
