@@ -1,8 +1,8 @@
-diff --git a/proc/readproc.c b/proc/readproc.c
-index a956f43..0ea361a 100644
---- a/proc/readproc.c
-+++ b/proc/readproc.c
-@@ -32,6 +32,7 @@
+diff --git a/library/readproc.c b/library/readproc.c
+index 4bc9d96..cefad52 100644
+--- a/library/readproc.c
++++ b/library/readproc.c
+@@ -33,6 +33,7 @@
  #include <sys/stat.h>
  #include <limits.h>
  #include <stdint.h>
@@ -10,22 +10,10 @@ index a956f43..0ea361a 100644
  #ifdef WITH_SYSTEMD
  #include <systemd/sd-login.h>
  #endif
-@@ -655,9 +656,9 @@ static void smaps2proc (const char *s, proc_t *restrict P) {
-     // 1st proc_t data field
-   #define fZERO tid
-     // a smaptab entry generator
--  #define mkENT(F) { #F ":", -1, (int)((void*)&q->smap_ ## F - (void*)&q->fZERO) }
-+  #define mkENT(F) { #F ":", -1, (int) offsetof(proc_t, smap_ ## F) }
-     // make a target field
--  #define mkOBJ(X) ( (unsigned long *)((void *)&P->fZERO + smaptab[X].offs) )
-+  #define mkOBJ(X) ( (unsigned long *)((void *)&P + smaptab[X].offs) )
-     static const proc_t *q;
-     static struct {
-         const char *item;
-diff --git a/w.c b/w.c
-index 612d41c..8dd6d89 100644
---- a/w.c
-+++ b/w.c
+diff --git a/src/w.c b/src/w.c
+index 8b37179..b0e9e59 100644
+--- a/src/w.c
++++ b/src/w.c
 @@ -43,11 +43,7 @@
  #include <termios.h>
  #include <time.h>
@@ -39,10 +27,10 @@ index 612d41c..8dd6d89 100644
  #include <arpa/inet.h>
  
  #include "c.h"
-diff --git a/watch.c b/watch.c
-index 0ba6b3f..fd51ce6 100644
---- a/watch.c
-+++ b/watch.c
+diff --git a/src/watch.c b/src/watch.c
+index a69a402..389db61 100644
+--- a/src/watch.c
++++ b/src/watch.c
 @@ -52,10 +52,8 @@
  # define _XOPEN_SOURCE_EXTENDED 1
  # include <wchar.h>

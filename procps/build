@@ -2,17 +2,17 @@ mode autotools
 
 check() {
   url https://sourceforge.net/projects/procps-ng/files/Production/
-  match version 4.0.0 'procps-ng-([0-9.]+)\.tar'
+  match version 4.0.1 'procps-ng-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.0.tar.xz
-  apply hide.diff
+  unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.1.tar.xz
   apply musl.diff
-  tree 9692ad7a837aa84cd573bae7591190f5e5147c589be357ab4270b5ba46462d3e
+  tree 0427f571139643224a897341195e260e27d14a80337cb0d8efd890d0966529e0
 }
 
-config-extra --disable-{kill,modern-top,shared} --enable-watch8bit
+config-extra --disable-{kill,modern-top,shared} --enable-watch8bit \
+  NCURSES_CFLAGS= NCURSES_LIBS=-lncursesw PKG_CONFIG=/bin/true
 
 post-install() {
   rm -f -r /dst/bin/w /dst/lib/{include,lib*.a,man/man1/w.1,pkgconfig}
