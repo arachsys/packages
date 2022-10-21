@@ -4,18 +4,18 @@ check() {
 }
 
 prepare() {
-  unpack kakoune-2022.09.10.tar.gz \
-    https://github.com/mawww/kakoune/archive/67405393.tar.gz
+  unpack kakoune-2022.10.19.tar.gz \
+    https://github.com/mawww/kakoune/archive/cb33918f.tar.gz
   apply highlight.diff
   apply palette.diff
   apply paths.diff
   apply tabs.diff
   apply windowing.diff
-  tree 6098d811a0b9de51b6571c8a65e6a17e77c8a4a1410f9de6b7f74c3cc038a45f
+  tree 5e5bfb6b18aa4b9590533cc1ec76c209b91aa6e1a43dde49e8f2f7856fe9c2db
 }
 
 build() {
-  make install CXX=c++ DESTDIR=/dst PREFIX= version=2022.09.10
+  make install CXX=c++ DESTDIR=/dst PREFIX= version=2022.10.19
   find /dst/lib/kak/{colors,kakrc,rc} -type f -exec sed -E -e '/^\s*#/d' \
     -e "s/^(([^'\"#]*|'[^']*'|\"([^\"\\]|\\\\.)*\")*)\\s+#\\s.*/\\1/" \
     -e 's/\s+$//' -e '/./,/^$/p' -i -n {} +
