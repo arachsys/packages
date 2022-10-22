@@ -14,7 +14,8 @@ prepare() {
   apply libressl.diff
   apply musl.diff
   apply paths.diff
-  tree 22fb0f1fa2cd879464b54e7faf58791316548e8377a9c047a826e9dc4654efde
+  apply sha3.diff
+  tree 335f1a087cd325015f3b7be11f2fad47af5f4bed1db4ea07bb099c49cdc95543
 }
 
 config-extra --enable-optimizations --enable-shared --with-dbmliborder= \
