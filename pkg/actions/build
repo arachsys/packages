@@ -104,7 +104,7 @@ helper() {
       sort -o "$IMG/info/requirements" -u "$IMG/info/requirements"
     fi
   done
-  find /img -depth -exec touch -d $(date +@%s) {} +
+  find /img -depth -exec touch -r / {} +
 }
 
 if [[ $$ -eq 1 ]]; then
