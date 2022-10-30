@@ -13,13 +13,18 @@ prepare() {
   apply history.diff
   apply libressl.diff
   apply paths.diff
-  tree bfe7d99fda4e2054dc04de6bf9bdbc5c6dd2732dff0d05777815956360959c92
+  sed -i '1s_^#!.*_#!/bin/python3_' Misc/python-config.in **/*.py
+  tree 611a913198e5a9c459df12343d95424204aba76fd57c169d9dfa1050eb3296f0
 }
 
 config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
   --with-lto --with-openssl=/lib --with-ssl-default-suites=openssl \
   CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
   LDFLAGS=-fno-semantic-interposition
+
+post-config() {
+  export SOURCE_DATE_EPOCH=$(stat -c %Y /)
+}
 
 post-install() {
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
@@ -53,8 +58,7 @@ post-install() {
   mv -f /dst/bin/python3.* /dst/bin/python3 && ln -s python3 /dst/bin/python
   rm -f /dst/bin/pip3.* && ln -s pip3 /dst/bin/pip
 
-  sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/2to3 /dst/bin/pip3 \
-    /dst/bin/pydoc3 /dst/lib/python/**/*.py
+  sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/{2to3,pydoc3,pip3}
 
   image - requires libffi
 }
