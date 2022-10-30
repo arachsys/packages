@@ -1,14 +1,200 @@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index 9f05289..3971c0d 100644
+index 9447988..4c3dc55 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
-@@ -173,6 +173,9 @@ reduce(wchar_t *dir)
-     while (i > 0 && dir[i] != SEP) {
-         --i;
-     }
-+    if (i == 0 && dir[0] == SEP && dir[1] != '\0') {
-+        ++i;
-+    }
-     dir[i] = '\0';
- }
+@@ -580,7 +580,7 @@ wchar_to_dict(PyObject *dict, const char *key, const wchar_t *s)
+ {
+     PyObject *u;
+     int r;
+-    if (s && s[0]) {
++    if (s) {
+         u = PyUnicode_FromWideChar(s, -1);
+         if (!u) {
+             return 0;
+@@ -601,7 +601,7 @@ decode_to_dict(PyObject *dict, const char *key, const char *s)
+ {
+     PyObject *u = NULL;
+     int r;
+-    if (s && s[0]) {
++    if (s) {
+         size_t len;
+         const wchar_t *w = Py_DecodeLocale(s, &len);
+         if (w) {
+diff --git a/Modules/getpath.py b/Modules/getpath.py
+index d4774b1..a5c511b 100644
+--- a/Modules/getpath.py
++++ b/Modules/getpath.py
+@@ -206,12 +206,15 @@ elif os_name == 'nt':
+ # ******************************************************************************
  
+ def search_up(prefix, *landmarks, test=isfile):
+-    while prefix:
+-        if any(test(joinpath(prefix, f)) for f in landmarks):
++    while True:
++        if any(test(joinpath(prefix or SEP, f)) for f in landmarks):
+             return prefix
++        if not prefix:
++            break
+         prefix = dirname(prefix)
+ 
+ 
++
+ # ******************************************************************************
+ # READ VARIABLES FROM config
+ # ******************************************************************************
+@@ -496,12 +499,12 @@ if ((not home_was_set and real_executable_dir and not py_setpath)
+         else:
+             stdlib_dir = joinpath(build_prefix, 'Lib')
+         # Only use the build prefix for prefix if it hasn't already been set
+-        if not prefix:
++        if prefix is None:
+             prefix = build_stdlib_prefix
+         # Do not warn, because 'prefix' never equals 'build_prefix' on POSIX
+         #elif not venv_prefix and prefix != build_prefix:
+         #    warn('Detected development environment but prefix is already set')
+-        if not exec_prefix:
++        if exec_prefix is None:
+             exec_prefix = build_prefix
+         # Do not warn, because 'exec_prefix' never equals 'build_prefix' on POSIX
+         #elif not venv_prefix and exec_prefix != build_prefix:
+@@ -531,7 +534,7 @@ else:
+ 
+ 
+     # First try to detect prefix by looking alongside our runtime library, if known
+-    if library and not prefix:
++    if library and prefix is None:
+         library_dir = dirname(library)
+         if ZIP_LANDMARK:
+             if os_name == 'nt':
+@@ -540,14 +543,14 @@ else:
+                     prefix = library_dir
+             else:
+                 prefix = search_up(library_dir, ZIP_LANDMARK)
+-        if STDLIB_SUBDIR and STDLIB_LANDMARKS and not prefix:
++        if STDLIB_SUBDIR and STDLIB_LANDMARKS and prefix is None:
+             if any(isfile(joinpath(library_dir, f)) for f in STDLIB_LANDMARKS):
+                 prefix = library_dir
+-                stdlib_dir = joinpath(prefix, STDLIB_SUBDIR)
++                stdlib_dir = joinpath(prefix or SEP, STDLIB_SUBDIR)
+ 
+ 
+     # Detect prefix by looking for zip file
+-    if ZIP_LANDMARK and executable_dir and not prefix:
++    if ZIP_LANDMARK and executable_dir and prefix is None:
+         if os_name == 'nt':
+             # QUIRK: Windows does not search up for ZIP file
+             if isfile(joinpath(executable_dir, ZIP_LANDMARK)):
+@@ -555,58 +558,58 @@ else:
+         else:
+             prefix = search_up(executable_dir, ZIP_LANDMARK)
+         if prefix:
+-            stdlib_dir = joinpath(prefix, STDLIB_SUBDIR)
++            stdlib_dir = joinpath(prefix or SEP, STDLIB_SUBDIR)
+             if not isdir(stdlib_dir):
+                 stdlib_dir = None
+ 
+ 
+     # Detect prefix by searching from our executable location for the stdlib_dir
+-    if STDLIB_SUBDIR and STDLIB_LANDMARKS and executable_dir and not prefix:
++    if STDLIB_SUBDIR and STDLIB_LANDMARKS and executable_dir and prefix is None:
+         prefix = search_up(executable_dir, *STDLIB_LANDMARKS)
+-        if prefix:
+-            stdlib_dir = joinpath(prefix, STDLIB_SUBDIR)
++        if prefix is not None:
++            stdlib_dir = joinpath(prefix or SEP, STDLIB_SUBDIR)
+ 
+-    if PREFIX and not prefix:
++    if PREFIX is not None and prefix is None:
+         prefix = PREFIX
+-        if not any(isfile(joinpath(prefix, f)) for f in STDLIB_LANDMARKS):
++        if not any(isfile(joinpath(prefix or SEP, f)) for f in STDLIB_LANDMARKS):
+             warn('Could not find platform independent libraries <prefix>')
+ 
+-    if not prefix:
++    if prefix is None:
+         prefix = abspath('')
+         warn('Could not find platform independent libraries <prefix>')
+ 
+ 
+     # Detect exec_prefix by searching from executable for the platstdlib_dir
+-    if PLATSTDLIB_LANDMARK and not exec_prefix:
++    if PLATSTDLIB_LANDMARK and exec_prefix is None:
+         if executable_dir:
+             exec_prefix = search_up(executable_dir, PLATSTDLIB_LANDMARK, test=isdir)
+-        if not exec_prefix:
+-            if EXEC_PREFIX:
++        if exec_prefix is None:
++            if EXEC_PREFIX is not None:
+                 exec_prefix = EXEC_PREFIX
+-                if not isdir(joinpath(exec_prefix, PLATSTDLIB_LANDMARK)):
++                if not isdir(joinpath(exec_prefix or SEP, PLATSTDLIB_LANDMARK)):
+                     warn('Could not find platform dependent libraries <exec_prefix>')
+             else:
+                 warn('Could not find platform dependent libraries <exec_prefix>')
+ 
+     # Fallback: assume exec_prefix == prefix
+-    if not exec_prefix:
++    if exec_prefix is None:
+         exec_prefix = prefix
+ 
+ 
+-    if not prefix or not exec_prefix:
++    if prefix is None or exec_prefix is None:
+         warn('Consider setting $PYTHONHOME to <prefix>[:<exec_prefix>]')
+ 
+ 
+ # If we haven't set [plat]stdlib_dir already, set them now
+ if not stdlib_dir:
+-    if prefix:
+-        stdlib_dir = joinpath(prefix, STDLIB_SUBDIR)
++    if prefix is not None:
++        stdlib_dir = joinpath(prefix or SEP, STDLIB_SUBDIR)
+     else:
+         stdlib_dir = ''
+ 
+ if not platstdlib_dir:
+-    if exec_prefix:
+-        platstdlib_dir = joinpath(exec_prefix, PLATSTDLIB_LANDMARK)
++    if exec_prefix is not None:
++        platstdlib_dir = joinpath(exec_prefix or SEP, PLATSTDLIB_LANDMARK)
+     else:
+         platstdlib_dir = ''
+ 
+@@ -650,9 +653,9 @@ elif not pythonpath_was_set:
+     elif build_prefix or venv_prefix:
+         # QUIRK: POSIX uses the default prefix when in the build directory
+         # or a venv
+-        pythonpath.append(joinpath(PREFIX, ZIP_LANDMARK))
++        pythonpath.append(joinpath(PREFIX or SEP, ZIP_LANDMARK))
+     else:
+-        pythonpath.append(joinpath(prefix, ZIP_LANDMARK))
++        pythonpath.append(joinpath(prefix or SEP, ZIP_LANDMARK))
+ 
+     if os_name == 'nt' and use_environment and winreg:
+         # QUIRK: Windows also lists paths in the registry. Paths are stored
+@@ -680,7 +683,7 @@ elif not pythonpath_was_set:
+     # Then add any entries compiled into the PYTHONPATH macro.
+     if PYTHONPATH:
+         for p in PYTHONPATH.split(DELIM):
+-            pythonpath.append(joinpath(prefix, p))
++            pythonpath.append(joinpath(prefix or SEP, p))
+ 
+     # Then add stdlib_dir and platstdlib_dir
+     if os_name == 'nt' and venv_prefix:
+@@ -707,8 +710,14 @@ elif not pythonpath_was_set:
+ # QUIRK: Non-Windows replaces prefix/exec_prefix with defaults when running
+ # in build directory. This happens after pythonpath calculation.
+ if os_name != 'nt' and build_prefix:
+-    prefix = config.get('prefix') or PREFIX
+-    exec_prefix = config.get('exec_prefix') or EXEC_PREFIX or prefix
++    prefix = config.get('prefix')
++    if prefix is None:
++        prefix = PREFIX
++    exec_prefix = config.get('exec_prefix')
++    if exec_prefix is None:
++        exec_prefix = EXEC_PREFIX
++    if exec_prefix is None:
++        exec_prefix = prefix
+ 
+ 
+ # ******************************************************************************

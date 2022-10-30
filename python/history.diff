@@ -1,28 +1,34 @@
 diff --git a/Lib/site.py b/Lib/site.py
-index de82d33..0d49734 100644
+index 69670d9..1d79029 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -445,10 +445,6 @@ def enablerlcompleter():
-             # http://bugs.python.org/issue5845#msg198636
-             history = os.path.join(os.path.expanduser('~'),
-                                    '.python_history')
+@@ -464,29 +464,6 @@ def enablerlcompleter():
+             # want to ignore the exception.
+             pass
+ 
+-        if readline.get_current_history_length() == 0:
+-            # If no history was loaded, default to .python_history.
+-            # The guard is necessary to avoid doubling history size at
+-            # each interpreter exit when readline was already configured
+-            # through a PYTHONSTARTUP hook, see:
+-            # http://bugs.python.org/issue5845#msg198636
+-            history = os.path.join(os.path.expanduser('~'),
+-                                   '.python_history')
 -            try:
 -                readline.read_history_file(history)
 -            except OSError:
 -                pass
- 
-             def write_history():
-                 try:
-@@ -458,7 +454,11 @@ def enablerlcompleter():
-                     # or is not writable, or the filesystem is read-only.
-                     pass
- 
+-
+-            def write_history():
+-                try:
+-                    readline.write_history_file(history)
+-                except OSError:
+-                    # bpo-19891, bpo-41193: Home directory does not exist
+-                    # or is not writable, or the filesystem is read-only.
+-                    pass
+-
 -            atexit.register(write_history)
-+            try:
-+                readline.read_history_file(history)
-+                atexit.register(write_history)
-+            except OSError:
-+                pass
- 
+-
      sys.__interactivehook__ = register_readline
  
+ def venv(known_paths):

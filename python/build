@@ -3,23 +3,21 @@ require libffi sqlite
 
 check() {
   url https://www.python.org/downloads/source/
-  match version 3.10.8 'Python-([0-9.]+)\.tar'
+  match version 3.11.0 'Python-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack python-3.10.8.tar.xz \
-    https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tar.xz
+  unpack python-3.11.0.tar.xz \
+    https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tar.xz
   apply getpath.diff
   apply history.diff
   apply libressl.diff
-  apply musl.diff
   apply paths.diff
-  apply sha3.diff
-  tree 335f1a087cd325015f3b7be11f2fad47af5f4bed1db4ea07bb099c49cdc95543
+  tree bfe7d99fda4e2054dc04de6bf9bdbc5c6dd2732dff0d05777815956360959c92
 }
 
-config-extra --enable-optimizations --enable-shared --with-dbmliborder= \
-  --with-ensurepip=no --with-lto --with-openssl=/lib \
+config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
+  --with-lto --with-openssl=/lib --with-ssl-default-suites=openssl \
   CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
   LDFLAGS=-fno-semantic-interposition
 
@@ -51,12 +49,12 @@ post-install() {
     /dst/lib/python/{turtle*,__pycache__/turtle.*,tkinter,venv/scripts}
 
   mv -f /dst/bin/2to3-* /dst/bin/2to3
-  mv -f /dst/bin/pip3.* /dst/bin/pip3 && ln -s pip3 /dst/bin/pip
   mv -f /dst/bin/pydoc3.* /dst/bin/pydoc3 && ln -s pydoc3 /dst/bin/pydoc
   mv -f /dst/bin/python3.* /dst/bin/python3 && ln -s python3 /dst/bin/python
+  rm -f /dst/bin/pip3.* && ln -s pip3 /dst/bin/pip
 
   sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/2to3 /dst/bin/pip3 \
-    /dst/bin/pydoc3 /dst/lib/python/config-3*/python-config.py
+    /dst/bin/pydoc3 /dst/lib/python/**/*.py
 
   image - requires libffi
 }
