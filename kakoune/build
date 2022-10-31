@@ -1,17 +1,17 @@
 check() {
   url https://github.com/mawww/kakoune/tags
-  match version 2021.11.08 'tags/v([0-9.]+)\.tar'
+  match version 2022.10.31 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack kakoune-2022.10.19.tar.gz \
-    https://github.com/mawww/kakoune/archive/cb33918f.tar.gz
+   unpack kakoune-2022.10.31.tar.gz \
+     https://github.com/mawww/kakoune/archive/v2022.10.31.tar.gz
   apply highlight.diff
   apply palette.diff
   apply paths.diff
   apply tabs.diff
   apply windowing.diff
-  tree 5e5bfb6b18aa4b9590533cc1ec76c209b91aa6e1a43dde49e8f2f7856fe9c2db
+  tree 5e8b3dbd350e6914a9242fccb32698261a3f71fea5e2dac3df65a43a5657afa6
 }
 
 build() {
