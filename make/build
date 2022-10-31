@@ -2,11 +2,11 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/make/
-  match version 4.3 'make-([0-9.]+)\.tar'
+  match version 4.4 'make-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/make/make-4.3.tar.gz
+  unpack https://ftp.gnu.org/gnu/make/make-4.4.tar.gz
   apply paths.diff
-  tree a442f08a11ab396638dea0aa71d6e7f3bca5a2115a5578347c8b801b92604b8d
+  tree d7f4795a3cc9ff205e69505fdaa5cd42ac0c9c199be091d1d031ef4bb9246344
 }
