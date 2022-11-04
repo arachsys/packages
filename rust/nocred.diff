@@ -1,5 +1,5 @@
 diff --git a/src/bootstrap/tool.rs b/src/bootstrap/tool.rs
-index 1317c3f98..c04ad0408 100644
+index 7d4ed24b6..0a21a2f63 100644
 --- a/src/bootstrap/tool.rs
 +++ b/src/bootstrap/tool.rs
 @@ -623,6 +623,7 @@ impl Step for Cargo {

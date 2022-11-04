@@ -1,8 +1,8 @@
 diff --git a/vendor/curl-sys/build.rs b/vendor/curl-sys/build.rs
-index 8615c4d..7fab5ec 100644
+index 73d1d5a..3f95753 100644
 --- a/vendor/curl-sys/build.rs
 +++ b/vendor/curl-sys/build.rs
-@@ -31,6 +31,11 @@ fn main() {
+@@ -35,6 +35,11 @@ fn main() {
              return println!("cargo:rustc-flags=-l curl");
          }
  

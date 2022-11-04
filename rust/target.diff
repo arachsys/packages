@@ -15,10 +15,10 @@ index 000000000..5681188f8
 +    base
 +}
 diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
-index bd5b712c1..1f5681104 100644
+index dc16739bd..e4d9d2c49 100644
 --- a/compiler/rustc_target/src/spec/mod.rs
 +++ b/compiler/rustc_target/src/spec/mod.rs
-@@ -808,6 +808,9 @@ macro_rules! supported_targets {
+@@ -906,6 +906,9 @@ macro_rules! supported_targets {
  }
  
  supported_targets! {
@@ -30,7 +30,7 @@ index bd5b712c1..1f5681104 100644
      ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
 diff --git a/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
 new file mode 100644
-index 000000000..9555b7e87
+index 000000000..5ead73673
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
 @@ -0,0 +1,10 @@
