@@ -9,22 +9,19 @@ check() {
 prepare() {
   unpack python-3.11.0.tar.xz \
     https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tar.xz
+  apply checked.diff
   apply getpath.diff
   apply history.diff
   apply libressl.diff
   apply paths.diff
   sed -i '1s_^#!.*_#!/bin/python3_' Misc/python-config.in **/*.py
-  tree 611a913198e5a9c459df12343d95424204aba76fd57c169d9dfa1050eb3296f0
+  tree 767472d430d26a9f96fc7e3ba6d5bd554014c69ab57bda022e75c86c865e4484
 }
 
 config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
   --with-lto --with-openssl=/lib --with-ssl-default-suites=openssl \
   CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
   LDFLAGS=-fno-semantic-interposition
-
-post-config() {
-  export SOURCE_DATE_EPOCH=$(stat -c %Y /)
-}
 
 post-install() {
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
