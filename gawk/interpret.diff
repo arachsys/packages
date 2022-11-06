@@ -1,0 +1,48 @@
+diff --git a/interpret.h b/interpret.h
+index 57d060e..9457a76 100644
+--- a/interpret.h
++++ b/interpret.h
+@@ -213,15 +213,17 @@ top:
+ 			case Node_var_new:
+ uninitialized_scalar:
+ 				if (op != Op_push_arg_untyped) {
+-					/* convert untyped to scalar */
++					/* convert very original untyped to scalar */
+ 					m->type = Node_var;
+ 					m->var_value = dupnode(Nnull_string);
+ 				}
++
+ 				if (do_lint)
+ 					lintwarn(isparam ?
+ 						_("reference to uninitialized argument `%s'") :
+ 						_("reference to uninitialized variable `%s'"),
+ 								save_symbol->vname);
++				// set up local param by value
+ 				if (op != Op_push_arg_untyped)
+ 					m = dupnode(Nnull_string);
+ 				UPREF(m);
+@@ -230,14 +232,22 @@ uninitialized_scalar:
+ 
+ 			case Node_elem_new:
+ 				if (op != Op_push_arg_untyped) {
+-					/* convert untyped to scalar */
+-					m = elem_new_to_scalar(m);
++					/* convert very original untyped to scalar */
++					m->type = Node_var;
++					m->var_value = dupnode(Nnull_string);
+ 				}
++
+ 				if (do_lint)
+ 					lintwarn(isparam ?
+ 						_("reference to uninitialized argument `%s'") :
+ 						_("reference to uninitialized variable `%s'"),
+ 								save_symbol->vname);
++				// set up local param by value
++				if (op != Op_push_arg_untyped) {
++					DEREF(m);
++					m = dupnode(Nnull_string);
++				}
++
+ 				PUSH(m);
+ 				break;
+ 

@@ -7,9 +7,10 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/gawk/gawk-5.2.0.tar.xz
-  tree 89cd25c81b9d02e3513ec313568e01c88509d8de93e585fc2452d7a0ffca1329
+  apply interpret.diff
+  tree 652049cb4f3007a60813d9e81a0680ea8abe7f8b5ead12492f63d9f558cee0df
 }
 
 post-install() {
-  rm -f /dst/bin/{pgawk,gawk}-*
+  rm -f /dst/bin/gawk{-*,bug}
 }
