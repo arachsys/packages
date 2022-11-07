@@ -2,10 +2,10 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/sed/
-  match version 4.8 'sed-([0-9.]+)\.tar'
+  match version 4.9 'sed-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/sed/sed-4.8.tar.xz
-  tree 103dfc5b835e7c50033673bafac8b994e18c2fcb0f2c46ca50c8d1819e91c4c2
+  unpack https://ftp.gnu.org/gnu/sed/sed-4.9.tar.xz
+  tree 159b7acaa4dd45f480efb3cef3afd0a6c91b1441dc92f2836271920a7e40ff96
 }
