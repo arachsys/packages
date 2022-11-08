@@ -3,16 +3,16 @@ enable setuid setgid
 
 check() {
   url https://github.com/shadow-maint/shadow/tags
-  match version 4.12.3 'tags/([0-9.]+)\.tar'
+  match version 4.13 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/4.12.3/shadow-4.12.3.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/4.13/shadow-4.13.tar.xz
   apply bcrypt.diff
   apply idmap.diff
   apply nss.diff
   apply paths.diff
-  tree a24c7699be1865eddc0432c44b053017bf58c05ce2459efcda8d34f81eb79f3a
+  tree 908807ccf44aa1490e21128368918a88aa6da7ca592bd51516d6d21fa569b84a
 }
 
 config-extra --disable-shared --without-{audit,libpam} --with-bcrypt
