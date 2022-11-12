@@ -4,14 +4,14 @@ check() {
 }
 
 prepare() {
-   unpack kakoune-2022.10.31.tar.gz \
-     https://github.com/mawww/kakoune/archive/v2022.10.31.tar.gz
+   unpack kakoune-2022.11.09.tar.gz \
+     https://github.com/mawww/kakoune/archive/91d45a10.tar.gz
   apply highlight.diff
   apply palette.diff
   apply paths.diff
   apply tabs.diff
   apply windowing.diff
-  tree 5e8b3dbd350e6914a9242fccb32698261a3f71fea5e2dac3df65a43a5657afa6
+  tree fb48405b1235b7c09862c66209cb74a156aa720e10f9254d54044947432eba69
 }
 
 build() {
