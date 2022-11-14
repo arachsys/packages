@@ -1,11 +1,11 @@
 check() {
   url https://github.com/arachsys/tinymbim/tags
-  match version 1.0 'tags/tinymbim-([0-9.]+)\.tar'
+  match version 1.1 'tags/tinymbim-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/arachsys/tinymbim/archive/refs/tags/tinymbim-1.0.tar.gz
-  tree b9b5f727918013a0a7e75e55460879c559576a879ffa727a06ba61a3a6aa0f3c
+  unpack https://github.com/arachsys/tinymbim/archive/refs/tags/tinymbim-1.1.tar.gz
+  tree 8b1477b6db74913d3bc2db52656fbf1715bd0677d06935f9a979ab2e39a985bd
 }
 
 build() {
