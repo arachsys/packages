@@ -10,9 +10,10 @@ prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.8p1.tar.gz
   apply adjtimex.diff
   apply cosmetic.diff
+  apply dnsretry.diff
   apply paths.diff
   apply settime.diff
-  tree 6eff5655d5cdf7ee5c39364b90d3bcfb7fae779a6d12ddb0ade1c8d6c44bf37a
+  tree 89f20157d1a489ad4d9504dcf0995a70cc929d85073af9d23257ee17e95d6fd3
 }
 
 config-extra --enable-https-constraint --with-privsep-user=ntp
