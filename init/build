@@ -1,11 +1,11 @@
 check() {
   url https://github.com/arachsys/init/tags
-  match version 2.4 'init-([0-9.]+)\.tar'
+  match version 2.5 'init-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/arachsys/init/archive/init-2.4.tar.gz
-  tree b200314ad2154d6342bbdbf6671e4b99516454b5f9fe925695f584b10383c85d
+  unpack https://github.com/arachsys/init/archive/init-2.5.tar.gz
+  tree b8e47e24e04ad4ae8408864dc9ecec33fe29d077c43b23c415bc5ee367c83fd0
 }
 
 build() {
