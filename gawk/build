@@ -2,13 +2,12 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/gawk/
-  match version 5.2.0 'gawk-([0-9.]+)\.tar'
+  match version 5.2.1 'gawk-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/gawk/gawk-5.2.0.tar.xz
-  apply interpret.diff
-  tree 652049cb4f3007a60813d9e81a0680ea8abe7f8b5ead12492f63d9f558cee0df
+  unpack https://ftp.gnu.org/gnu/gawk/gawk-5.2.1.tar.xz
+  tree d6ad5efdd41d5276ce0e9217606f93036281a166c699ad6ae0a6db10dd73e52a
 }
 
 post-install() {
