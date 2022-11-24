@@ -3,18 +3,18 @@ require rust
 
 check() {
   url https://github.com/firecracker-microvm/firecracker/tags
-  match version 1.1.2 'tags/v([0-9.]+)\.tar'
+  match version 1.1.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack firecracker-1.1.2.tar.gz \
-    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.1.2.tar.gz
+  unpack firecracker-1.1.3.tar.gz \
+    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.1.3.tar.gz
   apply cosmetic.diff
   apply seccomp.diff
   ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
   ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
   mkdir -p .cargo && HOME=/tmp cargo vendor >.cargo/config
-  tree ae85c4e04043af5b29d0991111e2f4ca0e7917974d048d2a57f349e80ab0dbe1
+  tree 8f69dc88f22a3fbb66940c7cf418d2d00d1fb5edb9454c274516d1ecb6837bad
 }
 
 build() {
