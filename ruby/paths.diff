@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 1928270..0b78444 100755
+index 6daf2f2..4727637 100755
 --- a/configure
 +++ b/configure
-@@ -32185,10 +32185,10 @@ case "$target_os" in #(
+@@ -33312,10 +33312,10 @@ case "$target_os" in #(
       ;;
  esac
  
@@ -15,12 +15,12 @@ index 1928270..0b78444 100755
 +rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}'}
  
  # Check whether --with-rubyarchprefix was given.
- if test "${with_rubyarchprefix+set}" = set; then :
+ if test ${with_rubyarchprefix+y}
 diff --git a/configure.ac b/configure.ac
-index 5a6b074..24c0418 100644
+index fcae66f..a9f62bc 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3977,10 +3977,10 @@ AS_CASE(["$target_os"],
+@@ -3983,10 +3983,10 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -35,15 +35,15 @@ index 5a6b074..24c0418 100644
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
  			   [prefix for architecture dependent ruby libraries [[RUBYLIBPREFIX/ARCH]]]),
 diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
-index 39b69dd..b71e287 100644
+index d5caea7..a3356c2 100644
 --- a/lib/rubygems/defaults.rb
 +++ b/lib/rubygems/defaults.rb
 @@ -34,7 +34,7 @@ module Gem
    # specified in the environment
  
    def self.default_dir
--    @default_dir ||= File.join(RbConfig::CONFIG['rubylibprefix'], 'gems', RbConfig::CONFIG['ruby_version'])
-+    @default_dir ||= File.join(RbConfig::CONFIG['rubylibprefix'], 'gems')
+-    @default_dir ||= File.join(RbConfig::CONFIG["rubylibprefix"], "gems", RbConfig::CONFIG["ruby_version"])
++    @default_dir ||= File.join(RbConfig::CONFIG["rubylibprefix"], "gems")
    end
  
    ##
