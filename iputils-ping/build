@@ -2,20 +2,20 @@ enable setuid
 
 check() {
   url https://github.com/iputils/iputils/tags
-  match iputils 20211215 'tags/([0-9.]+)\.tar'
+  match iputils 20221126 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack iputils-20211215.tar.gz \
-    https://github.com/iputils/iputils/archive/refs/tags/20211215.tar.gz
-  tree b7a965c1da8b12b8ee7c7ee20f0b3f000f22d4e9411e08d4fc6df268d5dce57e
+  unpack iputils-20221126.tar.gz \
+    https://github.com/iputils/iputils/archive/refs/tags/20221126.tar.gz
+  tree 73ba37b65ffd75fed1bbc3b759312bcbda96ef7877adc38697f7cf3d393d6367
 }
 
 build() {
   echo '#define PACKAGE_NAME "iputils"' >config.h
-  sed 's/@VCS_TAG@/20210705/' git-version.h.meson >>config.h
-  cc -Os -Wall -D_GNU_SOURCE -I. -include config.h iputils_common.c \
-    md5.c ping/*.c -lm -lresolv -o ping/ping
+  sed 's/@VCS_TAG@/20221126/' git-version.h.meson >>config.h
+  cc -Os -Wall -DHAVE___FPENDING -DHAVE_GETRANDOM -I. -include config.h \
+    iputils_common.c md5.c ping/*.c -lm -lresolv -o ping/ping
   mkdir -p /dst/bin
   install -m 4755 -o root -g root -s ping/ping /dst/bin
 }
