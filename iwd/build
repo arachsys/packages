@@ -12,7 +12,7 @@ prepare() {
   apply paths.diff
   apply resolve.diff
   apply syslog.diff
-  tree 079b02d1fb84b9020b5d5899b07c050b168a89001f533393c9ec8f51d9e9f964
+  tree e01507d352b9728a1a42358661c5347eeadf2e055fa83f4aa6961d6bb1aa2ff7
 }
 
 config-extra --disable-dbus-policy --disable-systemd-service \

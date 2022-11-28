@@ -34,3 +34,18 @@ index 8e530a1..6ad2cac 100644
  
  	if (check_crypto() < 0)
  		return EXIT_FAILURE;
+diff --git a/src/wiphy.c b/src/wiphy.c
+index 1051457..c9d5da3 100644
+--- a/src/wiphy.c
++++ b/src/wiphy.c
+@@ -1178,9 +1178,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
+ 			if (!str)
+ 				continue;
+ 
+-			len += snprintf(buf + len, sizeof(buf) - len, "%s%s",
+-					!n || (n % 4) ? " " : "\n\t\t ",
+-					str);
++			len += snprintf(buf + len, sizeof(buf) - len, " %s", str);
+ 
+ 			n += 1;
+ 		}
