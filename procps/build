@@ -2,14 +2,13 @@ mode autotools
 
 check() {
   url https://sourceforge.net/projects/procps-ng/files/Production/
-  match version 4.0.1 'procps-ng-([0-9.]+)\.tar'
+  match version 4.0.2 'procps-ng-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.1.tar.xz
-  apply coreid.diff
+  unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.2.tar.xz
   apply musl.diff
-  tree 74219787e8c2ebe330c2cfc93f16c638b9ac64fc96b9696a335640d915fca35d
+  tree 4ab5d717bd79a0b52c622e467e17824cf90ea29b32810e1f479ca51bf579475c
 }
 
 config-extra --disable-{kill,modern-top,shared} --enable-watch8bit \
