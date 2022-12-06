@@ -1,11 +1,11 @@
 check() {
   url https://thekelleys.org.uk/dnsmasq/
-  match version 2.87 'dnsmasq-([0-9.]+)\.tar'
+  match version 2.88 'dnsmasq-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://thekelleys.org.uk/dnsmasq/dnsmasq-2.87.tar.xz
-  tree 0a9956b65cf9eb23ff429a246eb1b44e18678dc6dbcd54994234970bc0563085
+  unpack https://thekelleys.org.uk/dnsmasq/dnsmasq-2.88.tar.xz
+  tree d18cbc6614bcc20d303703c365fcdd9f2b74975695f0355965758a072e2feccb
 }
 
 build() {
