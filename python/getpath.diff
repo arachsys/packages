@@ -1,8 +1,8 @@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index 9447988..4c3dc55 100644
+index ceacf36..415724f 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
-@@ -580,7 +580,7 @@ wchar_to_dict(PyObject *dict, const char *key, const wchar_t *s)
+@@ -585,7 +585,7 @@ wchar_to_dict(PyObject *dict, const char *key, const wchar_t *s)
  {
      PyObject *u;
      int r;
@@ -11,7 +11,7 @@ index 9447988..4c3dc55 100644
          u = PyUnicode_FromWideChar(s, -1);
          if (!u) {
              return 0;
-@@ -601,7 +601,7 @@ decode_to_dict(PyObject *dict, const char *key, const char *s)
+@@ -606,7 +606,7 @@ decode_to_dict(PyObject *dict, const char *key, const char *s)
  {
      PyObject *u = NULL;
      int r;
@@ -21,7 +21,7 @@ index 9447988..4c3dc55 100644
          const wchar_t *w = Py_DecodeLocale(s, &len);
          if (w) {
 diff --git a/Modules/getpath.py b/Modules/getpath.py
-index d4774b1..a5c511b 100644
+index fc533a8..61fceb0 100644
 --- a/Modules/getpath.py
 +++ b/Modules/getpath.py
 @@ -206,12 +206,15 @@ elif os_name == 'nt':
@@ -42,7 +42,7 @@ index d4774b1..a5c511b 100644
  # ******************************************************************************
  # READ VARIABLES FROM config
  # ******************************************************************************
-@@ -496,12 +499,12 @@ if ((not home_was_set and real_executable_dir and not py_setpath)
+@@ -515,12 +518,12 @@ if ((not home_was_set and real_executable_dir and not py_setpath)
          else:
              stdlib_dir = joinpath(build_prefix, 'Lib')
          # Only use the build prefix for prefix if it hasn't already been set
@@ -57,7 +57,7 @@ index d4774b1..a5c511b 100644
              exec_prefix = build_prefix
          # Do not warn, because 'exec_prefix' never equals 'build_prefix' on POSIX
          #elif not venv_prefix and exec_prefix != build_prefix:
-@@ -531,7 +534,7 @@ else:
+@@ -550,7 +553,7 @@ else:
  
  
      # First try to detect prefix by looking alongside our runtime library, if known
@@ -66,7 +66,7 @@ index d4774b1..a5c511b 100644
          library_dir = dirname(library)
          if ZIP_LANDMARK:
              if os_name == 'nt':
-@@ -540,14 +543,14 @@ else:
+@@ -559,14 +562,14 @@ else:
                      prefix = library_dir
              else:
                  prefix = search_up(library_dir, ZIP_LANDMARK)
@@ -84,7 +84,7 @@ index d4774b1..a5c511b 100644
          if os_name == 'nt':
              # QUIRK: Windows does not search up for ZIP file
              if isfile(joinpath(executable_dir, ZIP_LANDMARK)):
-@@ -555,58 +558,58 @@ else:
+@@ -574,29 +577,29 @@ else:
          else:
              prefix = search_up(executable_dir, ZIP_LANDMARK)
          if prefix:
@@ -120,17 +120,19 @@ index d4774b1..a5c511b 100644
 -    if PLATSTDLIB_LANDMARK and not exec_prefix:
 +    if PLATSTDLIB_LANDMARK and exec_prefix is None:
          if executable_dir:
-             exec_prefix = search_up(executable_dir, PLATSTDLIB_LANDMARK, test=isdir)
--        if not exec_prefix:
--            if EXEC_PREFIX:
-+        if exec_prefix is None:
-+            if EXEC_PREFIX is not None:
-                 exec_prefix = EXEC_PREFIX
--                if not isdir(joinpath(exec_prefix, PLATSTDLIB_LANDMARK)):
-+                if not isdir(joinpath(exec_prefix or SEP, PLATSTDLIB_LANDMARK)):
-                     warn('Could not find platform dependent libraries <exec_prefix>')
+             if os_name == 'nt':
+                 # QUIRK: For compatibility and security, do not search for DLLs
+@@ -604,7 +607,7 @@ else:
+                 exec_prefix = executable_dir
              else:
-                 warn('Could not find platform dependent libraries <exec_prefix>')
+                 exec_prefix = search_up(executable_dir, PLATSTDLIB_LANDMARK, test=isdir)
+-        if not exec_prefix and EXEC_PREFIX:
++        if exec_prefix is None and EXEC_PREFIX is not None:
+             exec_prefix = EXEC_PREFIX
+         if not exec_prefix or not isdir(joinpath(exec_prefix, PLATSTDLIB_LANDMARK)):
+             if os_name == 'nt':
+@@ -621,24 +624,24 @@ else:
+ 
  
      # Fallback: assume exec_prefix == prefix
 -    if not exec_prefix:
@@ -160,10 +162,10 @@ index d4774b1..a5c511b 100644
      else:
          platstdlib_dir = ''
  
-@@ -650,9 +653,9 @@ elif not pythonpath_was_set:
-     elif build_prefix or venv_prefix:
+@@ -681,9 +684,9 @@ elif not pythonpath_was_set:
+         pythonpath.append(joinpath(library_dir, ZIP_LANDMARK))
+     elif build_prefix:
          # QUIRK: POSIX uses the default prefix when in the build directory
-         # or a venv
 -        pythonpath.append(joinpath(PREFIX, ZIP_LANDMARK))
 +        pythonpath.append(joinpath(PREFIX or SEP, ZIP_LANDMARK))
      else:
@@ -172,7 +174,7 @@ index d4774b1..a5c511b 100644
  
      if os_name == 'nt' and use_environment and winreg:
          # QUIRK: Windows also lists paths in the registry. Paths are stored
-@@ -680,7 +683,7 @@ elif not pythonpath_was_set:
+@@ -711,7 +714,7 @@ elif not pythonpath_was_set:
      # Then add any entries compiled into the PYTHONPATH macro.
      if PYTHONPATH:
          for p in PYTHONPATH.split(DELIM):
@@ -181,7 +183,7 @@ index d4774b1..a5c511b 100644
  
      # Then add stdlib_dir and platstdlib_dir
      if os_name == 'nt' and venv_prefix:
-@@ -707,8 +710,14 @@ elif not pythonpath_was_set:
+@@ -739,8 +742,14 @@ elif not pythonpath_was_set:
  # QUIRK: Non-Windows replaces prefix/exec_prefix with defaults when running
  # in build directory. This happens after pythonpath calculation.
  if os_name != 'nt' and build_prefix:
