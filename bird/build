@@ -3,10 +3,10 @@ require bison flex
 
 check() {
   url https://bird.network.cz/download/
-  match version 2.0.10 'bird-([0-9.]+)\.tar'
+  match version 2.0.11 'bird-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://bird.network.cz/download/bird-2.0.10.tar.gz
-  tree 77c3357c76c1aa65c6bf2b557ab183e1d923c38908715013493bb5c23fb5696a
+  unpack https://bird.network.cz/download/bird-2.0.11.tar.gz
+  tree 1de57a8dab6f9feba4d8956582fab7c455f3410e9acfa2bd50aa5c1ca15c822b
 }
