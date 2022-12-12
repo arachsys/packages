@@ -1,5 +1,5 @@
 diff --git a/builtin/help.c b/builtin/help.c
-index 6f2796f..eb7d8b4 100644
+index 53f2812..94e95a1 100644
 --- a/builtin/help.c
 +++ b/builtin/help.c
 @@ -30,7 +30,8 @@ enum help_format {
@@ -24,7 +24,7 @@ index 6f2796f..eb7d8b4 100644
 @@ -89,7 +92,7 @@ static struct option builtin_help_options[] = {
  
  static const char * const builtin_help_usage[] = {
- 	"git help [-a|--all] [--[no-]verbose]] [--[no-]external-commands] [--[no-]aliases]",
+ 	"git help [-a|--all] [--[no-]verbose] [--[no-]external-commands] [--[no-]aliases]",
 -	N_("git help [[-i|--info] [-m|--man] [-w|--web]] [<command>|<doc>]"),
 +	N_("git help [[-i|--info] [-m|--man] [-u|--usage] [-w|--web]] [<command>|<doc>]"),
  	"git help [-g|--guides]",
