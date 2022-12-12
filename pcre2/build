@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://github.com/pcre2project/pcre2/tags
-  match version 10.41 'tags/pcre2-([0-9.]+)\.tar'
+  match version 10.42 'tags/pcre2-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/pcre2project/pcre2/releases/download/pcre2-10.41/pcre2-10.41.tar.gz
-  tree eabbf6e64213a871f6f6d5e8552018411d7be66ec1c94dfe3a36aa73311c2984
+  unpack https://github.com/pcre2project/pcre2/releases/download/pcre2-10.42/pcre2-10.42.tar.gz
+  tree 71dd0e0464941214c77b63e35d43acaebfc9c1bc4c3d478570eedb75dbddae28
 }
 
 config-extra --enable-jit
