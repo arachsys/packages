@@ -1,0 +1,55 @@
+mode autotools
+require m4 perl
+
+enabled bootstrap || require autotools
+
+check() {
+  url https://ftp.gnu.org/gnu/autoconf/
+  match autoconf 2.71 'autoconf-([0-9.]+)\.tar'
+
+  url https://ftp.gnu.org/gnu/automake/
+  match automake 1.16.5 'automake-([0-9.]+)\.tar'
+
+  url https://ftp.gnu.org/gnu/libtool/
+  match libtool 2.4.7 'libtool-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack -d autoconf https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.xz
+  unpack -d automake https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz
+  unpack -d libtool https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz
+  tree 85c398db5ae69cc361ed950839e47cfa187f43bebc574e14d6a8649653064a35
+}
+
+build() {
+  config-remove --disable-nls
+  filter-defaults
+
+  cd /src/autoconf
+  /src/autoconf/configure "${CONFIGARGS[@]}"
+  make "${COMPILEARGS[@]}"
+  make "${INSTALLARGS[@]}"
+
+  if ! enabled bootstrap; then
+    cd /src/automake
+    /src/automake/configure "${CONFIGARGS[@]}"
+    make "${COMPILEARGS[@]}"
+    make "${INSTALLARGS[@]}"
+
+    cd /src/libtool
+    /src/libtool/configure "${CONFIGARGS[@]}" --disable-shared
+    make "${COMPILEARGS[@]}"
+    make "${INSTALLARGS[@]}"
+
+    sed -i 's:\(/lib/automake\)-[0-9.]*:\1:g' \
+      /dst/bin/aclocal /dst/bin/automake /dst/lib/**/Config.pm
+    sed -i 's:\(my @automake_includes *=\).*:\1 ('"'/lib/aclocal'"');:' \
+      /dst/bin/aclocal
+
+    mv /dst/lib/automake-+([0-9.]) /dst/lib/automake
+    mv /dst/lib/aclocal-+([0-9.])/* /dst/lib/aclocal
+  fi
+
+  rm -f /dst/bin/*-+([0-9.])
+  image - requires m4 perl
+}
