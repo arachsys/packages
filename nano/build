@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://www.nano-editor.org/dist/latest/
-  match version 7.0 'nano-([0-9.]+)\.tar'
+  match version 7.1 'nano-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.nano-editor.org/dist/v7/nano-7.0.tar.xz
-  tree 501edefbb53b7e3d7f5d01406a903955d8937789070b53b6e17bca892da7c09a
+  unpack https://www.nano-editor.org/dist/v7/nano-7.1.tar.xz
+  tree c47ce07f5d4fa71b25c27a216ce83381828272e95af094a49f89a460a4bf7d25
 }
 
 post-install() {
