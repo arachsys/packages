@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://tukaani.org/xz/
-  match version 5.2.9 'xz-([0-9.]+)\.tar'
+  match version 5.4.0 'xz-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://tukaani.org/xz/xz-5.2.9.tar.xz
-  tree a9b28fbe75ae1533c420c83622812e8b1f060e0911800e3a933e1cfa12be7772
+  unpack https://tukaani.org/xz/xz-5.4.0.tar.xz
+  tree b541b80d7dfb087413b4f0260c6bc45b37338c44b50381078b0f9e93a6c6f977
 }
 
 post-install() {
