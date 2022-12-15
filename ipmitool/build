@@ -1,21 +1,27 @@
 mode autotools
+require autotools
 
 check() {
   url https://github.com/ipmitool/ipmitool/tags
-  match version 1.8.18 'tags/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
+  match version 1.8.19 'tags/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
 }
 
 prepare() {
-  unpack https://github.com/ipmitool/ipmitool/releases/download/IPMITOOL_1_8_18/ipmitool-1.8.18.tar.bz2
+  unpack ipmitool-1.8.19.tar.gz \
+    https://github.com/ipmitool/ipmitool/archive/refs/tags/IPMITOOL_1_8_19.tar.gz
   apply console.diff
-  apply libressl.diff
-  apply nocommon.diff
-  apply overflows.diff
-  tree 19f5b5912d45d9ec9ad547ecb8621fda57ca109d2f8830134b4d72ef22891f38
+  apply ianapen.diff
+  tree b5298fe39ccb6813805c0f9d311be9440d8aef5d6493d8c577bd160243c3f783
 }
 
-config-extra --disable-intf-{bmc,free,imb,lipmi,lan,serial}
+pre-config() {
+  bash bootstrap
+}
+
+config-extra --disable-intf-{bmc,free,imb,lipmi,serial} \
+  DEFAULT_INTF=lanplus IANADIR=/lib/ipmitool IANAUSERDIR=.local/lib/ipmitool
 
 post-install() {
-  rm -f -r /dst/bin/ipmievd /dst/lib/ipmitool /dst/lib/man/*/ipmievd.*
+  rm -f /dst/bin/ipmievd /dst/lib/man/*/ipmievd.*
+  rm -f /dst/lib/ipmitool/oem_ibm_sel_map
 }
