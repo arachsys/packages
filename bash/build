@@ -2,14 +2,14 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/bash/
-  match version 5.2.9 'bash-([0-9.]+)\.tar\.gz'
+  match version 5.2.15 'bash-([0-9.]+)\.tar\.gz'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/bash/bash-5.2.9.tar.gz
+  unpack https://ftp.gnu.org/gnu/bash/bash-5.2.15.tar.gz
   apply config.diff
   apply paths.diff
-  tree 0c5cf0019fb3792f680a7c56f5ecca737b15a567917fc10451727e07b61c8167
+  tree 3d652c4f7f9138f3ace2000f64c2cf3f1e78ea2bfa4055984b440f430556875a
 }
 
 config-extra --without-bash-malloc --with-installed-readline
