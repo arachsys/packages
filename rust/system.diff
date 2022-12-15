@@ -40,7 +40,7 @@ index 61553e71b..0108e8dcb 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index c13e83f6c..c25e72c2a 100644
+index e02a10b81..e00d608ec 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
 @@ -228,40 +228,7 @@ fn copy_self_contained_objects(
@@ -86,10 +86,10 @@ index c13e83f6c..c25e72c2a 100644
              .wasi_root(target)
              .unwrap_or_else(|| {
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 1aa41fb06..fd5acb422 100644
+index b986f6c13..df3402f13 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -980,7 +980,7 @@ impl Step for Cargo {
+@@ -1003,7 +1003,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -99,10 +99,10 @@ index 1aa41fb06..fd5acb422 100644
          }
  
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index cc0cf12bd..96b07f067 100644
+index 7e70e99bb..327f32230 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
-@@ -318,6 +318,7 @@ pub struct Build {
+@@ -324,6 +324,7 @@ pub struct Build {
      metrics: metrics::BuildMetrics,
  }
  
@@ -111,7 +111,7 @@ index cc0cf12bd..96b07f067 100644
  struct Crate {
      name: Interned<String>,
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index cae41286f..3c9850482 100644
+index e90551725..ba1ca3c11 100644
 --- a/src/bootstrap/sanity.rs
 +++ b/src/bootstrap/sanity.rs
 @@ -11,7 +11,6 @@

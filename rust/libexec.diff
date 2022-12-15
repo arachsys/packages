@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 1a59b3958..1aa41fb06 100644
+index 12585e80e..b986f6c13 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -372,7 +372,7 @@ impl Step for Rustc {
+@@ -394,7 +394,7 @@ impl Step for Rustc {
                      target: compiler.host,
                  })
                  .expect("rust-analyzer-proc-macro-server always builds");
@@ -12,15 +12,15 @@ index 1a59b3958..1aa41fb06 100644
              let libdir_relative = builder.libdir_relative(compiler);
  
 diff --git a/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs b/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs
-index e47f70fff..633779d18 100644
+index e1f651786..77d2719a9 100644
 --- a/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs
 +++ b/src/tools/rust-analyzer/crates/rust-analyzer/src/reload.rs
-@@ -321,7 +321,7 @@ impl GlobalState {
-                             if let Some(sysroot) = sysroot.as_ref() {
-                                 tracing::debug!("Found a cargo workspace with a sysroot...");
-                                 let server_path =
--                                    sysroot.root().join("libexec").join(&standalone_server_name);
-+                                    sysroot.root().join("bin").join(&standalone_server_name);
-                                 if std::fs::metadata(&server_path).is_ok() {
-                                     tracing::debug!(
-                                         "And the server exists at {}",
+@@ -324,7 +324,7 @@ impl GlobalState {
+                                 if let Some(sysroot) = sysroot.as_ref() {
+                                     let server_path = sysroot
+                                         .root()
+-                                        .join("libexec")
++                                        .join("bin")
+                                         .join(&standalone_server_name);
+                                     if std::fs::metadata(&server_path).is_ok() {
+                                         tracing::debug!(
