@@ -75,7 +75,7 @@ build() {
     -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
     -DLLD_SYMLINKS_TO_CREATE="ld;wasm-ld" \
     -DLibEdit_INCLUDE_DIRS=/lib/include \
-    -DLibEdit_LIBRARIES=-ledit \
+    -DLibEdit_LIBRARIES="/lib/shared/libedit.so" \
     "${CONFIG[@]}" ../llvm
   make compiler-rt
   make install DESTDIR=/dst
