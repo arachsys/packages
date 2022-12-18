@@ -1,0 +1,24 @@
+diff --git a/syslogd b/syslogd
+index de1d266..0ff90f2 100755
+--- a/syslogd
++++ b/syslogd
+@@ -23,7 +23,7 @@ log() {
+     mkdir -m 0700 -p "$LOGDIR/$FACILITY"
+   fi
+   printf '%s %s\n' "$TIME" "$ENTRY" >>"$LOGDIR/$FACILITY/$DATE"
+-  (( DATASYNC )) && sync -d "$LOGDIR/$FACILITY/$DATE"
++  (( DATASYNC )) && sync "$LOGDIR/$FACILITY/$DATE"
+ }
+ 
+ usage() {
+@@ -95,6 +95,10 @@ if [[ ! -p /dev/stdin ]]; then
+   exec < <(syslog "${OPTIONS[@]}" 3>&-)
+ fi
+ 
++if [[ -f /lib/bash/sync ]]; then
++  enable -f /lib/bash/sync sync
++fi
++
+ while read -r PEERPID PEERUID PEERGID FACILITY LEVEL DATE TIME ENTRY; do
+   classify && log
+ done

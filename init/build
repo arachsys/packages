@@ -5,7 +5,8 @@ check() {
 
 prepare() {
   unpack https://github.com/arachsys/init/archive/init-2.6.tar.gz
-  tree 47a5deea598a87bd6a2c3e5c0d9e7dc9ac1d36ed2c18dc8daa9625be713647db
+  apply sync.diff
+  tree 92b44065a1bfe5c24438a0614bba5e1b308ce5fc9d8fa9c2ae9bcdb14dc7af94
 }
 
 build() {
