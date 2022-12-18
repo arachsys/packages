@@ -1,8 +1,8 @@
 diff --git a/src/ntpd.c b/src/ntpd.c
-index 49f8f3a..3a5aa0c 100644
+index bb3cc7c..b28dfd4 100644
 --- a/src/ntpd.c
 +++ b/src/ntpd.c
-@@ -115,9 +115,9 @@ usage(void)
+@@ -112,9 +112,9 @@ usage(void)
  
  	if (strcmp(__progname, "ntpctl") == 0)
  		fprintf(stderr,
@@ -14,7 +14,7 @@ index 49f8f3a..3a5aa0c 100644
  		    __progname);
  	exit(1);
  }
-@@ -417,7 +417,7 @@ main(int argc, char *argv[])
+@@ -412,7 +412,7 @@ main(int argc, char *argv[])
  
  	msgbuf_clear(&ibuf->w);
  	free(ibuf);

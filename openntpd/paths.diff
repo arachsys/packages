@@ -1,18 +1,20 @@
 diff --git a/src/ntpd.c b/src/ntpd.c
-index cc0a804..a214b3f 100644
+index b28dfd4..fd77895 100644
 --- a/src/ntpd.c
 +++ b/src/ntpd.c
-@@ -330,7 +330,7 @@ main(int argc, char *argv[])
+@@ -325,8 +325,8 @@ main(int argc, char *argv[])
+ 	 * Constraint processes are forked with certificates in memory,
+ 	 * then privdrop into chroot before speaking to the outside world.
  	 */
- 	if (unveil(tls_default_ca_cert_file(), "r") == -1)
- 		err(1, "unveil");
 -	if (unveil("/usr/sbin/ntpd", "x") == -1)
+-		err(1, "unveil /usr/sbin/ntpd");
 +	if (unveil("/bin/ntpd", "x") == -1)
- 		err(1, "unveil");
- 	if (pledge("stdio rpath inet settime proc exec id", NULL) == -1)
++		err(1, "unveil /bin/ntpd");
+ 	if (pledge("stdio settime proc exec", NULL) == -1)
  		err(1, "pledge");
+ 
 diff --git a/src/ntpd.h b/src/ntpd.h
-index ced81b9..3872efc 100644
+index 31025fd..8542076 100644
 --- a/src/ntpd.h
 +++ b/src/ntpd.h
 @@ -37,7 +37,7 @@

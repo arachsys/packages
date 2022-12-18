@@ -1,29 +1,52 @@
 diff --git a/src/ntpd.c b/src/ntpd.c
-index a214b3f..49f8f3a 100644
+index ebd86b6..68c61cc 100644
 --- a/src/ntpd.c
 +++ b/src/ntpd.c
-@@ -528,21 +528,11 @@ ntpd_adjtime(double d)
- 		log_debug("adjusting local clock by %fs", d);
+@@ -17,6 +17,9 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
  
- #ifdef HAVE_ADJTIMEX
--	int rc;
--
--	long offset = d * 1000000;
- 	struct timex tx = { 0 };
--	tx.offset = offset;
--	tx.modes = ADJ_OFFSET_SINGLESHOT | ADJ_STATUS;
++#ifdef HAVE_ADJTIMEX
++#include <sys/timex.h>
++#endif
+ #include <sys/types.h>
+ #include <sys/resource.h>
+ #include <sys/socket.h>
+@@ -515,21 +518,34 @@ reset_adjtime(void)
+ int
+ ntpd_adjtime(double d)
+ {
+-	struct timeval	tv, olddelta;
+ 	int		synced = 0;
+ 	static int	firstadj = 1;
++	double threshold = (double)LOG_NEGLIGIBLE_ADJTIME / 1000;
+ 
+ 	d += getoffset();
+-	if (d >= (double)LOG_NEGLIGIBLE_ADJTIME / 1000 ||
+-	    d <= -1 * (double)LOG_NEGLIGIBLE_ADJTIME / 1000)
++	if (d >= threshold || d <= -1 * threshold)
+ 		log_info("adjusting local clock by %fs", d);
+ 	else
+ 		log_debug("adjusting local clock by %fs", d);
++
++#ifdef HAVE_ADJTIMEX
++	struct timex tx = { 0 };
 +	tx.offset = d * 1000000;
 +	tx.modes = ADJ_OFFSET_SINGLESHOT;
- 
--	do {
--		rc = adjtimex(&tx);
--	} while (rc == TIME_ERROR && (tx.offset /= 2) > threshold);
--
--	if (rc == TIME_ERROR) {
--		if ((tx.status & ~STA_UNSYNC))
--			log_warn("adjtimex returned TIME_ERROR");
--	} else if (rc < 0) {
++
 +	if (adjtimex(&tx) < 0) {
- 		log_warn("adjtimex failed");
- 	} else if (!firstadj && tx.offset == 0) {
++		log_warn("adjtimex failed");
++	} else if (!firstadj && tx.offset == 0) {
++		synced = 1;
++	}
++#else
++	struct timeval	tv, olddelta;
+ 	d_to_tv(d, &tv);
+ 	if (adjtime(&tv, &olddelta) == -1)
+ 		log_warn("adjtime failed");
+ 	else if (!firstadj && olddelta.tv_sec == 0 && olddelta.tv_usec == 0)
  		synced = 1;
++#endif
+ 	firstadj = 0;
+ 	update_time_sync_status(synced);
+ 	return (synced);

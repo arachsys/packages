@@ -1,5 +1,5 @@
 mode autotools
-require bison
+require autotools bison
 
 check() {
   url https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/
@@ -7,13 +7,22 @@ check() {
 }
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/openntpd-6.8p1.tar.gz
+  unpack openntpd-portable-cf202d14.tar.gz \
+    https://github.com/openntpd-portable/openntpd-portable/archive/cf202d14.tar.gz
+  unpack -d openbsd openntpd-openbsd-23fa0681.tar.gz \
+    https://github.com/openntpd-portable/openntpd-openbsd/archive/23fa0681.tar.gz
+  apply update.diff
+  tree 28174a226731a2ac750ec7d72cfef993b03c395e6047062b6af3a752ff1b8048
+}
+
+pre-config() {
+  bash update.sh
+  bash autogen.sh
   apply adjtimex.diff
   apply cosmetic.diff
   apply dnsretry.diff
   apply paths.diff
   apply settime.diff
-  tree 89f20157d1a489ad4d9504dcf0995a70cc929d85073af9d23257ee17e95d6fd3
 }
 
 config-extra --enable-https-constraint --with-privsep-user=ntp
