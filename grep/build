@@ -9,3 +9,9 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/grep/grep-3.8.tar.xz
   tree 6279e50c8d5af5f4901e766c0ad38f04b2cd2d39034aa257824649933b16b448
 }
+
+post-install() {
+  printf '#!/bin/sh\nexec grep -E "$@"\n' >/dst/bin/egrep
+  printf '#!/bin/sh\nexec grep -F "$@"\n' >/dst/bin/fgrep
+  chmod a+x /dst/bin/egrep /dst/bin/fgrep
+}
