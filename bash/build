@@ -9,12 +9,13 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/bash/bash-5.2.15.tar.gz
   apply config.diff
   apply paths.diff
-  tree 3d652c4f7f9138f3ace2000f64c2cf3f1e78ea2bfa4055984b440f430556875a
+  apply sync.diff
+  tree ebb83768801ea804d20b855be475b4bc53a01b1a4f887a0512970d39438a804a
 }
 
 config-extra --without-bash-malloc --with-installed-readline
 
 post-install() {
   ln -f -s bash /dst/bin/sh
-  rm -f /dst/bin/bashbug /dst/lib/bash/Makefile.inc
+  rm -f /dst/bin/bashbug /dst/lib/bash/{*.h,Makefile.*}
 }
