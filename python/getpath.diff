@@ -21,7 +21,7 @@ index ceacf36..415724f 100644
          const wchar_t *w = Py_DecodeLocale(s, &len);
          if (w) {
 diff --git a/Modules/getpath.py b/Modules/getpath.py
-index fc533a8..61fceb0 100644
+index fc533a8..554cb53 100644
 --- a/Modules/getpath.py
 +++ b/Modules/getpath.py
 @@ -206,12 +206,15 @@ elif os_name == 'nt':
@@ -122,15 +122,18 @@ index fc533a8..61fceb0 100644
          if executable_dir:
              if os_name == 'nt':
                  # QUIRK: For compatibility and security, do not search for DLLs
-@@ -604,7 +607,7 @@ else:
+@@ -604,9 +607,9 @@ else:
                  exec_prefix = executable_dir
              else:
                  exec_prefix = search_up(executable_dir, PLATSTDLIB_LANDMARK, test=isdir)
 -        if not exec_prefix and EXEC_PREFIX:
 +        if exec_prefix is None and EXEC_PREFIX is not None:
              exec_prefix = EXEC_PREFIX
-         if not exec_prefix or not isdir(joinpath(exec_prefix, PLATSTDLIB_LANDMARK)):
+-        if not exec_prefix or not isdir(joinpath(exec_prefix, PLATSTDLIB_LANDMARK)):
++        if exec_prefix is None or not isdir(joinpath(exec_prefix or SEP, PLATSTDLIB_LANDMARK)):
              if os_name == 'nt':
+                 # QUIRK: If DLLs is missing on Windows, don't warn, just assume
+                 # that it's all the same as prefix.
 @@ -621,24 +624,24 @@ else:
  
  
