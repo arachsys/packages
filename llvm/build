@@ -1,37 +1,23 @@
-require libedit python
+require cmake libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/tags
   match llvm 15.0.6 'llvmorg-([0-9.]+)\.tar'
-
-  url https://github.com/Kitware/CMake/tags
-  match cmake 3.25.1 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-15.0.6.tar.gz \
     https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-15.0.6.tar.gz
-  unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1.tar.gz
-  apply cmake.diff
   apply config.diff
   apply distro.diff
   apply multiarch.diff
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 63103e94917381b608d3179de7de0f5379be18259960d70b1ffdc31caf87ac99
+  tree 94dc6b8e00e5dafc1f60dacb90a4ce6eb78ae56dbeeab1e6f5bfb2feeab5f9f7
 }
 
 build() {
-  cd /src/cmake
-  $PWD/bootstrap --prefix= --datadir=lib/cmake --docdir=lib/doc/cmake \
-    --mandir=lib/man --xdgdatadir=lib --parallel=$((1 + $(nproc))) \
-    --system-{bzip2,curl,libarchive,liblzma,zlib,zstd} -- \
-    -DCMAKE_SYSTEM_INCLUDE_PATH=/lib/include \
-    -DCMAKE_SYSTEM_LIBRARY_PATH="/lib/shared;/lib/static"
-  make
-
   declare -a CONFIG
   enabled lto && CONFIG+=( -DLLVM_ENABLE_LTO=Thin )
   if [[ -f /lib/shared/libc++abi.so ]] \
@@ -52,7 +38,7 @@ build() {
 
   mkdir -p /src/build
   cd /src/build
-  /src/cmake/bin/cmake -W no-dev \
+  cmake -W no-dev \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
@@ -91,7 +77,7 @@ build() {
     if /dst/bin/clang -print-targets | grep -q -F $TARGET; then
       mkdir -p /src/build-$TARGET $CLANGDIR/lib/$TARGET-wasi
       cd /src/build-$TARGET
-      /src/cmake/bin/cmake -W no-dev \
+      cmake -W no-dev \
         -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET-wasi \
         -DCMAKE_ASM_COMPILER=/dst/bin/llvm-as \
         -DCMAKE_C_COMPILER=/dst/bin/clang \

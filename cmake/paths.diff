@@ -1,7 +1,7 @@
-diff --git a/cmake/Modules/GNUInstallDirs.cmake b/cmake/Modules/GNUInstallDirs.cmake
+diff --git a/Modules/GNUInstallDirs.cmake b/Modules/GNUInstallDirs.cmake
 index 01bd63716..e264b40ee 100644
---- a/cmake/Modules/GNUInstallDirs.cmake
-+++ b/cmake/Modules/GNUInstallDirs.cmake
+--- a/Modules/GNUInstallDirs.cmake
++++ b/Modules/GNUInstallDirs.cmake
 @@ -307,10 +307,10 @@ unset(__LAST_LIBDIR_DEFAULT)
  
  _GNUInstallDirs_cache_path(CMAKE_INSTALL_INCLUDEDIR "include"

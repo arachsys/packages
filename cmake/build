@@ -1,0 +1,21 @@
+check() {
+  url https://github.com/Kitware/CMake/tags
+  match cmake 3.25.1 'tags/v([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1.tar.gz
+  apply paths.diff
+  tree 33430c550dc6b94f5001729292f8d4510ff42c27e5b7dc7c5e8113c9a0b92db3
+}
+
+build() {
+  /src/bootstrap --prefix= --datadir=lib/cmake --docdir=lib/doc/cmake \
+    --mandir=lib/man --xdgdatadir=lib --parallel=$((1 + $(nproc))) \
+    --system-{bzip2,curl,libarchive,liblzma,zlib,zstd} -- \
+    -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=FALSE \
+    -DCMAKE_SYSTEM_INCLUDE_PATH=/lib/include \
+    -DCMAKE_SYSTEM_LIBRARY_PATH=/lib/shared\;/lib/static
+  make install DESTDIR=/dst
+  rm -f -r /dst/lib/{aclocal,bash-completion,emacs,vim}
+}
