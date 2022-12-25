@@ -1,6 +1,11 @@
 mode autotools
 require libffi
 
+if [[ $CHOST == @(aarch64|amd64|x86_64)* ]]; then
+  require rust
+  config-extra LIBS=-lunwind
+fi
+
 check() {
   url https://www.ruby-lang.org/en/downloads/
   match version 3.2.0 'ruby-([0-9.]+)\.tar'
