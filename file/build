@@ -7,5 +7,6 @@ check() {
 
 prepare() {
   unpack http://ftp.astron.com/pub/file/file-5.44.tar.gz
-  tree 8f6748d73dbbd5a1003c2806a5784e91bc5a58922de5116996899996a49857c1
+  apply paths.diff
+  tree f5db08081dbdc6160f2e7b92c5659441c3fa8549ce1e576d8b5d1bd0ec6e95ca
 }

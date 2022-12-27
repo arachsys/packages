@@ -1,0 +1,286 @@
+diff --git a/magic/Magdir/clojure b/magic/Magdir/clojure
+index 1f1cddf..0a1e62b 100644
+--- a/magic/Magdir/clojure
++++ b/magic/Magdir/clojure
+@@ -3,18 +3,30 @@
+ # URL:  https://clojure.org/
+ # From: Jason Felice <jason.m.felice@gmail.com>
+ 
++0	string/w	#!\ /bin/clj	Clojure script text executable
++!:mime	text/x-clojure
+ 0	string/w	#!\ /usr/bin/clj	Clojure script text executable
+ !:mime	text/x-clojure
+ 0	string/w	#!\ /usr/local/bin/clj	Clojure script text executable
+ !:mime	text/x-clojure
++0	string/w	#!\ /bin/clojure	Clojure script text executable
++!:mime	text/x-clojure
+ 0	string/w	#!\ /usr/bin/clojure	Clojure script text executable
+ !:mime	text/x-clojure
+ 0	string/w	#!\ /usr/local/bin/clojure	Clojure script text executable
+ !:mime	text/x-clojure
++0	string/W	#!/bin/env\ clj	Clojure script text executable
++!:mime	text/x-clojure
++0	string/W	#!/bin/env\ clojure	Clojure script text executable
++!:mime	text/x-clojure
+ 0	string/W	#!/usr/bin/env\ clj	Clojure script text executable
+ !:mime	text/x-clojure
+ 0	string/W	#!/usr/bin/env\ clojure	Clojure script text executable
+ !:mime	text/x-clojure
++0	string/W	#!\ /bin/env\ clj	Clojure script text executable
++!:mime	text/x-clojure
++0	string/W	#!\ /bin/env\ clojure	Clojure script text executable
++!:mime	text/x-clojure
+ 0	string/W	#!\ /usr/bin/env\ clj	Clojure script text executable
+ !:mime	text/x-clojure
+ 0	string/W	#!\ /usr/bin/env\ clojure	Clojure script text executable
+diff --git a/magic/Magdir/commands b/magic/Magdir/commands
+index 6ad87fd..9c72995 100644
+--- a/magic/Magdir/commands
++++ b/magic/Magdir/commands
+@@ -37,6 +37,8 @@
+ !:mime	text/x-shellscript
+ 0	string/fwt	#!\ /usr/local/bin/zsh	Paul Falstad's zsh script text executable
+ !:mime	text/x-shellscript
++0	string/fwt	#!\ /bin/env\ zsh	Paul Falstad's zsh script text executable
++!:mime	text/x-shellscript
+ 0	string/fwt	#!\ /usr/bin/env\ zsh	Paul Falstad's zsh script text executable
+ !:mime	text/x-shellscript
+ 
+@@ -87,27 +89,41 @@
+ !:mime	text/x-shellscript
+ 0	string/fwb	#!\ /usr/local/bin/bash	Bourne-Again shell script executable (binary data)
+ !:mime	text/x-shellscript
++0	string/fwt	#!\ /bin/env\ bash	Bourne-Again shell script text executable
++!:mime	text/x-shellscript
+ 0	string/fwt	#!\ /usr/bin/env\ bash	Bourne-Again shell script text executable
+ !:mime	text/x-shellscript
+ 
+ # Fish shell magic
+ # From: Benjamin Lowry <ben@ben.gmbh>
+-0	string/fwt	#!\ /usr/local/bin/fish		fish shell script text executable
++0	string/fwt	#!\ /bin/fish		fish shell script text executable
+ !:mime	text/x-shellscript
+ 0	string/fwt	#!\ /usr/bin/fish		fish shell script text executable
+ !:mime	text/x-shellscript
++0	string/fwt	#!\ /usr/local/bin/fish		fish shell script text executable
++!:mime	text/x-shellscript
++0	string/fwt	#!\ /bin/env\ fish		fish shell script text executable
++!:mime	text/x-shellscript
+ 0	string/fwt	#!\ /usr/bin/env\ fish		fish shell script text executable
+ !:mime	text/x-shellscript
+ 
++0	search/1/fwt	#!\ /bin/tclsh	Tcl/Tk script text executable
++!:mime  text/x-tcl
+ 0	search/1/fwt	#!\ /usr/bin/tclsh	Tcl/Tk script text executable
+ !:mime  text/x-tcl
+ 
++0	search/1/fwt	#!\ /bin/texlua	LuaTex script text executable
++!:mime	text/x-luatex
+ 0	search/1/fwt	#!\ /usr/bin/texlua	LuaTex script text executable
+ !:mime	text/x-luatex
+ 
++0	search/1/fwt	#!\ /bin/luatex	LuaTex script text executable
++!:mime	text/x-luatex
+ 0	search/1/fwt	#!\ /usr/bin/luatex	LuaTex script text executable
+ !:mime	text/x-luatex
+ 
++0	search/1/fwt	#!\ /bin/stap	Systemtap script text executable
++!:mime  text/x-systemtap
+ 0	search/1/fwt	#!\ /usr/bin/stap	Systemtap script text executable
+ !:mime  text/x-systemtap
+ 
+@@ -120,6 +136,8 @@
+ !:mime	text/x-execline
+ 0	string/fwt	#!\ /usr/bin/execlineb		execline script text executable
+ !:mime	text/x-execline
++0	string/fwt	#!\ /bin/env\ execlineb		execline script text executable
++!:mime	text/x-execline
+ 0	string/fwt	#!\ /usr/bin/env\ execlineb		execline script text executable
+ !:mime	text/x-execline
+ 
+@@ -142,6 +160,9 @@
+ 0	search/1/w	#!\ /usr/bin/php	PHP script text executable
+ !:strength + 10
+ !:mime	text/x-php
++0	search/1/w	#!\ /bin/php	PHP script text executable
++!:strength + 10
++!:mime	text/x-php
+ # Smarty compiled template, https://www.smarty.net/
+ # Elan Ruusamae <glen@delfi.ee>
+ 0	string	=<?php
+@@ -183,6 +204,7 @@
+ # Type: Pdmenu
+ # URL:  https://packages.debian.org/pdmenu
+ # From: Edward Betts <edward@debian.org>
++0	string		#!/bin/pdmenu	Pdmenu configuration file text
+ 0	string		#!/usr/bin/pdmenu	Pdmenu configuration file text
+ 
+ # From Danny Weldon
+@@ -196,6 +218,9 @@
+ >0x10  byte        x       version %d
+ >>0x11 byte        x      \b.%d
+ 
++0	string/fwt	#!\ /bin/env\ runghc	GHC script executable
+ 0	string/fwt	#!\ /usr/bin/env\ runghc	GHC script executable
++0	string/fwt	#!\ /bin/env\ runhaskell	Haskell script executable
+ 0	string/fwt	#!\ /usr/bin/env\ runhaskell	Haskell script executable
++0	string/fwt	#!\ /bin/env\ julia	Julia script executable
+ 0	string/fwt	#!\ /usr/bin/env\ julia	Julia script executable
+diff --git a/magic/Magdir/javascript b/magic/Magdir/javascript
+index dcb5a93..6093a72 100644
+--- a/magic/Magdir/javascript
++++ b/magic/Magdir/javascript
+@@ -11,6 +11,10 @@
+ !:mime application/javascript
+ 0	string/w	#!/usr/bin/nodejs	Node.js script text executable
+ !:mime application/javascript
++0	string		#!/bin/env\ node	Node.js script text executable
++!:mime application/javascript
++0	string		#!/bin/env\ nodejs	Node.js script text executable
++!:mime application/javascript
+ 0	string		#!/usr/bin/env\ node	Node.js script text executable
+ !:mime application/javascript
+ 0	string		#!/usr/bin/env\ nodejs	Node.js script text executable
+diff --git a/magic/Magdir/lua b/magic/Magdir/lua
+index ab17374..a6ddd46 100644
+--- a/magic/Magdir/lua
++++ b/magic/Magdir/lua
+@@ -6,10 +6,16 @@
+ # From: Reuben Thomas <rrt@sc3d.org>, Seo Sanghyeon <tinuviel@sparcs.kaist.ac.kr>
+ 
+ # Lua scripts
++0	search/1/w	#!\ /bin/lua	Lua script text executable
++!:mime	text/x-lua
+ 0	search/1/w	#!\ /usr/bin/lua	Lua script text executable
+ !:mime	text/x-lua
+ 0	search/1/w	#!\ /usr/local/bin/lua	Lua script text executable
+ !:mime	text/x-lua
++0	search/1	#!/bin/env\ lua	Lua script text executable
++!:mime	text/x-lua
++0	search/1	#!\ /bin/env\ lua	Lua script text executable
++!:mime	text/x-lua
+ 0	search/1	#!/usr/bin/env\ lua	Lua script text executable
+ !:mime	text/x-lua
+ 0	search/1	#!\ /usr/bin/env\ lua	Lua script text executable
+diff --git a/magic/Magdir/perl b/magic/Magdir/perl
+index c391d4a..5182bb6 100644
+--- a/magic/Magdir/perl
++++ b/magic/Magdir/perl
+@@ -23,6 +23,10 @@
+ !:mime	text/x-perl
+ 0	search/1024	eval\ '(exit\ $?0)'\ &&\ eval\ 'exec	Perl script text
+ !:mime	text/x-perl
++0	string	#!/bin/env\ perl	Perl script text executable
++!:mime	text/x-perl
++0	string	#!\ /bin/env\ perl	Perl script text executable
++!:mime	text/x-perl
+ 0	string	#!/usr/bin/env\ perl	Perl script text executable
+ !:mime	text/x-perl
+ 0	string	#!\ /usr/bin/env\ perl	Perl script text executable
+diff --git a/magic/Magdir/python b/magic/Magdir/python
+index 00d90d1..f6b81b2 100644
+--- a/magic/Magdir/python
++++ b/magic/Magdir/python
+@@ -229,12 +229,18 @@
+ !:mime application/x-bytecode.python
+ >>>0		use		pyc-pep552
+ 
++0	search/1/w	#!\040/bin/python	Python script text executable
++!:strength + 15
++!:mime text/x-script.python
+ 0	search/1/w	#!\040/usr/bin/python	Python script text executable
+ !:strength + 15
+ !:mime text/x-script.python
+ 0	search/1/w	#!\040/usr/local/bin/python	Python script text executable
+ !:strength + 15
+ !:mime text/x-script.python
++0	search/10/w	#!\040/bin/env\040python	Python script text executable
++!:strength + 15
++!:mime text/x-script.python
+ 0	search/10/w	#!\040/usr/bin/env\040python	Python script text executable
+ !:strength + 15
+ !:mime text/x-script.python
+diff --git a/magic/Magdir/ruby b/magic/Magdir/ruby
+index 9e67a3e..2c5b32d 100644
+--- a/magic/Magdir/ruby
++++ b/magic/Magdir/ruby
+@@ -6,12 +6,21 @@
+ # From: Reuben Thomas <rrt@sc3d.org>
+ 
+ # Ruby scripts
++0	search/1/w	#!\ /bin/ruby				Ruby script text executable
++!:strength + 15
++!:mime text/x-ruby
+ 0	search/1/w	#!\ /usr/bin/ruby				Ruby script text executable
+ !:strength + 15
+ !:mime text/x-ruby
+ 0	search/1/w	#!\ /usr/local/bin/ruby	Ruby script text executable
+ !:strength + 15
+ !:mime text/x-ruby
++0	search/1	#!/bin/env\ ruby				Ruby script text executable
++!:strength + 15
++!:mime text/x-ruby
++0	search/1	#!\ /bin/env\ ruby			Ruby script text executable
++!:strength + 15
++!:mime text/x-ruby
+ 0	search/1	#!/usr/bin/env\ ruby				Ruby script text executable
+ !:strength + 15
+ !:mime text/x-ruby
+diff --git a/magic/Magdir/tcl b/magic/Magdir/tcl
+index edc3ec4..ca614e3 100644
+--- a/magic/Magdir/tcl
++++ b/magic/Magdir/tcl
+@@ -4,18 +4,30 @@
+ # From: gustaf neumann
+ 
+ # Tcl scripts
++0	search/1/w	#!\ /bin/tcl	Tcl script text executable
++!:mime	text/x-tcl
+ 0	search/1/w	#!\ /usr/bin/tcl	Tcl script text executable
+ !:mime	text/x-tcl
+ 0	search/1/w	#!\ /usr/local/bin/tcl	Tcl script text executable
+ !:mime	text/x-tcl
++0	search/1	#!/bin/env\ tcl	Tcl script text executable
++!:mime	text/x-tcl
++0	search/1	#!\ /bin/env\ tcl	Tcl script text executable
++!:mime	text/x-tcl
+ 0	search/1	#!/usr/bin/env\ tcl	Tcl script text executable
+ !:mime	text/x-tcl
+ 0	search/1	#!\ /usr/bin/env\ tcl	Tcl script text executable
+ !:mime	text/x-tcl
++0	search/1/w	#!\ /bin/wish	Tcl/Tk script text executable
++!:mime	text/x-tcl
+ 0	search/1/w	#!\ /usr/bin/wish	Tcl/Tk script text executable
+ !:mime	text/x-tcl
+ 0	search/1/w	#!\ /usr/local/bin/wish	Tcl/Tk script text executable
+ !:mime	text/x-tcl
++0	search/1	#!/bin/env\ wish	Tcl/Tk script text executable
++!:mime	text/x-tcl
++0	search/1	#!\ /bin/env\ wish	Tcl/Tk script text executable
++!:mime	text/x-tcl
+ 0	search/1	#!/usr/bin/env\ wish	Tcl/Tk script text executable
+ !:mime	text/x-tcl
+ 0	search/1	#!\ /usr/bin/env\ wish	Tcl/Tk script text executable
+diff --git a/magic/Magdir/varied.script b/magic/Magdir/varied.script
+index 74b1b22..0637712 100644
+--- a/magic/Magdir/varied.script
++++ b/magic/Magdir/varied.script
+@@ -12,10 +12,18 @@
+ 
+ 
+ # using env
++0	string/wt	#!\ /bin/env		a
++>15	string/T	>\0			%s script text executable
++!:strength / 6
++
+ 0	string/wt	#!\ /usr/bin/env		a
+ >15	string/T	>\0			%s script text executable
+ !:strength / 6
+ 
++0	string/wb	#!\ /bin/env		a
++>15	string/T	>\0			%s script executable (binary data)
++!:strength / 6
++
+ 0	string/wb	#!\ /usr/bin/env		a
+ >15	string/T	>\0			%s script executable (binary data)
+ !:strength / 6
