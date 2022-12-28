@@ -15,7 +15,7 @@ prepare() {
   apply libressl.diff
   apply paths.diff
   sed -i '1s_^#!.*_#!/bin/python3_' Misc/python-config.in **/*.py
-  tree 820d9c52f9ec11459a092ea5fd99f5f07a1d1a2e60a89381687da5ba65dddbbe
+  tree 2ffd1787f5bde3685c474076b7524d3c0a08cf3bbfc2fe0f79e0b57872c1372a
 }
 
 config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
