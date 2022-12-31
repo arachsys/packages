@@ -3,16 +3,16 @@ require bison flex libnl-tiny
 
 check() {
   url https://www.tcpdump.org/release/
-  match version 1.10.1 'libpcap-([0-9.]+)\.tar'
+  match version 1.10.2 'libpcap-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.tcpdump.org/release/libpcap-1.10.1.tar.gz
+  unpack https://www.tcpdump.org/release/libpcap-1.10.2.tar.gz
   apply libnl.diff
-  tree 818112f99865e87ba9f1230bd38c6949617c8dc04d7e4ac736f53274d0cdf5a1
+  tree 174b5869acd8b5b3e896702bfe0e8a26aaa28187e45acd6186e119b941890d6b
 }
 
-config-extra --with-pcap=linux
+config-extra --with-libnl --with-pcap=linux
 
 post-config() {
   sed -i 's/-lnl-tiny/-Wl,-Bstatic \0 -Wl,-Bdynamic/g' **/Makefile

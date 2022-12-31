@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 15a5e68..4c7f450 100755
+index 768242f..73651fd 100755
 --- a/configure
 +++ b/configure
-@@ -7004,7 +7004,7 @@ $as_echo "not found" >&6; }
+@@ -8010,7 +8010,7 @@ fi
  			case "$with_libnl" in
  
  			yes|if_available)
@@ -11,7 +11,7 @@ index 15a5e68..4c7f450 100755
  				libnldir=
  				;;
  
-@@ -7016,13 +7016,13 @@ $as_echo "not found" >&6; }
+@@ -8022,13 +8022,13 @@ fi
  				;;
  			esac
  
@@ -29,7 +29,7 @@ index 15a5e68..4c7f450 100755
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
  
-@@ -7042,22 +7042,22 @@ return nl_socket_alloc ();
+@@ -8048,24 +8048,24 @@ return nl_socket_alloc ();
  }
  _ACEOF
  if ac_fn_c_try_link "$LINENO"; then :
@@ -54,16 +54,20 @@ index 15a5e68..4c7f450 100755
 -				# Yes, we have libnl 3.x.
 +				# Yes, we have libnl-tiny.
  				#
--				LIBS="${libnldir} -lnl-genl-3 -lnl-3 $LIBS"
-+				LIBS="${libnldir} -lnl-tiny $LIBS"
+-				ADDITIONAL_LIBS="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS"
+-				ADDITIONAL_LIBS_STATIC="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS_STATIC"
+-				LIBS_PRIVATE="${libnldir} -lnl-genl-3 -lnl-3 $LIBS_PRIVATE"
++				ADDITIONAL_LIBS="${libnldir} -lnl-tiny $ADDITIONAL_LIBS"
++				ADDITIONAL_LIBS_STATIC="${libnldir} -lnl-tiny $ADDITIONAL_LIBS_STATIC"
++				LIBS_PRIVATE="${libnldir} -lnl-tiny $LIBS_PRIVATE"
  
  $as_echo "#define HAVE_LIBNL 1" >>confdefs.h
  
 diff --git a/configure.ac b/configure.ac
-index edb25ae..cb4420e 100644
+index ff7e490..76e6265 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -891,7 +891,7 @@ linux)
+@@ -1048,7 +1048,7 @@ linux)
  			case "$with_libnl" in
  
  			yes|if_available)
@@ -72,7 +76,7 @@ index edb25ae..cb4420e 100644
  				libnldir=
  				;;
  
-@@ -903,12 +903,12 @@ linux)
+@@ -1060,14 +1060,14 @@ linux)
  				;;
  			esac
  
@@ -83,12 +87,16 @@ index edb25ae..cb4420e 100644
 -				# Yes, we have libnl 3.x.
 +				# Yes, we have libnl-tiny.
  				#
--				LIBS="${libnldir} -lnl-genl-3 -lnl-3 $LIBS"
-+				LIBS="${libnldir} -lnl-tiny $LIBS"
+-				ADDITIONAL_LIBS="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS"
+-				ADDITIONAL_LIBS_STATIC="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS_STATIC"
+-				LIBS_PRIVATE="${libnldir} -lnl-genl-3 -lnl-3 $LIBS_PRIVATE"
++				ADDITIONAL_LIBS="${libnldir} -lnl-tiny $ADDITIONAL_LIBS"
++				ADDITIONAL_LIBS_STATIC="${libnldir} -lnl-tiny $ADDITIONAL_LIBS_STATIC"
++				LIBS_PRIVATE="${libnldir} -lnl-tiny $LIBS_PRIVATE"
  				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
  				V_INCLS="$V_INCLS ${incdir}"
  			],[
-@@ -920,7 +920,7 @@ linux)
+@@ -1079,7 +1079,7 @@ linux)
  				if test x$with_libnl = xyes ; then
  					AC_MSG_ERROR([libnl support requested but libnl not found])
  				fi
