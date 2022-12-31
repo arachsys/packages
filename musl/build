@@ -4,10 +4,12 @@ check() {
 }
 
 prepare() {
-  unpack https://musl.libc.org/releases/musl-1.2.3.tar.gz
+  unpack musl-20221130-f47a8cdd.tar.gz \
+    https://git.musl-libc.org/cgit/musl/snapshot/musl-f47a8cdd.tar.gz
+  apply lfs64.diff
   apply paths.diff
   apply usage.diff
-  tree 24564380f0e0047c39690eaf7dec67a7bc64fb639643470d22b37d6bcd7ef327
+  tree 0eddd7aa31455e71ed48655346741a98e1731b213b4e88a582a0672bdbd67c2a
 }
 
 build() {
