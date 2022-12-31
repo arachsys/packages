@@ -7,9 +7,9 @@ check() {
 }
 
 prepare() {
-  unpack openntpd-portable-cf202d14.tar.gz \
+  unpack openntpd-portable-20221018-cf202d14.tar.gz \
     https://github.com/openntpd-portable/openntpd-portable/archive/cf202d14.tar.gz
-  unpack -d openbsd openntpd-openbsd-23fa0681.tar.gz \
+  unpack -d openbsd openntpd-openbsd-20221014-23fa0681.tar.gz \
     https://github.com/openntpd-portable/openntpd-openbsd/archive/23fa0681.tar.gz
   apply update.diff
   tree 28174a226731a2ac750ec7d72cfef993b03c395e6047062b6af3a752ff1b8048
