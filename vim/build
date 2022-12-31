@@ -2,14 +2,14 @@ mode autotools
 
 check() {
   url https://github.com/vim/vim/tags
-  match version 9.0.1062 'v([0-9.]+)\.tar'
+  match version 9.0.1121 'v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack vim-9.0.1062.tar.gz \
-    https://github.com/vim/vim/archive/refs/tags/v9.0.1062.tar.gz
+  unpack vim-9.0.1121.tar.gz \
+    https://github.com/vim/vim/archive/refs/tags/v9.0.1121.tar.gz
   apply paths.diff
-  tree 84996c6e9ae8ec649ab9408e3296cbe01e8449928b6172567a909201bb63435e
+  tree 386817b1d16632e6c47433e17cedd08977e7176c4b09a130f9329e173bf06082
 }
 
 config-extra --enable-{multibyte,terminal} --without-local-dir
