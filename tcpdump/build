@@ -3,12 +3,12 @@ require libpcap
 
 check() {
   url https://www.tcpdump.org/release/
-  match version 4.99.1 'tcpdump-([0-9.]+)\.tar'
+  match version 4.99.2 'tcpdump-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.tcpdump.org/release/tcpdump-4.99.1.tar.gz
-  tree 0c60439a0201f39010dd5b8a2a537b3fa9941fdd5d677e562d914fcebfc62533
+  unpack https://www.tcpdump.org/release/tcpdump-4.99.2.tar.gz
+  tree d4b2673171d28dccd198e98c3ad242700bb46c5361a97eb37a78c1104a6586c6
 }
 
 post-install() {
