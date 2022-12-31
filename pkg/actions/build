@@ -35,16 +35,21 @@ action() {
     trap 'rm -f -r --one-file-system "$ROOT"' EXIT
   fi
 
-  helper() {
-    PKG=$PKG SRC=$SRC pkg sandbox "$ROOT" pkg "$@"
+  sandbox() {
+    PKG=$PKG SRC=$SRC pkg sandbox "$ROOT" "$@"
   }
 
   populate "$ROOT" build
   mkdir -p "$ROOT/img/${PKG##*/}" "$ROOT/pkg" "$ROOT/src"
   ln -s "img/${PKG##*/}" "$ROOT/dst"
-  mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:2}")
+  mapfile -t REQUIRED < <(sandbox pkg requirements "${PKG##*/}" "${@:2}")
   populate "$ROOT" "${REQUIRED[@]}"
-  helper build "${PKG##*/}" "${@:2}"
+
+  if [[ -z $SRC ]]; then
+    sandbox pkg prepare "${PKG##*/}" "${@:2}"
+  fi
+
+  sandbox unshare -n pkg build "${PKG##*/}" "${@:2}"
 
   if [[ -n $DEBUG ]]; then
     echo "Debug mode: not installing or replacing images"
@@ -87,12 +92,7 @@ helper() {
   PKG=/pkg
   setup "${@:2}"
   source /pkg/build
-
-  if ( set -- /src/* && [[ $# -eq 0 ]] ); then
-    cd /src && prepare "${@:2}"
-    find /src -depth -exec touch -r /src {} +
-  fi
-  cd /src && build "${@:2}" 2>&1
+  build "${@:2}" 2>&1
 
   tidy /img/*
   for IMG in /img/*; do

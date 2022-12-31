@@ -12,14 +12,16 @@ fi
 LIBRARY=$(cd -- "${0%/*}/../lib/pkg" && echo "$PWD")
 source "$LIBRARY/shared"
 
-if [[ -z ${HOME%%+(/)} ]]; then
-  CACHEDIR=${CACHEDIR:-/var/cache}
-else
+if [[ -n ${HOME%%+(/)} ]]; then
   CACHEDIR=${CACHEDIR:-$HOME/.cache/pkg}
+  IMGDIR=${IMGDIR:-$HOME/img}
+  PKGDIR=${PKGDIR:-$HOME/pkg}
+else
+  export HOME=/tmp
+  CACHEDIR=${CACHEDIR:-/var/cache}
+  IMGDIR=${IMGDIR:-/img}
+  PKGDIR=${PKGDIR:-/pkg}
 fi
-
-IMGDIR=${IMGDIR:-${HOME%%+(/)}/img}
-PKGDIR=${PKGDIR:-${HOME%%+(/)}/pkg}
 
 ACTION=$LIBRARY/actions/$1
 if [[ -f $ACTION ]]; then

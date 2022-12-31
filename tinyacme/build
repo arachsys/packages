@@ -9,12 +9,13 @@ check() {
 prepare() {
   unpack tinyacme-20220101-60926804.tar.gz \
     https://github.com/arachsys/tinyacme/archive/60926804.tar.gz
-  GOPATH=/tmp/go HOME=/tmp go mod vendor
+  go mod vendor
   tree 61299f2580e604b77a978d024e97993e310b116c1300427d3e9356c5b19c5f98
 }
 
 build() {
-  GOPATH=/tmp/go HOME=/tmp go build acmeproxy.go
-  GOPATH=/tmp/go HOME=/tmp go build tinyacme.go
-  install -D -t /dst/bin acmeproxy tinyacme
+  go build acmefront.go
+  go build acmeproxy.go
+  go build tinyacme.go
+  install -D -t /dst/bin acmefront acmeproxy tinyacme
 }

@@ -8,12 +8,11 @@ check() {
 prepare() {
   unpack fzf-0.35.1.tar.gz \
     https://github.com/junegunn/fzf/archive/refs/tags/0.35.1.tar.gz
-  GOPATH=/tmp/go HOME=/tmp go mod vendor
+  go mod vendor
   tree 03b0c6031ad9a4241a859458720773b3b31fc5f36532a61f45102fb1f00f4798
 }
 
 build() {
-  GOPATH=/tmp/go HOME=/tmp go build \
-    -ldflags "-s -w -X main.version=0.35.1 -X main.revision=arachsys"
+  go build -ldflags "-s -w -X main.version=0.35.1 -X main.revision=arachsys"
   install -D fzf /dst/bin/fzf
 }

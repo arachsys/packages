@@ -8,11 +8,11 @@ check() {
 prepare() {
   unpack gron-0.7.1.tar.gz \
     https://github.com/tomnomnom/gron/archive/refs/tags/v0.7.1.tar.gz
-  GOPATH=/tmp/go HOME=/tmp go mod vendor
+  go mod vendor
   tree 722086ba30e58153f4d1b367ce121363090ccd2c6cedccd488cf4b9445b1b382
 }
 
 build() {
-  GOPATH=/tmp/go HOME=/tmp go build
+  go build
   install -D gron /dst/bin/gron
 }

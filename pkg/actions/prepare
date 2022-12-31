@@ -12,15 +12,15 @@ action() {
   trap 'rm -f -r --one-file-system "$ROOT"' EXIT
   chmod 0755 "$ROOT"
 
-  helper() {
-    PKG=$PKG SRC= pkg sandbox "$ROOT" pkg "$@"
+  sandbox() {
+    PKG=$PKG SRC= pkg sandbox "$ROOT" "$@"
   }
 
   populate "$ROOT" build
   mkdir -p "$ROOT"/{pkg,src}
-  mapfile -t REQUIRED < <(helper requirements "${PKG##*/}" "${@:3}")
+  mapfile -t REQUIRED < <(sandbox pkg requirements "${PKG##*/}" "${@:3}")
   populate "$ROOT" "${REQUIRED[@]}"
-  helper prepare "${PKG##*/}" "${@:3}"
+  sandbox pkg prepare "${PKG##*/}" "${@:3}"
 
   if [[ $2 != ?(-) ]]; then
     mv "$ROOT/src" "$2"
@@ -35,7 +35,8 @@ helper() {
   if ( set -- /src/* && [[ $# -ne 0 ]] ); then
     die "Cannot unpack sources: directory is not empty"
   fi
-  cd /src && prepare "${@:2}"
+
+  prepare "${@:2}"
   find /src -depth -exec touch -r /src {} +
 }
 

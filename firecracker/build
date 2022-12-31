@@ -13,11 +13,11 @@ prepare() {
   apply seccomp.diff
   ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
   ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
-  mkdir -p .cargo && HOME=/tmp cargo vendor >.cargo/config
-  tree 8a64ab6220de7530eb517c30ef5f340ab5bc56da0a037952f968e5aa882fe59e
+  mkdir -p .cargo && cargo vendor >.cargo/config
+  tree 68a9fc231f1cb1379499ba4665d0be5923852d4353da5f7edf9805b861a86e92
 }
 
 build() {
-  HOME=/tmp LIBCLANG_PATH=/lib/shared cargo build --bin firecracker --release
+  LIBCLANG_PATH=/lib/shared cargo build --bin firecracker --release
   install -s -D target/release/firecracker /dst/bin/firecracker
 }
