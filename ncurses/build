@@ -2,14 +2,14 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/ncurses/
-  match version 6.3 'ncurses-([0-9.]+)\.tar'
+  match version 6.4 'ncurses-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz
+  unpack https://ftp.gnu.org/gnu/ncurses/ncurses-6.4.tar.gz
   sed -i 's_/.terminfo_/.config/terminfo_g' include/{term_entry,tic}.h
   sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src
-  tree 6decf7398d8a839358b3197cef3dc94a18bf3dd6e7928bd3694c978025d2dc1a
+  tree dad32c4e7da96b5419d791a9341f102b6970ae7fe466570a24de5814ff3e143d
 }
 
 config-extra --disable-{rpath-hack,termcap} --enable-{const,widec} \
