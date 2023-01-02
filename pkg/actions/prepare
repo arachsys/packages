@@ -17,9 +17,11 @@ action() {
   }
 
   populate "$ROOT" build
-  mkdir -p "$ROOT"/{pkg,src}
+  mkdir -p "$ROOT/pkg"
   mapfile -t REQUIRED < <(sandbox pkg requirements "${PKG##*/}" "${@:3}")
   populate "$ROOT" "${REQUIRED[@]}"
+
+  mkdir -p "$ROOT/src" "$ROOT/var/cache"
   sandbox pkg prepare "${PKG##*/}" "${@:3}"
 
   if [[ $2 != ?(-) ]]; then

@@ -36,7 +36,6 @@ fi
 [[ -d $1/img ]] && mount -o bind "$1/img" "$1/img"
 [[ -d $1/pkg ]] && mount -o bind "${PKG:-$1/pkg}" "$1/pkg"
 [[ -d $1/src ]] && mount -o bind "${SRC:-$1/src}" "$1/src"
-[[ -d $1/var ]] && mount -o bind "$1/var" "$1/var"
 
 if [[ -d $1/var/cache ]] && [[ -d $CACHEDIR ]]; then
   mount -o bind "$CACHEDIR" "$1/var/cache"
