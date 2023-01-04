@@ -1,5 +1,5 @@
 diff --git a/scripts/kconfig/mconf-cfg.sh b/scripts/kconfig/mconf-cfg.sh
-index b520e407a..1387724b0 100755
+index 025b565e0..ff7bf6326 100755
 --- a/scripts/kconfig/mconf-cfg.sh
 +++ b/scripts/kconfig/mconf-cfg.sh
 @@ -1,6 +1,12 @@
@@ -31,7 +31,7 @@ index b520e407a..1387724b0 100755
  echo >&2 "* Unable to find the ncurses package."
  echo >&2 "* Install ncurses (ncurses-devel or libncurses-dev"
 diff --git a/scripts/kconfig/nconf-cfg.sh b/scripts/kconfig/nconf-cfg.sh
-index c21225507..95d960d5b 100755
+index 3a10bac2a..209ca7c2c 100755
 --- a/scripts/kconfig/nconf-cfg.sh
 +++ b/scripts/kconfig/nconf-cfg.sh
 @@ -1,6 +1,12 @@

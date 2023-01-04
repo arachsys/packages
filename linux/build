@@ -1,21 +1,20 @@
 check() {
   url https://www.kernel.org/
-  match linux 6.1.2 'linux-([0-9.]+)\.tar'
+  match linux 6.1.3 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.1.2.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.1.3.tar.xz
   apply llvm.diff
   apply ncurses.diff
   apply regdom.diff
-  apply swab.diff
 
   find . -type f -executable -exec sed -e '1s:^#! *//*:#!/:' \
     -e '1s:^#!/usr/local/:#!/:' -e '1s:^#!/usr/:#!/:' \
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree 4b9653f034ae43056ffee2777ba25212d5fba0c554919411b5553eb392ebd891
+  tree 03d3626039c5882959747890089e13a75498b0ffd03298e459817ef9e2e327c0
 }
 
 build() {

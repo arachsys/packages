@@ -1,8 +1,8 @@
 diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 1a3551b6d..f1f221bbf 100644
+index d2321c683..ab4867fbb 100644
 --- a/net/wireless/nl80211.c
 +++ b/net/wireless/nl80211.c
-@@ -8079,7 +8079,7 @@ static int nl80211_get_reg_do(struct sk_buff *skb, struct genl_info *info)
+@@ -8410,7 +8410,7 @@ static int nl80211_get_reg_do(struct sk_buff *skb, struct genl_info *info)
  		regdom = get_wiphy_regdom(wiphy);
  
  		/* a self-managed-reg device must have a private regdom */
