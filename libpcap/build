@@ -3,13 +3,13 @@ require bison flex libnl-tiny
 
 check() {
   url https://www.tcpdump.org/release/
-  match version 1.10.2 'libpcap-([0-9.]+)\.tar'
+  match version 1.10.3 'libpcap-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.tcpdump.org/release/libpcap-1.10.2.tar.gz
+  unpack https://www.tcpdump.org/release/libpcap-1.10.3.tar.gz
   apply libnl.diff
-  tree 174b5869acd8b5b3e896702bfe0e8a26aaa28187e45acd6186e119b941890d6b
+  tree efc6a862223a062426ac4d594db1842dc0776874430dfa0eb786fdf0b75228cb
 }
 
 config-extra --with-libnl --with-pcap=linux
