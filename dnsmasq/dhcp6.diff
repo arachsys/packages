@@ -1,0 +1,27 @@
+diff --git a/src/rfc3315.c b/src/rfc3315.c
+index 8754481..9d21793 100644
+--- a/src/rfc3315.c
++++ b/src/rfc3315.c
+@@ -165,22 +165,6 @@ static int dhcp6_maybe_relay(struct state *state, unsigned char *inbuff, size_t
+ 		    state->context = c;
+ 		  }
+ 	      }
+-	  
+-	  if (!state->context)
+-	    {
+-	      inet_ntop(AF_INET6, state->link_address, daemon->addrbuff, ADDRSTRLEN); 
+-	      my_syslog(MS_DHCP | LOG_WARNING, 
+-			_("no address range available for DHCPv6 request from relay at %s"),
+-			daemon->addrbuff);
+-	      return 0;
+-	    }
+-	}
+-	  
+-      if (!state->context)
+-	{
+-	  my_syslog(MS_DHCP | LOG_WARNING, 
+-		    _("no address range available for DHCPv6 request via %s"), state->iface_name);
+-	  return 0;
+ 	}
+ 
+       return dhcp6_no_relay(state, msg_type, inbuff, sz, is_unicast, now);

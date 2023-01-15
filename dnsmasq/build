@@ -5,8 +5,8 @@ check() {
 
 prepare() {
   unpack https://thekelleys.org.uk/dnsmasq/dnsmasq-2.88.tar.xz
-  apply radv.diff
-  tree 8b49a7a86aed748edc8c873be36a4d3920db7d43aa46cf83e9b98667251b19a6
+  apply dhcp6.diff
+  tree 5113f805db4f70c8ed8bf505fc1baa780d9c97be9e7b08c29ff0eff61f611547
 }
 
 build() {
