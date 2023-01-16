@@ -2,10 +2,10 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/diffutils/
-  match version 3.8 'diffutils-([0-9.]+)\.tar'
+  match version 3.9 'diffutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/diffutils/diffutils-3.8.tar.xz
-  tree f4a22820986823215a1dd92ebcdb059ea953dde8f1f8cd825e64b3efd51a67be
+  unpack https://ftp.gnu.org/gnu/diffutils/diffutils-3.9.tar.xz
+  tree 3dd034991ef39c375418ca98338179ad55dcc61b8b415d18b5b3647cfde1b9ee
 }
