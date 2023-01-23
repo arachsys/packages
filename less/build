@@ -10,6 +10,8 @@ prepare() {
   tree 6f754a576d3cb86272274d1d12bd386d2bd384d7a0aab3277dda98fa8189e777
 }
 
+config-extra --with-regex=pcre2
+
 post-config() {
   sed -i '/#define LESSHISTFILE/s/".*"/"-"/' defines.h
 }
