@@ -3,15 +3,14 @@ Usage: pkg ACTION [ARG]...
 pkg apply [-d DIR] [-p STRIP] PATCH
   Apply a patch from a remote URL or local file.
 
-pkg build [-d] [-s SRC] PKG [FEATURE]...
+pkg build [-o OUTDIR] [-s SRC] PKG [FEATURE]...
   Build an image for package PKG with the specified FEATURE options in the
   configured image directory $IMGDIR. Images for all the build requirements
   and base packages must already exist in the image directory. Any existing
   image for PKG is replaced on successful completion; otherwise it is
-  untouched. An empty directory or pre-prepared tree of source code for
-  building can be provided with the -s option. Use -d to enable debug mode,
-  which leaves the build chroot in place for inspection whether or not the
-  build succeeds, and does not install the new image in $IMGDIR.
+  untouched. An alternative output directory to $IMGDIR can be specified
+  with the -o option, and a pre-prepared tree of source code to build can
+  be provided with the -s option.
 
 pkg check [-p JOBS] [PKG]...
   Check for upstream updates of each package PKG using PKG/check. If no

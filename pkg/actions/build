@@ -1,9 +1,9 @@
 action() {
-  unset DEBUG SRC
-  while getopts :ds: OPTION; do
+  unset OUTDIR SRC
+  while getopts :o:s: OPTION; do
     case $OPTION in
-      d)
-        DEBUG=1
+      o)
+        OUTDIR=$OPTARG
         ;;
       s)
         if [[ -d $OPTARG ]]; then
@@ -23,17 +23,13 @@ action() {
     die "$(< $LIBRARY/help)"
   fi
 
+  OUTDIR=${OUTDIR:-$IMGDIR}
   PKG=$(locate "$PKGDIR" "$1")
-  mkdir -p "$CACHEDIR" "$IMGDIR"
+  mkdir -p "$CACHEDIR" "$IMGDIR" "$OUTDIR"
 
-  ROOT=$(mktemp -d "$IMGDIR/${PKG##*/}.XXXXXX")
+  ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
+  trap 'rm -f -r --one-file-system "$ROOT"' EXIT
   chmod 0755 "$ROOT"
-
-  if [[ -n $DEBUG ]]; then
-    trap 'echo "Build root left in $ROOT" >&2' EXIT
-  else
-    trap 'rm -f -r --one-file-system "$ROOT"' EXIT
-  fi
 
   sandbox() {
     PKG=$PKG SRC=$SRC pkg sandbox "$ROOT" "$@"
@@ -54,20 +50,16 @@ action() {
   ln -s "img/${PKG##*/}" "$ROOT/dst"
   sandbox unshare -n pkg build "${PKG##*/}" "${@:2}"
 
-  if [[ -n $DEBUG ]]; then
-    echo "Debug mode: not installing or replacing images"
-  else
-    for IMG in "$ROOT"/img/*; do
-      if [[ -e "$IMGDIR/${IMG##*/}" ]]; then
-        echo "Replacing existing image in $IMGDIR/${IMG##*/}"
-        rm -f -r "$IMGDIR/${IMG##*/}"
-        mv "$IMG" "$IMGDIR/${IMG##*/}"
-      else
-        echo "Installing new image in $IMGDIR/${IMG##*/}"
-        mv "$IMG" "$IMGDIR/${IMG##*/}"
-      fi
-    done
-  fi
+  for IMG in "$ROOT"/img/*; do
+    if [[ -e "$OUTDIR/${IMG##*/}" ]]; then
+      echo "Replacing existing image in $OUTDIR/${IMG##*/}"
+      rm -f -r "$OUTDIR/${IMG##*/}"
+      mv "$IMG" "$OUTDIR/${IMG##*/}"
+    else
+      echo "Installing new image in $OUTDIR/${IMG##*/}"
+      mv "$IMG" "$OUTDIR/${IMG##*/}"
+    fi
+  done
 }
 
 helper() {
