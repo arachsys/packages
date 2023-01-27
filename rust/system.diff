@@ -1,3 +1,54 @@
+diff --git a/compiler/rustc_session/src/filesearch.rs b/compiler/rustc_session/src/filesearch.rs
+index 1b66773be..75ea49825 100644
+--- a/compiler/rustc_session/src/filesearch.rs
++++ b/compiler/rustc_session/src/filesearch.rs
+@@ -125,9 +125,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
+         smallvec![get_or_default_sysroot().expect("Failed finding sysroot")];
+     let path = current_dll_path().and_then(|s| Ok(s.canonicalize().map_err(|e| e.to_string())?));
+     if let Ok(dll) = path {
++        // If the dll is in a directory named `shared`, it must be in
++        // the compiler's libdir using the Arachsys Linux convention of
++        // `$sysroot/lib/shared/*.dll`, not the target libdir. Otherwise,
+         // use `parent` twice to chop off the file name and then also the
+         // directory containing the dll which should be either `lib` or `bin`.
+-        if let Some(path) = dll.parent().and_then(|p| p.parent()) {
++        if let Some(path) = dll.parent() && path.ends_with("shared") {
++            if let Some(path) = path.parent().and_then(|p| p.parent()) {
++                sysroot_candidates.push(path.to_owned());
++            }
++        } else if let Some(path) = dll.parent().and_then(|p| p.parent()) {
+             // The original `path` pointed at the `rustc_driver` crate's dll.
+             // Now that dll should only be in one of two locations. The first is
+             // in the compiler's libdir, for example `$sysroot/lib/*.dll`. The
+@@ -168,12 +175,27 @@ pub fn get_or_default_sysroot() -> Result<PathBuf, String> {
+     fn default_from_rustc_driver_dll() -> Result<PathBuf, String> {
+         let dll = current_dll_path().and_then(|s| Ok(canonicalize(s)))?;
+ 
+-        // `dll` will be in one of the following two:
++        // `dll` will be in one of the following three:
+         // - compiler's libdir: $sysroot/lib/*.dll
++        // - compiler's libdir: $sysroot/lib/shared/*.dll
+         // - target's libdir: $sysroot/lib/rustlib/$target/lib/*.dll
+         //
++        // If the dll is in a directory named `shared`, it must be in the
++        // compiler's libdir using the Arachsys Linux convention of
++        // `$sysroot/lib/shared/*.dll`, not the target libdir. Otherwise
+         // use `parent` twice to chop off the file name and then also the
+         // directory containing the dll
++
++        if let Some(dir) = dll.parent() && dir.ends_with("shared") {
++            return dir.parent() // chop off `shared`
++                .and_then(|p| p.parent()) // chop off `lib`
++                .map(|s| s.to_owned())
++                .ok_or(format!(
++                    "Could not move 3 levels upper using `parent()` on {}",
++                    dll.display()
++                ));
++        }
++
+         let dir = dll.parent().and_then(|p| p.parent()).ok_or(format!(
+             "Could not move 2 levels upper using `parent()` on {}",
+             dll.display()
 diff --git a/compiler/rustc_target/src/spec/crt_objects.rs b/compiler/rustc_target/src/spec/crt_objects.rs
 index c126390f5..f7f6c261b 100644
 --- a/compiler/rustc_target/src/spec/crt_objects.rs
@@ -40,10 +91,10 @@ index 61553e71b..0108e8dcb 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index e02a10b81..e00d608ec 100644
+index 0deed3f99..036fdd36b 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -228,40 +228,7 @@ fn copy_self_contained_objects(
+@@ -227,40 +227,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -85,24 +136,11 @@ index e02a10b81..e00d608ec 100644
          let srcdir = builder
              .wasi_root(target)
              .unwrap_or_else(|| {
-diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index b986f6c13..df3402f13 100644
---- a/src/bootstrap/dist.rs
-+++ b/src/bootstrap/dist.rs
-@@ -1003,7 +1003,7 @@ impl Step for Cargo {
-         for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
-             let dirent = dirent.expect("read dir entry");
-             if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
--                tarball.add_file(&dirent.path(), "libexec", 0o755);
-+                tarball.add_file(&dirent.path(), "bin", 0o755);
-             }
-         }
- 
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 7e70e99bb..327f32230 100644
+index 3ed534523..2d32be1e2 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
-@@ -324,6 +324,7 @@ pub struct Build {
+@@ -323,6 +323,7 @@ pub struct Build {
      metrics: metrics::BuildMetrics,
  }
  
@@ -111,7 +149,7 @@ index 7e70e99bb..327f32230 100644
  struct Crate {
      name: Interned<String>,
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index e90551725..ba1ca3c11 100644
+index 8a40b0f64..59e11d304 100644
 --- a/src/bootstrap/sanity.rs
 +++ b/src/bootstrap/sanity.rs
 @@ -11,7 +11,6 @@
@@ -122,7 +160,7 @@ index e90551725..ba1ca3c11 100644
  use std::path::PathBuf;
  use std::process::Command;
  
-@@ -190,28 +189,6 @@ than building it.
+@@ -205,28 +204,6 @@ than building it.
              }
          }
  
@@ -148,19 +186,6 @@ index e90551725..ba1ca3c11 100644
 -            }
 -        }
 -
-         if need_cmake && target.contains("msvc") {
-             // There are three builds of cmake on windows: MSVC, MinGW, and
-             // Cygwin. The Cygwin build does not have generators for Visual
-diff --git a/src/tools/cargo/src/cargo/ops/registry/auth.rs b/src/tools/cargo/src/cargo/ops/registry/auth.rs
-index 648e051e6..924703ae5 100644
---- a/src/tools/cargo/src/cargo/ops/registry/auth.rs
-+++ b/src/tools/cargo/src/cargo/ops/registry/auth.rs
-@@ -224,7 +224,7 @@ fn sysroot_credential(
-         .parent()
-         .and_then(|p| p.parent())
-         .ok_or_else(|| format_err!("expected cargo path {}", cargo.display()))?;
--    let exe = root.join("libexec").join(format!(
-+    let exe = root.join("bin").join(format!(
-         "cargo-credential-{}{}",
-         cred_name,
-         std::env::consts::EXE_SUFFIX
+         // Some environments don't want or need these tools, such as when testing Miri.
+         // FIXME: it would be better to refactor this code to split necessary setup from pure sanity
+         // checks, and have a regular flag for skipping the latter. Also see
