@@ -1,16 +1,14 @@
 action() {
-  unset OUTDIR SRC
+  unset OUT SRC
   while getopts :o:s: OPTION; do
     case $OPTION in
       o)
-        OUTDIR=$OPTARG
+        OUT=$OPTARG
+        mkdir -p "$OUT"
         ;;
       s)
-        if [[ -d $OPTARG ]]; then
-          SRC=$OPTARG
-        else
-          die "Prepared source tree $OPTARG not found"
-        fi
+        SRC=$OPTARG
+        mkdir -p "$SRC"
         ;;
       *)
         die "$(< $LIBRARY/help)"
@@ -23,9 +21,8 @@ action() {
     die "$(< $LIBRARY/help)"
   fi
 
-  OUTDIR=${OUTDIR:-$IMGDIR}
   PKG=$(locate "$PKGDIR" "$1")
-  mkdir -p "$CACHEDIR" "$IMGDIR" "$OUTDIR"
+  mkdir -p "$CACHEDIR" "$IMGDIR"
 
   ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
   trap 'rm -f -r --one-file-system "$ROOT"' EXIT
@@ -40,7 +37,7 @@ action() {
   mapfile -t REQUIRED < <(sandbox pkg requirements "${PKG##*/}" "${@:2}")
   populate "$ROOT" "${REQUIRED[@]}"
 
-  if [[ -z $SRC ]]; then
+  if [[ -z $SRC ]] || ( set -- "$SRC"/* && [[ $# -eq 0 ]] ); then
     mkdir -p "$ROOT/src" "$ROOT/var/cache"
     sandbox pkg prepare "${PKG##*/}" "${@:2}"
     rmdir "$ROOT/var/cache" "$ROOT/var"
@@ -51,13 +48,13 @@ action() {
   sandbox unshare -n pkg build "${PKG##*/}" "${@:2}"
 
   for IMG in "$ROOT"/img/*; do
-    if [[ -e "$OUTDIR/${IMG##*/}" ]]; then
-      echo "Replacing existing image in $OUTDIR/${IMG##*/}"
-      rm -f -r "$OUTDIR/${IMG##*/}"
-      mv "$IMG" "$OUTDIR/${IMG##*/}"
+    if [[ -e "${OUT:-$IMGDIR}/${IMG##*/}" ]]; then
+      echo "Replacing existing image in ${OUT:-$IMGDIR}/${IMG##*/}"
+      rm -f -r "${OUT:-$IMGDIR}/${IMG##*/}"
+      mv "$IMG" "${OUT:-$IMGDIR}/${IMG##*/}"
     else
-      echo "Installing new image in $OUTDIR/${IMG##*/}"
-      mv "$IMG" "$OUTDIR/${IMG##*/}"
+      echo "Installing new image in ${OUT:-$IMGDIR}/${IMG##*/}"
+      mv "$IMG" "${OUT:-$IMGDIR}/${IMG##*/}"
     fi
   done
 }
