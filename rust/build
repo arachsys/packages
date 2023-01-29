@@ -14,9 +14,10 @@ prepare() {
   apply nocred.diff
   apply system.diff
   apply target.diff
+  apply version.diff
   sed -i 's/\("files":{\)[^}]*/\1/' \
     vendor/{curl-sys,libssh2-sys,openssl,openssl-sys}/.cargo-checksum.json
-  tree be98fecde991d1fdeaa72dd466e5b006fa02a9c90760d27315c3c6d4460ac4bd
+  tree b20a1aca551f04f7dd1008a2d1f49204b244d6abaa5ffcecab2b28c6a80116ce
 }
 
 build() {
@@ -26,8 +27,8 @@ build() {
      --enable-locked-deps --enable-use-libcxx --enable-vendor \
      --dist-compression-formats=gz --llvm-libunwind=system \
      --llvm-config=$(echo /lib/llvm/*/bin/llvm-config) --local-rust-root= \
-     --tools=analysis,cargo,clippy,rust-analyzer,rustfmt \
-     --set=llvm.static-libstdcpp=false
+     --release-channel=stable --set=llvm.static-libstdcpp=false \
+     --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
     python x.py install
