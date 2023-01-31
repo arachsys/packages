@@ -1,5 +1,5 @@
 diff --git a/fscryptctl.c b/fscryptctl.c
-index 7d9883c..94216c5 100644
+index fce6920..acb7727 100644
 --- a/fscryptctl.c
 +++ b/fscryptctl.c
 @@ -22,6 +22,7 @@
@@ -10,7 +10,7 @@ index 7d9883c..94216c5 100644
  #include <errno.h>
  #include <fcntl.h>
  #include <getopt.h>
-@@ -90,21 +91,20 @@ enum {
+@@ -94,21 +95,20 @@ enum {
  /* util-linux style usage */
  static void __attribute__((__noreturn__)) usage(FILE *out) {
    fputs(
@@ -38,7 +38,7 @@ index 7d9883c..94216c5 100644
        "    Set up an encryption policy on the specified directory with the\n"
        "    specified key identifier.\n"
        "\nOptions:\n"
-@@ -112,10 +112,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
+@@ -116,10 +116,10 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
        "        print this help screen\n"
        "    -v, --version\n"
        "        print the version of fscrypt\n"
@@ -51,17 +51,19 @@ index 7d9883c..94216c5 100644
        "        --contents=<mode>\n"
        "            contents encryption mode (default: AES-256-XTS)\n"
        "        --filenames=<mode>\n"
-@@ -130,8 +130,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
+@@ -134,10 +134,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out) {
        "            optimize for eMMC inline crypto hardware (not recommended)\n"
        "\nNotes:\n"
        "  Keys are identified by 32-character hex strings (key identifiers).\n"
 -      "\n"
--      "  Raw keys are given on stdin in binary and usually must be 64 bytes.\n",
+-      "  Raw keys are given on stdin in binary and usually must be 64 bytes.\n"
+-      "\n"
+-      "  For more information, run `man fscryptctl`.\n",
 +      "  Raw keys are given on stdin in binary and are usually 64 bytes.\n",
        out);
  
    exit(out == stderr ? EXIT_FAILURE : EXIT_SUCCESS);
-@@ -155,12 +154,9 @@ static void handle_no_options(int *argc, char *const *argv[]) {
+@@ -161,12 +158,9 @@ static void handle_no_options(int *argc, char *const *argv[]) {
  static const char *describe_fscrypt_error(int errno_val) {
    switch (errno_val) {
      case ENOTTY:
@@ -76,7 +78,7 @@ index 7d9883c..94216c5 100644
      default:
        return strerror(errno_val);
    }
-@@ -170,10 +166,10 @@ static const char *describe_fscrypt_error(int errno_val) {
+@@ -176,10 +170,10 @@ static const char *describe_fscrypt_error(int errno_val) {
  static const char *describe_get_policy_error(int errno_val) {
    switch (errno_val) {
      case ENODATA:
@@ -89,7 +91,7 @@ index 7d9883c..94216c5 100644
      default:
        return describe_fscrypt_error(errno_val);
    }
-@@ -183,9 +179,9 @@ static const char *describe_get_policy_error(int errno_val) {
+@@ -189,9 +183,9 @@ static const char *describe_get_policy_error(int errno_val) {
  static const char *describe_set_policy_error(int errno_val) {
    switch (errno_val) {
      case EEXIST:
@@ -101,7 +103,7 @@ index 7d9883c..94216c5 100644
      default:
        return describe_fscrypt_error(errno_val);
    }
-@@ -201,8 +197,7 @@ static const char *describe_fscrypt_v2_error(int errno_val) {
+@@ -207,8 +201,7 @@ static const char *describe_fscrypt_v2_error(int errno_val) {
  
      if (uname(&u) == 0 && sscanf(u.release, "%d.%d", &major, &minor) == 2 &&
          (major < 5 || (major == 5 && minor < 4))) {
@@ -111,7 +113,7 @@ index 7d9883c..94216c5 100644
      }
    }
    return describe_fscrypt_error(errno_val);
-@@ -272,7 +267,7 @@ static bool build_key_specifier(const char *identifier_hex,
+@@ -278,7 +271,7 @@ static bool build_key_specifier(const char *identifier_hex,
    memset(key_spec, 0, sizeof(*key_spec));
    if (!hex_to_bytes(identifier_hex, key_spec->u.identifier,
                      FSCRYPT_KEY_IDENTIFIER_SIZE)) {
@@ -120,7 +122,7 @@ index 7d9883c..94216c5 100644
      return false;
    }
    key_spec->type = FSCRYPT_KEY_SPEC_TYPE_IDENTIFIER;
-@@ -309,14 +304,12 @@ static size_t read_key(uint8_t raw_key[FSCRYPT_MAX_KEY_SIZE]) {
+@@ -315,14 +308,12 @@ static size_t read_key(uint8_t raw_key[FSCRYPT_MAX_KEY_SIZE]) {
      goto cleanup;
    }
    if (ret < FSCRYPT_MIN_KEY_SIZE) {
@@ -137,7 +139,7 @@ index 7d9883c..94216c5 100644
      ret = 0;
      goto cleanup;
    }
-@@ -330,7 +323,7 @@ static bool get_policy(const char *path,
+@@ -336,7 +327,7 @@ static bool get_policy(const char *path,
                         struct fscrypt_get_policy_ex_arg *arg) {
    int fd = open(path, O_RDONLY | O_CLOEXEC);
    if (fd < 0) {
@@ -146,7 +148,7 @@ index 7d9883c..94216c5 100644
      return false;
    }
  
-@@ -339,7 +332,7 @@ static bool get_policy(const char *path,
+@@ -345,7 +336,7 @@ static bool get_policy(const char *path,
    close(fd);
  
    if (ret != 0) {
@@ -155,7 +157,7 @@ index 7d9883c..94216c5 100644
              describe_get_policy_error(errno));
      return false;
    }
-@@ -350,7 +343,7 @@ static bool set_policy(const char *path,
+@@ -356,7 +347,7 @@ static bool set_policy(const char *path,
                         const struct fscrypt_policy_v2 *policy) {
    int fd = open(path, O_RDONLY | O_CLOEXEC);
    if (fd < 0) {
@@ -164,7 +166,7 @@ index 7d9883c..94216c5 100644
      return false;
    }
  
-@@ -358,7 +351,7 @@ static bool set_policy(const char *path,
+@@ -364,7 +355,7 @@ static bool set_policy(const char *path,
    close(fd);
  
    if (ret != 0) {
@@ -173,7 +175,7 @@ index 7d9883c..94216c5 100644
              describe_set_policy_error(errno));
      return false;
    }
-@@ -372,16 +365,14 @@ static bool set_policy(const char *path,
+@@ -378,16 +369,14 @@ static bool set_policy(const char *path,
  static int cmd_add_key(int argc, char *const argv[]) {
    handle_no_options(&argc, &argv);
    if (argc != 1) {
@@ -192,7 +194,7 @@ index 7d9883c..94216c5 100644
    }
  
    int status = EXIT_FAILURE;
-@@ -393,11 +384,11 @@ static int cmd_add_key(int argc, char *const argv[]) {
+@@ -399,11 +388,11 @@ static int cmd_add_key(int argc, char *const argv[]) {
  
    int fd = open(mountpoint, O_RDONLY | O_CLOEXEC);
    if (fd < 0) {
@@ -206,7 +208,7 @@ index 7d9883c..94216c5 100644
              describe_fscrypt_v2_error(errno));
      close(fd);
      goto cleanup;
-@@ -434,8 +425,7 @@ static int cmd_remove_key(int argc, char *const argv[]) {
+@@ -440,8 +429,7 @@ static int cmd_remove_key(int argc, char *const argv[]) {
    argc -= optind;
    argv += optind;
    if (argc != 2) {
@@ -216,7 +218,7 @@ index 7d9883c..94216c5 100644
    }
    const char *key_identifier = argv[0];
    const char *mountpoint = argv[1];
-@@ -447,22 +437,20 @@ static int cmd_remove_key(int argc, char *const argv[]) {
+@@ -453,22 +441,20 @@ static int cmd_remove_key(int argc, char *const argv[]) {
  
    int fd = open(mountpoint, O_RDONLY | O_CLOEXEC);
    if (fd < 0) {
@@ -243,7 +245,7 @@ index 7d9883c..94216c5 100644
    }
    return EXIT_SUCCESS;
  }
-@@ -470,8 +458,7 @@ static int cmd_remove_key(int argc, char *const argv[]) {
+@@ -476,8 +462,7 @@ static int cmd_remove_key(int argc, char *const argv[]) {
  static int cmd_key_status(int argc, char *const argv[]) {
    handle_no_options(&argc, &argv);
    if (argc != 2) {
@@ -253,7 +255,7 @@ index 7d9883c..94216c5 100644
    }
    const char *key_identifier = argv[0];
    const char *mountpoint = argv[1];
-@@ -483,8 +470,7 @@ static int cmd_key_status(int argc, char *const argv[]) {
+@@ -489,8 +474,7 @@ static int cmd_key_status(int argc, char *const argv[]) {
  
    int fd = open(mountpoint, O_RDONLY | O_CLOEXEC);
    if (fd < 0) {
@@ -263,7 +265,7 @@ index 7d9883c..94216c5 100644
    }
    int ret = ioctl(fd, FS_IOC_GET_ENCRYPTION_KEY_STATUS, &arg);
    close(fd);
-@@ -584,8 +570,7 @@ static void show_v2_encryption_policy(const struct fscrypt_policy_v2 *policy) {
+@@ -590,8 +574,7 @@ static void show_v2_encryption_policy(const struct fscrypt_policy_v2 *policy) {
  static int cmd_get_policy(int argc, char *const argv[]) {
    handle_no_options(&argc, &argv);
    if (argc != 1) {
@@ -273,7 +275,7 @@ index 7d9883c..94216c5 100644
    }
    const char *path = argv[0];
  
-@@ -632,21 +617,18 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+@@ -638,21 +621,18 @@ static int cmd_set_policy(int argc, char *const argv[]) {
      switch (ch) {
        case OPT_CONTENTS:
          if (!string_to_mode(optarg, &contents_encryption_mode)) {
@@ -298,7 +300,7 @@ index 7d9883c..94216c5 100644
          }
          flags &= ~FSCRYPT_POLICY_FLAGS_PAD_MASK;
          flags |= padding_flag;
-@@ -658,7 +640,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+@@ -664,7 +644,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
          flags |= FSCRYPT_POLICY_FLAG_IV_INO_LBLK_64;
          break;
        case OPT_IV_INO_LBLK_32:
@@ -307,7 +309,7 @@ index 7d9883c..94216c5 100644
          flags |= FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32;
          break;
        default:
-@@ -668,8 +650,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+@@ -674,8 +654,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
    argc -= optind;
    argv += optind;
    if (argc != 2) {
@@ -317,7 +319,7 @@ index 7d9883c..94216c5 100644
    }
    const char *key_identifier = argv[0];
    const char *path = argv[1];
-@@ -678,8 +659,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
+@@ -684,8 +663,7 @@ static int cmd_set_policy(int argc, char *const argv[]) {
    struct fscrypt_policy_v2 policy = {.version = FSCRYPT_POLICY_V2};
    if (!hex_to_bytes(key_identifier, policy.master_key_identifier,
                      FSCRYPT_KEY_IDENTIFIER_SIZE)) {
@@ -327,7 +329,7 @@ index 7d9883c..94216c5 100644
    }
    policy.contents_encryption_mode = contents_encryption_mode;
    policy.filenames_encryption_mode = filenames_encryption_mode;
-@@ -701,9 +681,9 @@ static const struct {
+@@ -707,9 +685,9 @@ static const struct {
    const char *name;
    int (*func)(int argc, char *const argv[]);
  } commands[] = {
@@ -340,7 +342,7 @@ index 7d9883c..94216c5 100644
  };
  
  int main(int argc, char *const argv[]) {
-@@ -722,7 +702,7 @@ int main(int argc, char *const argv[]) {
+@@ -728,7 +706,7 @@ int main(int argc, char *const argv[]) {
    }
  
    if (argc < 2) {
@@ -349,7 +351,7 @@ index 7d9883c..94216c5 100644
      usage(stderr);
    }
    const char *command = argv[1];
-@@ -733,6 +713,6 @@ int main(int argc, char *const argv[]) {
+@@ -739,6 +717,6 @@ int main(int argc, char *const argv[]) {
      }
    }
  
