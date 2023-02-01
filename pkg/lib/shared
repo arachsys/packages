@@ -232,7 +232,7 @@ tidy() {
       maybe mv -t "$IMG"/lib/shared -- "$IMG"/lib{,/static}/!(ld*).so?(.*)
       maybe chmod -f u=rw,go=r -- "$IMG"/lib/**/{*.so,*.so.*}
       maybe chmod -f a+x -- "$IMG"/lib/ld*.so?(.*)
-      find "$IMG" -depth -type d -empty -delete
+      find "$IMG" -mindepth 1 -depth -type d -empty -delete
 
       find "$IMG" -type f -print0 | while read -d '' -r FILE; do
         if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
@@ -279,6 +279,7 @@ tidy() {
   done | [[ -z $(tee /dev/stderr) ]]
 
   hardlink -q -t "$@"
+  find "$@" -maxdepth 0 -type d -empty -delete
 }
 
 tree() {
