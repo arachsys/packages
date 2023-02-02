@@ -1,0 +1,15 @@
+mode autotools
+
+check() {
+  url https://sourceforge.net/projects/smartmontools/files/smartmontools/
+  match version 7.3 '/files/smartmontools/([0-9.]+)/'
+}
+
+prepare() {
+  unpack https://downloads.sourceforge.net/project/smartmontools/smartmontools/7.3/smartmontools-7.3.tar.gz
+  tree e1bec0d18e7076d6cb3df9494b3ec466aa8fd0a6ef63df2a8a16b7f871681cfc
+}
+
+post-install() {
+  rm -f -r /dst/bin/update-smart-drivedb* /dst/lib
+}
