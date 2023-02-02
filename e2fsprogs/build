@@ -2,13 +2,13 @@ mode autotools
 
 check() {
   url https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/refs/
-  match version 1.46.5 'e2fsprogs-([0-9.]+)\.tar'
+  match version 1.46.6 'e2fsprogs-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.46.5/e2fsprogs-1.46.5.tar.xz
+  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.46.6/e2fsprogs-1.46.6.tar.xz
   apply paths.diff
-  tree 14c5fd6efaac8d4a56200c4a17cad608af46cf26579b07c75a994a9a5e7ef705
+  tree b9bc0afd7b9687d41f2b1c00f82f5ec6b9282d2cbdf1f2cd2918e80a9c9a20cd
 }
 
 config-extra --libexecdir='${prefix}/bin' --disable-libblkid \
