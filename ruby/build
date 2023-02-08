@@ -8,20 +8,20 @@ fi
 
 check() {
   url https://www.ruby-lang.org/en/downloads/
-  match version 3.2.0 'ruby-([0-9.]+)\.tar'
+  match version 3.2.1 'ruby-([0-9.]+)\.tar'
 
   url https://github.com/yaml/libyaml/tags
   match version 0.2.5 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.0.tar.gz
+  unpack https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.1.tar.gz
   unpack -d libyaml \
     https://github.com/yaml/libyaml/releases/download/0.2.5/yaml-0.2.5.tar.gz
   apply irb.diff
   apply paths.diff
   apply plain.diff
-  tree 0f36b342d7da6dc4765346d8d672cc223cd17ba5ca281f96982c946d62d77fef
+  tree 8c8135faf76e6788b20afff6a84c9bb3d8a2890d319413925d8c2674da9ef6cd
 }
 
 config-extra --disable-install-doc  --disable-rpath --enable-shared \
