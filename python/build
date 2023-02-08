@@ -3,19 +3,20 @@ require libffi sqlite
 
 check() {
   url https://www.python.org/downloads/source/
-  match version 3.11.1 'Python-([0-9.]+)\.tar'
+  match version 3.11.2 'Python-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack python-3.11.1.tar.xz \
-    https://www.python.org/ftp/python/3.11.1/Python-3.11.1.tar.xz
+  unpack python-3.11.2.tar.xz \
+    https://www.python.org/ftp/python/3.11.2/Python-3.11.2.tar.xz
+  curl -L -O https://pypi.debian.net/wheel/wheel-0.38.4-py3-none-any.whl
   apply checked.diff
   apply getpath.diff
   apply history.diff
   apply libressl.diff
   apply paths.diff
   sed -i '1s_^#!.*_#!/bin/python3_' Misc/python-config.in **/*.py
-  tree 2ffd1787f5bde3685c474076b7524d3c0a08cf3bbfc2fe0f79e0b57872c1372a
+  tree dadc1f1aeef1975df2bdfa8c0421ee55ed921593a313163ae67102fed9fa698d
 }
 
 config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
@@ -25,7 +26,7 @@ config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
 
 post-install() {
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
-  LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/pip install wheel
+  LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/pip install wheel-*.whl
 
   cd /dst/lib/python/ensurepip/_bundled
   for WHEEL in pip-*.whl setuptools-*.whl; do
