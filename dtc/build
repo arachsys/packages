@@ -2,13 +2,13 @@ require bison flex m4
 
 check() {
   url https://github.com/dgibson/dtc/tags
-  match version 1.6.1 'tags/v([0-9.]+)\.tar'
+  match version 1.7.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/dgibson/dtc/archive/refs/tags/v1.6.1.tar.gz
+  unpack https://github.com/dgibson/dtc/archive/refs/tags/v1.7.0.tar.gz
   apply tidy.diff
-  tree ab4be763d8ffb773716f70d7b35c05d823b1a4b8821ecf1924ce0b11e36a55f9
+  tree 95cb61b72b23ff1645e5755260259299603c3e0ac5cdc7294fa8739f57c5072e
 }
 
 build() {
