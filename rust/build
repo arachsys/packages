@@ -7,7 +7,6 @@ check() {
 
 prepare() {
   unpack https://static.rust-lang.org/dist/rustc-1.67.1-src.tar.gz
-  apply bootstrap.diff
   apply curl.diff
   apply libexec.diff
   apply libressl.diff
