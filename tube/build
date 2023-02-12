@@ -1,13 +1,13 @@
 check() {
   url https://api.github.com/repos/arachsys/tube/branches/master
-  match snapshot 20220627 \
+  match snapshot 20230212 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack tube-20220627-25676be8.tar.gz \
-    https://github.com/arachsys/tube/archive/25676be8.tar.gz
-  tree 869b3d3addb81c8e5eb27102e4e52f8e2bfb0abab59e5dbb5a87389a0adb340f
+  unpack tube-20230212-788d71f5.tar.gz \
+    https://github.com/arachsys/tube/archive/788d71f5.tar.gz
+  tree b9336f64c48e7a1a5c1e18e4f9ee888a7ab409a31bbbb4c8379dbefdcb7480ba
 }
 
 build() {
