@@ -2,18 +2,18 @@ mode autotools
 
 check() {
   url https://curl.haxx.se/download/
-  match curl 7.87.0 'curl-([0-9.]+)\.tar'
+  match curl 7.88.0 'curl-([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
   match nghttp2 1.52.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://curl.haxx.se/download/curl-7.87.0.tar.xz
+  unpack https://curl.haxx.se/download/curl-7.88.0.tar.xz
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.52.0/nghttp2-1.52.0.tar.xz
   apply paths.diff
-  tree 787624e6e12bba60e805d3135ca819896c28a83c8cea0ce1197e0fe73df3813c
+  tree 24c963259566ced4789f482bdf9e9709dfe24cca090d9c0e9ee4ca4246d66640
 }
 
 pre-config() {
