@@ -1,29 +1,29 @@
 diff --git a/scripts/kconfig/mconf-cfg.sh b/scripts/kconfig/mconf-cfg.sh
-index 025b565e0..ff7bf6326 100755
+index 1e61f50a5..9c095ac2d 100755
 --- a/scripts/kconfig/mconf-cfg.sh
 +++ b/scripts/kconfig/mconf-cfg.sh
-@@ -1,6 +1,12 @@
- #!/bin/sh
- # SPDX-License-Identifier: GPL-2.0
+@@ -4,6 +4,12 @@
+ cflags=$1
+ libs=$2
  
 +if echo '#include <ncurses.h>' | ${HOSTCC} -E - >/dev/null 2>&1; then
-+	echo cflags=\"\"
-+	echo libs=\"-lncurses\"
++	true > ${cflags}
++	echo -lncurses > ${libs}
 +	exit 0
 +fi
 +
  PKG="ncursesw"
  PKG2="ncurses"
  
-@@ -33,14 +39,6 @@ if [ -f /usr/include/ncurses/ncurses.h ]; then
+@@ -36,14 +42,6 @@ if [ -f /usr/include/ncurses/ncurses.h ]; then
  	exit 0
  fi
  
 -# As a final fallback before giving up, check if $HOSTCC knows of a default
 -# ncurses installation (e.g. from a vendor-specific sysroot).
 -if echo '#include <ncurses.h>' | ${HOSTCC} -E - >/dev/null 2>&1; then
--	echo cflags=\"-D_GNU_SOURCE\"
--	echo libs=\"-lncurses\"
+-	echo -D_GNU_SOURCE > ${cflags}
+-	echo -lncurses > ${libs}
 -	exit 0
 -fi
 -
@@ -31,16 +31,16 @@ index 025b565e0..ff7bf6326 100755
  echo >&2 "* Unable to find the ncurses package."
  echo >&2 "* Install ncurses (ncurses-devel or libncurses-dev"
 diff --git a/scripts/kconfig/nconf-cfg.sh b/scripts/kconfig/nconf-cfg.sh
-index 3a10bac2a..209ca7c2c 100755
+index f871a2160..58a7ab63d 100755
 --- a/scripts/kconfig/nconf-cfg.sh
 +++ b/scripts/kconfig/nconf-cfg.sh
-@@ -1,6 +1,12 @@
- #!/bin/sh
- # SPDX-License-Identifier: GPL-2.0
+@@ -4,6 +4,12 @@
+ cflags=$1
+ libs=$2
  
 +if echo '#include <ncurses.h>' | ${HOSTCC} -E - >/dev/null 2>&1; then
-+	echo cflags=\"\"
-+	echo libs=\"-lncurses -lmenu -lpanel\"
++	true > ${cflags}
++	echo -lncurses -lmenu -lpanel > ${libs}
 +	exit 0
 +fi
 +
