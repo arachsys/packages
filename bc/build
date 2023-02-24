@@ -1,16 +1,16 @@
 check() {
   url https://github.com/gavinhoward/bc/tags
-  match version 6.3.0 'tags/([0-9.]+)\.tar'
+  match version 6.3.1 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/gavinhoward/bc/releases/download/6.3.0/bc-6.3.0.tar.xz
-  tree 35c9fd79b3e4046ca0129af3936b7a3c454335ed8092b588a2666eafb78dacfe
+  unpack https://github.com/gavinhoward/bc/releases/download/6.3.1/bc-6.3.1.tar.xz
+  tree 9e33f727a3d8cc7bca43001eee9af9483ee00ad8df42afc09fe20521295cf4ec
 }
 
 build() {
   PREFIX= DATAROOTDIR=/lib MANDIR=/lib/man CC="cc -std=c99" /src/configure \
     --opt=3 --disable-generated-tests --disable-nls
   make
-  make install DESTDIR=/dst PATH="$PATH:/src/bin"
+  make install DESTDIR=/dst
 }
