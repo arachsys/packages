@@ -1,18 +1,18 @@
 diff --git a/src/default.c b/src/default.c
-index b4cfdf7..e3a537c 100644
+index e396269..c238f72 100644
 --- a/src/default.c
 +++ b/src/default.c
-@@ -535,7 +535,7 @@ static const char *default_variables[] =
-     "OBJC", "gcc",
- #else
-     "CC", "cc",
+@@ -542,7 +542,7 @@ static const char *default_variables[] =
+     "CXX", "gcc",
+ #  endif /* __MSDOS__ */
+ # else
 -    "CXX", "g++",
 +    "CXX", "c++",
-     "OBJC", "cc",
+ # endif
  #endif
- 
+     /* This expands to $(CO) $(COFLAGS) $< $@ if $@ does not exist,
 diff --git a/src/read.c b/src/read.c
-index 0743124..fe866cc 100644
+index b0fc1e1..5587f2f 100644
 --- a/src/read.c
 +++ b/src/read.c
 @@ -109,11 +109,6 @@ static const char *default_include_directories[] =
@@ -28,10 +28,10 @@ index 0743124..fe866cc 100644
      0
    };
 diff --git a/src/remake.c b/src/remake.c
-index 4ce3d2a..bc5c5c1 100644
+index fe67ab2..a6984b9 100644
 --- a/src/remake.c
 +++ b/src/remake.c
-@@ -1685,10 +1685,6 @@ library_search (const char *lib, FILE_TIMESTAMP *mtime_ptr)
+@@ -1689,10 +1689,6 @@ library_search (const char *lib, FILE_TIMESTAMP *mtime_ptr)
  {
    static const char *dirs[] =
      {
@@ -42,7 +42,7 @@ index 4ce3d2a..bc5c5c1 100644
  #if defined(WINDOWS32) && !defined(LIBDIR)
  /*
   * This is completely up to the user at product install time. Just define
-@@ -1697,6 +1693,8 @@ library_search (const char *lib, FILE_TIMESTAMP *mtime_ptr)
+@@ -1701,6 +1697,8 @@ library_search (const char *lib, FILE_TIMESTAMP *mtime_ptr)
  #define LIBDIR "."
  #endif
        LIBDIR,                   /* Defined by configuration.  */
