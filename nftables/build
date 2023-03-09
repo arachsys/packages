@@ -9,15 +9,15 @@ check() {
   match libmnl 1.0.5 'libmnl-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libnftnl/files/
-  match libnftnl 1.2.4 'libnftnl-([0-9.]+)\.tar'
+  match libnftnl 1.2.5 'libnftnl-([0-9.]+)\.tar'
 }
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
   unpack $NFP/nftables/files/nftables-1.0.6.tar.xz
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.5.tar.bz2
-  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.4.tar.bz2
-  tree 770bd82840cd1f7daf992119313e01252db466bf9172d349f605a19adba14377
+  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.5.tar.xz
+  tree f9001c9bd60e2d7eea358d2150bc821e9b12807f289415617cb81148a041cac7
 }
 
 pre-config() {
