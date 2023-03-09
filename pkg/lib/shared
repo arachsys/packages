@@ -25,7 +25,7 @@ apply() {
     set -- "$PKG/$1"
   fi
 
-  if ! fetch "$@" | bsdcat | patch -d "${DIR:-.}" -p $STRIP -s -t -N \
+  if ! fetch "$@" | bsdcat | patch -d "${DIR:-.}" -f -p $STRIP -s \
                                --merge --no-backup-if-mismatch; then
     die "Failed to apply ${1##*/}"
   fi
