@@ -1,8 +1,8 @@
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index ceb1a982c..71e1d9b16 100644
+index c6fb290ff..4cf052a24 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -42,7 +42,8 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -43,7 +43,8 @@ std::string Linux::getMultiarchTriple(const Driver &D,
                                        StringRef SysRoot) const {
    llvm::Triple::EnvironmentType TargetEnvironment =
        TargetTriple.getEnvironment();
@@ -12,7 +12,7 @@ index ceb1a982c..71e1d9b16 100644
    bool IsMipsR6 = TargetTriple.getSubArch() == llvm::Triple::MipsSubArch_r6;
    bool IsMipsN32Abi = TargetTriple.getEnvironment() == llvm::Triple::GNUABIN32;
  
-@@ -58,80 +59,68 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -59,80 +60,68 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    // regardless of what the actual target triple is.
    case llvm::Triple::arm:
    case llvm::Triple::thumb:

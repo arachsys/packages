@@ -1,5 +1,5 @@
 diff --git a/clang/tools/CMakeLists.txt b/clang/tools/CMakeLists.txt
-index 90ef04164..8c77bef77 100644
+index f60db6ef0..bfd23bf33 100644
 --- a/clang/tools/CMakeLists.txt
 +++ b/clang/tools/CMakeLists.txt
 @@ -34,9 +34,9 @@ endif()
@@ -16,10 +16,10 @@ index 90ef04164..8c77bef77 100644
  
  # We support checking out the clang-tools-extra repository into the 'extra'
 diff --git a/llvm/cmake/modules/AddLLVM.cmake b/llvm/cmake/modules/AddLLVM.cmake
-index 057431208..4cd938af1 100644
+index 9eef4eb7e..ed118ab81 100644
 --- a/llvm/cmake/modules/AddLLVM.cmake
 +++ b/llvm/cmake/modules/AddLLVM.cmake
-@@ -1251,6 +1251,7 @@ endfunction()
+@@ -1284,6 +1284,7 @@ endfunction()
  if(NOT LLVM_TOOLCHAIN_TOOLS)
    set (LLVM_TOOLCHAIN_TOOLS
      llvm-ar
@@ -27,7 +27,7 @@ index 057431208..4cd938af1 100644
      llvm-cov
      llvm-cxxfilt
      llvm-dwp
-@@ -1272,6 +1273,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
+@@ -1305,6 +1306,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
      # LLVM_INSTALL_BINUTILS_SYMLINKS.
      addr2line
      ar
