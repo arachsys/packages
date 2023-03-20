@@ -3,13 +3,13 @@ enabled docs && require perl
 
 check() {
   url https://ftp.gnu.org/gnu/coreutils/
-  match version 9.1 'coreutils-([0-9.]+)\.tar'
+  match version 9.2 'coreutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/coreutils/coreutils-9.1.tar.xz
+  unpack https://ftp.gnu.org/gnu/coreutils/coreutils-9.2.tar.xz
   apply fmt.diff
-  tree c8a1e29985c14f1250483a1ce7f744a1895866c1cd0e2c7eafb9984c88b586ca
+  tree 1ed6a7806fed73f7a5ca5eee95708919d703edf9c7193f8aacdfa147f83573bb
 }
 
 config-extra --enable-no-install-program=hostid,kill,pinky,uptime,users,who \

@@ -1,8 +1,8 @@
 diff --git a/src/fmt.c b/src/fmt.c
-index d1e3bc3..6c5f982 100644
+index 4b97385..53311dd 100644
 --- a/src/fmt.c
 +++ b/src/fmt.c
-@@ -40,7 +40,7 @@
+@@ -42,7 +42,7 @@
     "best".  Adjust to taste, subject to the caveats given.  */
  
  /* Default longest permitted line length (max_width).  */
@@ -11,7 +11,7 @@ index d1e3bc3..6c5f982 100644
  
  /* Prefer lines to be LEEWAY % shorter than the maximum width, giving
     room for optimization.  */
-@@ -286,8 +286,8 @@ The option -WIDTH is an abbreviated form of --width=DIGITS.\n\
+@@ -288,8 +288,8 @@ The option -WIDTH is an abbreviated form of --width=DIGITS.\n\
           format string:  xgettext:no-c-format */
        fputs (_("\
    -t, --tagged-paragraph    indentation of first line different from second\n\
@@ -22,18 +22,18 @@ index d1e3bc3..6c5f982 100644
    -g, --goal=WIDTH          goal width (default of 93% of width)\n\
  "), stdout);
        fputs (HELP_OPTION_DESCRIPTION, stdout);
-@@ -654,8 +654,8 @@ same_para (int c)
+@@ -672,8 +672,8 @@ same_para (int c)
  /* Read a line from input file F, given first non-blank character C
     after the prefix, and the following indent, and break it into words.
     A word is a maximal non-empty string of non-white characters.  A word
--   ending in [.?!]["')\]]* and followed by end-of-line or at least two
+-   ending in [.?!][])"']* and followed by end-of-line or at least two
 -   spaces ends a sentence, as in emacs.
-+   ending in [.?!]["')\]]* and followed by end-of-line or at least one
++   ending in [.?!][])"']* and followed by end-of-line or at least one
 +   space ends a sentence.
  
     Return the first non-blank character of the next line.  */
  
-@@ -694,11 +694,9 @@ get_line (FILE *f, int c)
+@@ -712,11 +712,9 @@ get_line (FILE *f, int c)
        start = in_column;
        c = get_space (f, c);
        word_limit->space = in_column - start;
