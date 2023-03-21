@@ -1,0 +1,54 @@
+diff --git a/openbsd-compat/libasr/res_mkquery.c b/openbsd-compat/libasr/res_mkquery.c
+index 959ecc4..31b5fe7 100644
+--- a/openbsd-compat/libasr/res_mkquery.c
++++ b/openbsd-compat/libasr/res_mkquery.c
+@@ -15,6 +15,8 @@
+  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+  */
+ 
++#include "includes.h"
++
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+@@ -28,6 +30,10 @@
+ 
+ #include "asr_private.h"
+ 
++#ifndef HAVE_RES_RANDOMID
++unsigned int res_randomid(void);
++#endif
++
+ /* This function is apparently needed by some ports. */
+ int
+ res_mkquery(int op, const char *dname, int class, int type,
+diff --git a/openbsd-compat/libasr/res_search_async.c b/openbsd-compat/libasr/res_search_async.c
+index 6436ab8..46371c1 100644
+--- a/openbsd-compat/libasr/res_search_async.c
++++ b/openbsd-compat/libasr/res_search_async.c
+@@ -32,6 +32,10 @@
+ 
+ #include "asr_private.h"
+ 
++#ifndef HAVE_RES_RANDOMID
++unsigned int res_randomid(void);
++#endif
++
+ static int res_search_async_run(struct asr_query *, struct asr_result *);
+ static size_t domcat(const char *, const char *, char *, size_t);
+ 
+diff --git a/openbsd-compat/libasr/res_send_async.c b/openbsd-compat/libasr/res_send_async.c
+index 7eeeef4..5e99396 100644
+--- a/openbsd-compat/libasr/res_send_async.c
++++ b/openbsd-compat/libasr/res_send_async.c
+@@ -38,6 +38,10 @@
+ 
+ #include "asr_private.h"
+ 
++#ifndef HAVE_RES_RANDOMID
++unsigned int res_randomid(void);
++#endif
++
+ #define OP_QUERY    (0)
+ 
+ static int res_send_async_run(struct asr_query *, struct asr_result *);

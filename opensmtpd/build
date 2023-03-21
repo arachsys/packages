@@ -15,10 +15,11 @@ prepare() {
   unpack https://www.opensmtpd.org/archives/opensmtpd-6.8.0p2.tar.gz
   unpack -d fts musl-fts-1.2.7.tar.gz \
     https://github.com/pullmoll/musl-fts/archive/v1.2.7.tar.gz
+  apply declare.diff
   apply english.diff
   apply forward.diff
   apply paths.diff
-  tree 192f328187596d2714293fd1f1f596d9969c9a07dbdc6fc0ed0cb5fcb29fc8fe
+  tree 51afdb62f241bd8f098490233289c080b8f4bc21ffb436f16a62c4aebedb95e0
 }
 
 pre-config() {
