@@ -8,7 +8,8 @@ prepare() {
   apply paths.diff
   apply systemd.diff
   apply udisks.diff
-  tree 5bf9290993367b703728d8db26fac1bf0f28837cfe8bb9587f71d7c818887937
+  apply warnings.diff
+  tree 2120defd088a14b144187ea9f1865014bc665e35077d8d24a2b212401cdae96d
 }
 
 build() {
