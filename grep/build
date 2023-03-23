@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://ftp.gnu.org/gnu/grep/
-  match version 3.9 'grep-([0-9.]+)\.tar'
+  match version 3.10 'grep-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/grep/grep-3.9.tar.xz
-  tree f9bd17df149f9c0f8fe559660a255408903595123993a00a77f5a4e31a37ec4d
+  unpack https://ftp.gnu.org/gnu/grep/grep-3.10.tar.xz
+  tree cf4a3ce0a7030364fb7b6d705d0debed423501068c02dcd4feaab2ae9718ead7
 }
 
 post-install() {
