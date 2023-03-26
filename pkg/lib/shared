@@ -37,6 +37,10 @@ build() {
 
 check() { :; }
 
+curl() {
+  command curl -A pkg/1.0 "$@"
+}
+
 die() {
   if [[ $# -gt 0 ]]; then
     printf '%s\n' "$@" >&2
