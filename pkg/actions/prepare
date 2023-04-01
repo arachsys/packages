@@ -39,7 +39,7 @@ helper() {
   fi
 
   prepare "${@:2}"
-  find /src -depth -exec touch -r /src {} +
+  find /src -depth -exec touch -h -r /src {} +
 }
 
 if [[ $$ -eq 1 ]]; then

@@ -120,10 +120,15 @@ hashtree() {
   find "$@" -type d -or -type l -or -type f -not -perm /ug+s -or \
     -printf "Illegal node $PWD/%P\\n" -exec false {} + >&2
 
-  if find "$@" -type l -exec realpath -m -z --relative-to="$1" {} + \
-       | grep -q -z '^\.\./'; then
-    die "Illegal symlink $PWD/%P"
-  fi
+  find "$@" -type l -printf '%P\0%l\0' \
+      | while read -d '' -r LINK && read -d '' -r TARGET; do
+    if [[ $TARGET == /* ]]; then
+      printf 'Absolute symlink %s -> %s\n' "$PWD/$LINK" "$TARGET"
+    elif [[ $(realpath -m -s --relative-base="$1" \
+                "${LINK%/*}/$TARGET") == /* ]]; then
+      printf 'Invalid symlink %s -> %s\n' "$PWD/$LINK" "$TARGET"
+    fi
+  done | [[ -z $(tee /dev/stderr) ]]
 
   { find "$@" -type d -printf "%P\0" | LC_ALL=C sort -z
     printf '\0'
