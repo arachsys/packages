@@ -1,0 +1,22 @@
+require rust
+
+check() {
+  url https://github.com/helix-editor/helix/tags
+  match version 23.03 'tags/([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack helix-23.03.tar.gz \
+    https://github.com/helix-editor/helix/archive/refs/tags/23.03.tar.gz
+  mkdir -p .cargo && cargo vendor >.cargo/config.toml
+  apply cosmetic.diff
+  tree d3574c078813827708493cb53d7777bd895979a1a225180762de7ff16ad46db5
+}
+
+build() {
+  cargo build --release
+  mkdir -p /dst/bin /dst/lib/helix/runtime
+  install -s target/release/hx /dst/lib/helix/hx
+  cp -R runtime/!(grammars) /dst/lib/helix/runtime
+  ln -s ../lib/helix/hx /dst/bin/hx
+}

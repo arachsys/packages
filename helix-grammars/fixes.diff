@@ -1,0 +1,26 @@
+diff --git a/helix/runtime/grammars/sources/d/src/scanner.c b/helix/runtime/grammars/sources/d/src/scanner.c
+index 6753ba0..8580b1c 100644
+--- a/helix/runtime/grammars/sources/d/src/scanner.c
++++ b/helix/runtime/grammars/sources/d/src/scanner.c
+@@ -7,6 +7,8 @@
+  * (See accompanying file LICENSE.txt or https://opensource.org/licenses/MIT)
+  * SPDX-License-Identifier: MIT
+  */
++
++#define _GNU_SOURCE
+ #include "tree_sitter/parser.h"
+ #include <assert.h>
+ #include <ctype.h>
+diff --git a/helix/runtime/grammars/sources/rescript/src/scanner.c b/helix/runtime/grammars/sources/rescript/src/scanner.c
+index 9bf9fa4..d98abbf 100644
+--- a/helix/runtime/grammars/sources/rescript/src/scanner.c
++++ b/helix/runtime/grammars/sources/rescript/src/scanner.c
+@@ -131,7 +131,7 @@ bool tree_sitter_rescript_external_scanner_scan(
+     const bool* valid_symbols
+     ) {
+   ScannerState* state = (ScannerState*)payload;
+-  const in_string = state->in_quotes || state->in_backticks;
++  const int in_string = state->in_quotes || state->in_backticks;
+ 
+   if (valid_symbols[TEMPLATE_CHARS]) {
+     lexer->result_symbol = TEMPLATE_CHARS;
