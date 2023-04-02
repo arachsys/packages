@@ -9,9 +9,11 @@ check() {
 prepare() {
   unpack ipmitool-1.8.19.tar.gz \
     https://github.com/ipmitool/ipmitool/archive/refs/tags/IPMITOOL_1_8_19.tar.gz
+  curl -o enterprise-numbers.gz -L \
+    https://ftp.openbsd.org/pub/OpenBSD/distfiles/enterprise-numbers.20220204.gz
+  gunzip enterprise-numbers.gz
   apply console.diff
-  apply ianapen.diff
-  tree b5298fe39ccb6813805c0f9d311be9440d8aef5d6493d8c577bd160243c3f783
+  tree a6680d4ba87cced288e74dad16c07c53e598ce96203ca88a836c3e7c93fbeaa6
 }
 
 pre-config() {
