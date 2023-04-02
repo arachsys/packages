@@ -6,17 +6,21 @@ check() {
 }
 
 prepare() {
-  unpack helix-23.03.tar.gz \
-    https://github.com/helix-editor/helix/archive/refs/tags/23.03.tar.gz
-  mkdir -p .cargo && cargo vendor >.cargo/config.toml
+  unpack https://github.com/helix-editor/helix/releases/download/23.03/helix-23.03-source.tar.xz
+  mkdir -p .cargo && rm -f .cargo/config .cargo/config.toml
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse cargo vendor >.cargo/config
+  find runtime/grammars -xtype l -delete -or -type l -lname '/*' -delete
+  maybe rm -f -r -- **/.git
   apply cosmetic.diff
-  tree d3574c078813827708493cb53d7777bd895979a1a225180762de7ff16ad46db5
+  apply grammars.diff
+  tree eec891642b838e97d1d37ec490641a3d2d4243c45eda0bffeb3f1e01a76b6919
 }
 
 build() {
   cargo build --release
-  mkdir -p /dst/bin /dst/lib/helix/runtime
+  mkdir -p /dst/bin /dst/lib/helix/runtime/grammars
   install -s target/release/hx /dst/lib/helix/hx
+  install -s runtime/grammars/*.so /dst/lib/helix/runtime/grammars
   cp -R runtime/!(grammars) /dst/lib/helix/runtime
   ln -s ../lib/helix/hx /dst/bin/hx
 }
