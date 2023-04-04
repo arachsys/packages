@@ -11,7 +11,8 @@ prepare() {
     https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.3.1.tar.gz
   mkdir -p .cargo && rm -f .cargo/config .cargo/config.toml
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse cargo vendor >.cargo/config
-  sed -i 's/\("files":{\)[^}]*/\1/' vendor/*/.cargo-checksum.json
+  sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
+    vendor/*/.cargo-checksum.json
   ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
   ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
   apply bindgen.diff
