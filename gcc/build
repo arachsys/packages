@@ -12,7 +12,7 @@ check() {
   match gmp 6.2.1 'gmp-([0-9.]+)\.tar'
 
   url https://libisl.sourceforge.io/
-  match isl 0.25 'isl-([0-9.]+)\.tar'
+  match isl 0.26 'isl-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/mpc/
   match mpc 1.3.1 'mpc-([0-9.]+)\.tar'
@@ -25,7 +25,7 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/gcc/gcc-12.2.0/gcc-12.2.0.tar.xz
   unpack -d bu https://ftp.gnu.org/gnu/binutils/binutils-2.39.tar.xz
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.xz
-  unpack -d isl https://libisl.sourceforge.io/isl-0.25.tar.xz
+  unpack -d isl https://libisl.sourceforge.io/isl-0.26.tar.xz
   unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz
   unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.0.tar.xz
 
@@ -39,7 +39,7 @@ prepare() {
   apply pure64.diff
   apply rpath.diff
 
-  tree a4aac3caa11c22175e2cd176d04b19cc63e484e6b88947db4ab279cf23e18dcd
+  tree 1b925419ac3c4dc4392844149c0428c53257c6132c61116c5678dc479d620d96
 }
 
 pre-config() {
