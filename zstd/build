@@ -1,11 +1,11 @@
 check() {
   url https://github.com/facebook/zstd/tags
-  match version 1.5.4 'tags/v([0-9.]+)\.tar'
+  match version 1.5.5 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/facebook/zstd/releases/download/v1.5.4/zstd-1.5.4.tar.gz
-  tree 44cb3463c2b187ce38c29a6e383dd295cd1be791973cf1bd92cd820d875050af
+  unpack https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-1.5.5.tar.gz
+  tree 5f43c07fbfa649179481da2bf0b64075991454cce3f917696d275e0a70440e72
 }
 
 build() {
