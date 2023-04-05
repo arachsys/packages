@@ -1,12 +1,12 @@
 check() {
   url https://github.com/Kitware/CMake/tags
-  match cmake 3.26.2 'tags/v([0-9.]+)\.tar'
+  match cmake 3.26.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/Kitware/CMake/releases/download/v3.26.2/cmake-3.26.2.tar.gz
+  unpack https://github.com/Kitware/CMake/releases/download/v3.26.3/cmake-3.26.3.tar.gz
   apply paths.diff
-  tree 9b68102a1cb06f48684ad231cf994951624b7e089b0f34b0699acf8a1a392ba4
+  tree 1639dfece466ddb025950437ef2bfa6397872aae288175cbebe45d9edbaccab7
 }
 
 build() {
