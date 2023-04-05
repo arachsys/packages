@@ -18,7 +18,7 @@ prepare() {
   apply bindgen.diff
   apply cosmetic.diff
   apply seccomp.diff
-  tree 80fbe6ca639abdfb0eee51ee987f12408d5537ea8ffaf94b8b244cc1da01b6a4
+  tree 21ac88ce4cc19db21e323f5c01a277cb477f396c611bbe2a5a5a8b1017ba253c
 }
 
 build() {
