@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url http://www.greenwoodsoftware.com/less/download.html
-  match version 629 'less-([0-9.]+)(-beta)?\.tar'
+  match version 632 'less-([0-9.]+)(-beta)?\.tar'
 }
 
 prepare() {
-  unpack http://www.greenwoodsoftware.com/less/less-629-beta.tar.gz
-  tree 329c8e7f502aef141842673ed5ecfc6bf041291fe4b330f3c56d4fb1803d1627
+  unpack http://www.greenwoodsoftware.com/less/less-632-beta.tar.gz
+  tree ef7dffc9731fd958fa75af1bddf216ae09f863fa1f782f54f49b5e83f8e5db96
 }
 
 config-extra --with-regex=pcre2
