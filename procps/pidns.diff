@@ -1,0 +1,59 @@
+diff --git a/library/include/readproc.h b/library/include/readproc.h
+index 33c630e..51ee9db 100644
+--- a/library/include/readproc.h
++++ b/library/include/readproc.h
+@@ -219,6 +219,7 @@ typedef struct PROCTAB {
+     int         nuid;   // cannot really sentinel-terminate unsigned short[]
+     int         i;  // generic
+     int         hide_kernel;  // getenv LIBPROC_HIDE_KERNEL was set
++    unsigned long filter_pidns;  // restrict to this PID namespace
+     unsigned    flags;
+     unsigned    u;  // generic
+     void *      vp; // generic
+diff --git a/library/readproc.c b/library/readproc.c
+index 1cb059b..dcdbf5b 100644
+--- a/library/readproc.c
++++ b/library/readproc.c
+@@ -1239,6 +1239,10 @@ static proc_t *simple_readproc(PROCTAB *restrict const PT, proc_t *restrict cons
+            free_acquired(p);
+            return NULL;
+         }
++        if (PT->filter_pidns && p->ns.ns[PROCPS_NS_PID] != PT->filter_pidns) {
++           free_acquired(p);
++           return NULL;
++        }
+         return p;
+     }
+     errno = ENOMEM;
+@@ -1535,12 +1539,15 @@ PROCTAB *openproc(unsigned flags, ...) {
+     struct stat sbuf;
+     static __thread int did_stat;
+     static __thread int hide_kernel = -1;
++    static __thread int hide_pidns = -1;
+     PROCTAB *PT = calloc(1, sizeof(PROCTAB));
+ 
+     if (!PT)
+         return NULL;
+     if (hide_kernel < 0)
+-        hide_kernel = (NULL != getenv("LIBPROC_HIDE_KERNEL"));
++        hide_kernel = (*(getenv("LIBPROC_HIDE_KERNEL") ?: "") != 0);
++    if (hide_pidns < 0)
++        hide_pidns = (*(getenv("LIBPROC_HIDE_PIDNS") ?: "") != 0);
+     if (!did_stat){
+         task_dir_missing = stat("/proc/self/task", &sbuf);
+         did_stat = 1;
+@@ -1577,6 +1584,14 @@ PROCTAB *openproc(unsigned flags, ...) {
+             PT->flags |= PROC_FILLSTAT;
+     }
+ 
++    if (hide_pidns > 0) {
++        struct procps_ns self;
++        if (procps_ns_read_pid(getpid(), &self) >= 0) {
++            PT->filter_pidns = self.ns[PROCPS_NS_PID];
++            PT->flags |= PROC_FILLNS;
++        }
++    }
++
+     if (!src_buffer
+     && !(src_buffer = malloc(MAX_BUFSZ))) {
+         closedir(PT->procfs);
