@@ -7,8 +7,9 @@ check() {
 
 prepare() {
   unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.3.tar.xz
+  apply cosmetic.diff
   apply musl.diff
-  tree c2d02e57ceb7f25f57b97a42a094e72b90610ea3bd8cff519bf383dbfe50d953
+  tree 8578994d2a6e191a141de9b1898a318612c8505a834709831482334f08e655f5
 }
 
 config-extra --disable-{kill,modern-top,shared} --enable-watch8bit \
