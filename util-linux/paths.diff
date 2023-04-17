@@ -60,7 +60,7 @@ index 803bd74..41a0f34 100644
  Please see the filesystem-specific checker manual pages for further details.
  
 diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index 505952c..793f568 100644
+index 94e2d7c..290e1fe 100644
 --- a/disk-utils/fsck.c
 +++ b/disk-utils/fsck.c
 @@ -154,7 +154,7 @@ static int kill_sent;
@@ -73,10 +73,10 @@ index 505952c..793f568 100644
  
  
 diff --git a/include/nls.h b/include/nls.h
-index 5566908..096b36c 100644
+index 377c5a1..16dc63d 100644
 --- a/include/nls.h
 +++ b/include/nls.h
-@@ -2,7 +2,7 @@
+@@ -6,7 +6,7 @@
  #define UTIL_LINUX_NLS_H
  
  #ifndef LOCALEDIR
@@ -86,7 +86,7 @@ index 5566908..096b36c 100644
  
  #ifdef HAVE_LOCALE_H
 diff --git a/include/pathnames.h b/include/pathnames.h
-index d86d9d5..521027d 100644
+index 56f64c3..848b82f 100644
 --- a/include/pathnames.h
 +++ b/include/pathnames.h
 @@ -16,21 +16,12 @@
@@ -159,7 +159,7 @@ index d86d9d5..521027d 100644
  
  /* mount paths */
  #define _PATH_FILESYSTEMS	"/etc/filesystems"
-@@ -127,7 +118,7 @@
+@@ -129,7 +120,7 @@
  # ifdef MOUNTED					/* deprecated */
  #  define _PATH_MOUNTED		MOUNTED
  # else
@@ -168,7 +168,7 @@ index d86d9d5..521027d 100644
  # endif
  #endif
  
-@@ -165,7 +156,7 @@
+@@ -167,7 +158,7 @@
  #ifdef CONFIG_ADJTIME_PATH
  # define _PATH_ADJTIME		CONFIG_ADJTIME_PATH
  #else
@@ -178,10 +178,10 @@ index d86d9d5..521027d 100644
  
  #ifdef __ia64__
 diff --git a/include/pt-bsd.h b/include/pt-bsd.h
-index 9bf47a5..8ef9eb6 100644
+index 20c24b7..c0d636c 100644
 --- a/include/pt-bsd.h
 +++ b/include/pt-bsd.h
-@@ -8,7 +8,7 @@
+@@ -12,7 +12,7 @@
  # define BSD_DISKMAGIC     ((uint32_t) 0x82564557)
  #endif
  
@@ -191,28 +191,28 @@ index 9bf47a5..8ef9eb6 100644
  #if defined (__alpha__) || defined (__powerpc__) || \
      defined (__ia64__) || defined (__hppa__)
 diff --git a/libblkid/src/topology/dm.c b/libblkid/src/topology/dm.c
-index b210a80..32eb5e5 100644
+index 612b5df..3c37f55 100644
 --- a/libblkid/src/topology/dm.c
 +++ b/libblkid/src/topology/dm.c
 @@ -30,9 +30,7 @@ static int probe_dm_tp(blkid_probe pr,
  		const struct blkid_idmag *mag __attribute__((__unused__)))
  {
- 	const char *paths[] = {
+ 	const char * const paths[] = {
 -		"/usr/local/sbin/dmsetup",
 -		"/usr/sbin/dmsetup",
 -		"/sbin/dmsetup"
 +		"/bin/dmsetup"
  	};
- 	int dmpipe[] = { -1, -1 }, stripes, stripesize;
+ 	int dmpipe[] = { -1, -1 }, stripes = 0, stripesize = 0;
  	const char *cmd = NULL;
 diff --git a/libblkid/src/topology/lvm.c b/libblkid/src/topology/lvm.c
-index 6ab7a50..39cbdf2 100644
+index af1a612..418d06a 100644
 --- a/libblkid/src/topology/lvm.c
 +++ b/libblkid/src/topology/lvm.c
 @@ -36,9 +36,7 @@ static int probe_lvm_tp(blkid_probe pr,
  		const struct blkid_idmag *mag __attribute__((__unused__)))
  {
- 	const char *paths[] = {
+ 	const char * const paths[] = {
 -		"/usr/local/sbin/lvdisplay",
 -		"/usr/sbin/lvdisplay",
 -		"/sbin/lvdisplay"
@@ -261,10 +261,10 @@ index 353a893..8aae7ac 100644
  	"This is similar to:\n" \
  	"\n" \
 diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
-index 1fc3ff2..7d88701 100644
+index 7bda266..70c5043 100644
 --- a/libmount/src/context_mount.c
 +++ b/libmount/src/context_mount.c
-@@ -1919,7 +1919,7 @@ int mnt_context_get_mount_excode(
+@@ -1631,7 +1631,7 @@ int mnt_context_get_mount_excode(
  		else if (mnt_fs_is_netfs(mnt_context_get_fs(cxt)))
  			snprintf(buf, bufsz,
  				_("bad option; for several filesystems (e.g. nfs, cifs) "
@@ -274,7 +274,7 @@ index 1fc3ff2..7d88701 100644
  			snprintf(buf, bufsz,
  				_("wrong fs type, bad option, bad superblock on %s, "
 diff --git a/libuuid/src/uuidd.h b/libuuid/src/uuidd.h
-index fbe821f..d718828 100644
+index f76acc8..de4de92 100644
 --- a/libuuid/src/uuidd.h
 +++ b/libuuid/src/uuidd.h
 @@ -38,7 +38,7 @@
@@ -381,7 +381,7 @@ index 36a892f..13ce418 100644
  == EXIT STATUS
  
 diff --git a/misc-utils/kill.1.adoc b/misc-utils/kill.1.adoc
-index 4a6996a..c904cee 100644
+index 40ab024..fd97f2e 100644
 --- a/misc-utils/kill.1.adoc
 +++ b/misc-utils/kill.1.adoc
 @@ -55,7 +55,7 @@ All processes invoked using this _name_ will be signaled.
@@ -435,7 +435,7 @@ index 7943945..a84a8d6 100644
  UUIDD_GROUP=uuidd
  UUIDD_DIR=@runstatedir@/uuidd
 diff --git a/misc-utils/whereis.1.adoc b/misc-utils/whereis.1.adoc
-index 2b07a96..0dec2d6 100644
+index 6a85e6c..9193b94 100644
 --- a/misc-utils/whereis.1.adoc
 +++ b/misc-utils/whereis.1.adoc
 @@ -63,10 +63,10 @@ searches for "ls" and "tr" binaries and man pages, and for "gcc" man pages only.
@@ -451,23 +451,25 @@ index 2b07a96..0dec2d6 100644
  
  == OPTIONS
  
-@@ -110,9 +110,9 @@ enables debug output.
+@@ -116,10 +116,10 @@ enables debug output.
  
  == EXAMPLES
  
 -To find all files in _/usr/bin_ which are not documented in _/usr/man/man1_ or have no source in _/usr/src_:
 +To find all files in _/bin_ which are not documented in _/lib/man/man1_ or have no source in _/lib/src_:
- 
--*cd /usr/bin* *whereis -u -ms -M /usr/man/man1 -S /usr/src -f **
-+*cd /bin* *whereis -u -ms -M /lib/man/man1 -S /lib/src -f **
- 
+ ____
+-*cd /usr/bin* +
+-*whereis -u -ms -M /usr/man/man1 -S /usr/src -f **
++*cd /bin* +
++*whereis -u -ms -M /lib/man/man1 -S /lib/src -f **
+ ____
  include::man-common/bugreports.adoc[]
  
 diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index db092ce..08ed311 100644
+index d21b434..69d2034 100644
 --- a/misc-utils/whereis.c
 +++ b/misc-utils/whereis.c
-@@ -97,84 +97,20 @@ struct wh_dirlist {
+@@ -101,84 +101,20 @@ struct wh_dirlist {
  };
  
  static const char *bindirs[] = {
@@ -557,7 +559,7 @@ index db092ce..08ed311 100644
  };
  
 diff --git a/sys-utils/hwclock.8.adoc b/sys-utils/hwclock.8.adoc
-index 0d32b0a..0dda060 100644
+index 3e181ed..53e81aa 100644
 --- a/sys-utils/hwclock.8.adoc
 +++ b/sys-utils/hwclock.8.adoc
 @@ -331,11 +331,11 @@ A discussion on date-time configuration would be incomplete without addressing t
@@ -585,7 +587,7 @@ index 0d32b0a..0dda060 100644
  
  Device files *hwclock* may try for Hardware Clock access: _/dev/rtc0_ _/dev/rtc_ _/dev/misc/rtc_ _/dev/efirtc_ _/dev/misc/efirtc_
 diff --git a/sys-utils/mount.8.adoc b/sys-utils/mount.8.adoc
-index 343d7e2..aa1ad2c 100644
+index ad94cb2..f990b97 100644
 --- a/sys-utils/mount.8.adoc
 +++ b/sys-utils/mount.8.adoc
 @@ -296,7 +296,7 @@ mount --make-unbindable /foo
@@ -617,7 +619,7 @@ index 343d7e2..aa1ad2c 100644
  
  *-L*, *--label* _label_::
  Mount the partition that has the specified _label_.
-@@ -408,7 +408,7 @@ mounts all from system _fstab_ to _/chroot_, all missing mountpoint are created
+@@ -413,7 +413,7 @@ mounts all from system _fstab_ to _/chroot_, all missing mountpoint are created
  *-T*, *--fstab* _path_::
  Specifies an alternative _fstab_ file. If _path_ is a directory, then the files in the directory are sorted by *strverscmp*(3); files that start with "." or without an _.fstab_ extension are ignored. The option can be specified more than once. This option is mostly designed for initramfs or chroot scripts where additional configuration is specified beyond standard system configuration.
  +
@@ -626,7 +628,7 @@ index 343d7e2..aa1ad2c 100644
  
  *-t*, *--types* _fstype_::
  The argument following the *-t* is used to indicate the filesystem type. The filesystem types which are currently supported depend on the running kernel. See _/proc/filesystems_ and _/lib/modules/$(uname -r)/kernel/fs_ for a complete list of the filesystems. The most common are ext2, ext3, ext4, xfs, btrfs, vfat, sysfs, proc, nfs and cifs.
-@@ -428,7 +428,7 @@ The prefix *no* can be meaningful with the *-a* option. For example, the command
+@@ -433,7 +433,7 @@ The prefix *no* can be meaningful with the *-a* option. For example, the command
  +
  mounts all filesystems except those of type _msdos_ and _smbfs_.
  +
@@ -635,7 +637,7 @@ index 343d7e2..aa1ad2c 100644
  
  *-U*, *--uuid* _uuid_::
  Mount the partition that has the specified _uuid_.
-@@ -664,7 +664,7 @@ What options are supported depends a bit on the running kernel. Further informat
+@@ -764,7 +764,7 @@ What options are supported depends a bit on the running kernel. Further informat
  Set the owner and group of the files in the filesystem (default: uid=gid=0).
  
  **ownmask=**__value__ and **othmask=**__value__::
@@ -644,7 +646,7 @@ index 343d7e2..aa1ad2c 100644
  
  === Mount options for affs
  
-@@ -1496,9 +1496,9 @@ The command *mount -a* returns 0 (all succeeded), 32 (all failed), or 64 (some f
+@@ -1596,9 +1596,9 @@ The command *mount -a* returns 0 (all succeeded), 32 (all failed), or 64 (some f
  
  The syntax of external mount helpers is:
  
@@ -735,7 +737,7 @@ index 37140b3..d06ceea 100644
  *-t*, *--time* _milliseconds_::
  is the amount of time in jiffies that the driver waits if the printer doesn't take a character for the number of tries dictated by the *-c* parameter. 10 is the default value. If you want fastest possible printing, and don't care about system load, you may set this to 0. If you don't care how fast your printer goes, or are printing text on a slow printer with a buffer, then 500 (5 seconds) should be fine, and will give you very low system load. This value generally should be lower for printing graphics than text, by a factor of approximately 10, for best performance.
 diff --git a/sys-utils/umount.8.adoc b/sys-utils/umount.8.adoc
-index 9101ed8..92c96a2 100644
+index 4701131..566f74f 100644
 --- a/sys-utils/umount.8.adoc
 +++ b/sys-utils/umount.8.adoc
 @@ -62,7 +62,7 @@ Do not canonicalize paths. The paths canonicalization is based on *stat*(2) and
@@ -766,10 +768,10 @@ index 9101ed8..92c96a2 100644
  Note that _/etc/mtab_ is currently deprecated and *helper=* and other userspace mount options are maintained by *libmount*.
  
 diff --git a/term-utils/agetty.8.adoc b/term-utils/agetty.8.adoc
-index 123134e..f80ccb6 100644
+index c51e562..39684b5 100644
 --- a/term-utils/agetty.8.adoc
 +++ b/term-utils/agetty.8.adoc
-@@ -189,25 +189,25 @@ This section shows examples for the process field of an entry in the _/etc/initt
+@@ -198,25 +198,25 @@ This section shows examples for the process field of an entry in the _/etc/initt
  For a hardwired line or a console tty:
  
  ____
@@ -799,7 +801,7 @@ index 123134e..f80ccb6 100644
  ____
  
  == SECURITY NOTICE
-@@ -220,7 +220,7 @@ Some programs use "--" to indicate that the rest of the command line should not
+@@ -229,7 +229,7 @@ Some programs use "--" to indicate that the rest of the command line should not
  
  The default issue file is _/etc/issue_. If the file exists, then *agetty* also checks for _/etc/issue.d_ directory. The directory is optional extension to the default issue file and content of the directory is printed after _/etc/issue_ content. If the _/etc/issue_ does not exist, then the directory is ignored. All files *with .issue extension* from the directory are printed in version-sort order. The directory can be used to maintain 3rd-party messages independently on the primary system _/etc/issue_ file.
  
@@ -808,7 +810,7 @@ index 123134e..f80ccb6 100644
  
  The default path maybe overridden by *--issue-file* option. In this case specified path has to be file or directory and all the default issue file and directory locations are ignored.
  
-@@ -249,7 +249,7 @@ s::
+@@ -258,7 +258,7 @@ s::
  Insert the system name (the name of the operating system). Same as 'uname -s'. See also the \S escape code.
  
  S or S{VARIABLE}::
@@ -817,7 +819,7 @@ index 123134e..f80ccb6 100644
  
  l::
  Insert the name of the current tty line.
-@@ -301,7 +301,7 @@ the system status file.
+@@ -310,7 +310,7 @@ the system status file.
  _/etc/issue_::
  printed before the login prompt.
  
