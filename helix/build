@@ -11,9 +11,17 @@ prepare() {
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse cargo vendor >.cargo/config
   find runtime/grammars -xtype l -delete -or -type l -lname '/*' -delete
   maybe rm -f -r -- **/.git
+
+  sed -E -e 's/^\s*(([^"#]|"([^"\\]|\\.)*"|'"'[^']*'"')*)#.*/\1/' \
+    -e 's/\s+$//;/^$/d' -i languages.toml *theme.toml runtime/themes/*.toml
+  sed -i '2,$s/^\[/\n\0/' languages.toml *theme.toml runtime/themes/*.toml
+
+  sed -E -i '/indent\s*=/s/(tab-width\s*=\s*)[0-9]+/\18/' languages.toml
+  rename -a '_' '-' runtime/themes/*.toml
+
   apply cosmetic.diff
   apply grammars.diff
-  tree eec891642b838e97d1d37ec490641a3d2d4243c45eda0bffeb3f1e01a76b6919
+  tree e8ea3816c2e7495bf4efa3d4848bc491cefa4082413fbad619c43a8c6e2b88a5
 }
 
 build() {
@@ -22,5 +30,6 @@ build() {
   install -s target/release/hx /dst/lib/helix/hx
   install -s runtime/grammars/*.so /dst/lib/helix/runtime/grammars
   cp -R runtime/!(grammars) /dst/lib/helix/runtime
+  maybe rm -f -- /dst/lib/helix/**/README.md
   ln -s ../lib/helix/hx /dst/bin/hx
 }
