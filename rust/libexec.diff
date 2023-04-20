@@ -1,17 +1,17 @@
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 3cb0eccd3..b9cfea670 100644
+index 9b2b54961..88f9f450c 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -403,7 +403,7 @@ impl Step for Rustc {
-                     target: compiler.host,
-                 })
-                 .expect("rust-analyzer-proc-macro-server always builds");
--            builder.install(&ra_proc_macro_srv, &image.join("libexec"), 0o755);
-+            builder.install(&ra_proc_macro_srv, &image.join("bin"), 0o755);
+@@ -414,7 +414,7 @@ impl Step for Rustc {
+                 },
+                 builder.kind,
+             ) {
+-                builder.install(&ra_proc_macro_srv, &image.join("libexec"), 0o755);
++                builder.install(&ra_proc_macro_srv, &image.join("bin"), 0o755);
+             }
  
              let libdir_relative = builder.libdir_relative(compiler);
- 
-@@ -1046,7 +1046,7 @@ impl Step for Cargo {
+@@ -1064,7 +1064,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -21,10 +21,10 @@ index 3cb0eccd3..b9cfea670 100644
          }
  
 diff --git a/src/bootstrap/tool.rs b/src/bootstrap/tool.rs
-index e0be4c432..112003cf2 100644
+index 3c9a154da..9caa85733 100644
 --- a/src/bootstrap/tool.rs
 +++ b/src/bootstrap/tool.rs
-@@ -783,7 +783,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -850,7 +850,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -34,10 +34,10 @@ index e0be4c432..112003cf2 100644
          builder.copy(&path, &libexec_path.join("rust-analyzer-proc-macro-srv"));
  
 diff --git a/src/tools/cargo/src/cargo/util/auth.rs b/src/tools/cargo/src/cargo/util/auth.rs
-index d67f874f1..b4c1dd8e8 100644
+index f7d0fc8c4..812f242f6 100644
 --- a/src/tools/cargo/src/cargo/util/auth.rs
 +++ b/src/tools/cargo/src/cargo/util/auth.rs
-@@ -476,7 +476,7 @@ fn sysroot_credential(
+@@ -816,7 +816,7 @@ fn sysroot_credential(
          .parent()
          .and_then(|p| p.parent())
          .ok_or_else(|| format_err!("expected cargo path {}", cargo.display()))?;
@@ -47,10 +47,10 @@ index d67f874f1..b4c1dd8e8 100644
          cred_name,
          std::env::consts::EXE_SUFFIX
 diff --git a/src/tools/rust-analyzer/crates/project-model/src/workspace.rs b/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
-index 3d199ed24..bd61d5965 100644
+index 2a11f1e8e..6c965e98e 100644
 --- a/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
 +++ b/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
-@@ -383,7 +383,7 @@ impl ProjectWorkspace {
+@@ -448,7 +448,7 @@ impl ProjectWorkspace {
              | ProjectWorkspace::Json { sysroot: Some(sysroot), .. } => {
                  let standalone_server_name =
                      format!("rust-analyzer-proc-macro-srv{}", std::env::consts::EXE_SUFFIX);
@@ -58,4 +58,4 @@ index 3d199ed24..bd61d5965 100644
 +                ["bin", "lib"]
                      .into_iter()
                      .map(|segment| sysroot.root().join(segment).join(&standalone_server_name))
-                     .find(|server_path| std::fs::metadata(&server_path).is_ok())
+                     .find(|server_path| std::fs::metadata(server_path).is_ok())
