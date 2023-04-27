@@ -158,7 +158,7 @@ index cb85861..d1ed01f 100644
  #define fopen64 fopen
  #define freopen64 freopen
 diff --git a/include/stdlib.h b/include/stdlib.h
-index b117a45..b507ca3 100644
+index 475190b..02e1507 100644
 --- a/include/stdlib.h
 +++ b/include/stdlib.h
 @@ -163,7 +163,7 @@ double strtod_l(const char *__restrict, char **__restrict, struct __locale_struc
@@ -288,16 +288,17 @@ index 5bc7f79..0e8149e 100644
  #define pread64 pread
  #define pwrite64 pwrite
 diff --git a/ldso/dynlink.c b/ldso/dynlink.c
-index dbc11da..af6cddb 100644
+index ceca3c9..0ae3e94 100644
 --- a/ldso/dynlink.c
 +++ b/ldso/dynlink.c
-@@ -343,39 +343,6 @@ static struct symdef find_sym(struct dso *dso, const char *s, int need_def)
+@@ -343,40 +343,6 @@ static struct symdef find_sym(struct dso *dso, const char *s, int need_def)
  	return find_sym2(dso, s, need_def, 0);
  }
  
 -static struct symdef get_lfs64(const char *name)
 -{
--	static const char *p, lfs64_list[] =
+-	const char *p;
+-	static const char lfs64_list[] =
 -		"aio_cancel\0aio_error\0aio_fsync\0aio_read\0aio_return\0"
 -		"aio_suspend\0aio_write\0alphasort\0creat\0fallocate\0"
 -		"fgetpos\0fopen\0freopen\0fseeko\0fsetpos\0fstat\0"
@@ -331,7 +332,7 @@ index dbc11da..af6cddb 100644
  static void do_relocs(struct dso *dso, size_t *rel, size_t rel_size, size_t stride)
  {
  	unsigned char *base = dso->base;
-@@ -429,7 +396,6 @@ static void do_relocs(struct dso *dso, size_t *rel, size_t rel_size, size_t stri
+@@ -430,7 +396,6 @@ static void do_relocs(struct dso *dso, size_t *rel, size_t rel_size, size_t stri
  			def = (sym->st_info>>4) == STB_LOCAL
  				? (struct symdef){ .dso = dso, .sym = sym }
  				: find_sym(ctx, name, type==REL_PLT);
@@ -550,10 +551,10 @@ index 0162442..16a80be 100644
 +
 +weak_alias(lockf, lockf64);
 diff --git a/src/misc/nftw.c b/src/misc/nftw.c
-index fcd25a7..8dcff7f 100644
+index 71bc62e..e1bcf1a 100644
 --- a/src/misc/nftw.c
 +++ b/src/misc/nftw.c
-@@ -138,3 +138,5 @@ int nftw(const char *path, int (*fn)(const char *, const struct stat *, int, str
+@@ -140,3 +140,5 @@ int nftw(const char *path, int (*fn)(const char *, const struct stat *, int, str
  	pthread_setcancelstate(cs, 0);
  	return r;
  }

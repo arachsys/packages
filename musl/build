@@ -4,20 +4,18 @@ check() {
 }
 
 prepare() {
-  unpack musl-20230212-7d756e1c.tar.gz \
-    https://git.musl-libc.org/cgit/musl/snapshot/musl-7d756e1c.tar.gz
+  unpack musl-20230424-b928c723.tar.gz \
+    https://git.musl-libc.org/cgit/musl/snapshot/musl-b928c723.tar.gz
   apply lfs64.diff
   apply paths.diff
   apply usage.diff
-  tree 16c55a0a14bff9db46cf4d0506c5dad6ab027876acac75ecd5608bc358cd5676
+  tree f8ba154016ed7b993c5435cbb47ba625b7394a38dea4744e3e04b63da58cbd00
 }
 
 build() {
   /src/configure --host=$CHOST --build=$CHOST --prefix= \
-                 --includedir='$(prefix)/lib/include' \
-                 --libdir='$(prefix)/lib/shared' \
-                 --syslibdir='$(prefix)/lib' \
-                 --disable-wrapper
+    --includedir='$(prefix)/lib/include' --libdir='$(prefix)/lib/shared' \
+    --syslibdir='$(prefix)/lib' --disable-wrapper
   mkdir -p /dst/bin /dst/lib
   make install DESTDIR=/dst
 
