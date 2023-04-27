@@ -1,8 +1,20 @@
+diff --git a/ld/elf-hints-local.h b/ld/elf-hints-local.h
+index 9cdfa2f29..fa6eb443c 100644
+--- a/ld/elf-hints-local.h
++++ b/ld/elf-hints-local.h
+@@ -41,6 +41,6 @@ struct elfhints_hdr
+ 
+ #define ELFHINTS_MAGIC	0x746e6845
+ 
+-#define _PATH_ELF_HINTS	"/var/run/ld-elf.so.hints"
++#define _PATH_ELF_HINTS	"/run/ld-elf.so.hints"
+ 
+ #endif /* !_ELF_HINTS_H_ */
 diff --git a/gcc/gcc.cc b/gcc/gcc.cc
-index bb07cc244..4bb8e3653 100644
+index 16bb07f2c..ec59e80eb 100644
 --- a/gcc/gcc.cc
 +++ b/gcc/gcc.cc
-@@ -1593,10 +1593,10 @@ static const char *gcc_libexec_prefix;
+@@ -1585,10 +1585,10 @@ static const char *gcc_libexec_prefix;
  /* Default prefixes to attach to command names.  */
  
  #ifndef STANDARD_STARTFILE_PREFIX_1
@@ -15,7 +27,7 @@ index bb07cc244..4bb8e3653 100644
  #endif
  
  #ifdef CROSS_DIRECTORY_STRUCTURE  /* Don't use these prefixes for a cross compiler.  */
-@@ -7933,10 +7933,14 @@ is_directory (const char *path1, bool linker)
+@@ -7909,10 +7909,14 @@ is_directory (const char *path1, bool linker)
        && IS_DIR_SEPARATOR (path[0])
        && ((cp - path == 6
  	   && filename_ncmp (path + 1, "lib", 3) == 0)
@@ -34,18 +46,6 @@ index bb07cc244..4bb8e3653 100644
      return 0;
  
    return (stat (path, &st) >= 0 && S_ISDIR (st.st_mode));
-diff --git a/ld/elf-hints-local.h b/ld/elf-hints-local.h
-index 02dd019d4..cf67f9e68 100644
---- a/ld/elf-hints-local.h
-+++ b/ld/elf-hints-local.h
-@@ -41,6 +41,6 @@ struct elfhints_hdr
- 
- #define ELFHINTS_MAGIC	0x746e6845
- 
--#define _PATH_ELF_HINTS	"/var/run/ld-elf.so.hints"
-+#define _PATH_ELF_HINTS	"/run/ld-elf.so.hints"
- 
- #endif /* !_ELF_HINTS_H_ */
 diff --git a/libffi/src/closures.c b/libffi/src/closures.c
 index f7bead67b..352b7e33e 100644
 --- a/libffi/src/closures.c
@@ -59,10 +59,10 @@ index f7bead67b..352b7e33e 100644
    { open_temp_exec_file_env, "HOME", 0 },
  #ifdef HAVE_MNTENT
 diff --git a/libiberty/make-temp-file.c b/libiberty/make-temp-file.c
-index 7bfc65ea6..bb0476e81 100644
+index 1d2f21d6c..23dceafbd 100644
 --- a/libiberty/make-temp-file.c
 +++ b/libiberty/make-temp-file.c
-@@ -95,8 +95,6 @@ try_dir (const char *dir, const char *base)
+@@ -96,8 +96,6 @@ try_dir (const char *dir, const char *base)
  }
  
  static const char tmp[] = { DIR_SEPARATOR, 't', 'm', 'p', 0 };
@@ -71,7 +71,7 @@ index 7bfc65ea6..bb0476e81 100644
  
  #endif
  
-@@ -141,8 +139,7 @@ choose_tmpdir (void)
+@@ -142,8 +140,7 @@ choose_tmpdir (void)
  	base = try_dir (P_tmpdir, base);
  #endif
  
@@ -95,7 +95,7 @@ index cc3433366..a1e65abe1 100644
  
  static char tmpnam_buffer[L_tmpnam];
 diff --git a/libtool.m4 b/libtool.m4
-index 17f8e5f30..43788ec95 100644
+index b92e284d9..2829e2a42 100644
 --- a/libtool.m4
 +++ b/libtool.m4
 @@ -2452,7 +2452,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu | gnu* | uclinuxfdpiceabi)

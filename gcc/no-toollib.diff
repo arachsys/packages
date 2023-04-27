@@ -1,8 +1,8 @@
 diff --git a/ld/genscripts.sh b/ld/genscripts.sh
-index 370b2226..6893790c 100755
+index 382bd07ff..2c07ddb66 100755
 --- a/ld/genscripts.sh
 +++ b/ld/genscripts.sh
-@@ -189,31 +189,6 @@ append_to_lib_path()
+@@ -235,31 +235,6 @@ append_to_lib_path()
    fi
  }
  

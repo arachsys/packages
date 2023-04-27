@@ -1,0 +1,48 @@
+diff --git a/gcc/gcc.cc b/gcc/gcc.cc
+index ec59e80eb..72e9f9ea8 100644
+--- a/gcc/gcc.cc
++++ b/gcc/gcc.cc
+@@ -978,7 +978,7 @@ proper position among the other output files.  */
+ #else
+ #define LINK_SSP_SPEC "%{fstack-protector|fstack-protector-all" \
+ 		       "|fstack-protector-strong|fstack-protector-explicit" \
+-		       ":-lssp_nonshared -lssp}"
++		       ":-lssp-nonshared -lssp}"
+ #endif
+ #endif
+ 
+diff --git a/libssp/Makefile.am b/libssp/Makefile.am
+index 1636e43b3..ad90c78a2 100644
+--- a/libssp/Makefile.am
++++ b/libssp/Makefile.am
+@@ -36,7 +36,7 @@ endif
+ AM_CFLAGS = -Wall
+ AM_CFLAGS += $(XCFLAGS)
+ 
+-toolexeclib_LTLIBRARIES = libssp.la libssp_nonshared.la
++toolexeclib_LTLIBRARIES = libssp.la libssp-nonshared.la
+ 
+ target_noncanonical = @target_noncanonical@
+ libsubincludedir = $(libdir)/gcc/$(target_noncanonical)/$(gcc_version)/include
+diff --git a/libssp/Makefile.in b/libssp/Makefile.in
+index bc8a0dc2b..f5c6ba9c8 100644
+--- a/libssp/Makefile.in
++++ b/libssp/Makefile.in
+@@ -365,7 +365,7 @@ gcc_version := $(shell @get_gcc_base_ver@ $(top_srcdir)/../gcc/BASE-VER)
+ @LIBSSP_USE_SYMVER_GNU_TRUE@@LIBSSP_USE_SYMVER_TRUE@version_dep = $(srcdir)/ssp.map
+ @LIBSSP_USE_SYMVER_SUN_TRUE@@LIBSSP_USE_SYMVER_TRUE@version_dep = ssp.map-sun
+ AM_CFLAGS = -Wall $(XCFLAGS)
+-toolexeclib_LTLIBRARIES = libssp.la libssp_nonshared.la
++toolexeclib_LTLIBRARIES = libssp.la libssp-nonshared.la
+ libsubincludedir = $(libdir)/gcc/$(target_noncanonical)/$(gcc_version)/include
+ nobase_libsubinclude_HEADERS = ssp/ssp.h ssp/string.h ssp/stdio.h ssp/unistd.h
+ libssp_la_SOURCES = \
+@@ -532,7 +532,7 @@ clean-toolexeclibLTLIBRARIES:
+ libssp.la: $(libssp_la_OBJECTS) $(libssp_la_DEPENDENCIES) $(EXTRA_libssp_la_DEPENDENCIES) 
+ 	$(AM_V_CCLD)$(libssp_la_LINK) -rpath $(toolexeclibdir) $(libssp_la_OBJECTS) $(libssp_la_LIBADD) $(LIBS)
+ 
+-libssp_nonshared.la: $(libssp_nonshared_la_OBJECTS) $(libssp_nonshared_la_DEPENDENCIES) $(EXTRA_libssp_nonshared_la_DEPENDENCIES) 
++libssp-nonshared.la: $(libssp_nonshared_la_OBJECTS) $(libssp_nonshared_la_DEPENDENCIES) $(EXTRA_libssp_nonshared_la_DEPENDENCIES) 
+ 	$(AM_V_CCLD)$(libssp_nonshared_la_LINK) -rpath $(toolexeclibdir) $(libssp_nonshared_la_OBJECTS) $(libssp_nonshared_la_LIBADD) $(LIBS)
+ 
+ mostlyclean-compile:

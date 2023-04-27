@@ -23,10 +23,10 @@ index 4bff41287..c87cfddae 100644
 -    ;;
 -esac
 diff --git a/ld/emulparams/elf_x86_64.sh b/ld/emulparams/elf_x86_64.sh
-index 5f2743ed4..3bcada2c5 100644
+index a689a7b6d..3bcada2c5 100644
 --- a/ld/emulparams/elf_x86_64.sh
 +++ b/ld/emulparams/elf_x86_64.sh
-@@ -39,29 +39,3 @@ if [ "x${host}" = "x${target}" ]; then
+@@ -39,19 +39,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -38,16 +38,6 @@ index 5f2743ed4..3bcada2c5 100644
 -    case "$EMULATION_NAME" in
 -      *64*)
 -	LIBPATH_SUFFIX=64
--	PARSE_AND_LIST_OPTIONS_BNDPLT='
--  fprintf (file, _("\
--  -z bndplt                   Always generate BND prefix in PLT entries\n"));
--'
--	PARSE_AND_LIST_ARGS_CASE_Z_BNDPLT='
--      else if (strcmp (optarg, "bndplt") == 0)
--	params.bndplt = true;
--'
--	PARSE_AND_LIST_OPTIONS="$PARSE_AND_LIST_OPTIONS $PARSE_AND_LIST_OPTIONS_BNDPLT"
--	PARSE_AND_LIST_ARGS_CASE_Z="$PARSE_AND_LIST_ARGS_CASE_Z $PARSE_AND_LIST_ARGS_CASE_Z_BNDPLT"
 -	;;
 -    esac
 -    ;;
@@ -57,7 +47,7 @@ index 5f2743ed4..3bcada2c5 100644
 -  ;;
 -esac
 diff --git a/gcc/config/aarch64/aarch64-linux.h b/gcc/config/aarch64/aarch64-linux.h
-index 5e4553d79..10702c8b3 100644
+index 4277f03da..b4b2314b3 100644
 --- a/gcc/config/aarch64/aarch64-linux.h
 +++ b/gcc/config/aarch64/aarch64-linux.h
 @@ -21,10 +21,10 @@
@@ -74,7 +64,7 @@ index 5e4553d79..10702c8b3 100644
  #undef  ASAN_CC1_SPEC
  #define ASAN_CC1_SPEC "%{%:sanitize(address):-funwind-tables}"
 diff --git a/gcc/config/aarch64/t-aarch64-linux b/gcc/config/aarch64/t-aarch64-linux
-index d0cd54600..204fa2ca8 100644
+index 57bf4100f..e27a859e2 100644
 --- a/gcc/config/aarch64/t-aarch64-linux
 +++ b/gcc/config/aarch64/t-aarch64-linux
 @@ -22,7 +22,4 @@ LIB1ASMSRC   = aarch64/lib1funcs.asm
@@ -86,10 +76,10 @@ index d0cd54600..204fa2ca8 100644
 -
 -MULTILIB_OSDIRNAMES += mabi.ilp32=../libilp32$(call if_multiarch,:aarch64$(AARCH_BE)-linux-gnu_ilp32)
 diff --git a/gcc/config/arm/linux-eabi.h b/gcc/config/arm/linux-eabi.h
-index 50cc0bc6d..da5e9dc37 100644
+index a11987559..fde358eed 100644
 --- a/gcc/config/arm/linux-eabi.h
 +++ b/gcc/config/arm/linux-eabi.h
-@@ -65,14 +65,7 @@
+@@ -62,14 +62,7 @@
     GLIBC_DYNAMIC_LINKER_DEFAULT and TARGET_DEFAULT_FLOAT_ABI.  */
  
  #undef  GLIBC_DYNAMIC_LINKER
@@ -105,7 +95,7 @@ index 50cc0bc6d..da5e9dc37 100644
  
  /* For ARM musl currently supports four dynamic linkers:
     - ld-musl-arm.so.1 - for the EABI-derived soft-float ABI
-@@ -82,14 +75,9 @@
+@@ -79,14 +72,9 @@
     musl does not support the legacy OABI mode.
     All the dynamic linkers live in /lib.
     We default to soft-float, EL. */
@@ -123,7 +113,7 @@ index 50cc0bc6d..da5e9dc37 100644
  /* At this point, bpabi.h will have clobbered LINK_SPEC.  We want to
     use the GNU/Linux version, not the generic BPABI version.  */
 diff --git a/gcc/config/arm/linux-elf.h b/gcc/config/arm/linux-elf.h
-index df3da67c4..7fda90e1a 100644
+index 7b7b7cbbe..be96ce4cc 100644
 --- a/gcc/config/arm/linux-elf.h
 +++ b/gcc/config/arm/linux-elf.h
 @@ -60,7 +60,7 @@
@@ -136,7 +126,7 @@ index df3da67c4..7fda90e1a 100644
  #define LINUX_TARGET_LINK_SPEC  "%{h*} \
     %{static:-Bstatic} \
 diff --git a/gcc/config/i386/linux64.h b/gcc/config/i386/linux64.h
-index 8681e36f1..ba5e0cbef 100644
+index 2bd9f48e2..15964ee76 100644
 --- a/gcc/config/i386/linux64.h
 +++ b/gcc/config/i386/linux64.h
 @@ -27,13 +27,13 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
@@ -160,7 +150,7 @@ index 8681e36f1..ba5e0cbef 100644
 -#define MUSL_DYNAMIC_LINKERX32 "/lib/ld-musl-x32.so.1"
 +#define MUSL_DYNAMIC_LINKERX32 "/lib/ld.so"
 diff --git a/gcc/config/i386/t-linux64 b/gcc/config/i386/t-linux64
-index 5526ad0e6..8c199853b 100644
+index 138956b09..db1f03de8 100644
 --- a/gcc/config/i386/t-linux64
 +++ b/gcc/config/i386/t-linux64
 @@ -33,6 +33,3 @@
