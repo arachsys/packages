@@ -70,15 +70,15 @@ index 656ef16..56fd177 100644
          let ring = IoUring::new(
              u32::from(IO_URING_NUM_ENTRIES),
 diff --git a/src/firecracker/src/api_server_adapter.rs b/src/firecracker/src/api_server_adapter.rs
-index 9d89952..80db9a9 100644
+index 7e6b76d..f27a2dc 100644
 --- a/src/firecracker/src/api_server_adapter.rs
 +++ b/src/firecracker/src/api_server_adapter.rs
 @@ -129,7 +129,7 @@ pub(crate) fn run_with_api(
      // FD to notify of API events. This is a blocking eventfd by design.
      // It is used in the config/pre-boot loop which is a simple blocking loop
      // which only consumes API events.
--    let api_event_fd = EventFd::new(0).expect("Cannot create API Eventfd.");
-+    let api_event_fd = EventFd::new(0).expect("Cannot create API eventfd.");
+-    let api_event_fd = EventFd::new(libc::EFD_SEMAPHORE).expect("Cannot create API Eventfd.");
++    let api_event_fd = EventFd::new(libc::EFD_SEMAPHORE).expect("Cannot create API eventfd.");
  
      // Channels for both directions between Vmm and Api threads.
      let (to_vmm, from_api) = channel();
