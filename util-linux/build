@@ -8,9 +8,12 @@ check() {
 
 prepare() {
   unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.39/util-linux-2.39-rc2.tar.xz
+  unpack util-linux-5ac59dfd.tar.gz \
+     https://github.com/util-linux/util-linux/archive/5ac59dfd.tar.gz
+  apply idmap.diff
   apply logger.diff
   apply paths.diff
-  tree b8d258706ba5a102446ca1f9f5b6e4483ba75ccfa12c85c4bde094eb32175345
+  tree f7641771dec5e5860245e985b7b731616fc380be9f26f723a02c3d16326ecc4f
 }
 
 config-extra --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \
