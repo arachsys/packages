@@ -1,12 +1,12 @@
 check() {
   url https://www.lua.org/ftp/
-  match version 5.4.4 'lua-([0-9.]+)\.tar'
+  match version 5.4.5 'lua-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.lua.org/ftp/lua-5.4.4.tar.gz
+  unpack https://www.lua.org/ftp/lua-5.4.5.tar.gz
   apply paths.diff
-  tree a8f1c7ac8e9d27e4d98ef28d70122280314d672249f40b1a330398e85605a8d1
+  tree b1c080e1e65ee8168ff2b86a5705375536297caa35d78097dab5ee4e653ce3f7
 }
 
 build() {
