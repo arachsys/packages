@@ -5,7 +5,8 @@ check() {
 
 prepare() {
   unpack https://github.com/gavinhoward/bc/releases/download/6.5.0/bc-6.5.0.tar.xz
-  tree 2943b36db97a963b5e4e4157beca5de3e648c93793106518f2706be1408d986a
+  apply editrc.diff
+  tree 234e75c7b5ab1d8e2771ae29ee694cc8727e6b2da4cbfe22ee8749999bae09fe
 }
 
 build() {

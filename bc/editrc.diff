@@ -1,0 +1,76 @@
+diff --git a/include/history.h b/include/history.h
+index 19c5a0f..f3a40ec 100644
+--- a/include/history.h
++++ b/include/history.h
+@@ -116,10 +116,6 @@ typedef struct BcHistory
+ 
+ } BcHistory;
+ 
+-// The path to the editrc and its length.
+-extern const char bc_history_editrc[];
+-extern const size_t bc_history_editrc_len;
+-
+ #else // BC_ENABLE_EDITLINE
+ 
+ #if BC_ENABLE_READLINE
+diff --git a/src/data.c b/src/data.c
+index b57e1fc..948f22a 100644
+--- a/src/data.c
++++ b/src/data.c
+@@ -326,12 +326,6 @@ const BcVecFree bc_vec_dtors[] = {
+ 
+ #if BC_ENABLE_EDITLINE
+ 
+-/// The normal path to the editrc.
+-const char bc_history_editrc[] = "/.editrc";
+-
+-/// The length of the normal path to the editrc.
+-const size_t bc_history_editrc_len = sizeof(bc_history_editrc) - 1;
+-
+ #endif // BC_ENABLE_EDITLINE
+ 
+ #if BC_ENABLE_HISTORY && !BC_ENABLE_LINE_LIB
+diff --git a/src/history.c b/src/history.c
+index 924b62b..2e3a7a5 100644
+--- a/src/history.c
++++ b/src/history.c
+@@ -172,28 +172,6 @@ bc_history_promptFunc(EditLine* el)
+ void
+ bc_history_init(BcHistory* h)
+ {
+-	BcVec v;
+-	char* home;
+-
+-	home = getenv("HOME");
+-
+-	// This will hold the true path to the editrc.
+-	bc_vec_init(&v, 1, BC_DTOR_NONE);
+-
+-	// Initialize the path to the editrc. This is done manually because the
+-	// libedit I used to test was failing with a NULL argument for the path,
+-	// which was supposed to automatically do $HOME/.editrc. But it was failing,
+-	// so I set it manually.
+-	if (home == NULL)
+-	{
+-		bc_vec_string(&v, bc_history_editrc_len - 1, bc_history_editrc + 1);
+-	}
+-	else
+-	{
+-		bc_vec_string(&v, strlen(home), home);
+-		bc_vec_concat(&v, bc_history_editrc);
+-	}
+-
+ 	h->hist = history_init();
+ 	if (BC_ERR(h->hist == NULL)) bc_vm_fatalError(BC_ERR_FATAL_ALLOC_ERR);
+ 
+@@ -208,9 +186,7 @@ bc_history_init(BcHistory* h)
+ 	el_set(h->el, EL_PROMPT, bc_history_promptFunc);
+ 
+ 	// I also want to get the user's .editrc.
+-	el_source(h->el, v.v);
+-
+-	bc_vec_free(&v);
++	el_source(h->el, NULL);
+ 
+ 	h->badTerm = false;
+ 	bc_history_prompt = NULL;
