@@ -6,8 +6,9 @@ check() {
 prepare() {
   unpack -p 3 http://www.ohse.de/uwe/uschedule/uschedule-0.7.1.tar.gz
   apply regparm.diff
+  apply statedir.diff
   apply tidy.diff
-  tree 3e6342f3999b202b39027360a1dd4224f483f19609860202b5031d8710b98461
+  tree cae336c2c804a687244e03932633abff2845c9116a7e3fa985f1550ce7d3de4b
 }
 
 build() {

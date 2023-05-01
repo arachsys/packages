@@ -4,8 +4,8 @@ if [ "$(id -u)" = "0" ]; then
   mkdir -m 0700 -p /var/lib/uschedule
   cd /var/lib/uschedule
 else
-  mkdir -m 0700 -p "$HOME/.uschedule"
-  cd "$HOME/.uschedule"
+  mkdir -m 0700 -p "$HOME/.local/state/uschedule"
+  cd "$HOME/.local/state/uschedule"
 fi
 
 mkdir -p commands
