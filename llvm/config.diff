@@ -4,7 +4,7 @@ index 544804db3..d38dd8534 100644
 +++ b/lldb/source/Host/common/Editline.cpp
 @@ -220,14 +220,10 @@ private:
        FileSystem::Instance().GetHomeDirectory(lldb_history_file);
-       llvm::sys::path::append(lldb_history_file, ".lldb");
+       llvm::sys::path::append(lldb_history_file, ".local/state/lldb");
  
 -      // LLDB stores its history in ~/.lldb/. If for some reason this directory
 -      // isn't writable or cannot be created, history won't be available.
@@ -12,7 +12,7 @@ index 544804db3..d38dd8534 100644
 -#if LLDB_EDITLINE_USE_WCHAR
 -        std::string filename = m_prefix + "-widehistory";
 -#else
-+      // LLDB stores its history in ~/.lldb/. If this directory doesn't
++      // LLDB stores its history in ~/.local/state/lldb/. If this directory doesn't
 +      // already exist, assume the user doesn't want to persist history.
 +      if (llvm::sys::fs::is_directory(lldb_history_file)) {
          std::string filename = m_prefix + "-history";
