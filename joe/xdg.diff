@@ -1,0 +1,237 @@
+diff --git a/joe/builtins.c b/joe/builtins.c
+index cf3e58b..f4f9aa5 100644
+--- a/joe/builtins.c
++++ b/joe/builtins.c
+@@ -18,7 +18,7 @@ const char *builtins[]=
+ 		"-guess_indent	Guess indent character (tab or space).\n"
+ 		"-menu_above	Position menu/list above prompt when enabled.  Otherwise position\n"
+ 		"-transpose	Transpose rows with columns in all menus.\n"
+-		"-joe_state     Use ~/.joe_state file\n"
++		"-joe_state     Use ~/.local/state/joe file\n"
+ 		"-brpaste	When JOE starts, send command to the terminal emulator that\n"
+ 		"-pastehack	If keyboard input comes in as one block assume it's a mouse\n"
+ 		"-restore	Restore previous cursor position when files are opened\n"
+diff --git a/joe/charmap.c b/joe/charmap.c
+index 36081bb..4009112 100644
+--- a/joe/charmap.c
++++ b/joe/charmap.c
+@@ -1379,11 +1379,11 @@ struct charmap *find_charmap(const char *name)
+ 		if (!map_name_cmp(m->name,name))
+ 			return m;
+ 
+-	/* Check ~/.joe/charmaps */
++	/* Check ~/.config/joe/charmaps */
+ 	p = getenv("HOME");
+ 	f = 0;
+ 	if (p) {
+-		joe_snprintf_2(buf,SIZEOF(buf),"%s/.joe/charmaps/%s",p,name);
++		joe_snprintf_2(buf,SIZEOF(buf),"%s/.config/joe/charmaps/%s",p,name);
+ 		f = fopen(buf,"r");
+ 	}
+ 
+diff --git a/joe/colors.c b/joe/colors.c
+index 66e4609..ed249aa 100644
+--- a/joe/colors.c
++++ b/joe/colors.c
+@@ -317,7 +317,7 @@ SCHEME *load_scheme(const char *name)
+ 	/* Find file */
+ 	p = getenv("HOME");
+ 	if (p) {
+-		joe_snprintf_2(buf, SIZEOF(buf), "%s/.joe/colors/%s.jcf", p, name);
++		joe_snprintf_2(buf, SIZEOF(buf), "%s/.config/joe/colors/%s.jcf", p, name);
+ 		f = jfopen(buf, "r");
+ 	}
+ 	
+diff --git a/joe/main.c b/joe/main.c
+index 5cb65d3..6694458 100644
+--- a/joe/main.c
++++ b/joe/main.c
+@@ -419,7 +419,7 @@ int main(int argc, char **real_argv, const char * const *envv)
+ 	s = getenv("HOME");
+ 	if (s) {
+ 		s = vsncpy(NULL, 0, sz(s));
+-		s = vsncpy(sv(s), sc("/."));
++		s = vsncpy(sv(s), sc("/.config/joe/"));
+ 		s = vsncpy(sv(s), sv(run));
+ 		s = vsncpy(sv(s), sc("rc"));
+ 
+diff --git a/joe/options.c b/joe/options.c
+index 5806867..e276dc0 100644
+--- a/joe/options.c
++++ b/joe/options.c
+@@ -342,7 +342,7 @@ struct glopts {
+ 	{"marking",	0, &marking, NULL, _("Anchored block marking on"), _("Anchored block marking off"), _("Region marking mode"), 0, 0, 0 },
+ 	{"asis",	0, &dspasis, NULL, _("Characters above 127 shown as-is"), _("Characters above 127 shown in inverse"), _("Display meta chars as-is mode"), 0, 0, 0 },
+ 	{"force",	0, &force, NULL, _("Last line forced to have NL when file saved"), _("Last line not forced to have NL"), _("Force last NL mode"), 0, 0, 0 },
+-	{"joe_state",0, &joe_state, NULL, _("~/.joe_state file will be updated"), _("~/.joe_state file will not be updated"), _("Joe_state file mode"), 0, 0, 0 },
++	{"joe_state",0, &joe_state, NULL, _("~/.local/state/joe file will be updated"), _("~/.config/state/joe file will not be updated"), _("Joe_state file mode"), 0, 0, 0 },
+ 	{"nobackup",	4, NULL, (char *) &fdefault.nobackup, _("Nobackup enabled"), _("Nobackup disabled"), _("No backup mode"), 0, 0, 0 },
+ 	{"nobackups",	0, &nobackups, NULL, _("Backup files will not be made"), _("Backup files will be made"), _("Disable backups mode"), 0, 0, 0 },
+ 	{"nodeadjoe",	0, &nodeadjoe, NULL, _("DEADJOE files will not be made"), _("DEADJOE files will be made"), _("Disable DEADJOE mode"), 0, 0, 0 },
+@@ -1027,7 +1027,7 @@ char **find_configs(char **ary, const char *extension, const char *datadir, cons
+ 		/* Load from home directory. */
+ 		p = getenv("HOME");
+ 		if (p) {
+-			joe_snprintf_2(buf, SIZEOF(buf), "%s/.joe/%s", p, homedir);
++			joe_snprintf_2(buf, SIZEOF(buf), "%s/.config/joe/%s", p, homedir);
+ 
+ 			if (!chpwd(buf) && (t = rexpnd(wildcard))) {
+ 				for (x = 0; x < aLEN(t); ++x) {
+diff --git a/joe/rc.c b/joe/rc.c
+index b0df7b3..18b08ff 100644
+--- a/joe/rc.c
++++ b/joe/rc.c
+@@ -243,7 +243,7 @@ int procrc(CAP *cap, char *name)
+ 							int rtn = -1;
+ 							bf[0] = 0;
+ 							if (p && buf[x] != '/') {
+-								joe_snprintf_2(bf,SIZEOF(bf),"%s/.joe/%s",p,buf + x);
++								joe_snprintf_2(bf,SIZEOF(bf),"%s/.config/joe/%s",p,buf + x);
+ 								rtn = procrc(cap, bf);
+ 							}
+ 							if (rtn == -1 && buf[x] != '/') {
+diff --git a/joe/state.c b/joe/state.c
+index abc847c..55c5af8 100644
+--- a/joe/state.c
++++ b/joe/state.c
+@@ -88,7 +88,7 @@ void save_state()
+ 		return;
+ 	if (!home)
+ 		return;
+-	joe_snprintf_1(stdbuf,stdsiz,"%s/.joe_state",home);
++	joe_snprintf_1(stdbuf,stdsiz,"%s/.local/state/joe",home);
+ 	old_mask = umask(0066);
+ 	f = fopen(stdbuf,"w");
+ 	umask(old_mask);
+@@ -126,7 +126,7 @@ void load_state()
+ 		return;
+ 	if (!home)
+ 		return;
+-	joe_snprintf_1(stdbuf,stdsiz,"%s/.joe_state",home);
++	joe_snprintf_1(stdbuf,stdsiz,"%s/.local/state/joe",home);
+ 	f = fopen(stdbuf,"r");
+ 	if(!f)
+ 		return;
+diff --git a/joe/syntax.c b/joe/syntax.c
+index ad211f8..1b356c2 100644
+--- a/joe/syntax.c
++++ b/joe/syntax.c
+@@ -734,7 +734,7 @@ static struct high_state *load_dfa(struct high_syntax *syntax)
+ 	/* Load it */
+ 	p = getenv("HOME");
+ 	if (p) {
+-		joe_snprintf_2(name,SIZEOF(name),"%s/.joe/syntax/%s.jsf",p,syntax->name);
++		joe_snprintf_2(name,SIZEOF(name),"%s/.config/joe/syntax/%s.jsf",p,syntax->name);
+ 		f = jfopen(name,"r");
+ 	}
+ 
+diff --git a/rc/jmacsrc.in b/rc/jmacsrc.in
+index ec35309..b77ede3 100644
+--- a/rc/jmacsrc.in
++++ b/rc/jmacsrc.in
+@@ -3,7 +3,7 @@
+                                 Gnu-Emacs Joe
+ 
+  JOE looks for this file in:
+-	1 - $HOME/.jmacsrc
++	1 - $HOME/.config/joe/jmacsrc
+ 	2 - @JOERC@/jmacsrc
+ 
+  This file can include other files by placing the following include command
+@@ -115,7 +115,7 @@
+ 
+ -autoswap	Swap markb with markk when necessary
+ 
+--joe_state	Use ~/.joe_state file
++-joe_state	Use ~/.local/state/joe file
+ 
+  -mouse		Enable mouse support
+ 
+diff --git a/rc/joerc.in b/rc/joerc.in
+index e839eda..6265257 100644
+--- a/rc/joerc.in
++++ b/rc/joerc.in
+@@ -2,7 +2,7 @@
+                                 Standard Joe
+ 
+  JOE looks for this file in:
+-	1 - $HOME/.joerc
++	1 - $HOME/.config/joe/joerc
+ 	2 - @JOERC@/joerc
+ 
+  This file can include other files by placing the following include command
+@@ -143,7 +143,7 @@
+ 
+  -autoswap	Swap markb with markk when necessary
+ 
+--joe_state     Use ~/.joe_state file
++-joe_state     Use ~/.local/state/joe file
+ 
+  -mouse		Enable xterm mouse support.  When enabled, left-click will
+ 		position the cursor and left-click-drag will select blocks
+diff --git a/rc/jpicorc.in b/rc/jpicorc.in
+index 46ecfbc..2db152f 100644
+--- a/rc/jpicorc.in
++++ b/rc/jpicorc.in
+@@ -3,7 +3,7 @@
+                                  Super Pico
+ 
+  JOE looks for this file in:
+-	1 - $HOME/.jpicorc
++	1 - $HOME/.config/joe/jpicorc
+ 	2 - @JOERC@/jpicorc
+ 
+  This file can include other files by placing the following include command
+@@ -140,7 +140,7 @@
+ 
+ -autoswap	Swap markb with markk when necessary
+ 
+--joe_state     Use ~/.joe_state file
++-joe_state     Use ~/.local/state/joe file
+ 
+  -mouse		Enable mouse support
+ 
+diff --git a/rc/jstarrc.in b/rc/jstarrc.in
+index 58902c6..3f087c1 100644
+--- a/rc/jstarrc.in
++++ b/rc/jstarrc.in
+@@ -3,7 +3,7 @@
+                            WordStar / Turbo-C Joe
+ 
+  JOE looks for this file in:
+-	1 - $HOME/.jstarrc
++	1 - $HOME/.config/joe/jstarrc
+ 	2 - @JOERC@/jstarrc
+ 
+  This file can include other files by placing the following include command
+@@ -114,7 +114,7 @@
+ 
+  -autoswap	Swap markb with markk when necessary
+ 
+--joe_state     Use ~/.joe_state file
++-joe_state     Use ~/.local/state/joe file
+ 
+  -mouse		Enable mouse support
+ 
+diff --git a/rc/rjoerc.in b/rc/rjoerc.in
+index cf0f13a..3d606cb 100644
+--- a/rc/rjoerc.in
++++ b/rc/rjoerc.in
+@@ -3,7 +3,7 @@
+                             Restricted access Joe
+ 
+  JOE looks for this file in:
+-	1 - $HOME/.rjoerc
++	1 - $HOME/.config/joe/rjoerc
+ 	2 - @JOERC@/rjoerc
+ 
+  This file can include other files by placing the following include command
+@@ -140,7 +140,7 @@
+ 
+  -autoswap	Swap markb with markk when necessary
+ 
+--joe_state     Use ~/.joe_state file
++-joe_state     Use ~/.local/state/joe file
+ 
+  -mouse		Enable mouse support
+ 
