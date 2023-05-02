@@ -1,0 +1,102 @@
+diff --git a/library/std/src/os/linux/fs.rs b/library/std/src/os/linux/fs.rs
+index 479bbcc17..a384eed66 100644
+--- a/library/std/src/os/linux/fs.rs
++++ b/library/std/src/os/linux/fs.rs
+@@ -329,7 +329,10 @@ pub trait MetadataExt {
+ impl MetadataExt for Metadata {
+     #[allow(deprecated)]
+     fn as_raw_stat(&self) -> &raw::stat {
++        #[cfg(target_env = "gnu")]
+         unsafe { &*(self.as_inner().as_inner() as *const libc::stat64 as *const raw::stat) }
++        #[cfg(not(target_env = "gnu"))]
++        unsafe { &*(self.as_inner().as_inner() as *const libc::stat as *const raw::stat) }
+     }
+     fn st_dev(&self) -> u64 {
+         self.as_inner().as_inner().st_dev as u64
+diff --git a/library/std/src/sys/unix/fd.rs b/library/std/src/sys/unix/fd.rs
+index 9874af4d3..070796c8d 100644
+--- a/library/std/src/sys/unix/fd.rs
++++ b/library/std/src/sys/unix/fd.rs
+@@ -121,9 +121,9 @@ impl FileDesc {
+     }
+ 
+     pub fn read_at(&self, buf: &mut [u8], offset: u64) -> io::Result<usize> {
+-        #[cfg(not(any(target_os = "linux", target_os = "android")))]
++        #[cfg(not(any(all(target_os = "linux", target_env = "gnu"), target_os = "android")))]
+         use libc::pread as pread64;
+-        #[cfg(any(target_os = "linux", target_os = "android"))]
++        #[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "android"))]
+         use libc::pread64;
+ 
+         unsafe {
+@@ -276,9 +276,9 @@ impl FileDesc {
+     }
+ 
+     pub fn write_at(&self, buf: &[u8], offset: u64) -> io::Result<usize> {
+-        #[cfg(not(any(target_os = "linux", target_os = "android")))]
++        #[cfg(not(any(all(target_os = "linux", target_env = "gnu"), target_os = "android")))]
+         use libc::pwrite as pwrite64;
+-        #[cfg(any(target_os = "linux", target_os = "android"))]
++        #[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "android"))]
+         use libc::pwrite64;
+ 
+         unsafe {
+diff --git a/library/std/src/sys/unix/fs.rs b/library/std/src/sys/unix/fs.rs
+index 7566fafda..3fb8a1f19 100644
+--- a/library/std/src/sys/unix/fs.rs
++++ b/library/std/src/sys/unix/fs.rs
+@@ -48,18 +48,19 @@ use libc::{c_int, mode_t};
+ use libc::c_char;
+ #[cfg(any(target_os = "linux", target_os = "emscripten", target_os = "android"))]
+ use libc::dirfd;
+-#[cfg(any(target_os = "linux", target_os = "emscripten"))]
++#[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "emscripten"))]
+ use libc::fstatat64;
+ #[cfg(any(
+     target_os = "android",
+     target_os = "solaris",
+     target_os = "fuchsia",
++    all(target_os = "linux", not(target_env = "gnu")),
+     target_os = "redox",
+     target_os = "illumos",
+     target_os = "nto",
+ ))]
+ use libc::readdir as readdir64;
+-#[cfg(target_os = "linux")]
++#[cfg(all(target_os = "linux", target_env = "gnu"))]
+ use libc::readdir64;
+ #[cfg(any(target_os = "emscripten", target_os = "l4re"))]
+ use libc::readdir64_r;
+@@ -81,16 +82,16 @@ use libc::{
+     lstat as lstat64, off64_t, open as open64, stat as stat64,
+ };
+ #[cfg(not(any(
+-    target_os = "linux",
++    all(target_os = "linux", target_env = "gnu"),
+     target_os = "emscripten",
+     target_os = "l4re",
+     target_os = "android"
+ )))]
+ use libc::{
+-    dirent as dirent64, fstat as fstat64, ftruncate as ftruncate64, lseek as lseek64,
++    dirent as dirent64, fstat as fstat64, fstatat as fstatat64, ftruncate as ftruncate64, lseek as lseek64,
+     lstat as lstat64, off_t as off64_t, open as open64, stat as stat64,
+ };
+-#[cfg(any(target_os = "linux", target_os = "emscripten", target_os = "l4re"))]
++#[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "emscripten", target_os = "l4re"))]
+ use libc::{dirent64, fstat64, ftruncate64, lseek64, lstat64, off64_t, open64, stat64};
+ 
+ pub use crate::sys_common::fs::try_exists;
+diff --git a/vendor/getrandom/src/util_libc.rs b/vendor/getrandom/src/util_libc.rs
+index d057071a7..8e9f1763a 100644
+--- a/vendor/getrandom/src/util_libc.rs
++++ b/vendor/getrandom/src/util_libc.rs
+@@ -136,7 +136,7 @@ impl Weak {
+ }
+ 
+ cfg_if! {
+-    if #[cfg(any(target_os = "linux", target_os = "emscripten"))] {
++    if #[cfg(any(all(target_os = "linux", target_env = "gnu"), target_os = "emscripten"))] {
+         use libc::open64 as open;
+     } else {
+         use libc::open;

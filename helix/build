@@ -9,6 +9,9 @@ prepare() {
   unpack https://github.com/helix-editor/helix/releases/download/23.03/helix-23.03-source.tar.xz
   mkdir -p .cargo && rm -f .cargo/config .cargo/config.toml
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse cargo vendor >.cargo/config
+  sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
+    vendor/*/.cargo-checksum.json
+
   find runtime/grammars -xtype l -delete -or -type l -lname '/*' -delete
   maybe rm -f -r -- **/.git
 
@@ -20,8 +23,9 @@ prepare() {
   rename -a '_' '-' runtime/themes/*.toml
 
   apply cosmetic.diff
+  apply getrandom.diff
   apply grammars.diff
-  tree e8ea3816c2e7495bf4efa3d4848bc491cefa4082413fbad619c43a8c6e2b88a5
+  tree 9dcd97ad208a3c852bc74a3f35cbd069531345bc2331870b58f1f136bc53e420
 }
 
 build() {

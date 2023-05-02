@@ -10,13 +10,14 @@ prepare() {
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
     vendor/*/.cargo-checksum.json
   apply curl.diff
+  apply lfs64.diff
   apply libexec.diff
   apply libressl.diff
   apply nocred.diff
   apply system.diff
   apply target.diff
   apply version.diff
-  tree 8c243825b11f2787366048206d2dea6f0d7361a46d7fb17848685c3501c7e90f
+  tree 6a76373e47c82d1fb96dba46d3f5c8fa793e307033b1777201bb643acf645fa4
 }
 
 build() {
