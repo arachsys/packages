@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [[ $# -gt 1 ]] && [[ $1 == -- ]]; then
+  shift
+elif [[ $# -eq 0 ]] || [[ $1 == -* ]]; then
+  echo "Usage: ${0##*/} [--] FILE..." >&2
+  exit 64
+fi
+
+while [[ $# -gt 0 ]]; do
+  printf '%s:\n' "$1"
+  /lib/ld.so --list "$1"
+  shift
+done

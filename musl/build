@@ -1,15 +1,14 @@
 check() {
   url https://musl.libc.org/releases/
-  match version 1.2.3 'musl-([0-9.]+)\.tar'
+  match version 1.2.4 'musl-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack musl-20230424-b928c723.tar.gz \
-    https://git.musl-libc.org/cgit/musl/snapshot/musl-b928c723.tar.gz
+  unpack https://musl.libc.org/releases/musl-1.2.4.tar.gz
   apply lfs64.diff
   apply paths.diff
   apply usage.diff
-  tree f8ba154016ed7b993c5435cbb47ba625b7394a38dea4744e3e04b63da58cbd00
+  tree ee3e31043ccd2c5c2d0e6221db841207df6d685e247d2d30190897e67d3e16d1
 }
 
 build() {
@@ -26,5 +25,5 @@ build() {
 
   rm -f /dst/lib/ld-*.so.*
   ln -s shared/libc.so /dst/lib/ld.so
-  ln -s ../lib/shared/libc.so /dst/bin/ldd
+  install /pkg/ldd /dst/bin/ldd
 }
