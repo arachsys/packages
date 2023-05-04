@@ -1,5 +1,5 @@
 diff --git a/src/command_manager.cc b/src/command_manager.cc
-index 22b365e..db297f2 100644
+index e1b4488..5576b13 100644
 --- a/src/command_manager.cc
 +++ b/src/command_manager.cc
 @@ -94,7 +94,7 @@ HashSet<String> CommandManager::loaded_modules() const
@@ -24,28 +24,6 @@ index f2cb1c3..8cfa70f 100644
              else
                  CommandManager::instance().execute(join(parser, ' ', false), context, shell_context);
          });
-diff --git a/src/input_handler.cc b/src/input_handler.cc
-index 97db92c..129a7e0 100644
---- a/src/input_handler.cc
-+++ b/src/input_handler.cc
-@@ -1473,7 +1473,7 @@ public:
- 
-     void paste(StringView content) override
-     {
--        insert(ConstArrayView{content});
-+        insert(ConstArrayView<StringView>{content});
-         m_idle_timer.set_next_date(Clock::now() + get_idle_timeout(context()));
-     }
- 
-@@ -1519,7 +1519,7 @@ private:
-     void insert(Codepoint key)
-     {
-         String str{key};
--        insert(ConstArrayView{str});
-+        insert(ConstArrayView<String>{str});
-         context().hooks().run_hook(Hook::InsertChar, str, context());
-     }
- 
 diff --git a/src/insert_completer.cc b/src/insert_completer.cc
 index c18b396..7e0787a 100644
 --- a/src/insert_completer.cc
@@ -60,10 +38,10 @@ index c18b396..7e0787a 100644
      for (auto& word_count : sel_word_counts)
      {
 diff --git a/src/main.cc b/src/main.cc
-index d5c854c..91e5f6c 100644
+index b64b14d..3231902 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -209,7 +209,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -214,7 +214,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
      }, {
          "buflist", false,
          [](StringView name, const Context& context) -> Vector<String>
@@ -72,7 +50,7 @@ index d5c854c..91e5f6c 100644
      }, {
          "buf_line_count", false,
          [](StringView name, const Context& context) -> Vector<String>
-@@ -277,7 +277,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -282,7 +282,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
          [](StringView name, const Context& context) -> Vector<String>
          { return ClientManager::instance() |
                        transform([](const std::unique_ptr<Client>& c) -> const String&
@@ -81,7 +59,7 @@ index d5c854c..91e5f6c 100644
      }, {
          "modified", false,
          [](StringView name, const Context& context) -> Vector<String>
-@@ -323,21 +323,21 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -328,21 +328,21 @@ static const EnvVarDesc builtin_env_vars[] = { {
          { return main_sel_first(context.selections()) |
                       transform([&buffer=context.buffer()](const Selection& sel) {
                           return selection_to_string(ColumnType::Byte, buffer, sel);
@@ -107,7 +85,7 @@ index d5c854c..91e5f6c 100644
          "selection_length", false,
          [](StringView name, const Context& context) -> Vector<String>
 diff --git a/src/normal.cc b/src/normal.cc
-index 02cea4e..dba9b18 100644
+index e322052..0254dab 100644
 --- a/src/normal.cc
 +++ b/src/normal.cc
 @@ -988,7 +988,7 @@ void use_selection_as_search_pattern(Context& context, NormalParams params)

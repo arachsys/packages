@@ -1,5 +1,5 @@
 diff --git a/README.asciidoc b/README.asciidoc
-index f07cca4..a083cde 100644
+index 93b6d93..d22645d 100644
 --- a/README.asciidoc
 +++ b/README.asciidoc
 @@ -322,7 +322,7 @@ Configuration
@@ -11,7 +11,7 @@ index f07cca4..a083cde 100644
    contains the system scripts, installed with Kakoune.
  * `userconf`: located in `$XDG_CONFIG_HOME/kak/`, which will fallback
    to `$HOME/.config/kak/` if `$XDG_CONFIG_HOME` is not set, containing
-@@ -729,27 +729,27 @@ Kakrc
+@@ -722,27 +722,27 @@ Kakrc
  ~~~~~
  
  If not launched with the `-n` switch, Kakoune will source the
@@ -66,7 +66,7 @@ index 37fab36..5f823f8 100644
  .Pp
  If not started with the
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
-index 5fa9d08..63d480d 100644
+index 30cbdbd..d4c49ba 100644
 --- a/doc/pages/options.asciidoc
 +++ b/doc/pages/options.asciidoc
 @@ -255,7 +255,7 @@ are exclusively available to built-in options.
@@ -79,7 +79,7 @@ index 5fa9d08..63d480d 100644
      `%/` represents the current buffer directory
  
 diff --git a/rc/tools/man.kak b/rc/tools/man.kak
-index d2b7a16..2ef3070 100644
+index 2420735..4228309 100644
 --- a/rc/tools/man.kak
 +++ b/rc/tools/man.kak
 @@ -63,7 +63,7 @@ define-command -hidden -params ..3 man-impl %{ evaluate-commands %sh{
@@ -132,10 +132,10 @@ index fd97c0b..604abef 100644
  
  void on_assert_failed(const char* message)
 diff --git a/src/main.cc b/src/main.cc
-index f72f452..c1a3c50 100644
+index 1c8ab45..2308d7c 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -173,12 +173,12 @@ String runtime_directory()
+@@ -180,12 +180,12 @@ String runtime_directory()
          return runtime_directory;
  
      char relpath[PATH_MAX+1];
@@ -150,7 +150,7 @@ index f72f452..c1a3c50 100644
  }
  
  String config_directory()
-@@ -530,7 +530,7 @@ void register_options()
+@@ -541,7 +541,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -159,7 +159,7 @@ index f72f452..c1a3c50 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1277,7 +1277,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
+@@ -1287,7 +1287,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"
@@ -168,3 +168,78 @@ index f72f452..c1a3c50 100644
  .ascii "import gdb.printing\n"
  .ascii "import kakoune\n"
  .ascii "gdb.printing.register_pretty_printer(gdb.current_objfile(), kakoune.build_pretty_printer())\n\0"
+diff --git a/src/shell_manager.cc b/src/shell_manager.cc
+index 96cfb06..1252973 100644
+--- a/src/shell_manager.cc
++++ b/src/shell_manager.cc
+@@ -21,6 +21,7 @@
+ #include <fcntl.h>
+ #include <cstdlib>
+ #include <errno.h>
++#include <paths.h>
+ 
+ #if defined(__CYGWIN__)
+ #define vfork fork
+@@ -45,21 +46,39 @@ ShellManager::ShellManager(ConstArrayView<EnvVarDesc> builtin_env_vars)
+         return S_ISREG(st.st_mode) and executable;
+     };
+ 
++    if (const char *path = getenv("PATH"); not path or not *path)
++        setenv("PATH", _PATH_DEFPATH, 1);
++
++    if (const char* libexec_directory = getenv("KAKOUNE_LIBEXEC"))
++    {
++        auto path = format("{}:{}", libexec_directory, getenv("PATH"));
++        setenv("PATH", path.c_str(), 1);
++    }
++    else if (const char* runtime_directory = getenv("KAKOUNE_RUNTIME"))
++    {
++        auto path = format("{}:{}", runtime_directory, getenv("PATH"));
++        setenv("PATH", path.c_str(), 1);
++    }
++    else
++    {
++        auto path = format("{}../lib/kak", split_path(get_kak_binary_path()).first);
++        struct stat st;
++        if (stat(path.c_str(), &st) == 0 and S_ISDIR(st.st_mode))
++            path = format("{}:{}", real_path(path), getenv("PATH"));
++        else
++            path = format("/lib/kak:{}", getenv("PATH"));
++        setenv("PATH", path.c_str(), 1);
++    }
++
+     if (const char* shell = getenv("KAKOUNE_POSIX_SHELL"))
+     {
+         if (not is_executable(shell))
+             throw runtime_error{format("KAKOUNE_POSIX_SHELL '{}' is not executable", shell)};
+         m_shell = shell;
+     }
+-    else // Get a guaranteed to be POSIX shell binary
++    else // Get a POSIX shell binary without overriding PATH
+     {
+-        #if defined(_CS_PATH)
+-        auto size = confstr(_CS_PATH, nullptr, 0);
+-        String path; path.resize(size-1, 0);
+-        confstr(_CS_PATH, path.data(), size);
+-        #else
+-        StringView path = "/bin:/usr/bin";
+-        #endif
++        StringView path = getenv("PATH");
+         for (auto dir : StringView{path} | split<StringView>(':'))
+         {
+             auto candidate = format("{}/sh", dir);
+@@ -72,14 +91,6 @@ ShellManager::ShellManager(ConstArrayView<EnvVarDesc> builtin_env_vars)
+         if (m_shell.empty())
+             throw runtime_error{format("unable to find a posix shell in {}", path)};
+     }
+-
+-    // Add Kakoune binary location to the path to guarantee that %sh{ ... }
+-    // have access to the kak command regardless of if the user installed it
+-    {
+-        const char* path = getenv("PATH");
+-        auto new_path = format("{}../libexec/kak:{}", split_path(get_kak_binary_path()).first, path);
+-        setenv("PATH", new_path.c_str(), 1);
+-    }
+ }
+ 
+ namespace

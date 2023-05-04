@@ -1,0 +1,13 @@
+diff --git a/src/main.cc b/src/main.cc
+index 30d39cd..2308d7c 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -143,6 +143,8 @@ void show_startup_info(Client* local_client, int last_version)
+     DisplayLineList info;
+     for (auto note : version_notes)
+     {
++        if (last_version < 0)
++            continue;
+         if (note.version and note.version <= last_version)
+             continue;
+ 
