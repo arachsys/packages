@@ -1,13 +1,13 @@
 check() {
   url https://api.github.com/repos/arachsys/tinyquota/branches/master
-  match snapshot 20230416 \
+  match snapshot 20230506 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack tinyquota-20230416-556c63cc.tar.gz \
-    https://github.com/arachsys/tinyquota/archive/556c63cc.tar.gz
-  tree e12557030059fc5914698881ce888baf603f6a0faec11a05db7dcf62e966eafa
+  unpack tinyquota-20230506-704854ff.tar.gz \
+    https://github.com/arachsys/tinyquota/archive/704854ff.tar.gz
+  tree 1e912f9117e2e0870b54ea9a0bd2dd2f9de6aab4601267c5096190a9153ce105
 }
 
 build() {
