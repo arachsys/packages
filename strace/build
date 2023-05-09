@@ -2,15 +2,15 @@ mode autotools
 
 check() {
   url https://github.com/strace/strace/tags
-  match version 6.2 'tags/v([0-9.]+)\.tar'
+  match version 6.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://strace.io/files/6.2/strace-6.2.tar.xz
-  tree 929daceef69014156d3b4bd3522a6a7ed2fe82d8d9d8c617b2a68357b126f11d
+  unpack https://strace.io/files/6.3/strace-6.3.tar.xz
+  tree d0d0c64ff9a31e8555433dd00ed67f596b6d2c66622f46ddc781536bb5d97fe8
 }
 
-config-extra --disable-gcc-Werror --disable-mpers
+config-extra --disable-gcc-Werror --disable-mpers --enable-bundled
 
 post-install() {
   rm -f /dst/bin/strace-{graph,log-merge}
