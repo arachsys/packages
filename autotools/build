@@ -10,6 +10,12 @@ check() {
   url https://ftp.gnu.org/gnu/automake/
   match automake 1.16.5 'automake-([0-9.]+)\.tar'
 
+  url https://ftp.gnu.org/gnu/gettext/
+  match gettext 0.21.1 'gettext-([0-9.]+)\.tar'
+
+  url https://pkgconfig.freedesktop.org/releases/
+  match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
+
   url https://ftp.gnu.org/gnu/libtool/
   match libtool 2.4.7 'libtool-([0-9.]+)\.tar'
 }
@@ -17,8 +23,10 @@ check() {
 prepare() {
   unpack -d autoconf https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.xz
   unpack -d automake https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz
+  unpack -d gettext https://ftp.gnu.org/gnu/gettext/gettext-0.21.1.tar.xz
+  unpack -d pkgconf https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
   unpack -d libtool https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz
-  tree 85c398db5ae69cc361ed950839e47cfa187f43bebc574e14d6a8649653064a35
+  tree 6f637ecca99d1736e0430b889decc28cdc5993b0c20810b5c609762e286e50f2
 }
 
 build() {
@@ -26,18 +34,28 @@ build() {
   filter-defaults
 
   cd /src/autoconf
-  /src/autoconf/configure "${CONFIGARGS[@]}"
+  $PWD/configure "${CONFIGARGS[@]}"
   make "${COMPILEARGS[@]}"
   make "${INSTALLARGS[@]}"
 
+  cd /src/gettext
+  $PWD/configure "${CONFIGARGS[@]}"
+  make "${COMPILEARGS[@]}"
+  make "${INSTALLARGS[@]}"
+
+  cd /src/pkgconf
+  $PWD/configure --version | head -n 1 | while read _ _ VERSION; do
+    sed "s/@VERSION@/$VERSION/g" pkg.m4.in >/dst/lib/aclocal/pkg.m4
+  done
+
   if ! enabled bootstrap; then
     cd /src/automake
-    /src/automake/configure "${CONFIGARGS[@]}"
+    $PWD/configure "${CONFIGARGS[@]}"
     make "${COMPILEARGS[@]}"
     make "${INSTALLARGS[@]}"
 
     cd /src/libtool
-    /src/libtool/configure "${CONFIGARGS[@]}" --disable-shared
+    $PWD/configure "${CONFIGARGS[@]}" --disable-shared
     make "${COMPILEARGS[@]}"
     make "${INSTALLARGS[@]}"
 
