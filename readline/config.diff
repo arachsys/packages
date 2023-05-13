@@ -31,3 +31,45 @@ index 7610378..a7ede69 100644
        filename = SYS_INPUTRC;
      }
  
+diff --git a/histfile.c b/histfile.c
+index 3bfec55..237539e 100644
+--- a/histfile.c
++++ b/histfile.c
+@@ -151,36 +151,7 @@ static int history_rename (const char *, const char *);
+ static char *
+ history_filename (const char *filename)
+ {
+-  char *return_val;
+-  const char *home;
+-  int home_len;
+-
+-  return_val = filename ? savestring (filename) : (char *)NULL;
+-
+-  if (return_val)
+-    return (return_val);
+-  
+-  home = sh_get_env_value ("HOME");
+-#if defined (_WIN32)
+-  if (home == 0)
+-    home = sh_get_env_value ("APPDATA");
+-#endif
+-
+-  if (home == 0)
+-    return (NULL);
+-  else
+-    home_len = strlen (home);
+-
+-  return_val = (char *)xmalloc (2 + home_len + 8); /* strlen(".history") == 8 */
+-  strcpy (return_val, home);
+-  return_val[home_len] = '/';
+-#if defined (__MSDOS__)
+-  strcpy (return_val + home_len + 1, "_history");
+-#else
+-  strcpy (return_val + home_len + 1, ".history");
+-#endif
+-
+-  return (return_val);
++  return filename ? savestring (filename) : NULL;
+ }
+ 
+ static char *

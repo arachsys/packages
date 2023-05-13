@@ -10,7 +10,7 @@ prepare() {
   apply config.diff
   apply paths.diff
   apply sync.diff
-  tree ebb83768801ea804d20b855be475b4bc53a01b1a4f887a0512970d39438a804a
+  tree f05f9281b9e26a6a36b2b4a1c3205836868eb90fc02dd09a83afa5167c6bf6d1
 }
 
 config-extra --without-bash-malloc --with-installed-readline

@@ -9,7 +9,7 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz
   apply config.diff
   apply rpath.diff
-  tree c8cff8feee78f55fd60206fe64982e926437705e52ef1fbaeb42af68de10dc2c
+  tree c10c354bec88f05907832bf467e661e94f2dfee5edb421de66700a09bbf21cc2
 }
 
 config-extra --disable-install-examples
