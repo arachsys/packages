@@ -5,11 +5,12 @@ check() {
 
 prepare() {
   unpack https://www.kernel.org/pub/linux/utils/raid/mdadm/mdadm-4.2.tar.xz
+  apply lfs64.diff
   apply paths.diff
   apply systemd.diff
   apply udisks.diff
   apply warnings.diff
-  tree 2120defd088a14b144187ea9f1865014bc665e35077d8d24a2b212401cdae96d
+  tree e01a4b26b24dd7e7de06c34d47087809e4fb52631b637d0162ce804fef731c19
 }
 
 build() {
