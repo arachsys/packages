@@ -17,12 +17,12 @@ prepare() {
 
 pre-config() {
   bash update.sh
-  bash autogen.sh
   apply adjtimex.diff
   apply cosmetic.diff
   apply dnsretry.diff
   apply paths.diff
   apply settime.diff
+  autoreconf -i
 }
 
 config-extra --enable-https-constraint --with-privsep-user=ntp
