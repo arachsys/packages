@@ -1,5 +1,5 @@
 mode autotools
-require bison libevent
+require autotools bison libevent
 enable setuid
 enable setgid
 
@@ -12,20 +12,22 @@ check() {
 }
 
 prepare() {
-  unpack https://www.opensmtpd.org/archives/opensmtpd-6.8.0p2.tar.gz
+  unpack opensmtpd-20230517-d8d26051.tar.gz \
+    https://github.com/opensmtpd/opensmtpd/archive/d8d26051.tar.gz
   unpack -d fts musl-fts-1.2.7.tar.gz \
     https://github.com/pullmoll/musl-fts/archive/v1.2.7.tar.gz
   apply declare.diff
   apply english.diff
   apply forward.diff
   apply paths.diff
-  tree 51afdb62f241bd8f098490233289c080b8f4bc21ffb436f16a62c4aebedb95e0
+  tree 88c4c6c961f398da5c4d4d764317f1ab58f578c75ca462e2c29de22a415fd66a
 }
 
 pre-config() {
   echo '#define HAVE_DECL_MAX 1' >fts/config.h
   cc -Ifts -O2 -Wall -c fts/fts.c -o fts/fts.o
   ar rcs fts/libfts.a fts/fts.o
+  autoreconf -i
 }
 
 config-extra --sysconfdir=/etc/mail --with-path-{pidfile,socket}=/run \
