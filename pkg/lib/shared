@@ -58,7 +58,7 @@ disable() {
 enable() {
   while [[ $# -gt 0 ]]; do
     if [[ $1 == *=* ]]; then
-      if [[ ${FEATURES[${1%%=*}]} != ?(${1#*=}) ]]; then
+      if [[ ${FEATURES[${1%%=*}]} != ?("${1#*=}") ]]; then
         die "Conflicting type requirements for feature ${1%%=*}"
       fi
       FEATURES[${1%%=*}]=${1#*=}
@@ -73,7 +73,7 @@ enabled() {
   while [[ $# -gt 0 ]]; do
     if [[ -z ${FEATURES[${1%%=*}]+defined} ]]; then
       return 1
-    elif [[ $1 == *=* ]] && [[ ${FEATURES[${1%%=*}]} != ${1#*=} ]]; then
+    elif [[ $1 == *=* ]] && [[ ${FEATURES[${1%%=*}]} != "${1#*=}" ]]; then
       return 1
     fi
     shift

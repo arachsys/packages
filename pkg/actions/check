@@ -55,7 +55,7 @@ helper() {
       }
     }' | sort -V | tail -n 1 | if ! read VERSION; then
       warn "$PKGNAME: $1 not found"
-    elif [[ $2 != $VERSION ]]; then
+    elif [[ $VERSION != $2 ]]; then
       echo "$PKGNAME: $1 $VERSION available"
     fi
   }
