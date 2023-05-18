@@ -9,8 +9,9 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/bash/bash-5.2.15.tar.gz
   apply config.diff
   apply paths.diff
+  apply prompt.diff
   apply sync.diff
-  tree f05f9281b9e26a6a36b2b4a1c3205836868eb90fc02dd09a83afa5167c6bf6d1
+  tree e52e2b9fa448b55d33acc60b5e1231c71202e3d1c8df495d752e1ac237911a03
 }
 
 config-extra --without-bash-malloc --with-installed-readline

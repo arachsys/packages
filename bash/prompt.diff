@@ -1,0 +1,13 @@
+diff --git a/config-top.h b/config-top.h
+index 951f7ac..dffadb5 100644
+--- a/config-top.h
++++ b/config-top.h
+@@ -84,7 +84,7 @@
+ #endif
+ 
+ /* Default primary and secondary prompt strings. */
+-#define PPROMPT "\\s-\\v\\$ "
++#define PPROMPT "\\$ "
+ #define SPROMPT "> "
+ 
+ /* Undefine this if you don't want the ksh-compatible behavior of reprinting
