@@ -11,53 +11,58 @@ fi
 
 LIBRARY=$(cd -- "${0%/*}/../lib/pkg" && echo "$PWD")
 
-echo "Updating /etc/protocols"
+if ! cd -- ${1:-/etc} 2>/dev/null; then
+  echo "${1:-/etc} not found or not a directory" >&2
+  exit 1
+fi
+
+echo "Updating $PWD/protocols"
 curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/protocols \
   | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
-  > /etc/protocols.tmp
-if grep -q -F 'tcp 6 TCP' /etc/protocols.tmp; then
-  mv /etc/protocols.tmp /etc/protocols
+  > protocols.tmp
+if grep -q -F 'tcp 6 TCP' protocols.tmp; then
+  mv protocols.tmp protocols
 else
-  echo "Updated /etc/protocols failed sanity check" >&2
-  rm /etc/protocols.tmp
+  echo "Updated $PWD/protocols failed sanity check" >&2
+  rm protocols.tmp
   exit 1
 fi
 
-echo "Updating /etc/services"
+echo "Updating $PWD/services"
 curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/services \
   | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
-  > /etc/services.tmp
-if grep -q -F 'ssh 22/tcp' /etc/services.tmp; then
-  mv /etc/services.tmp /etc/services
+  > services.tmp
+if grep -q -F 'ssh 22/tcp' services.tmp; then
+  mv services.tmp services
 else
-  echo "Updated /etc/services failed sanity check" >&2
-  rm /etc/services.tmp
+  echo "Updated $PWD/services failed sanity check" >&2
+  rm services.tmp
   exit 1
 fi
 
-echo "Updating /etc/ssl/cert.pem"
-mkdir -p /etc/ssl && curl -s -L https://curl.haxx.se/ca/cacert.pem \
-  | sed -n '/^[^#]/,$p' >/etc/ssl/cert.tmp
-if grep -q -F 'BEGIN CERTIFICATE' /etc/ssl/cert.tmp; then
-  mv /etc/ssl/cert.tmp /etc/ssl/cert.pem
+echo "Updating $PWD/ssl/cert.pem"
+mkdir -p ssl && curl -s -L https://curl.haxx.se/ca/cacert.pem \
+  | sed -n '/^[^#]/,$p' > ssl/cert.tmp
+if grep -q -F 'BEGIN CERTIFICATE' ssl/cert.tmp; then
+  mv ssl/cert.tmp ssl/cert.pem
 else
-  echo "Updated /etc/ssl/cert.pem failed sanity check" >&2
-  rm /etc/ssl/cert.tmp
+  echo "Updated $PWD/ssl/cert.pem failed sanity check" >&2
+  rm ssl/cert.tmp
   exit 1
 fi
 
-echo "Updating /etc/group"
-if [[ -f /etc/group ]]; then
-  awk -F : '!uniq[$1]++' {/etc,$LIBRARY/skel}/group >/etc/group.tmp
-  mv /etc/group.tmp /etc/group
+echo "Updating $PWD/group"
+if [[ -f group ]]; then
+  awk -F : '!uniq[$1]++' group $LIBRARY/skel/group > group.tmp
+  mv group.tmp group
 else
-  cp $LIBRARY/skel/group /etc/group
+  cp $LIBRARY/skel/group group
 fi
 
-echo "Updating /etc/passwd"
-if [[ -f /etc/passwd ]]; then
-  awk -F : '!uniq[$1]++' {/etc,$LIBRARY/skel}/passwd >/etc/passwd.tmp
-  mv /etc/passwd.tmp /etc/passwd
+echo "Updating $PWD/passwd"
+if [[ -f passwd ]]; then
+  awk -F : '!uniq[$1]++' passwd $LIBRARY/skel/passwd > passwd.tmp
+  mv passwd.tmp passwd
 else
-  cp $LIBRARY/skel/passwd /etc/passwd
+  cp $LIBRARY/skel/passwd passwd
 fi
