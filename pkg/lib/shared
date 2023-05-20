@@ -31,12 +31,6 @@ apply() {
   fi
 }
 
-build() {
-  die "Package neither declares mode nor defines build()"
-}
-
-check() { :; }
-
 curl() {
   command curl -A pkg/1.0 "$@"
 }
@@ -175,10 +169,6 @@ populate() {
   done
 }
 
-prepare() {
-  die "Package does not define prepare()"
-}
-
 require() {
   while [[ $# -gt 0 ]]; do
     REQUIREMENTS[$1]=1
@@ -220,91 +210,6 @@ setup() {
       enable "$1"
     fi
     shift
-  done
-}
-
-tidy() {
-  find "$@" -type d -exec chown -f 0:0 {} + -exec chmod -f u=rwx,go=rx {} +
-  find "$@" -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
-    -exec chmod -f u=rwX,go=rX {} +
-  find "$@" -type f -perm /ug+s -exec chmod -f u+rw,go+r {} +
-
-  for IMG in "$@"; do
-    if [[ -d $IMG ]]; then
-      rm -f -r "$IMG"/{etc,run,tmp,var}
-      rm -f -r "$IMG"/lib/{doc,info,man,pkgconfig,**/*.la}
-
-      mkdir -p "$IMG"/lib/{shared,static}
-      maybe mv -t "$IMG"/lib/static -- "$IMG"/lib{,/shared}/*.[ao]
-      maybe mv -t "$IMG"/lib/shared -- "$IMG"/lib{,/static}/!(ld*).so?(.*)
-      maybe chmod -f u=rw,go=r -- "$IMG"/lib/**/{*.so,*.so.*}
-      maybe chmod -f a+x -- "$IMG"/lib/ld*.so?(.*)
-      find "$IMG" -mindepth 1 -depth -type d -empty -delete
-
-      find "$IMG" -type f -print0 | while read -d '' -r FILE; do
-        if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
-          # ELF executable or shared object
-          if readelf -d "$FILE" | grep -q ' (R\(UN\)\?PATH) ' \
-               && ! enabled rpaths; then
-            echo "$FILE has been compiled with an RPATH or RUNPATH"
-          fi
-          if ! enabled unstripped; then
-            strip --strip-unneeded "$FILE"
-          fi
-        elif [[ $(hexdump -e '/1 "%02x"' -n 2 -v "$FILE") == 2321 ]]; then
-          # Script with '#!' magic
-          sed -e '1s:^#! *//*:#!/:' \
-              -e '1s:^#!/usr/local/:#!/:' \
-              -e '1s:^#!/usr/:#!/:' \
-              -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
-              -i "$FILE"
-        else
-          chmod u=rw,go=r "$FILE"
-        fi
-
-        if [[ -u $FILE ]] && ! enabled setuid; then
-          echo "$FILE has been installed setuid"
-        elif [[ -g $FILE ]] && ! enabled setgid; then
-          echo "$FILE has been installed setgid"
-        fi
-      done
-
-      find "$IMG" -mindepth 1 -path "$IMG/bin" -type d -prune \
-        -or -path "$IMG/lib" -type d -prune \
-        -or -path "$IMG/info" -type d -prune \
-        -or -printf "%p is neither in $IMG/bin nor $IMG/lib\n"
-
-      find "$IMG" -lname '/*' -printf '%p is an absolute symlink\n' \
-        -or -xtype l -printf '%p is a dangling symlink\n' \
-        -or -not -xtype d -not -xtype f -printf '%p is a special file\n'
-
-      if [[ -d $IMG/bin ]]; then
-        find "$IMG/bin" -mindepth 1 -xtype d -printf '%p is a directory\n' \
-          -or -xtype f -executable -or -printf '%p is not executable\n'
-      fi
-    fi
-  done | [[ -z $(tee /dev/stderr) ]]
-
-  hardlink -q -t "$@"
-  find "$@" -maxdepth 0 -type d -empty -delete
-}
-
-tree() {
-  hashtree "${@:2}" | while read HASH; do
-    if [[ $# -eq 0 ]]; then
-      caller | while read LINE FILE; do
-        if sed -e "$LINE s/^\\([[:blank:]]*tree\\)[[:blank:]]*\$/\\1 $HASH/" \
-               -i "$FILE" 2>/dev/null; then
-          warn "Updated source tree hash at $FILE:$LINE"
-        else
-          warn "Failed to update source tree hash at $FILE:$LINE"
-        fi
-      done
-    elif [[ $1 != $HASH ]]; then
-      caller | while read LINE FILE; do
-        die "Source tree hash mismatch at $FILE:$LINE"
-      done
-    fi
   done
 }
 

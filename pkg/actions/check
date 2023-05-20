@@ -46,6 +46,8 @@ action() {
 }
 
 helper() {
+  check() { :; }
+
   match() {
     PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
       while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {

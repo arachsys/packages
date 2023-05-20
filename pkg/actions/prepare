@@ -30,16 +30,40 @@ action() {
 }
 
 helper() {
-  PKG=/pkg
-  setup "${@:2}"
-  source /pkg/build
+  prepare() {
+    die "Package does not define prepare()"
+  }
+
+  tree() {
+    hashtree "${@:2}" | while read HASH; do
+      if [[ $# -eq 0 ]]; then
+        caller | while read LINE FILE; do
+          if sed -e "$LINE s/^\\([[:blank:]]*tree\\)[[:blank:]]*\$/\\1 $HASH/" \
+                 -i "$FILE" 2>/dev/null; then
+            warn "Updated source tree hash at $FILE:$LINE"
+          else
+            warn "Failed to update source tree hash at $FILE:$LINE"
+          fi
+        done
+      elif [[ $1 != $HASH ]]; then
+        caller | while read LINE FILE; do
+          die "Source tree hash mismatch at $FILE:$LINE"
+        done
+      fi
+    done
+  }
 
   if ( set -- /src/* && [[ $# -ne 0 ]] ); then
     die "Cannot unpack sources: directory is not empty"
   fi
 
-  prepare "${@:2}"
-  find /src -depth -exec touch -h -r /src {} +
+  ( PKG=/pkg && setup "${@:2}" && source /pkg/build && prepare "${@:2}" )
+
+  find /src -type d -or -type f -or -not -type l -delete \
+    -or -lname '/*' -delete -or -xtype l -delete
+  chown -f -R 0:0 /src
+  chmod -f -R u=rwX,go=rX /src
+  find /src -depth -exec touch -h -r / {} +
 }
 
 if [[ $$ -eq 1 ]]; then
