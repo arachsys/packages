@@ -231,10 +231,8 @@ tidy() {
 
   for IMG in "$@"; do
     if [[ -d $IMG ]]; then
-      rm -f -r "$IMG"/{etc,run,tmp,var,lib/pkgconfig,lib/**/*.la}
-      if ! enabled docs; then
-        rm -f -r "$IMG"/lib/{doc,info,man}
-      fi
+      rm -f -r "$IMG"/{etc,run,tmp,var}
+      rm -f -r "$IMG"/lib/{doc,info,man,pkgconfig,**/*.la}
 
       mkdir -p "$IMG"/lib/{shared,static}
       maybe mv -t "$IMG"/lib/static -- "$IMG"/lib{,/shared}/*.[ao]
