@@ -11,7 +11,7 @@ prepare() {
   apply idmap.diff
   apply logger.diff
   apply paths.diff
-  tree 2411792ab527f7fdf217ce63e5cbbbd1c09205a28a80d7720fa8752da27bbcbd
+  tree 528a98312ccf6b35bc6fb30608aa98b3b6f673006b61f9c47f4ffc87fd863b4d
 }
 
 config-extra --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \

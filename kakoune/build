@@ -15,7 +15,7 @@ prepare() {
   apply paths.diff
   apply tabs.diff
   apply windowing.diff
-  tree 345a536846d8f11bca78715594763e434252885a2c3586a4e0def5f1de0267ff
+  tree a563911f920f93980158c6ebc2fe524f32c536c8dede6893e9fc7d5db4c25a4b
 }
 
 build() {

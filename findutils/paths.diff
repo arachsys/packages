@@ -1,16 +1,3 @@
-diff --git a/locate/updatedb.1 b/locate/updatedb.1
-index 6bc5e79..04bbc93 100644
---- a/locate/updatedb.1
-+++ b/locate/updatedb.1
-@@ -56,7 +56,7 @@ Remove any trailing slashes from the path names, otherwise
- won\'t recognise the paths you want to omit (because it uses them as
- regular expression patterns).
- The environment variable \fBPRUNEPATHS\fP also sets this value.
--Default is /tmp /usr/tmp /var/tmp /afs.
-+Default is /tmp /var/tmp /afs.
- .TP
- .B \-\-prunefs='\fIpath...\fP'
- File systems to not put in the database, which would otherwise be.
 diff --git a/locate/updatedb.sh b/locate/updatedb.sh
 index df807ba..b3c3825 100644
 --- a/locate/updatedb.sh

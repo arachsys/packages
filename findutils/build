@@ -8,7 +8,7 @@ check() {
 prepare() {
   unpack https://ftp.gnu.org/gnu/findutils/findutils-4.9.0.tar.xz
   apply paths.diff
-  tree c0e980af529f59e1f813d9522adfda2e6d7ffecd82b0204ddf6d4fd1df33de53
+  tree 9e781d385be69ea99d31ffa30ec58a29ef600ec3b60f21a77ab8a0feed17a892
 }
 
 config-extra --libexecdir='${prefix}/bin' --localstatedir=/var/lib/misc

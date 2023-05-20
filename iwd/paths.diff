@@ -52,30 +52,6 @@ index c3f27cf..6298ad2 100644
  
  	for (i = 0; !db && i < L_ARRAY_SIZE(paths); i++)
  		db = l_hwdb_new(paths[i]);
-diff --git a/src/iwd.config.5 b/src/iwd.config.5
-index fdb734f..ba31e7d 100644
---- a/src/iwd.config.5
-+++ b/src/iwd.config.5
-@@ -32,15 +32,15 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
- iwd.config \- Configuration file for wireless daemon
- .SH SYNOPSIS
- .sp
--Configuration file \fBmain.conf\fP
-+Configuration file \fBiwd.conf\fP
- .SH DESCRIPTION
- .sp
--The \fImain.conf\fP configuration file configures the system\-wide settings for
-+The \fIiwd.conf\fP configuration file configures the system\-wide settings for
- \fBiwd\fP\&.  This file lives in the configuration directory specified by the
- environment variable \fI$CONFIGURATION_DIRECTORY\fP, which is normally provided
- by \fBsystemd\fP\&.  In the absence of such an environment variable it defaults
--to \fI/etc/iwd\fP\&.  If no \fImain.conf\fP is present, then default values are
--chosen.  The presence of \fImain.conf\fP is not required.
-+to \fI/etc\fP\&.  If no \fIiwd.conf\fP is present, then default values are
-+chosen.  The presence of \fIiwd.conf\fP is not required.
- .SH FILE FORMAT
- .sp
- See \fIiwd.network\fP for details on the file format.
 diff --git a/src/iwd.config.rst b/src/iwd.config.rst
 index 356b39f..4719a03 100644
 --- a/src/iwd.config.rst
