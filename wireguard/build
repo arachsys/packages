@@ -5,7 +5,8 @@ check() {
 
 prepare() {
   unpack https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210914.tar.xz
-  tree 3d37e9c5932ff034e8c0a38fc7a05b0d5ade5c579c75c1776fc9fafe5209a0bf
+  find -xtype l -delete
+  tree c31b5599561b7b467bbbe00d69b8ba1f5114c1289b93c91c87586d566ff4382c
 }
 
 build() {

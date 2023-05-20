@@ -111,18 +111,12 @@ hashtree() {
     set -- "${@:1:ARG - 1}" -path "./${!ARG}" -prune -or "${@:ARG + 1}"
   done
 
-  find "$@" -type d -or -type l -or -type f -not -perm /ug+s -or \
-    -printf "Illegal node $PWD/%P\\n" -exec false {} + >&2
-
-  find "$@" -type l -printf '%P\0%l\0' \
-      | while read -d '' -r LINK && read -d '' -r TARGET; do
-    if [[ $TARGET == /* ]]; then
-      printf 'Absolute symlink %s -> %s\n' "$PWD/$LINK" "$TARGET"
-    elif [[ $(realpath -m -s --relative-base="$1" \
-                "${LINK%/*}/$TARGET") == /* ]]; then
-      printf 'Invalid symlink %s -> %s\n' "$PWD/$LINK" "$TARGET"
-    fi
-  done | [[ -z $(tee /dev/stderr) ]]
+  { find "$@" -type d -or -type f -not -perm /ug+s \
+      -or -type f -printf "$PWD/%P is a setuid/setgid binary\\n" \
+      -or -not -type l -printf "$PWD/%P is a special file\\n" \
+      -or -lname '/*' -printf "$PWD/%P -> %l is an absolute symlink\\n" \
+      -or -xtype l -printf "$PWD/%P -> %l is a dangling symlink\\n"
+  } | [[ -z $(tee /dev/stderr) ]]
 
   { find "$@" -type d -printf "%P\0" | LC_ALL=C sort -z
     printf '\0'
