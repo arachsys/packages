@@ -10,7 +10,7 @@ prepare() {
   apply cosmetic.diff
   apply musl.diff
   apply pidns.diff
-  tree 6f411d29870cc67a35f9cb16e06f379b99dbf3c1782b59278089c8a040f71f77
+  tree befb4826c3ce2c76501b7ab694376ab99c697ed4ed4b00dfa667ef8acb83231c
 }
 
 config-extra --disable-{kill,modern-top,shared} --enable-watch8bit \

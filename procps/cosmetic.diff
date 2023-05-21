@@ -1,3 +1,120 @@
+diff --git a/src/pmap.c b/src/pmap.c
+index 658b250..d0b724f 100644
+--- a/src/pmap.c
++++ b/src/pmap.c
+@@ -125,9 +125,11 @@ usage(FILE * out)
+ 	fputs(_(" -XX                         show everything the kernel provides\n"), out);
+ 	fputs(_(" -c, --read-rc               read the default rc\n"), out);
+ 	fputs(_(" -C, --read-rc-from=<file>   read the rc from file\n"), out);
++#if 0
+ 	fputs(_(" -n, --create-rc             create new default rc\n"), out);
+ 	fputs(_(" -N, --create-rc-to=<file>   create new rc to file\n"), out);
+ 	fputs(_("            NOTE: pid arguments are not allowed with -n, -N\n"), out);
++#endif
+ 	fputs(_(" -d, --device                show the device format\n"), out);
+ 	fputs(_(" -q, --quiet                 do not display header and footer\n"), out);
+ 	fputs(_(" -p, --show-path             show path in the mapping\n"), out);
+@@ -147,8 +149,10 @@ static unsigned long range_high = ~0ul;
+ static int c_option = 0;
+ static int C_option = 0;
+ static int d_option = 0;
++#if 0
+ static int n_option = 0;
+ static int N_option = 0;
++#endif
+ static int q_option = 0;
+ static int x_option = 0;
+ static int X_option = 0;
+@@ -917,7 +921,7 @@ static int config_read (char *rc_filename)
+ 	return 1;
+ }
+ 
+-
++#if 0
+ static int config_create (const char *rc_filename)
+ {
+ 	FILE *f;
+@@ -982,7 +986,7 @@ static int config_create (const char *rc_filename)
+ 
+ 	return 1;
+ }
+-
++#endif
+ 
+ /* returns rc filename based on the program_invocation_short_name */
+ static char *get_default_rc_filename(void)
+@@ -1043,7 +1047,7 @@ int main(int argc, char **argv)
+ 	if (argc < 2)
+ 		usage(stderr);
+ 
+-	while ((c = getopt_long(argc, argv, "xXrdqA:hVcC:nN:p", longopts, NULL)) != -1)
++	while ((c = getopt_long(argc, argv, "xXrdqA:hVcC:p", longopts, NULL)) != -1)
+ 		switch (c) {
+ 		case 'x':
+ 			x_option = 1;
+@@ -1075,6 +1079,7 @@ int main(int argc, char **argv)
+ 			C_option = 1;
+ 			rc_filename = optarg;
+ 			break;
++#if 0
+ 		case 'n':
+ 			n_option = 1;
+ 			break;
+@@ -1082,6 +1087,7 @@ int main(int argc, char **argv)
+ 			N_option = 1;
+ 			rc_filename = optarg;
+ 			break;
++#endif
+ 		case 'p':
+ 			map_desc_showpath = 1;
+ 			break;
+@@ -1098,9 +1104,10 @@ int main(int argc, char **argv)
+ 	argc -= optind;
+ 	argv += optind;
+ 
+-	if (c_option + C_option + d_option + n_option + N_option + x_option + !!X_option > 1)
+-		xerrx(EXIT_FAILURE, _("options -c, -C, -d, -n, -N, -x, -X are mutually exclusive"));
++	if (c_option + C_option + d_option + x_option + !!X_option > 1)
++		xerrx(EXIT_FAILURE, _("options -c, -C, -d, -x, -X are mutually exclusive"));
+ 
++#if 0
+ 	if ((n_option || N_option) && (q_option || map_desc_showpath))
+ 		xerrx(EXIT_FAILURE, _("options -p, -q are mutually exclusive with -n, -N"));
+ 
+@@ -1130,6 +1137,7 @@ int main(int argc, char **argv)
+ 			xerrx(EXIT_FAILURE, _("couldn't create ~/.%src"), program_invocation_short_name);
+ 		}
+ 	}
++#endif
+ 
+ 	if (argc < 1)
+ 		xerrx(EXIT_FAILURE, _("argument missing"));
+diff --git a/src/top/top.c b/src/top/top.c
+index b09f659..7d910d0 100644
+--- a/src/top/top.c
++++ b/src/top/top.c
+@@ -5476,7 +5476,7 @@ static void write_rcfile (void) {
+       show_msg(fmtmk(N_fmt(FAIL_rc_open_fmt), Rc_name, strerror(errno)));
+       return;
+    }
+-   fprintf(fp, "%s's " RCF_EYECATCHER, Myname);
++   fprintf(fp, RCF_EYECATCHER, Myname);
+    fprintf(fp, "Id:%c, Mode_altscr=%d, Mode_irixps=%d, Delay_time=%d.%d, Curwin=%d\n"
+       , RCF_VERSION_ID
+       , Rc.mode_altscr, Rc.mode_irixps
+diff --git a/src/top/top.h b/src/top/top.h
+index d633f3e..79adc3d 100644
+--- a/src/top/top.h
++++ b/src/top/top.h
+@@ -526,7 +526,7 @@ typedef struct WIN_t {
+         /* Configuration files support */
+ #define SYS_RCRESTRICT  "/etc/toprc"
+ #define SYS_RCDEFAULTS  "/etc/topdefaultrc"
+-#define RCF_EYECATCHER  "Config File (Linux processes with windows)\n"
++#define RCF_EYECATCHER  "Configuration file for %s\n"
+ #define RCF_PLUS_H      "\\]^_`abcdefghij"
+ #define RCF_PLUS_J      "klmnopqrstuvwxyz"
+         // this next guy must never, ever change
 diff --git a/src/top/top_nls.c b/src/top/top_nls.c
 index cdeada6..cdd62c3 100644
 --- a/src/top/top_nls.c
