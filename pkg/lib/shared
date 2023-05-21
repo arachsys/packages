@@ -197,6 +197,7 @@ setup() {
   MAKEFLAGS=-j$((1 + $(nproc)))
   set +o allexport
 
+  PKG=$1 && shift
   while [[ $# -gt 0 ]]; do
     if [[ $1 == no-* ]]; then
       disable "${1#no-}"
@@ -205,6 +206,8 @@ setup() {
     fi
     shift
   done
+
+  source "$PKG/build"
 }
 
 unpack() {

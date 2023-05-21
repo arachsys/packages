@@ -66,12 +66,9 @@ helper() {
     exec < <(curl -f -m 30 -s -L -- "$1" || die "$PKGNAME: failed to get $1")
   }
 
-  PKG=/pkg
-  PKGNAME=$1
-  setup "${@:2}"
-  source /pkg/build
-
-  cd /pkg && check "${@:2}" </dev/null
+  cd /pkg
+  setup /pkg "${@:2}"
+  PKGNAME=$1 check "${@:2}" </dev/null
 }
 
 if [[ $$ -eq 1 ]]; then

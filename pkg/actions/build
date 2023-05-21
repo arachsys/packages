@@ -85,7 +85,8 @@ helper() {
     fi
   )
 
-  ( PKG=/pkg && setup "${@:2}" && source /pkg/build && build "${@:2}" 2>&1 )
+  ( setup /pkg "${@:2}" && build "${@:2}" 2>&1 )
+  eval "$( setup /pkg "${@:2}" && declare -p FEATURES )"
 
   for FILE in /img/*/bin /img/*/info /img/*/lib; do
     if [[ ! -d $FILE ]]; then

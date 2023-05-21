@@ -16,9 +16,7 @@ action() {
 }
 
 helper() {
-  PKG=/pkg
-  setup "${@:2}"
-  source /pkg/build
+  setup /pkg "${@:2}"
 
   if [[ ${#REQUIREMENTS[@]} -gt 0 ]]; then
     printf '%s\n' "${!REQUIREMENTS[@]}"
