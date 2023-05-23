@@ -1,7 +1,10 @@
 action() {
-  unset OUT SRC
-  while getopts :o:s: OPTION; do
+  unset FORCE OUT SRC
+  while getopts :fo:s: OPTION; do
     case $OPTION in
+      f)
+        FORCE=force
+        ;;
       o)
         OUT=$OPTARG
         mkdir -p "$OUT"
@@ -39,13 +42,13 @@ action() {
 
   if [[ -z $SRC ]] || ( set -- "$SRC"/* && [[ $# -eq 0 ]] ); then
     mkdir -p "$ROOT/src" "$ROOT/var/cache"
-    sandbox pkg prepare "${PKG##*/}" "${@:2}"
+    sandbox pkg prepare "${PKG##*/}" "${@:2}" $FORCE
     rmdir "$ROOT/var/cache" "$ROOT/var"
   fi
 
   mkdir -p "$ROOT/img/${PKG##*/}" "$ROOT/src"
   ln -s "img/${PKG##*/}" "$ROOT/dst"
-  sandbox unshare -n pkg build "${PKG##*/}" "${@:2}"
+  sandbox unshare -n pkg build "${PKG##*/}" "${@:2}" $FORCE
 
   for IMG in "$ROOT"/img/*; do
     if [[ -e "${OUT:-$IMGDIR}/${IMG##*/}" ]]; then

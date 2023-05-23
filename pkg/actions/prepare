@@ -1,4 +1,14 @@
 action() {
+  unset FORCE
+  while getopts :f OPTION; do
+    case $OPTION in
+      f)
+        FORCE=force
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
   if [[ $# -lt 1 ]]; then
     die "$(< $LIBRARY/help)"
   elif [[ $2 != ?(-) ]] && [[ -e "$2" ]]; then
@@ -22,7 +32,7 @@ action() {
   populate "$ROOT" "${REQUIRED[@]}"
 
   mkdir -p "$ROOT/src" "$ROOT/var/cache"
-  sandbox pkg prepare "${PKG##*/}" "${@:3}"
+  sandbox pkg prepare "${PKG##*/}" "${@:3}" $FORCE
 
   if [[ $2 != ?(-) ]]; then
     mv "$ROOT/src" "$2"
@@ -38,16 +48,23 @@ helper() {
     hashtree "${@:2}" | while read HASH; do
       if [[ $# -eq 0 ]]; then
         caller | while read LINE FILE; do
-          if sed -e "$LINE s/^\\([[:blank:]]*tree\\)[[:blank:]]*\$/\\1 $HASH/" \
+          if sed -E -e "$LINE s/(tree)[ \t]*/\\1 $HASH/" \
                  -i "$FILE" 2>/dev/null; then
             warn "Updated source tree hash at $FILE:$LINE"
           else
             warn "Failed to update source tree hash at $FILE:$LINE"
           fi
         done
-      elif [[ $1 != $HASH ]]; then
+      elif [[ ${1@L} != $HASH ]]; then
         caller | while read LINE FILE; do
-          die "Source tree hash mismatch at $FILE:$LINE"
+          if ! enabled force || [[ ${1@L} != +([0-9a-f]) ]]; then
+            die "Source tree hash mismatch at $FILE:$LINE"
+          elif sed -E -e "$LINE s/(tree)[ \t]+$1/\\1 $HASH/" \
+                   -i "$FILE" 2>/dev/null; then
+            warn "Updated invalid source tree hash at $FILE:$LINE"
+          else
+            warn "Failed to update source tree hash at $FILE:$LINE"
+          fi
         done
       fi
     done

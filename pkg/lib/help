@@ -3,14 +3,15 @@ Usage: pkg ACTION [ARG]...
 pkg apply [-d DIR] [-p STRIP] PATCH
   Apply a patch from a remote URL or local file.
 
-pkg build [-o OUTDIR] [-s SRC] PKG [FEATURE]...
+pkg build [-f] [-o OUTDIR] [-s SRC] PKG [FEATURE]...
   Build an image for package PKG with the specified FEATURE options in the
   configured image directory $IMGDIR. Images for all the build requirements
   and base packages must already exist in the image directory. Any existing
   image for PKG is replaced on successful completion; otherwise it is
   untouched. An alternative output directory to $IMGDIR can be specified
   with the -o option, and a pre-prepared tree of source code to build can
-  be provided with the -s option.
+  be provided with the -s option. The -f flag forces an update of invalid
+  tree hashes.
 
 pkg check [-p JOBS] [PKG]...
   Check for upstream updates of each package PKG using PKG/check. If no
@@ -25,10 +26,11 @@ pkg hashtree [DIR [EXCLUDE]...]
   do not affect the result. Out-of-tree symlinks, pipes, sockets and device
   nodes are forbidden as a security risk and will result in an error.
 
-pkg prepare PKG SRC [FEATURE]...
+pkg prepare [-f] PKG SRC [FEATURE]...
   In the directory SRC, which must not already exist, unpack and patch the
   sources for package PKG with the specified FEATURE options. Preparation
   stops at the first error, leaving the partial source tree for debugging.
+  The -f flag forces an update of invalid tree hashes.
 
 pkg requirements PKG [FEATURE]...
   List the build requirements for PKG with the specified FEATURE options.
