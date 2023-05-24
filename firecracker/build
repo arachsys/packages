@@ -3,12 +3,12 @@ require rust
 
 check() {
   url https://github.com/firecracker-microvm/firecracker/tags
-  match version 1.3.2 'tags/v([0-9.]+)\.tar'
+  match version 1.3.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack firecracker-1.3.2.tar.gz \
-    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.3.2.tar.gz
+  unpack firecracker-1.3.3.tar.gz \
+    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.3.3.tar.gz
   mkdir -p .cargo && rm -f .cargo/config .cargo/config.toml
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse cargo vendor >.cargo/config
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
@@ -18,7 +18,7 @@ prepare() {
   apply bindgen.diff
   apply cosmetic.diff
   apply seccomp.diff
-  tree 32028f42559bec94203280454def381e68859d924b95981f5dceb4e184e77eb1
+  tree 5327cccbf4ef5f0ee0f76c2474ca0643c6ab0c111f1ea47c43c8a16d469abbd9
 }
 
 build() {
