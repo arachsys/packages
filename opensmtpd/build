@@ -7,20 +7,20 @@ check() {
   url https://www.opensmtpd.org/archives/
   match opensmtpd 6.8.0p2 'opensmtpd-([0-9.]+p[0-9]+)\.tar'
 
-  url https://github.com/pullmoll/musl-fts/tags
+  url https://github.com/void-linux/musl-fts/tags
   match musl-fts 1.2.7 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack opensmtpd-20230517-d8d26051.tar.gz \
-    https://github.com/opensmtpd/opensmtpd/archive/d8d26051.tar.gz
+  unpack opensmtpd-20230526-66114eca.tar.gz \
+    https://github.com/opensmtpd/opensmtpd/archive/66114eca.tar.gz
   unpack -d fts musl-fts-1.2.7.tar.gz \
-    https://github.com/pullmoll/musl-fts/archive/v1.2.7.tar.gz
+    https://github.com/void-linux/musl-fts/archive/v1.2.7.tar.gz
   apply declare.diff
   apply english.diff
   apply forward.diff
   apply paths.diff
-  tree 88c4c6c961f398da5c4d4d764317f1ab58f578c75ca462e2c29de22a415fd66a
+  tree b6de6dc60f002a7a512c0a5c2953ad788ee664f48989d3cfffd6d0eaee2b7e3d
 }
 
 pre-config() {
