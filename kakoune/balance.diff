@@ -1,3 +1,53 @@
+diff --git a/rc/filetype/go.kak b/rc/filetype/go.kak
+index af5a7a8..83c6976 100644
+--- a/rc/filetype/go.kak
++++ b/rc/filetype/go.kak
+@@ -104,20 +104,20 @@ define-command -hidden go-indent-on-new-line %~
+         try %{ execute-keys -draft <semicolon>K<a-&> }
+         # cleanup trailing white spaces on the previous line
+         try %{ execute-keys -draft kx s \h+$ <ret>d }
+-        try %{
++        try %<
+             try %{ # line comment
+                 execute-keys -draft kx s ^\h*// <ret>
+             } catch %{ # block comment
+                 execute-keys -draft <a-?> /\* <ret> <a-K>\*/<ret>
+             }
+-        } catch %{
++        > catch %<
+             # indent after lines with an unclosed { or (
+             try %< execute-keys -draft [c[({],[)}] <ret> <a-k> \A[({][^\n]*\n[^\n]*\n?\z <ret> j<a-gt> >
+             # indent after a switch's case/default statements
+             try %[ execute-keys -draft kx <a-k> ^\h*(case|default).*:$ <ret> j<a-gt> ]
+             # deindent closing brace(s) when after cursor
+             try %[ execute-keys -draft x <a-k> ^\h*[})] <ret> gh / [})] <ret> m <a-S> 1<a-&> ]
+-        }
++        >
+     =
+ ~
+ 
+diff --git a/rc/filetype/hare.kak b/rc/filetype/hare.kak
+index 25bd747..9b04251 100644
+--- a/rc/filetype/hare.kak
++++ b/rc/filetype/hare.kak
+@@ -99,7 +99,7 @@ provide-module hare %§
+     add-highlighter shared/hare/code/ regex "(=|\+|-|\*|/|<|>|!|\?|&|\||\.\.(\.)?)" 0:operator
+ 
+     # commands
+-    define-command -hidden hare-indent-on-new-line %{ evaluate-commands -draft -itersel %{
++    define-command -hidden hare-indent-on-new-line %[ evaluate-commands -draft -itersel %[
+         # preserve indentation on new lines
+         try %{ execute-keys -draft <semicolon> K <a-&> }
+         # indent after lines ending with { or (
+@@ -110,7 +110,7 @@ provide-module hare %§
+         try %[ execute-keys -draft kx <a-k> case\h.*=>\h*$ <ret> j<a-gt> ]
+         # deindent closing brace(s) when after cursor
+         try %[ execute-keys -draft x <a-k> ^\h*[})] <ret> gh / [})] <ret> m <a-S> 1<a-&> ]
+-    } }
++    ] ]
+ 
+     define-command -hidden hare-insert-on-new-line %{ evaluate-commands -draft -itersel %{
+         try %{ evaluate-commands -draft -save-regs '/"' %{
 diff --git a/rc/filetype/markdown.kak b/rc/filetype/markdown.kak
 index 2a5755b..e6d8ae5 100644
 --- a/rc/filetype/markdown.kak
