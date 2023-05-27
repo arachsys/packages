@@ -1,0 +1,63 @@
+diff --git a/main.go b/main.go
+index cde814b..188c764 100644
+--- a/main.go
++++ b/main.go
+@@ -406,6 +406,9 @@ func gronValues(r io.Reader, w io.Writer, opts int) (int, error) {
+ 
+ 	for scanner.Scan() {
+ 		s := statementFromString(scanner.Text())
++		if len(s) == 0 {
++			continue;
++		}
+ 
+ 		// strip off the leading 'json' bare key
+ 		if s[0].typ == typBare && s[0].text == "json" {
+diff --git a/ungron.go b/ungron.go
+index 453ada6..2381351 100644
+--- a/ungron.go
++++ b/ungron.go
+@@ -189,6 +189,8 @@ type lexFn func(*lexer) lexFn
+ // lexStatement is the highest level lexFn. Its only job
+ // is to determine which more specific lexFn to use
+ func lexStatement(l *lexer) lexFn {
++	l.acceptRunFunc(unicode.IsSpace)
++	l.ignore()
+ 	r := l.peek()
+ 
+ 	switch {
+@@ -196,7 +198,7 @@ func lexStatement(l *lexer) lexFn {
+ 		return lexBareWord
+ 	case r == '[':
+ 		return lexBraces
+-	case r == ' ', r == '=':
++	case r == '=', unicode.IsSpace(r):
+ 		return lexValue
+ 	case r == '-':
+ 		// grep -A etc can add '--' lines to output
+@@ -286,7 +288,7 @@ func lexQuotedKey(l *lexer) lexFn {
+ 
+ // lexValue lexes a value at the end of a statement
+ func lexValue(l *lexer) lexFn {
+-	l.acceptRun(" ")
++	l.acceptRunFunc(unicode.IsSpace)
+ 	l.ignore()
+ 
+ 	if l.accept("=") {
+@@ -294,7 +296,7 @@ func lexValue(l *lexer) lexFn {
+ 	} else {
+ 		return nil
+ 	}
+-	l.acceptRun(" ")
++	l.acceptRunFunc(unicode.IsSpace)
+ 	l.ignore()
+ 
+ 	switch {
+@@ -330,7 +332,7 @@ func lexValue(l *lexer) lexFn {
+ 		l.emit(typNumber)
+ 	}
+ 
+-	l.acceptRun(" ")
++	l.acceptRunFunc(unicode.IsSpace)
+ 	l.ignore()
+ 
+ 	if l.accept(";") {

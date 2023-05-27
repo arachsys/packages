@@ -9,10 +9,11 @@ prepare() {
   unpack gron-0.7.1.tar.gz \
     https://github.com/tomnomnom/gron/archive/refs/tags/v0.7.1.tar.gz
   go mod vendor
-  tree 722086ba30e58153f4d1b367ce121363090ccd2c6cedccd488cf4b9445b1b382
+  apply space.diff
+  tree 0f76c0d1221ff0c35237fa6e65fc8a85a9a1a935cd564925f453bc960e249fae
 }
 
 build() {
-  go build
+  go build -ldflags "-X main.gronVersion=0.7.1"
   install -D gron /dst/bin/gron
 }
