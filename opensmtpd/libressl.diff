@@ -1,0 +1,13 @@
+diff --git a/configure.ac b/configure.ac
+index 02f1c87..8fcc335 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2077,7 +2077,7 @@ AM_CONDITIONAL([NEED_USLEEP], [test "x$ac_cv_func_usleep" != "xyes"])
+ AM_CONDITIONAL([NEED_RES_HNOK], [test "x$ac_cv_search_res_hnok" = "xno" -a x"$ac_cv_func_res_hnok" != "xyes" -a x"$need_libasr" = x"yes"])
+ AM_CONDITIONAL([NEED_RES_RANDOMID], [test "x$ac_cv_search_res_randomid" = "xno" -a x"$ac_cv_func_res_randomid" != "xyes" -a x"$need_libasr" = x"yes"])
+ 
+-AM_CONDITIONAL([NEED_ARC4RANDOM], [test "x$ac_cv_func_arc4random" != "xyes" -a "x$ac_cv_have_decl_LIBRESSL_VERSION_NUMBER" != "xyes"])
++AM_CONDITIONAL([NEED_ARC4RANDOM], [test "x$ac_cv_func_arc4random" != "xyes"])
+ AM_CONDITIONAL([NEED_SSL_CTX_USE_CERTIFICATE_CHAIN_MEM], [test "x$ac_cv_have_decl_LIBRESSL_VERSION_NUMBER" != "xyes"])
+ 
+ AM_CONDITIONAL([NEED_PROGNAME], [test "x$ac_cv_libc_defines___progname" != "xyes"])

@@ -27,10 +27,10 @@ index 658b040d6..2f1879f85 100644
  #endif
  
 diff --git a/vendor/openssl-sys/build/cfgs.rs b/vendor/openssl-sys/build/cfgs.rs
-index 18b3e3deb..c1ab5f485 100644
+index 18b3e3deb..72d44fe5f 100644
 --- a/vendor/openssl-sys/build/cfgs.rs
 +++ b/vendor/openssl-sys/build/cfgs.rs
-@@ -34,6 +34,18 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
+@@ -34,6 +34,21 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
          if libressl_version >= 0x3_03_02_00_0 {
              cfgs.push("libressl332");
          }
@@ -46,14 +46,17 @@ index 18b3e3deb..c1ab5f485 100644
 +        if libressl_version >= 0x3_07_00_00_0 {
 +            cfgs.push("libressl370");
 +        }
++        if libressl_version >= 0x3_08_00_00_0 {
++            cfgs.push("libressl380");
++        }
      } else {
          let openssl_version = openssl_version.unwrap();
  
 diff --git a/vendor/openssl-sys/build/main.rs b/vendor/openssl-sys/build/main.rs
-index 243f146bf..cfed44073 100644
+index 243f146bf..0566be695 100644
 --- a/vendor/openssl-sys/build/main.rs
 +++ b/vendor/openssl-sys/build/main.rs
-@@ -254,6 +254,12 @@ See rust-openssl README for more information:
+@@ -254,6 +254,14 @@ See rust-openssl README for more information:
              (3, 3, _) => ('3', '3', 'x'),
              (3, 4, 0) => ('3', '4', '0'),
              (3, 4, _) => ('3', '4', 'x'),
@@ -63,23 +66,25 @@ index 243f146bf..cfed44073 100644
 +            (3, 6, _) => ('3', '6', 'x'),
 +            (3, 7, 0) => ('3', '7', '0'),
 +            (3, 7, _) => ('3', '7', 'x'),
++            (3, 8, 0) => ('3', '8', '0'),
++            (3, 8, _) => ('3', '8', 'x'),
              _ => version_error(),
          };
  
-@@ -296,7 +302,7 @@ fn version_error() -> ! {
+@@ -296,7 +304,7 @@ fn version_error() -> ! {
          "
  
  This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3.0.0), or LibreSSL 2.5
 -through 3.4.1, but a different version of OpenSSL was found. The build is now aborting
-+through 3.7.x, but a different version of OpenSSL was found. The build is now aborting
++through 3.8.x, but a different version of OpenSSL was found. The build is now aborting
  due to this version mismatch.
  
  "
 diff --git a/vendor/openssl/build.rs b/vendor/openssl/build.rs
-index d90ebc17d..6073c290c 100644
+index d90ebc17d..9f8196d07 100644
 --- a/vendor/openssl/build.rs
 +++ b/vendor/openssl/build.rs
-@@ -78,5 +78,15 @@ fn main() {
+@@ -78,5 +78,21 @@ fn main() {
          if version >= 0x3_04_00_00_0 {
              println!("cargo:rustc-cfg=libressl340");
          }
@@ -87,11 +92,17 @@ index d90ebc17d..6073c290c 100644
 +        if version >= 0x3_05_00_00_0 {
 +            println!("cargo:rustc-cfg=libressl350");
 +        }
++
 +        if version >= 0x3_06_00_00_0 {
 +            println!("cargo:rustc-cfg=libressl360");
 +        }
++
 +        if version >= 0x3_07_00_00_0 {
 +            println!("cargo:rustc-cfg=libressl370");
++        }
++
++        if version >= 0x3_08_00_00_0 {
++            println!("cargo:rustc-cfg=libressl380");
 +        }
      }
  }

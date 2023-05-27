@@ -19,8 +19,9 @@ prepare() {
   apply declare.diff
   apply english.diff
   apply forward.diff
+  apply libressl.diff
   apply paths.diff
-  tree b6de6dc60f002a7a512c0a5c2953ad788ee664f48989d3cfffd6d0eaee2b7e3d
+  tree bc8be215e85778b8a40d3b3efc4fcb30d4c5ab985e8c548f768f985b0827957b
 }
 
 pre-config() {
