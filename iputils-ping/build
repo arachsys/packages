@@ -6,14 +6,15 @@ check() {
 }
 
 prepare() {
-  unpack iputils-20221126.tar.gz \
-    https://github.com/iputils/iputils/archive/refs/tags/20221126.tar.gz
-  tree 73ba37b65ffd75fed1bbc3b759312bcbda96ef7877adc38697f7cf3d393d6367
+  unpack iputils-20230526.tar.gz \
+    https://github.com/iputils/iputils/archive/471942de.tar.gz
+  apply usage.diff
+  tree 98a19cffdaf0550b029d122a0f8d10d63d9697cf46eeaa88c522b1a6bf4bf5e2
 }
 
 build() {
   echo '#define PACKAGE_NAME "iputils"' >config.h
-  sed 's/@VCS_TAG@/20221126/' git-version.h.meson >>config.h
+  sed 's/@VCS_TAG@/20230526/' git-version.h.meson >>config.h
   cc -Os -Wall -DHAVE___FPENDING -DHAVE_GETRANDOM -I. -include config.h \
     iputils_common.c md5.c ping/*.c -lm -lresolv -o ping/ping
   mkdir -p /dst/bin
