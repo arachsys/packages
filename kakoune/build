@@ -4,11 +4,10 @@ check() {
 }
 
 prepare() {
-   unpack kakoune-2023.05.10.tar.gz \
-     https://github.com/mawww/kakoune/archive/a69be628.tar.gz
+   unpack kakoune-2023.05.30.tar.gz \
+     https://github.com/mawww/kakoune/archive/7f950bc4.tar.gz
   apply balance.diff
   apply clang.diff
-  apply debug.diff
   apply highlight.diff
   apply news.diff
   apply palette.diff
@@ -16,7 +15,7 @@ prepare() {
   apply tabs.diff
   apply windowing.diff
   find -xtype l -delete
-  tree f39196ebe1d8c524616ab9b91794c0acad6fae24c9d597b08318f4aec701022e
+  tree 06e876adb51b786128153ec14e32d364b1a0135b2d031c2d7f906fae6f180851
 }
 
 build() {
