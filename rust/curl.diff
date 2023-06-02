@@ -1,5 +1,5 @@
 diff --git a/vendor/curl-sys/build.rs b/vendor/curl-sys/build.rs
-index 73d1d5a..3f95753 100644
+index 332fe9ead..72394155a 100644
 --- a/vendor/curl-sys/build.rs
 +++ b/vendor/curl-sys/build.rs
 @@ -35,6 +35,11 @@ fn main() {

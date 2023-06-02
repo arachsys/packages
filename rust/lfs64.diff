@@ -14,7 +14,7 @@ index 479bbcc17..a384eed66 100644
      fn st_dev(&self) -> u64 {
          self.as_inner().as_inner().st_dev as u64
 diff --git a/library/std/src/sys/unix/fd.rs b/library/std/src/sys/unix/fd.rs
-index 9874af4d3..070796c8d 100644
+index ce5c048f2..39e115ef7 100644
 --- a/library/std/src/sys/unix/fd.rs
 +++ b/library/std/src/sys/unix/fd.rs
 @@ -121,9 +121,9 @@ impl FileDesc {
@@ -42,10 +42,10 @@ index 9874af4d3..070796c8d 100644
  
          unsafe {
 diff --git a/library/std/src/sys/unix/fs.rs b/library/std/src/sys/unix/fs.rs
-index 7566fafda..3fb8a1f19 100644
+index abef170dd..ad2ce40ca 100644
 --- a/library/std/src/sys/unix/fs.rs
 +++ b/library/std/src/sys/unix/fs.rs
-@@ -48,18 +48,19 @@ use libc::{c_int, mode_t};
+@@ -49,18 +49,19 @@ use libc::{c_int, mode_t};
  use libc::c_char;
  #[cfg(any(target_os = "linux", target_os = "emscripten", target_os = "android"))]
  use libc::dirfd;
@@ -67,7 +67,7 @@ index 7566fafda..3fb8a1f19 100644
  use libc::readdir64;
  #[cfg(any(target_os = "emscripten", target_os = "l4re"))]
  use libc::readdir64_r;
-@@ -81,16 +82,16 @@ use libc::{
+@@ -82,16 +83,16 @@ use libc::{
      lstat as lstat64, off64_t, open as open64, stat as stat64,
  };
  #[cfg(not(any(

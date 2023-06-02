@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/tool.rs b/src/bootstrap/tool.rs
-index eec74b267..1d537421d 100644
+index d4fab6084..d517b34aa 100644
 --- a/src/bootstrap/tool.rs
 +++ b/src/bootstrap/tool.rs
-@@ -623,6 +623,7 @@ impl Step for Cargo {
+@@ -688,6 +688,7 @@ impl Step for Cargo {
              })
              .expect("expected to build -- essential tool");
  
@@ -10,7 +10,7 @@ index eec74b267..1d537421d 100644
          let build_cred = |name, path| {
              // These credential helpers are currently experimental.
              // Any build failures will be ignored.
-@@ -654,6 +655,7 @@ impl Step for Cargo {
+@@ -720,6 +721,7 @@ impl Step for Cargo {
              "cargo-credential-1password",
              "src/tools/cargo/crates/credential/cargo-credential-1password",
          );

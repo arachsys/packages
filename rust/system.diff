@@ -1,10 +1,10 @@
 diff --git a/compiler/rustc_session/src/filesearch.rs b/compiler/rustc_session/src/filesearch.rs
-index 1b66773be..75ea49825 100644
+index 7fdbd48d5..1a0b9af39 100644
 --- a/compiler/rustc_session/src/filesearch.rs
 +++ b/compiler/rustc_session/src/filesearch.rs
-@@ -125,9 +125,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
+@@ -172,9 +172,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
          smallvec![get_or_default_sysroot().expect("Failed finding sysroot")];
-     let path = current_dll_path().and_then(|s| Ok(s.canonicalize().map_err(|e| e.to_string())?));
+     let path = current_dll_path().and_then(|s| try_canonicalize(s).map_err(|e| e.to_string()));
      if let Ok(dll) = path {
 +        // If the dll is in a directory named `shared`, it must be in
 +        // the compiler's libdir using the Arachsys Linux convention of
@@ -20,9 +20,9 @@ index 1b66773be..75ea49825 100644
              // The original `path` pointed at the `rustc_driver` crate's dll.
              // Now that dll should only be in one of two locations. The first is
              // in the compiler's libdir, for example `$sysroot/lib/*.dll`. The
-@@ -168,12 +175,27 @@ pub fn get_or_default_sysroot() -> Result<PathBuf, String> {
+@@ -215,12 +222,27 @@ pub fn get_or_default_sysroot() -> Result<PathBuf, String> {
      fn default_from_rustc_driver_dll() -> Result<PathBuf, String> {
-         let dll = current_dll_path().and_then(|s| Ok(canonicalize(s)))?;
+         let dll = current_dll_path().map(|s| canonicalize(s))?;
  
 -        // `dll` will be in one of the following two:
 +        // `dll` will be in one of the following three:
@@ -91,10 +91,10 @@ index 61553e71b..0108e8dcb 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index 0deed3f99..036fdd36b 100644
+index 4a4e7adcb..eed14c526 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -227,40 +227,7 @@ fn copy_self_contained_objects(
+@@ -245,40 +245,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -119,7 +119,7 @@ index 0deed3f99..036fdd36b 100644
 -                DependencyType::TargetSelfContained,
 -            );
 -        }
--        let crt_path = builder.ensure(native::CrtBeginEnd { target });
+-        let crt_path = builder.ensure(llvm::CrtBeginEnd { target });
 -        for &obj in &["crtbegin.o", "crtbeginS.o", "crtend.o", "crtendS.o"] {
 -            let src = crt_path.join(obj);
 -            let target = libdir_self_contained.join(obj);
@@ -137,15 +137,15 @@ index 0deed3f99..036fdd36b 100644
              .wasi_root(target)
              .unwrap_or_else(|| {
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 3ed534523..2d32be1e2 100644
+index 419bcbc63..49c4c8edd 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
-@@ -323,6 +323,7 @@ pub struct Build {
+@@ -245,6 +245,7 @@ pub struct Build {
      metrics: metrics::BuildMetrics,
  }
  
 +#[allow(dead_code)]
- #[derive(Debug)]
+ #[derive(Debug, Clone)]
  struct Crate {
      name: Interned<String>,
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
