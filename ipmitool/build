@@ -13,7 +13,8 @@ prepare() {
     https://ftp.openbsd.org/pub/OpenBSD/distfiles/enterprise-numbers.20220204.gz
   gunzip enterprise-numbers.gz
   apply console.diff
-  tree a6680d4ba87cced288e74dad16c07c53e598ce96203ca88a836c3e7c93fbeaa6
+  apply lanplus.diff
+  tree ff47ab824373b96ff610c87807b2866ecb7a37c3d7ddab746cfbcf6948d089d0
 }
 
 pre-config() {
@@ -21,7 +22,7 @@ pre-config() {
 }
 
 config-extra --disable-intf-{bmc,free,imb,lipmi,serial} \
-  DEFAULT_INTF=lanplus IANADIR=/lib/ipmitool IANAUSERDIR=.local/lib/ipmitool
+  IANADIR=/lib/ipmitool IANAUSERDIR=.local/lib/ipmitool
 
 post-install() {
   rm -f /dst/bin/ipmievd /dst/lib/man/*/ipmievd.*
