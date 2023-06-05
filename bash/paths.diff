@@ -1,5 +1,5 @@
 diff --git a/config-top.h b/config-top.h
-index 735f75e..c038885 100644
+index db4ab6e..d0a59ad 100644
 --- a/config-top.h
 +++ b/config-top.h
 @@ -63,7 +63,7 @@
@@ -11,12 +11,19 @@ index 735f75e..c038885 100644
  #endif
  
  /* If you want to unconditionally set a value for PATH in every restricted
-@@ -74,7 +74,7 @@
+@@ -74,13 +74,13 @@
     the Posix.2 confstr () function, or CS_PATH define are not present. */
  #ifndef STANDARD_UTILS_PATH
  #define STANDARD_UTILS_PATH \
 -  "/bin:/usr/bin:/sbin:/usr/sbin:/etc:/usr/etc"
 +  "/bin"
+ #endif
+ 
+ /* The default path for enable -f */
+ #ifndef DEFAULT_LOADABLE_BUILTINS_PATH
+ #define DEFAULT_LOADABLE_BUILTINS_PATH \
+-  "/usr/local/lib/bash:/usr/lib/bash:/opt/local/lib/bash:/usr/pkg/lib/bash:/opt/pkg/lib/bash:."
++  "/lib/bash:."
  #endif
  
  /* Default primary and secondary prompt strings. */

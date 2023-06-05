@@ -11,7 +11,7 @@ prepare() {
   apply paths.diff
   apply prompt.diff
   apply sync.diff
-  tree e52e2b9fa448b55d33acc60b5e1231c71202e3d1c8df495d752e1ac237911a03
+  tree 8711c6092b2a94fe6b289c3d20b4a06fdb998a4dd4cb54c995f4dd8c56854cee
 }
 
 config-extra --without-bash-malloc --with-installed-readline
