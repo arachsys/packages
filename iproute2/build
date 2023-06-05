@@ -9,7 +9,8 @@ prepare() {
   unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.3.0.tar.xz
   apply includes.diff
   apply paths.diff
-  tree b9e75ae9712cefd36eb0aad15adab3f1f71e3689d1a342e5e9ce46ed4f6a1b0d
+  apply unspec.diff
+  tree ac8b4df4b26e24775fbe669f05dd012c9c94e18bc829f59fc7cb0c2b9bb0d64f
 }
 
 build() {
