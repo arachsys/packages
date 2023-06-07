@@ -3,12 +3,12 @@ require libevent
 
 check() {
   url https://www.nlnetlabs.nl/downloads/nsd/
-  match version 4.6.1 'nsd-([0-9.]+)\.tar'
+  match version 4.7.0 'nsd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.nlnetlabs.nl/downloads/nsd/nsd-4.6.1.tar.gz
-  tree fb5cb5d7fcc6b52e734f531f31b49d562b1fde2bbc7cddca2432f7f9a66fcaa0
+  unpack https://www.nlnetlabs.nl/downloads/nsd/nsd-4.7.0.tar.gz
+  tree f8968a143b9efcc9f18fc4f8765121c5881d9861b52377cf8fe26351e15749d0
 }
 
 config-extra --enable-root-server --with-dbfile=/var/lib/nsd/nsd.db \
