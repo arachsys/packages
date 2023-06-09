@@ -20,8 +20,8 @@ prepare() {
 }
 
 config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
-  --with-lto --with-openssl=/lib --with-ssl-default-suites=openssl \
-  CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x100000" \
+  --with-openssl=/lib --with-ssl-default-suites=openssl \
+  CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x200000" \
   LDFLAGS=-fno-semantic-interposition
 
 post-install() {
