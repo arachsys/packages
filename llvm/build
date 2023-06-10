@@ -8,13 +8,14 @@ check() {
 prepare() {
   unpack llvm-16.0.5.tar.gz \
     https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-16.0.5.tar.gz
+  apply backport.diff
   apply config.diff
   apply distro.diff
   apply multiarch.diff
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 4a7c91e8414881f70cae28d8030db848ef5b07a6f4525bf051746510c9451af5
+  tree 675573fcd18083ea66d507836a919ac53409240e912d0d1a523a42f1ed5fc423
 }
 
 build() {
@@ -39,6 +40,7 @@ build() {
   mkdir -p /src/build
   cd /src/build
   cmake -W no-dev \
+    -DCLANG_RESOURCE_DIR=../lib/clang \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_RPATH=Yes \
@@ -66,16 +68,14 @@ build() {
   make compiler-rt
   make install DESTDIR=/dst
 
-  CLANGDIR=/dst/lib/clang/$(bin/llvm-config --version)
-  LLVMDIR=/dst/lib/llvm/$(bin/llvm-config --version)
-  mkdir -p $LLVMDIR/bin $LLVMDIR/include $LLVMDIR/lib
-  cp bin/llvm-config $LLVMDIR/bin/
-  cp $(bin/llvm-config --libfiles) $LLVMDIR/lib/
-  cp -R include/llvm ../llvm/include/{llvm,llvm-c} $LLVMDIR/include/
+  mkdir -p /dst/lib/llvm/{bin,include,lib}
+  cp bin/llvm-config /dst/lib/llvm/bin/
+  cp $(bin/llvm-config --libfiles) /dst/lib/llvm/lib/
+  cp -R include/llvm ../llvm/include/{llvm,llvm-c} /dst/lib/llvm/include/
 
   for TARGET in wasm32 wasm64; do
     if /dst/bin/clang -print-targets | grep -q -F $TARGET; then
-      mkdir -p /src/build-$TARGET $CLANGDIR/lib/$TARGET-wasi
+      mkdir -p /src/build-$TARGET /dst/lib/clang/lib/$TARGET-wasi
       cd /src/build-$TARGET
       cmake -W no-dev \
         -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET-wasi \
@@ -90,13 +90,13 @@ build() {
         ../compiler-rt/lib/builtins
       make compiler-rt
       cp lib/*/libclang_rt.builtins-$TARGET.a \
-        $CLANGDIR/lib/$TARGET-wasi/libclang_rt.builtins.a
+        /dst/lib/clang/lib/$TARGET-wasi/libclang_rt.builtins.a
     fi
   done
 
-  find $LLVMDIR/include -type d -or -name '*.def' -or -name '*.h' \
+  find /dst/lib/llvm/include -type d -or -name '*.def' -or -name '*.h' \
     -or -name '*.inc' -or -name '*.td' -or -delete
-  rm -f -r $LLVMDIR/include/**/{CMakeFiles,config.h}
+  rm -f -r /dst/lib/llvm/include/**/{CMakeFiles,config.h}
 
   rm -f -r /dst/bin/{git-clang-format,hmaptool,lldb-vscode,llvm-pdbutil}
   rm -f -r /dst/include/{clang-c,llvm-c}

@@ -1,3 +1,15 @@
+diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
+index a268f2fa8..f6605cd0e 100644
+--- a/clang/lib/Driver/Driver.cpp
++++ b/clang/lib/Driver/Driver.cpp
+@@ -175,6 +175,7 @@ std::string Driver::GetResourcesPath(StringRef BinaryPath,
+   SmallString<128> P(Dir);
+   if (CustomResourceDir != "") {
+     llvm::sys::path::append(P, CustomResourceDir);
++    llvm::sys::path::remove_dots(P, true);
+   } else {
+     // On Windows, libclang.dll is in bin/.
+     // On non-Windows, libclang.so/.dylib is in lib/.
 diff --git a/clang/lib/Driver/ToolChains/Cuda.cpp b/clang/lib/Driver/ToolChains/Cuda.cpp
 index aa125bb30..79c30f617 100644
 --- a/clang/lib/Driver/ToolChains/Cuda.cpp
@@ -81,10 +93,10 @@ index 4f2340316..81e56a89b 100644
                                 CC1Args))
      return true;
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 4cf052a24..2c831d8a2 100644
+index c6fb290ff..16d9f54c1 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -126,7 +126,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -137,7 +137,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    return TargetTriple.str();
  }
  
@@ -97,7 +109,7 @@ index 4cf052a24..2c831d8a2 100644
    if (Triple.isMIPS()) {
      if (Triple.isAndroid()) {
        StringRef CPUName;
-@@ -180,13 +184,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -191,13 +195,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
  
    Distro Distro(D.getVFS(), Triple);
  
@@ -113,7 +125,7 @@ index 4cf052a24..2c831d8a2 100644
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
-@@ -247,20 +251,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -258,20 +262,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
    // to the link paths.
    path_list &Paths = getFilePaths();
  
@@ -137,7 +149,7 @@ index 4cf052a24..2c831d8a2 100644
  
    if (IsAndroid) {
      // Android sysroots contain a library directory for each supported OS
-@@ -273,32 +270,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -284,32 +281,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
          Paths);
    }
  
@@ -170,7 +182,7 @@ index 4cf052a24..2c831d8a2 100644
  }
  
  ToolChain::RuntimeLibType Linux::GetDefaultRuntimeLibType() const {
-@@ -391,6 +363,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
+@@ -402,6 +374,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
  
    const Distro Distro(getDriver().getVFS(), Triple);
  
@@ -180,7 +192,7 @@ index 4cf052a24..2c831d8a2 100644
    if (Triple.isAndroid())
      return Triple.isArch64Bit() ? "/system/bin/linker64" : "/system/bin/linker";
  
-@@ -586,8 +561,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -597,8 +572,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (DriverArgs.hasArg(options::OPT_nostdlibinc))
      return;
  
@@ -189,7 +201,7 @@ index 4cf052a24..2c831d8a2 100644
    // TOOL_INCLUDE_DIR
    AddMultilibIncludeArgs(DriverArgs, CC1Args);
  
-@@ -608,10 +581,10 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -619,10 +592,10 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // /usr/include.
    std::string MultiarchIncludeDir = getMultiarchTriple(D, getTriple(), SysRoot);
    if (!MultiarchIncludeDir.empty() &&
@@ -202,7 +214,7 @@ index 4cf052a24..2c831d8a2 100644
  
    if (getTriple().getOS() == llvm::Triple::RTEMS)
      return;
-@@ -619,9 +592,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -630,9 +603,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // Add an include of '/include' directly. This isn't provided by default by
    // system GCCs, but is often used with cross-compiling GCCs, and harmless to
    // add even when Clang is acting as-if it were a system compiler.
@@ -260,6 +272,19 @@ index 237ed453e..646ec2d7b 100644
  endif()
  
  # Support plugins.
+diff --git a/cmake/Modules/GetClangResourceDir.cmake b/cmake/Modules/GetClangResourceDir.cmake
+index fb56e611a..3f2d82cfe 100644
+--- a/cmake/Modules/GetClangResourceDir.cmake
++++ b/cmake/Modules/GetClangResourceDir.cmake
+@@ -10,7 +10,7 @@ function(get_clang_resource_dir out_var)
+   cmake_parse_arguments(ARG "" "PREFIX;SUBDIR" "" ${ARGN})
+ 
+   if(DEFINED CLANG_RESOURCE_DIR AND NOT CLANG_RESOURCE_DIR STREQUAL "")
+-    set(ret_dir bin/${CLANG_RESOURCE_DIR})
++    cmake_path(SET ret_dir NORMALIZE bin/${CLANG_RESOURCE_DIR})
+   else()
+     string(REGEX MATCH "^[0-9]+" CLANG_VERSION_MAJOR ${PACKAGE_VERSION})
+     set(ret_dir lib${LLVM_LIBDIR_SUFFIX}/clang/${CLANG_VERSION_MAJOR})
 diff --git a/llvm/runtimes/CMakeLists.txt b/llvm/runtimes/CMakeLists.txt
 index 694f346ee..b5ac2b358 100644
 --- a/llvm/runtimes/CMakeLists.txt
