@@ -15,7 +15,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 675573fcd18083ea66d507836a919ac53409240e912d0d1a523a42f1ed5fc423
+  tree 1879788105c1f84be9e08ae4200bf28329d5371658365d39daae2db0e99a2e21
 }
 
 build() {
@@ -40,48 +40,51 @@ build() {
   mkdir -p /src/build
   cd /src/build
   cmake -W no-dev \
-    -DCLANG_RESOURCE_DIR=../lib/clang \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
-    -DCMAKE_SKIP_RPATH=Yes \
+    -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=Yes \
     -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld;lldb" \
     -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi" \
     -DLLVM_HOST_TRIPLE=$CHOST \
     -DLLVM_INSTALL_BINUTILS_SYMLINKS=Yes \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=Yes \
-    -DLIBUNWIND_USE_COMPILER_RT=Yes \
-    -DLIBCXXABI_USE_COMPILER_RT=Yes \
-    -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
+    -DLLVM_LINK_LLVM_DYLIB=Yes \
+    -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
+    -DCLANG_DEFAULT_PIE_ON_LINUX=Yes \
+    -DCLANG_DEFAULT_RTLIB=compiler-rt \
+    -DCLANG_LINK_CLANG_DYLIB=Yes \
+    -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
+    -DCLANG_RESOURCE_DIR=../lib/clang \
     -DLIBCXX_CXX_ABI=libcxxabi \
     -DLIBCXX_HAS_ATOMIC_LIB=No \
     -DLIBCXX_HAS_MUSL_LIBC=Yes \
     -DLIBCXX_USE_COMPILER_RT=Yes \
-    -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
-    -DCLANG_DEFAULT_PIE_ON_LINUX=Yes \
-    -DCLANG_DEFAULT_RTLIB=compiler-rt \
-    -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
+    -DLIBCXXABI_USE_COMPILER_RT=Yes \
+    -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
+    -DLIBUNWIND_USE_COMPILER_RT=Yes \
     -DLLD_SYMLINKS_TO_CREATE="ld;wasm-ld" \
     -DLibEdit_INCLUDE_DIRS=/lib/include \
-    -DLibEdit_LIBRARIES="/lib/shared/libedit.so" \
+    -DLibEdit_LIBRARIES=/lib/shared/libedit.so \
     "${CONFIG[@]}" ../llvm
   make compiler-rt
   make install DESTDIR=/dst
 
   mkdir -p /dst/lib/llvm/{bin,include,lib}
-  cp bin/llvm-config /dst/lib/llvm/bin/
-  cp $(bin/llvm-config --libfiles) /dst/lib/llvm/lib/
+  mv /dst/bin/llvm-config /dst/lib/llvm/bin/
+  cp $(bin/llvm-config --libfiles --link-static) /dst/lib/llvm/lib/
   cp -R include/llvm ../llvm/include/{llvm,llvm-c} /dst/lib/llvm/include/
+  cp -R ../clang/include/{clang,clang-c} /dst/lib/clang/include/
 
   for TARGET in wasm32 wasm64; do
-    if /dst/bin/clang -print-targets | grep -q -F $TARGET; then
+    if /src/build/bin/clang -print-targets | grep -q -F $TARGET; then
       mkdir -p /src/build-$TARGET /dst/lib/clang/lib/$TARGET-wasi
       cd /src/build-$TARGET
       cmake -W no-dev \
         -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET-wasi \
-        -DCMAKE_ASM_COMPILER=/dst/bin/llvm-as \
-        -DCMAKE_C_COMPILER=/dst/bin/clang \
-        -DCMAKE_CXX_COMPILER=/dst/bin/clang++ \
+        -DCMAKE_ASM_COMPILER=/src/build/bin/llvm-as \
+        -DCMAKE_C_COMPILER=/src/build/bin/clang \
+        -DCMAKE_CXX_COMPILER=/src/build/bin/clang++ \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_C_COMPILER_WORKS=Yes \
         -DLLVM_CONFIG_PATH=../build/bin/llvm-config \
@@ -104,7 +107,7 @@ build() {
   rm -f -r /dst/lib/opt-viewer /dst/lib/**/*.{applescript,css,el,py}
   mv /dst/include /dst/lib/include
 
-  RUNTIME=$(/dst/bin/clang -print-libgcc-file-name)
+  RUNTIME=$(/src/build/bin/clang -print-libgcc-file-name)
   UNWIND=$(readlink /dst/lib/libunwind.so)
   rm -f /dst/lib/libunwind.so
   echo "INPUT ( $UNWIND ../${RUNTIME#/*/lib/} )" >/dst/lib/libunwind.so
