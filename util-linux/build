@@ -26,9 +26,6 @@ post-config() {
     sed -i 's:^\(usrlib_execdir *=\).*:\1 /lib:' $FILE
     sed -i 's:^\(pkgconfigdir *=\).*:\1 /lib/pkgconfig:' $FILE
   done
-  sed -i 's:/sbin:/bin:g' po/*.{gmo,po,pot}
-  sed -i 's:/etc/mtab:/run/mtab:g' po/*.{gmo,po,pot}
-  sed -i 's:/etc/adjtime:/var/lib/adjtime:g' po/*.{gmo,po,pot}
 }
 
 post-install() {

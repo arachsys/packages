@@ -18,19 +18,10 @@ declare -A -g DEFAULTARGS=(
   [--sbindir]='--sbindir=${prefix}/bin'
   [--sharedstatedir]='--sharedstatedir=/var'
   [--sysconfdir]='--sysconfdir=/etc'
+  [--disable-nls]='--disable-nls'
 )
 declare -A -g COMPILEARGS=()
 declare -A -g INSTALLARGS=( [install]='install' [DESTDIR]='DESTDIR=/dst' )
-
-if NLS=$(feature nls); then
-  if [[ $NLS == ?(all) ]]; then
-    DEFAULTARGS[--enable-nls]='--enable-nls'
-  else
-    DEFAULTARGS[--enable-nls]="--enable-nls=$NLS"
-  fi
-else
-  DEFAULTARGS[--disable-nls]='--disable-nls'
-fi
 
 config-extra() {
   while [[ $# -gt 0 ]]; do
