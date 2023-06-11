@@ -29,5 +29,4 @@ post-config() {
 
 post-install() {
   chmod u+rw,go+r /dst/lib/openssh/*
-  image - requires libedit
 }

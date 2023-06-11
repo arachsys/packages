@@ -14,5 +14,6 @@ prepare() {
 compile-extra CFLAGS='-O2 -D__STDC_ISO_10646__=201103L'
 
 post-install() {
-  rm -f /dst/lib/include/editline/readline.h
+  rm -f /dst/lib/{include/editline/readline.h,libedit.so}
+  echo 'INPUT ( libedit.a libncurses.so )' >/dst/lib/libedit.so
 }
