@@ -12,10 +12,10 @@ index e1b4488..5576b13 100644
  
  struct parse_error : runtime_error
 diff --git a/src/commands.cc b/src/commands.cc
-index f2cb1c3..8cfa70f 100644
+index 1075c33..cf4c32a 100644
 --- a/src/commands.cc
 +++ b/src/commands.cc
-@@ -2152,7 +2152,7 @@ const CommandDesc evaluate_commands_cmd = {
+@@ -2151,7 +2151,7 @@ const CommandDesc evaluate_commands_cmd = {
              ScopedSetBool disable_hooks(context.hooks_disabled(), no_hooks);
  
              if (parser.get_switch("verbatim"))
@@ -24,6 +24,21 @@ index f2cb1c3..8cfa70f 100644
              else
                  CommandManager::instance().execute(join(parser, ' ', false), context, shell_context);
          });
+diff --git a/src/display_buffer.hh b/src/display_buffer.hh
+index e3b4983..2d4c357 100644
+--- a/src/display_buffer.hh
++++ b/src/display_buffer.hh
+@@ -141,8 +141,8 @@ public:
+         if (auto first = std::find_if(beg, end, has_buffer_range); first != end)
+         {
+             auto last = std::find_if(std::reverse_iterator(end), std::reverse_iterator(first), has_buffer_range);
+-            m_range.begin = std::min(m_range.begin, first->begin());
+-            m_range.end = std::max(m_range.end, last->end());
++            m_range.begin = std::min(m_range.begin, (*first).begin());
++            m_range.end = std::max(m_range.end, (*last).end());
+         }
+         return m_atoms.insert(pos, beg, end);
+     }
 diff --git a/src/insert_completer.cc b/src/insert_completer.cc
 index c18b396..7e0787a 100644
 --- a/src/insert_completer.cc
@@ -38,10 +53,10 @@ index c18b396..7e0787a 100644
      for (auto& word_count : sel_word_counts)
      {
 diff --git a/src/main.cc b/src/main.cc
-index b64b14d..3231902 100644
+index e49a1d0..791e275 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -214,7 +214,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -215,7 +215,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
      }, {
          "buflist", false,
          [](StringView name, const Context& context) -> Vector<String>
@@ -50,7 +65,7 @@ index b64b14d..3231902 100644
      }, {
          "buf_line_count", false,
          [](StringView name, const Context& context) -> Vector<String>
-@@ -282,7 +282,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -283,7 +283,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
          [](StringView name, const Context& context) -> Vector<String>
          { return ClientManager::instance() |
                        transform([](const std::unique_ptr<Client>& c) -> const String&
@@ -59,7 +74,7 @@ index b64b14d..3231902 100644
      }, {
          "modified", false,
          [](StringView name, const Context& context) -> Vector<String>
-@@ -328,21 +328,21 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -329,21 +329,21 @@ static const EnvVarDesc builtin_env_vars[] = { {
          { return main_sel_first(context.selections()) |
                       transform([&buffer=context.buffer()](const Selection& sel) {
                           return selection_to_string(ColumnType::Byte, buffer, sel);
@@ -85,7 +100,7 @@ index b64b14d..3231902 100644
          "selection_length", false,
          [](StringView name, const Context& context) -> Vector<String>
 diff --git a/src/normal.cc b/src/normal.cc
-index e322052..0254dab 100644
+index 6839219..d86ea3e 100644
 --- a/src/normal.cc
 +++ b/src/normal.cc
 @@ -988,7 +988,7 @@ void use_selection_as_search_pattern(Context& context, NormalParams params)
