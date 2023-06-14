@@ -41,7 +41,7 @@ pkg resolve [PKG]...
   returns the standard build requirements.
 
 pkg shell [-s SRC] [PKG]... [-- CMD [ARG]...]
-  Start a login shell or other command in a temporary chroot constructed
+  Start a login shell or other command in a temporary container assembled
   from the images in $IMGDIR, including the base packages, specified
   additions and their runtime requirements. If none are listed, the
   standard build requirements are used. A source tree to bind at /src can
@@ -59,3 +59,7 @@ pkg unpack [-d DIR] [-p STRIP] TARFILE
 
 Set the package source tree location with environment variable PKGDIR, the
 image directory with IMGDIR and the download cache directory with CACHEDIR.
+
+Although the temporary containers used for hermetic builds and pkg shell
+help protect the host from accidental damage, they are not secure against
+untrusted code or deliberate attacks.
