@@ -2,12 +2,12 @@ require cmake libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/tags
-  match llvm 16.0.5 'llvmorg-([0-9.]+)\.tar'
+  match llvm 16.0.6 'llvmorg-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-16.0.5.tar.gz \
-    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-16.0.5.tar.gz
+  unpack llvm-16.0.6.tar.gz \
+    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-16.0.6.tar.gz
   apply backport.diff
   apply config.diff
   apply distro.diff
@@ -15,7 +15,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 1879788105c1f84be9e08ae4200bf28329d5371658365d39daae2db0e99a2e21
+  tree d30aee0648fa364f92ba1735db84a8aa828b61e4c8e217c0d1edec837517ac48
 }
 
 build() {
