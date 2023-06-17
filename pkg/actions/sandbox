@@ -7,9 +7,10 @@ fi
 if [[ $UID -ne 0 ]]; then
   exec unshare -r --map-auto "$0" sandbox "$@"
 elif [[ $$ -ne 1 ]]; then
-  exec unshare -f -m -p --kill-child "$0" sandbox "$@"
+  exec unshare -f -i -m -p -u --kill-child "$0" sandbox "$@"
 fi
 
+hostname pkg
 mount -o bind "$1" "$1"
 
 [[ -d $1/proc ]] && mount -t proc proc "$1/proc"
