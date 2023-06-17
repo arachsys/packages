@@ -1,8 +1,21 @@
+diff --git a/configure b/configure
+index 0e23bf3..c9b3a60 100755
+--- a/configure
++++ b/configure
+@@ -21429,7 +21429,7 @@ else
+ fi
+ 
+ 
+- if test "x$ac_cv_func_arc4random" != "xyes" -a "x$ac_cv_have_decl_LIBRESSL_VERSION_NUMBER" != "xyes"; then
++ if test "x$ac_cv_func_arc4random" != "xyes"; then
+   NEED_ARC4RANDOM_TRUE=
+   NEED_ARC4RANDOM_FALSE='#'
+ else
 diff --git a/configure.ac b/configure.ac
-index 02f1c87..8fcc335 100644
+index 81d8b38..8b2f49c 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2077,7 +2077,7 @@ AM_CONDITIONAL([NEED_USLEEP], [test "x$ac_cv_func_usleep" != "xyes"])
+@@ -2099,7 +2099,7 @@ AM_CONDITIONAL([NEED_USLEEP], [test "x$ac_cv_func_usleep" != "xyes"])
  AM_CONDITIONAL([NEED_RES_HNOK], [test "x$ac_cv_search_res_hnok" = "xno" -a x"$ac_cv_func_res_hnok" != "xyes" -a x"$need_libasr" = x"yes"])
  AM_CONDITIONAL([NEED_RES_RANDOMID], [test "x$ac_cv_search_res_randomid" = "xno" -a x"$ac_cv_func_res_randomid" != "xyes" -a x"$need_libasr" = x"yes"])
  
