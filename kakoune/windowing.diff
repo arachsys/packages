@@ -1,18 +1,13 @@
 diff --git a/rc/windowing/detection.kak b/rc/windowing/detection.kak
-index c47ca0a..b778b49 100644
+index 08867c8..3a634c8 100644
 --- a/rc/windowing/detection.kak
 +++ b/rc/windowing/detection.kak
-@@ -31,11 +31,11 @@ hook -group windowing global KakBegin .* %{
-         set -- ${kak_opt_windowing_modules}
-         if [ $# -gt 0 ]; then
-             echo 'try %{ '
--            while [ $# -gt 1 ]; do
-+            while [ $# -gt 0 ]; do
+@@ -35,7 +35,7 @@ hook -group windowing global KakBegin .* %{
                  echo "require-module ${1} } catch %{ "
                  shift
              done
--            echo "require-module ${1} }"
-+            echo "}"
+-            echo "echo -debug 'no windowing module detected' }"
++            echo '}'
          fi
      }
  }

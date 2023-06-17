@@ -25,7 +25,7 @@ index 1075c33..cf4c32a 100644
                  CommandManager::instance().execute(join(parser, ' ', false), context, shell_context);
          });
 diff --git a/src/display_buffer.hh b/src/display_buffer.hh
-index e3b4983..2d4c357 100644
+index a59ca99..d765a33 100644
 --- a/src/display_buffer.hh
 +++ b/src/display_buffer.hh
 @@ -141,8 +141,8 @@ public:
@@ -39,6 +39,19 @@ index e3b4983..2d4c357 100644
          }
          return m_atoms.insert(pos, beg, end);
      }
+diff --git a/src/highlighters.cc b/src/highlighters.cc
+index d2daa08..ab23b9d 100644
+--- a/src/highlighters.cc
++++ b/src/highlighters.cc
+@@ -197,7 +197,7 @@ public:
+ 
+         const auto faces = m_faces | transform([&faces = context.context.faces()](auto&& spec) {
+                 return faces[spec.second];
+-            }) | gather<Vector>();
++            }) | gather<Vector<Face>>();
+ 
+         const auto& matches = get_matches(context.context.buffer(), display_buffer.range(), range);
+         kak_assert(matches.size() % m_faces.size() == 0);
 diff --git a/src/insert_completer.cc b/src/insert_completer.cc
 index c18b396..7e0787a 100644
 --- a/src/insert_completer.cc
@@ -53,10 +66,10 @@ index c18b396..7e0787a 100644
      for (auto& word_count : sel_word_counts)
      {
 diff --git a/src/main.cc b/src/main.cc
-index e49a1d0..791e275 100644
+index aabe45f..0273b77 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -215,7 +215,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -216,7 +216,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
      }, {
          "buflist", false,
          [](StringView name, const Context& context) -> Vector<String>
@@ -65,7 +78,7 @@ index e49a1d0..791e275 100644
      }, {
          "buf_line_count", false,
          [](StringView name, const Context& context) -> Vector<String>
-@@ -283,7 +283,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -284,7 +284,7 @@ static const EnvVarDesc builtin_env_vars[] = { {
          [](StringView name, const Context& context) -> Vector<String>
          { return ClientManager::instance() |
                        transform([](const std::unique_ptr<Client>& c) -> const String&
@@ -74,7 +87,7 @@ index e49a1d0..791e275 100644
      }, {
          "modified", false,
          [](StringView name, const Context& context) -> Vector<String>
-@@ -329,21 +329,21 @@ static const EnvVarDesc builtin_env_vars[] = { {
+@@ -330,21 +330,21 @@ static const EnvVarDesc builtin_env_vars[] = { {
          { return main_sel_first(context.selections()) |
                       transform([&buffer=context.buffer()](const Selection& sel) {
                           return selection_to_string(ColumnType::Byte, buffer, sel);
