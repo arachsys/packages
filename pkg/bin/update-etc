@@ -16,7 +16,7 @@ if ! cd -- ${1:-/etc} 2>/dev/null; then
   exit 1
 fi
 
-echo "Updating $PWD/protocols"
+echo "Updating $PWD/protocols from salsa.debian.org"
 curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/protocols \
   | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
   > protocols.tmp
@@ -28,7 +28,7 @@ else
   exit 1
 fi
 
-echo "Updating $PWD/services"
+echo "Updating $PWD/services from salsa.debian.org"
 curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/services \
   | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
   > services.tmp
@@ -40,7 +40,7 @@ else
   exit 1
 fi
 
-echo "Updating $PWD/ssl/cert.pem"
+echo "Updating $PWD/ssl/cert.pem from curl.haxx.se"
 mkdir -p ssl && curl -s -L https://curl.haxx.se/ca/cacert.pem \
   | sed -n '/^[^#]/,$p' > ssl/cert.tmp
 if grep -q -F 'BEGIN CERTIFICATE' ssl/cert.tmp; then
@@ -51,7 +51,7 @@ else
   exit 1
 fi
 
-echo "Updating $PWD/group"
+echo "Updating $PWD/group from $LIBRARY/skel"
 if [[ -f group ]]; then
   awk -F : '!uniq[$1]++' group $LIBRARY/skel/group > group.tmp
   mv group.tmp group
@@ -59,7 +59,7 @@ else
   cp $LIBRARY/skel/group group
 fi
 
-echo "Updating $PWD/passwd"
+echo "Updating $PWD/passwd from $LIBRARY/skel"
 if [[ -f passwd ]]; then
   awk -F : '!uniq[$1]++' passwd $LIBRARY/skel/passwd > passwd.tmp
   mv passwd.tmp passwd
