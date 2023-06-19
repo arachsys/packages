@@ -1,0 +1,13 @@
+check() {
+  url https://releases.pagure.org/libaio/
+  match version 0.3.113 'libaio-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://releases.pagure.org/libaio/libaio-0.3.113.tar.gz
+  tree 722987fd11d0540030dce19f1f8d4f8601affa7a6140a9b03124c4c2ffd060dd
+}
+
+build() {
+  make install DESTDIR=/dst prefix= includedir=/lib/include
+}
