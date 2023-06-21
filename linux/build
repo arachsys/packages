@@ -1,10 +1,10 @@
 check() {
   url https://www.kernel.org/
-  match linux 6.3.8 'linux-([0-9.]+)\.tar'
+  match linux 6.3.9 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.3.8.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.3.9.tar.xz
   apply llvm.diff
   apply ncurses.diff
   apply regdom.diff
@@ -14,7 +14,7 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree b8982075d8d2c9dabc7d782863a25bcfe866463bbc21c8dcb92217e0cd5aec41
+  tree d08ee6654955c3c551b13d89a601050c1b08162366ebf68a9e6b4bba424e359b
 }
 
 build() {
