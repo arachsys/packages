@@ -2,19 +2,19 @@ mode autotools
 require autotools
 
 check() {
-  url https://github.com/ipmitool/ipmitool/tags
-  match version 1.8.19 'tags/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
+  url https://codeberg.org/ipmitool/ipmitool/tags
+  match version 1.8.19 'archive/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
 }
 
 prepare() {
-  unpack ipmitool-1.8.19.tar.gz \
-    https://github.com/ipmitool/ipmitool/archive/refs/tags/IPMITOOL_1_8_19.tar.gz
+  unpack ipmitool-20230614.tar.gz \
+    https://codeberg.org/ipmitool/ipmitool/archive/81b82427.tar.gz
   curl -o enterprise-numbers.gz -L \
     https://ftp.openbsd.org/pub/OpenBSD/distfiles/enterprise-numbers.20220204.gz
   gunzip enterprise-numbers.gz
   apply console.diff
   apply lanplus.diff
-  tree ff47ab824373b96ff610c87807b2866ecb7a37c3d7ddab746cfbcf6948d089d0
+  tree d0b5f0909f3adfde144110d93003cea6fa11c9f9fed8fbfdde7646e03a2e7fa9
 }
 
 pre-config() {
