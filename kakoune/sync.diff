@@ -1,0 +1,33 @@
+diff --git a/src/terminal_ui.cc b/src/terminal_ui.cc
+index b232a38..a35d3c7 100644
+--- a/src/terminal_ui.cc
++++ b/src/terminal_ui.cc
+@@ -1466,7 +1466,6 @@ void TerminalUI::setup_terminal()
+         "\033[22t"    // save the current window title
+         "\033[?25l"   // hide cursor
+         "\033="       // set application keypad mode, so the keypad keys send unique codes
+-        "\033[?2026$p" // query support for synchronize output
+         "\033[?2004h" // force enable bracketed-paste events
+     );
+ }
+@@ -1536,6 +1535,8 @@ void TerminalUI::set_ui_options(const Options& options)
+     auto synchronized = find("terminal_synchronized").map(to_bool);
+     m_synchronized.set = (bool)synchronized;
+     m_synchronized.requested = synchronized.value_or(false);
++    if (not m_synchronized.queried and not m_synchronized.set)
++        write(STDOUT_FILENO, "\033[?2026$p");
+ 
+     m_shift_function_key = find("terminal_shift_function_key").map(str_to_int_ifp).value_or(default_shift_function_key);
+ 
+diff --git a/src/terminal_ui.hh b/src/terminal_ui.hh
+index e1a9633..774b436 100644
+--- a/src/terminal_ui.hh
++++ b/src/terminal_ui.hh
+@@ -158,6 +158,7 @@ private:
+ 
+     struct Synchronized
+     {
++        bool queried : 1;
+         bool supported : 1;
+         bool set : 1;
+         bool requested : 1;

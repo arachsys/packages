@@ -24,6 +24,24 @@ index 2420735..4228309 100644
      } \
      -docstring %{
          man [<page>]: manpage viewer wrapper
+diff --git a/share/kak/kakrc b/share/kak/kakrc
+index c421892..fbb4c8b 100644
+--- a/share/kak/kakrc
++++ b/share/kak/kakrc
+@@ -40,11 +40,9 @@ evaluate-commands %sh{
+         autoload_directory ${kak_runtime}/autoload
+     fi
+ 
+-    if [ -f "${kak_runtime}/kakrc.local" ]; then
+-        echo "source '${kak_runtime}/kakrc.local'"
+-    fi
+-
+     if [ -f "${kak_config}/kakrc" ]; then
+         echo "source '${kak_config}/kakrc'"
++    elif [ -f "/etc/kakrc" ]; then
++        echo "source '/etc/kakrc'"
+     fi
+ }
 diff --git a/src/Makefile b/src/Makefile
 index 801a2e2..5661637 100644
 --- a/src/Makefile
@@ -65,10 +83,10 @@ index fd97c0b..604abef 100644
  
  void on_assert_failed(const char* message)
 diff --git a/src/main.cc b/src/main.cc
-index 1c8ab45..2308d7c 100644
+index aff025a..461c51a 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -180,12 +180,12 @@ String runtime_directory()
+@@ -184,12 +184,12 @@ String runtime_directory()
          return runtime_directory;
  
      char relpath[PATH_MAX+1];
@@ -83,7 +101,7 @@ index 1c8ab45..2308d7c 100644
  }
  
  String config_directory()
-@@ -541,7 +541,7 @@ void register_options()
+@@ -545,7 +545,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -92,7 +110,7 @@ index 1c8ab45..2308d7c 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1287,7 +1287,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
+@@ -1296,7 +1296,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"
@@ -102,7 +120,7 @@ index 1c8ab45..2308d7c 100644
  .ascii "import kakoune\n"
  .ascii "gdb.printing.register_pretty_printer(gdb.current_objfile(), kakoune.build_pretty_printer())\n\0"
 diff --git a/src/shell_manager.cc b/src/shell_manager.cc
-index 96cfb06..1252973 100644
+index 62a60dc..1031dae 100644
 --- a/src/shell_manager.cc
 +++ b/src/shell_manager.cc
 @@ -21,6 +21,7 @@
