@@ -2,12 +2,12 @@ mode autotools
 
 check() {
   url https://github.com/strace/strace/tags
-  match version 6.3 'tags/v([0-9.]+)\.tar'
+  match version 6.4 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://strace.io/files/6.3/strace-6.3.tar.xz
-  tree d0d0c64ff9a31e8555433dd00ed67f596b6d2c66622f46ddc781536bb5d97fe8
+  unpack https://strace.io/files/6.4/strace-6.4.tar.xz
+  tree 5d2c1153e8d9aa01dac7c7143b66f41629d8faaa1b00f45aaf4cd16df7f3ec91
 }
 
 config-extra --disable-gcc-Werror --disable-mpers --enable-bundled
