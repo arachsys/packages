@@ -1,0 +1,141 @@
+diff --git a/configure b/configure
+index f7ce818..0117e9c 100755
+--- a/configure
++++ b/configure
+@@ -943,6 +943,7 @@ enable_strip
+ with_libfts
+ with_libevent
+ with_libssl
++with_bundled_libtls
+ with_libz
+ with_table_db
+ '
+@@ -1631,6 +1632,7 @@ Optional Packages:
+   --with-libfts=PATH		Specify path to libfts installation (default: none, part of libc)
+   --with-libevent=PATH          Specify path to libevent installation
+   --with-libssl=PATH		Specify path to libssl installation
++  --with-bundled-libtls		Use bundled libtls
+   --with-libz=PATH		Specify path to libz installation
+   --with-table-db		Enable building of table-db backend (default=no)
+ 
+@@ -20696,6 +20698,85 @@ then :
+ fi
+ 
+ need_libtls=yes
++
++# Check whether --with-bundled-libtls was given.
++if test ${with_bundled_libtls+y}
++then :
++  withval=$with_bundled_libtls;
++else $as_nop
++  with_bundled_libtls=no
++fi
++
++if test "x$with_bundled_libtls" != xno
++then :
++
++else $as_nop
++  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing tls_config_set_ciphers" >&5
++printf %s "checking for library containing tls_config_set_ciphers... " >&6; }
++if test ${ac_cv_search_tls_config_set_ciphers+y}
++then :
++  printf %s "(cached) " >&6
++else $as_nop
++  ac_func_search_save_LIBS=$LIBS
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++char tls_config_set_ciphers ();
++int
++main (void)
++{
++return tls_config_set_ciphers ();
++  ;
++  return 0;
++}
++_ACEOF
++for ac_lib in '' tls
++do
++  if test -z "$ac_lib"; then
++    ac_res="none required"
++  else
++    ac_res=-l$ac_lib
++    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
++  fi
++  if ac_fn_c_try_link "$LINENO"
++then :
++  ac_cv_search_tls_config_set_ciphers=$ac_res
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.beam \
++    conftest$ac_exeext
++  if test ${ac_cv_search_tls_config_set_ciphers+y}
++then :
++  break
++fi
++done
++if test ${ac_cv_search_tls_config_set_ciphers+y}
++then :
++
++else $as_nop
++  ac_cv_search_tls_config_set_ciphers=no
++fi
++rm conftest.$ac_ext
++LIBS=$ac_func_search_save_LIBS
++fi
++{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_tls_config_set_ciphers" >&5
++printf "%s\n" "$ac_cv_search_tls_config_set_ciphers" >&6; }
++ac_res=$ac_cv_search_tls_config_set_ciphers
++if test "$ac_res" != no
++then :
++  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
++
++		need_libtls=no
++
++printf "%s\n" "#define HAVE_TLS_CONFIG_SET_CIPHERS 1" >>confdefs.h
++
++
++fi
++
++fi
++
+  if test x"$need_libtls" = x"yes"; then
+   NEED_LIBTLS_TRUE=
+   NEED_LIBTLS_FALSE='#'
+diff --git a/configure.ac b/configure.ac
+index 4cddc45..e0ca846 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1923,20 +1923,16 @@ AC_LINK_IFELSE(
+ AC_CHECK_DECL([LIBRESSL_VERSION_NUMBER], , , [#include <openssl/ssl.h>])
+ 
+ need_libtls=yes
+-dnl XXX: OpenSMTPD and libtls need to stay in sync, otherwise bad
+-dnl things can happen at runtime.  Revisit this in the future once we
+-dnl switch to the signer APIs.
+-dnl
+-dnl
+-dnl AC_ARG_WITH([bundled-libtls],
+-dnl 	AS_HELP_STRING([--with-bundled-libtls], [use bundled libtls]),
+-dnl 	[], [with_bundled_libtls=no])
+-dnl AS_IF([test "x$with_bundled_libtls" != xno], [],
+-dnl 	[AC_SEARCH_LIBS([tls_config_set_ciphers], [tls], [
+-dnl 		need_libtls=no
+-dnl 		AC_DEFINE([HAVE_TLS_CONFIG_SET_CIPHERS], [1],
+-dnl 			[Define if you have the tls_config_set_ciphers() function.])
+-dnl 	], [])])
++AC_ARG_WITH([bundled-libtls],
++	AS_HELP_STRING([--with-bundled-libtls], [Use bundled libtls]),
++	[], [with_bundled_libtls=no])
++AS_IF([test "x$with_bundled_libtls" != xno], [],
++	[AC_SEARCH_LIBS([tls_config_set_ciphers], [tls], [
++		need_libtls=no
++		AC_DEFINE([HAVE_TLS_CONFIG_SET_CIPHERS], [1],
++			[Define if you have the tls_config_set_ciphers() function.])
++	], [])])
++
+ AM_CONDITIONAL([NEED_LIBTLS], [test x"$need_libtls" = x"yes"])
+ 
+ 
