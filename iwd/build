@@ -8,11 +8,11 @@ check() {
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.6.tar.xz
   apply clang.diff
+  apply defaults.diff
   apply dbus.diff
   apply paths.diff
-  apply resolve.diff
   apply syslog.diff
-  tree 7a7a4a8ec10a3cf308b53167fa74884d50fd7ebcfab20ddeb2ab1bad48f6e204
+  tree 1700ff4d24bdb9b088ea5a450cc150a0464dcaa8cd30cd7ebe168f24c82f5c4f
 }
 
 config-extra --disable-dbus-policy --disable-systemd-service \
