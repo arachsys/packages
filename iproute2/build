@@ -8,9 +8,10 @@ check() {
 prepare() {
   unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.4.0.tar.xz
   apply includes.diff
+  apply nocompat.diff
   apply paths.diff
   apply unspec.diff
-  tree 50b76f5195d4e780097cb28d6b398ccbc2f789876282f2e0a61a40f598c78d84
+  tree 6d7d2f25ddc723cdeb616cc78c56132ae09b3b1668b1b5a7949829d797df7f4f
 }
 
 build() {
