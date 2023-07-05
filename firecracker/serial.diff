@@ -1,0 +1,13 @@
+diff --git a/src/devices/src/legacy/serial.rs b/src/devices/src/legacy/serial.rs
+index 2e37188..50ad2b1 100644
+--- a/src/devices/src/legacy/serial.rs
++++ b/src/devices/src/legacy/serial.rs
+@@ -254,7 +254,7 @@ impl<W: std::io::Write> MutEventSubscriber
+             let buf_ready_evt = self.buffer_ready_evt_fd();
+             if serial_fd != -1 {
+                 if let Err(err) = ops.add(Events::new(&serial_fd, EventSet::IN)) {
+-                    warn!("Failed to register serial input fd: {}", err);
++                    // warn!("Failed to register serial input fd: {}", err);
+                 }
+             }
+             if let Err(err) = ops.add(Events::new(&buf_ready_evt, EventSet::IN)) {

@@ -16,9 +16,11 @@ prepare() {
   ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
   ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
   apply bindgen.diff
+  apply direct.diff
   apply cosmetic.diff
   apply seccomp.diff
-  tree 5327cccbf4ef5f0ee0f76c2474ca0643c6ab0c111f1ea47c43c8a16d469abbd9
+  apply serial.diff
+  tree 216b595c100b43ec589f009b17bbb1d34af8ad8cbaed855634f91e6a1f825c40
 }
 
 build() {

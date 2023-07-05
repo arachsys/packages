@@ -69,6 +69,20 @@ index 656ef16..56fd177 100644
          let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(Error::EventFd)?;
          let ring = IoUring::new(
              u32::from(IO_URING_NUM_ENTRIES),
+diff --git a/src/devices/src/virtio/net/tap.rs b/src/devices/src/virtio/net/tap.rs
+index 67d8be1..4c90eed 100644
+--- a/src/devices/src/virtio/net/tap.rs
++++ b/src/devices/src/virtio/net/tap.rs
+@@ -33,8 +33,7 @@ pub enum Error {
+     InvalidIfname,
+     /// Error while creating ifreq structure
+     #[error(
+-        "Error while creating ifreq structure: {0}. Invalid TUN/TAP Backend provided by {1}. \
+-         Check our documentation on setting up the network devices."
++        "Error while creating ifreq structure: {0}. Invalid TUN/TAP backend provided by {1}."
+     )]
+     IfreqExecuteError(IoError, String),
+     /// Error while setting the offload flags
 diff --git a/src/firecracker/src/api_server_adapter.rs b/src/firecracker/src/api_server_adapter.rs
 index 7e6b76d..f27a2dc 100644
 --- a/src/firecracker/src/api_server_adapter.rs

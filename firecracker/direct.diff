@@ -1,0 +1,635 @@
+diff --git a/src/devices/src/virtio/block/device.rs b/src/devices/src/virtio/block/device.rs
+index 635c835..20e96d1 100644
+--- a/src/devices/src/virtio/block/device.rs
++++ b/src/devices/src/virtio/block/device.rs
+@@ -9,6 +9,7 @@ use std::convert::From;
+ use std::fs::{File, OpenOptions};
+ use std::io::{Seek, SeekFrom, Write};
+ use std::os::linux::fs::MetadataExt;
++use std::os::unix::fs::OpenOptionsExt;
+ use std::path::PathBuf;
+ use std::sync::atomic::AtomicUsize;
+ use std::sync::Arc;
+@@ -71,6 +72,7 @@ impl FileEngineType {
+ /// Helper object for setting up all `Block` fields derived from its backing file.
+ pub(crate) struct DiskProperties {
+     cache_type: CacheType,
++    is_disk_direct_io: bool,
+     file_path: String,
+     file_engine: FileEngine<PendingRequest>,
+     nsectors: u64,
+@@ -81,12 +83,15 @@ impl DiskProperties {
+     pub fn new(
+         disk_image_path: String,
+         is_disk_read_only: bool,
++        is_disk_direct_io: bool,
+         cache_type: CacheType,
+         file_engine_type: FileEngineType,
+     ) -> result::Result<Self, Error> {
++        let custom_flags = if is_disk_direct_io { libc::O_DIRECT } else { 0 };
+         let mut disk_image = OpenOptions::new()
+             .read(true)
+             .write(!is_disk_read_only)
++            .custom_flags(custom_flags)
+             .open(PathBuf::from(&disk_image_path))
+             .map_err(|x| Error::BackingFile(x, disk_image_path.clone()))?;
+         let disk_size = disk_image
+@@ -105,6 +110,7 @@ impl DiskProperties {
+ 
+         Ok(Self {
+             cache_type,
++            is_disk_direct_io,
+             nsectors: disk_size >> SECTOR_SHIFT,
+             image_id: Self::build_disk_image_id(&disk_image),
+             file_path: disk_image_path,
+@@ -234,12 +240,14 @@ impl Block {
+         disk_image_path: String,
+         is_disk_read_only: bool,
+         is_disk_root: bool,
++        is_disk_direct_io: bool,
+         rate_limiter: RateLimiter,
+         file_engine_type: FileEngineType,
+     ) -> result::Result<Block, Error> {
+         let disk_properties = DiskProperties::new(
+             disk_image_path,
+             is_disk_read_only,
++            is_disk_direct_io,
+             cache_type,
+             file_engine_type,
+         )?;
+@@ -444,6 +452,7 @@ impl Block {
+         let disk_properties = DiskProperties::new(
+             disk_image_path,
+             self.is_read_only(),
++            self.is_direct_io(),
+             self.cache_type(),
+             self.file_engine_type(),
+         )?;
+@@ -482,6 +491,11 @@ impl Block {
+         self.avail_features & (1u64 << VIRTIO_BLK_F_RO) != 0
+     }
+ 
++    /// Specifies if his block device uses DIRECT_IO.
++    pub fn is_direct_io(&self) -> bool {
++        self.disk.is_disk_direct_io
++    }
++
+     /// Specifies if this block device is read only.
+     pub fn is_root_device(&self) -> bool {
+         self.root_device
+@@ -656,6 +670,7 @@ pub(crate) mod tests {
+         let disk_properties = DiskProperties::new(
+             String::from(f.as_path().to_str().unwrap()),
+             true,
++            false,
+             CacheType::Unsafe,
+             default_engine_type_for_kv(),
+         )
+@@ -674,6 +689,7 @@ pub(crate) mod tests {
+         assert!(DiskProperties::new(
+             "invalid-disk-path".to_string(),
+             true,
++            false,
+             CacheType::Unsafe,
+             default_engine_type_for_kv(),
+         )
+diff --git a/src/devices/src/virtio/block/persist.rs b/src/devices/src/virtio/block/persist.rs
+index 9ec65bd..3ab216a 100644
+--- a/src/devices/src/virtio/block/persist.rs
++++ b/src/devices/src/virtio/block/persist.rs
+@@ -94,6 +94,8 @@ pub struct BlockState {
+     // v1.0 are incompatible with older FC versions (due to incompatible notification suppression
+     // feature).
+     file_engine_type: FileEngineTypeState,
++    #[version(start = 4, default_fn = "default_is_direct_io")]
++    is_direct_io: bool,
+ }
+ 
+ impl BlockState {
+@@ -111,6 +113,10 @@ impl BlockState {
+     fn default_cache_type_flush(_source_version: u16) -> CacheTypeState {
+         CacheTypeState::Unsafe
+     }
++
++    fn default_is_direct_io(_source_version: u16) -> bool {
++        false
++    }
+ }
+ 
+ pub struct BlockConstructorArgs {
+@@ -129,6 +135,7 @@ impl Persist<'_> for Block {
+             partuuid: self.partuuid.clone(),
+             cache_type: CacheTypeState::from(self.cache_type()),
+             root_device: self.root_device,
++            is_direct_io: self.is_direct_io(),
+             disk_path: self.disk.file_path().clone(),
+             virtio_state: VirtioDeviceState::from_device(self),
+             rate_limiter_state: self.rate_limiter.save(),
+@@ -151,6 +158,7 @@ impl Persist<'_> for Block {
+             state.disk_path.clone(),
+             is_disk_read_only,
+             state.root_device,
++            state.is_direct_io,
+             rate_limiter,
+             state.file_engine_type.into(),
+         )
+@@ -172,6 +180,7 @@ impl Persist<'_> for Block {
+                     state.disk_path.clone(),
+                     is_disk_read_only,
+                     state.root_device,
++                    state.is_direct_io,
+                     rate_limiter,
+                     FileEngineType::Sync,
+                 )
+@@ -250,6 +259,7 @@ mod tests {
+             f.as_path().to_str().unwrap().to_string(),
+             false,
+             false,
++            false,
+             RateLimiter::default(),
+             FileEngineType::default(),
+         )
+@@ -302,6 +312,7 @@ mod tests {
+                 f.as_path().to_str().unwrap().to_string(),
+                 false,
+                 false,
++                false,
+                 RateLimiter::default(),
+                 // Need to use Sync because it will otherwise return an error.
+                 // We'll overwrite the state instead.
+@@ -347,6 +358,7 @@ mod tests {
+             f.as_path().to_str().unwrap().to_string(),
+             false,
+             false,
++            false,
+             RateLimiter::default(),
+             FileEngineType::default(),
+         )
+diff --git a/src/devices/src/virtio/block/test_utils.rs b/src/devices/src/virtio/block/test_utils.rs
+index a3fff49..31b33ff 100644
+--- a/src/devices/src/virtio/block/test_utils.rs
++++ b/src/devices/src/virtio/block/test_utils.rs
+@@ -54,6 +54,7 @@ pub fn default_block_with_path(path: String, file_engine_type: FileEngineType) -
+         path,
+         false,
+         false,
++        false,
+         rate_limiter,
+         file_engine_type,
+     )
+diff --git a/src/vmm/src/builder.rs b/src/vmm/src/builder.rs
+index 7aa948c..a9bcb55 100644
+--- a/src/vmm/src/builder.rs
++++ b/src/vmm/src/builder.rs
+@@ -1040,6 +1040,7 @@ pub mod tests {
+         is_root_device: bool,
+         partuuid: Option<String>,
+         is_read_only: bool,
++        is_direct_io: bool,
+         cache_type: CacheType,
+     }
+ 
+@@ -1049,6 +1050,7 @@ pub mod tests {
+             is_root_device: bool,
+             partuuid: Option<String>,
+             is_read_only: bool,
++            is_direct_io: bool,
+             cache_type: CacheType,
+         ) -> Self {
+             CustomBlockConfig {
+@@ -1056,6 +1058,7 @@ pub mod tests {
+                 is_root_device,
+                 partuuid,
+                 is_read_only,
++                is_direct_io,
+                 cache_type,
+             }
+         }
+@@ -1173,6 +1176,7 @@ pub mod tests {
+                 is_root_device: custom_block_cfg.is_root_device,
+                 partuuid: custom_block_cfg.partuuid.clone(),
+                 is_read_only: custom_block_cfg.is_read_only,
++                is_direct_io: custom_block_cfg.is_direct_io,
+                 cache_type: custom_block_cfg.cache_type,
+                 rate_limiter: None,
+                 file_engine_type: FileEngineType::default(),
+@@ -1394,6 +1398,7 @@ pub mod tests {
+                 true,
+                 None,
+                 true,
++                false,
+                 CacheType::Unsafe,
+             )];
+             let mut vmm = default_vmm();
+@@ -1414,6 +1419,7 @@ pub mod tests {
+                 true,
+                 Some("0eaa91a0-01".to_string()),
+                 false,
++                false,
+                 CacheType::Unsafe,
+             )];
+             let mut vmm = default_vmm();
+@@ -1434,6 +1440,7 @@ pub mod tests {
+                 false,
+                 Some("0eaa91a0-01".to_string()),
+                 false,
++                false,
+                 CacheType::Unsafe,
+             )];
+             let mut vmm = default_vmm();
+@@ -1455,6 +1462,7 @@ pub mod tests {
+                     true,
+                     Some("0eaa91a0-01".to_string()),
+                     false,
++                    false,
+                     CacheType::Unsafe,
+                 ),
+                 CustomBlockConfig::new(
+@@ -1462,6 +1470,7 @@ pub mod tests {
+                     false,
+                     None,
+                     true,
++                    false,
+                     CacheType::Unsafe,
+                 ),
+                 CustomBlockConfig::new(
+@@ -1469,6 +1478,7 @@ pub mod tests {
+                     false,
+                     None,
+                     false,
++                    false,
+                     CacheType::Unsafe,
+                 ),
+             ];
+@@ -1507,6 +1517,7 @@ pub mod tests {
+                 true,
+                 None,
+                 false,
++                false,
+                 CacheType::Unsafe,
+             )];
+             let mut vmm = default_vmm();
+@@ -1527,6 +1538,7 @@ pub mod tests {
+                 true,
+                 Some("0eaa91a0-01".to_string()),
+                 true,
++                false,
+                 CacheType::Unsafe,
+             )];
+             let mut vmm = default_vmm();
+@@ -1547,6 +1559,7 @@ pub mod tests {
+                 true,
+                 None,
+                 false,
++                false,
+                 CacheType::Writeback,
+             )];
+             let mut vmm = default_vmm();
+@@ -1558,6 +1571,32 @@ pub mod tests {
+                 .get_device(DeviceType::Virtio(TYPE_BLOCK), drive_id.as_str())
+                 .is_some());
+         }
++
++        // Use case 8: root block device is rw with direct io.
++        {
++            let drive_id = String::from("root");
++            let block_configs = vec![CustomBlockConfig::new(
++                drive_id.clone(),
++                true,
++                None,
++                false,
++                true,
++                CacheType::Unsafe,
++            )];
++            let mut vmm = default_vmm();
++            let mut cmdline = default_kernel_cmdline();
++            insert_block_devices(&mut vmm, &mut cmdline, &mut event_manager, block_configs);
++            assert!(cmdline
++                .as_cstring()
++                .unwrap()
++                .into_string()
++                .unwrap()
++                .contains("root=/dev/vda rw"));
++            assert!(vmm
++                .mmio_device_manager
++                .get_device(DeviceType::Virtio(TYPE_BLOCK), drive_id.as_str())
++                .is_some());
++        }
+     }
+ 
+     #[test]
+diff --git a/src/vmm/src/device_manager/persist.rs b/src/vmm/src/device_manager/persist.rs
+index 0df2607..600e613 100644
+--- a/src/vmm/src/device_manager/persist.rs
++++ b/src/vmm/src/device_manager/persist.rs
+@@ -696,6 +696,7 @@ mod tests {
+                 true,
+                 None,
+                 true,
++                false,
+                 CacheType::Unsafe,
+             )];
+             _block_files =
+@@ -799,7 +800,8 @@ mod tests {
+       "is_read_only": true,
+       "cache_type": "Unsafe",
+       "rate_limiter": null,
+-      "io_engine": "Sync"
++      "io_engine": "Sync",
++      "is_direct_io": false
+     }}
+   ],
+   "boot-source": {{
+diff --git a/src/vmm/src/persist.rs b/src/vmm/src/persist.rs
+index 67aeebd..3bcee4f 100644
+--- a/src/vmm/src/persist.rs
++++ b/src/vmm/src/persist.rs
+@@ -762,6 +762,7 @@ mod tests {
+             true,
+             None,
+             true,
++            false,
+             CacheType::Unsafe,
+         )];
+         insert_block_devices(&mut vmm, &mut cmdline, &mut event_manager, block_configs);
+diff --git a/src/vmm/src/resources.rs b/src/vmm/src/resources.rs
+index 974a73a..a25bafd 100644
+--- a/src/vmm/src/resources.rs
++++ b/src/vmm/src/resources.rs
+@@ -550,6 +550,7 @@ mod tests {
+                 partuuid: Some("0eaa91a0-01".to_string()),
+                 cache_type: CacheType::Unsafe,
+                 is_read_only: false,
++                is_direct_io: false,
+                 rate_limiter: Some(RateLimiterConfig::default()),
+                 file_engine_type: FileEngineType::default(),
+             },
+diff --git a/src/vmm/src/rpc_interface.rs b/src/vmm/src/rpc_interface.rs
+index 1e154bd..1d23895 100644
+--- a/src/vmm/src/rpc_interface.rs
++++ b/src/vmm/src/rpc_interface.rs
+@@ -1316,6 +1316,7 @@ mod tests {
+             drive_id: String::new(),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         });
+         check_preboot_request(req, |result, vm_res| {
+             assert_eq!(result, Ok(VmmData::Empty));
+@@ -1331,6 +1332,7 @@ mod tests {
+             drive_id: String::new(),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         });
+         check_preboot_request_err(
+             req,
+@@ -2025,6 +2027,7 @@ mod tests {
+                 drive_id: String::new(),
+                 rate_limiter: None,
+                 file_engine_type: FileEngineType::default(),
++                is_direct_io: false,
+             }),
+             VmmActionError::OperationNotSupportedPostBoot,
+         );
+@@ -2128,6 +2131,7 @@ mod tests {
+             drive_id: String::new(),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         });
+         verify_load_snap_disallowed_after_boot_resources(req, "InsertBlockDevice");
+ 
+diff --git a/src/vmm/src/version_map.rs b/src/vmm/src/version_map.rs
+index 6294d5e..d729da3 100644
+--- a/src/vmm/src/version_map.rs
++++ b/src/vmm/src/version_map.rs
+@@ -60,10 +60,8 @@ lazy_static! {
+         #[cfg(target_arch = "x86_64")]
+         version_map.set_type_version(VcpuState::type_id(), 3);
+ 
+-        // v1.3 - no changes introduced, but we need to bump as mapping
+-        // between firecracker minor versions and snapshot versions needs
+-        // to be 1-to-1 (see below)
+-        version_map.new_version();
++        // v1.3 state change mappings.
++        version_map.new_version().set_type_version(BlockState::type_id(), 4);
+ 
+         version_map
+     };
+diff --git a/src/vmm/src/vmm_config/drive.rs b/src/vmm/src/vmm_config/drive.rs
+index 8029c95..e94d511 100644
+--- a/src/vmm/src/vmm_config/drive.rs
++++ b/src/vmm/src/vmm_config/drive.rs
+@@ -67,6 +67,9 @@ pub struct BlockDeviceConfig {
+     #[serde(default)]
+     #[serde(rename = "io_engine")]
+     pub file_engine_type: FileEngineType,
++    /// If set to true, the disk is opened using DIRECT_IO.
++    #[serde(default)]
++    pub is_direct_io: bool,
+ }
+ 
+ impl From<&Block> for BlockDeviceConfig {
+@@ -78,6 +81,7 @@ impl From<&Block> for BlockDeviceConfig {
+             is_root_device: block.is_root_device(),
+             partuuid: block.partuuid().cloned(),
+             is_read_only: block.is_read_only(),
++            is_direct_io: block.is_direct_io(),
+             cache_type: block.cache_type(),
+             rate_limiter: rl.into_option(),
+             file_engine_type: block.file_engine_type(),
+@@ -206,6 +210,7 @@ impl BlockBuilder {
+             block_device_config.path_on_host,
+             block_device_config.is_read_only,
+             block_device_config.is_root_device,
++            block_device_config.is_direct_io,
+             rate_limiter.unwrap_or_default(),
+             block_device_config.file_engine_type,
+         )
+@@ -245,6 +250,7 @@ mod tests {
+                 partuuid: self.partuuid.clone(),
+                 cache_type: self.cache_type,
+                 is_read_only: self.is_read_only,
++                is_direct_io: self.is_direct_io,
+                 drive_id: self.drive_id.clone(),
+                 rate_limiter: None,
+                 file_engine_type: FileEngineType::default(),
+@@ -269,6 +275,7 @@ mod tests {
+             partuuid: None,
+             cache_type: CacheType::Writeback,
+             is_read_only: false,
++            is_direct_io: false,
+             drive_id: dummy_id.clone(),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
+@@ -300,6 +307,7 @@ mod tests {
+             partuuid: None,
+             cache_type: CacheType::Unsafe,
+             is_read_only: true,
++            is_direct_io: false,
+             drive_id: String::from("1"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
+@@ -331,6 +339,7 @@ mod tests {
+             drive_id: String::from("1"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let dummy_file_2 = TempFile::new().unwrap();
+@@ -344,6 +353,7 @@ mod tests {
+             drive_id: String::from("2"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let mut block_devs = BlockBuilder::new();
+@@ -368,6 +378,7 @@ mod tests {
+             drive_id: String::from("1"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let dummy_file_2 = TempFile::new().unwrap();
+@@ -381,6 +392,7 @@ mod tests {
+             drive_id: String::from("2"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let dummy_file_3 = TempFile::new().unwrap();
+@@ -394,6 +406,7 @@ mod tests {
+             drive_id: String::from("3"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let mut block_devs = BlockBuilder::new();
+@@ -432,6 +445,7 @@ mod tests {
+             drive_id: String::from("1"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let dummy_file_2 = TempFile::new().unwrap();
+@@ -445,6 +459,7 @@ mod tests {
+             drive_id: String::from("2"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let dummy_file_3 = TempFile::new().unwrap();
+@@ -458,6 +473,7 @@ mod tests {
+             drive_id: String::from("3"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let mut block_devs = BlockBuilder::new();
+@@ -497,6 +513,7 @@ mod tests {
+             drive_id: String::from("1"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let dummy_file_2 = TempFile::new().unwrap();
+@@ -510,6 +527,7 @@ mod tests {
+             drive_id: String::from("2"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let mut block_devs = BlockBuilder::new();
+@@ -569,6 +587,7 @@ mod tests {
+             drive_id: String::from("1"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+         // Switch roots and add a PARTUUID for the new one.
+         let mut root_block_device_old = root_block_device;
+@@ -582,6 +601,7 @@ mod tests {
+             drive_id: String::from("2"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+         assert!(block_devs.insert(root_block_device_old).is_ok());
+         let root_block_id = root_block_device_new.drive_id.clone();
+@@ -604,6 +624,7 @@ mod tests {
+             drive_id: String::from("1"),
+             rate_limiter: None,
+             file_engine_type: FileEngineType::default(),
++            is_direct_io: false,
+         };
+ 
+         let mut block_devs = BlockBuilder::new();
+@@ -626,6 +647,7 @@ mod tests {
+             backing_file.as_path().to_str().unwrap().to_string(),
+             true,
+             true,
++            false,
+             RateLimiter::default(),
+             FileEngineType::default(),
+         )
+diff --git a/tests/framework/vm_config.json b/tests/framework/vm_config.json
+index abadbb8..ba7290d 100644
+--- a/tests/framework/vm_config.json
++++ b/tests/framework/vm_config.json
+@@ -13,7 +13,8 @@
+       "is_read_only": false,
+       "cache_type": "Unsafe",
+       "io_engine": "Sync",
+-      "rate_limiter": null
++      "rate_limiter": null,
++      "is_direct_io":false
+     }
+   ],
+   "machine-config": {
+diff --git a/tests/integration_tests/functional/test_api.py b/tests/integration_tests/functional/test_api.py
+index 42c5c48..a94e1a2 100644
+--- a/tests/integration_tests/functional/test_api.py
++++ b/tests/integration_tests/functional/test_api.py
+@@ -953,6 +953,7 @@ def _drive_patch(test_microvm):
+             "is_root_device": True,
+             "partuuid": None,
+             "is_read_only": False,
++            "is_direct_io": False,
+             "cache_type": "Unsafe",
+             "io_engine": "Sync",
+             "rate_limiter": None,
+@@ -963,6 +964,7 @@ def _drive_patch(test_microvm):
+             "is_root_device": False,
+             "partuuid": None,
+             "is_read_only": False,
++            "is_direct_io": False,
+             "cache_type": "Unsafe",
+             "io_engine": "Async" if is_io_uring_supported() else "Sync",
+             "rate_limiter": {
+@@ -1185,6 +1187,7 @@ def test_get_full_config_after_restoring_snapshot(bin_cloner_path):
+             "cache_type": "Unsafe",
+             "rate_limiter": None,
+             "io_engine": "Sync",
++            "is_direct_io": False,
+         }
+     ]
+ 
+@@ -1302,6 +1305,7 @@ def test_get_full_config(test_microvm_with_api):
+             "cache_type": "Unsafe",
+             "rate_limiter": None,
+             "io_engine": "Sync",
++            "is_direct_io": False,
+         }
+     ]
+ 
