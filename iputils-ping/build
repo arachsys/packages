@@ -8,8 +8,9 @@ check() {
 prepare() {
   unpack iputils-20230526.tar.gz \
     https://github.com/iputils/iputils/archive/471942de.tar.gz
+  apply cosmetic.diff
   apply usage.diff
-  tree 98a19cffdaf0550b029d122a0f8d10d63d9697cf46eeaa88c522b1a6bf4bf5e2
+  tree 685a83c2f9978f93f8b9df42e7644a9145c039bf4c112111736e0aedcd9a1888
 }
 
 build() {
