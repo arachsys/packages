@@ -13,7 +13,7 @@ prepare() {
   apply dnssegv.diff
   apply home.diff
   apply sftp.diff
-  tree bc532a71b95a69b0b924192f8a61162fd74a55d46dbf23f21f96c7c1ec4f2f2d
+  tree 0bb0ce01c1cc3b7746fbc698c5960d4623efa1f6fc42e894f944559738a8b21a
 }
 
 config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \

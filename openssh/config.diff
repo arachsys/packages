@@ -1,5 +1,5 @@
 diff --git a/hostfile.c b/hostfile.c
-index ce00cd7..7116fe1 100644
+index c5669c7..7f6b5ea 100644
 --- a/hostfile.c
 +++ b/hostfile.c
 @@ -475,13 +475,14 @@ write_host_entry(FILE *f, const char *host, const char *ip,
@@ -18,19 +18,20 @@ index ce00cd7..7116fe1 100644
  	dotsshdir = tilde_expand_filename("~/" _PATH_SSH_USER_DIR, getuid());
  	if (strlen(dotsshdir) > len || strncmp(filename, dotsshdir, len) != 0)
  		goto out; /* not ~/.ssh prefixed */
-@@ -493,7 +494,10 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
+@@ -493,7 +494,11 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
  #ifdef WITH_SELINUX
  		ssh_selinux_setfscreatecon(dotsshdir);
  #endif
 -		if (mkdir(dotsshdir, 0700) == -1)
-+		if (mkdir(configdir, 0777) == -1) /* respect umask */
-+			error("Could not create directory '%.200s' (%s).",
-+			    configdir, strerror(errno));
-+		else if (mkdir(dotsshdir, 0777) == -1) /* respect umask */
++		if (stat(configdir, &st) == -1)
++			if (mkdir(configdir, 0777) == -1) /* respect umask */
++				error("Could not create directory '%.200s' (%s).",
++				    configdir, strerror(errno));
++		if (mkdir(dotsshdir, 0777) == -1) /* respect umask */
  			error("Could not create directory '%.200s' (%s).",
  			    dotsshdir, strerror(errno));
  		else if (notify)
-@@ -503,6 +507,7 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
+@@ -503,6 +508,7 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
  #endif
  	}
   out:
