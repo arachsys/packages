@@ -18,6 +18,6 @@ build() {
   sed 's/@VCS_TAG@/20230526/' git-version.h.meson >>config.h
   cc -Os -Wall -DHAVE___FPENDING -DHAVE_GETRANDOM -I. -include config.h \
     iputils_common.c md5.c ping/*.c -lm -lresolv -o ping/ping
-  mkdir -p /dst/bin
-  install -m 4755 -o root -g root -s ping/ping /dst/bin
+  install -m 4755 -s -D ping/ping /dst/bin/ping
+  install -D /pkg/await-net /dst/bin/await-net
 }
