@@ -14,10 +14,10 @@ index 479bbcc17..a384eed66 100644
      fn st_dev(&self) -> u64 {
          self.as_inner().as_inner().st_dev as u64
 diff --git a/library/std/src/sys/unix/fd.rs b/library/std/src/sys/unix/fd.rs
-index ce5c048f2..39e115ef7 100644
+index cb630eede..f11b297ae 100644
 --- a/library/std/src/sys/unix/fd.rs
 +++ b/library/std/src/sys/unix/fd.rs
-@@ -121,9 +121,9 @@ impl FileDesc {
+@@ -122,9 +122,9 @@ impl FileDesc {
      }
  
      pub fn read_at(&self, buf: &mut [u8], offset: u64) -> io::Result<usize> {
@@ -29,7 +29,7 @@ index ce5c048f2..39e115ef7 100644
          use libc::pread64;
  
          unsafe {
-@@ -276,9 +276,9 @@ impl FileDesc {
+@@ -277,9 +277,9 @@ impl FileDesc {
      }
  
      pub fn write_at(&self, buf: &[u8], offset: u64) -> io::Result<usize> {
@@ -42,7 +42,7 @@ index ce5c048f2..39e115ef7 100644
  
          unsafe {
 diff --git a/library/std/src/sys/unix/fs.rs b/library/std/src/sys/unix/fs.rs
-index abef170dd..ad2ce40ca 100644
+index 09e9ae272..dd5cc76bb 100644
 --- a/library/std/src/sys/unix/fs.rs
 +++ b/library/std/src/sys/unix/fs.rs
 @@ -49,18 +49,19 @@ use libc::{c_int, mode_t};
@@ -87,10 +87,10 @@ index abef170dd..ad2ce40ca 100644
  use libc::{dirent64, fstat64, ftruncate64, lseek64, lstat64, off64_t, open64, stat64};
  
  pub use crate::sys_common::fs::try_exists;
-diff --git a/vendor/getrandom/src/util_libc.rs b/vendor/getrandom/src/util_libc.rs
+diff --git a/vendor/getrandom-0.2.8/src/util_libc.rs b/vendor/getrandom-0.2.8/src/util_libc.rs
 index d057071a7..8e9f1763a 100644
---- a/vendor/getrandom/src/util_libc.rs
-+++ b/vendor/getrandom/src/util_libc.rs
+--- a/vendor/getrandom-0.2.8/src/util_libc.rs
++++ b/vendor/getrandom-0.2.8/src/util_libc.rs
 @@ -136,7 +136,7 @@ impl Weak {
  }
  

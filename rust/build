@@ -2,11 +2,11 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/tags
-  match version 1.70.0 'tags/([0-9.]+)\.tar'
+  match version 1.71.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.70.0-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.71.0-src.tar.gz
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
     vendor/*/.cargo-checksum.json
   apply curl.diff
@@ -17,7 +17,7 @@ prepare() {
   apply system.diff
   apply target.diff
   apply version.diff
-  tree c3eaaaf9bb1b768fa3b56aceffdd524531a09c114a1de9fa5926d9eeaaf580d4
+  tree 4ac624f0b7906aff32c1c74b929def24ae9a85adbb5b57f1d22ae818a8f5bdc6
 }
 
 build() {
@@ -25,6 +25,7 @@ build() {
      --disable-docs --disable-manage-submodules --disable-ninja \
      --disable-rpath --enable-extended --enable-local-rust \
      --enable-locked-deps --enable-use-libcxx --enable-vendor \
+     --build=$(/lib/llvm/bin/llvm-config --host-target) \
      --dist-compression-formats=gz --llvm-libunwind=system \
      --llvm-config=/lib/llvm/bin/llvm-config --local-rust-root= \
      --release-channel=stable --set=llvm.static-libstdcpp=false \
@@ -33,5 +34,5 @@ build() {
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
     python x.py install
   rm -f /dst/bin/{rust-*db*,rust-analyzer-proc-macro-srv}
-  rm -f -r /dst/{etc,lib/rustlib/!($CHOST),share}
+  rm -f -r /dst/{etc,lib/rustlib/!($CHOST),share,src/etc}
 }
