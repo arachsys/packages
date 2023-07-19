@@ -1,5 +1,5 @@
 diff --git a/src/devices/src/virtio/block/device.rs b/src/devices/src/virtio/block/device.rs
-index 635c835..20e96d1 100644
+index 43c845a..b69f671 100644
 --- a/src/devices/src/virtio/block/device.rs
 +++ b/src/devices/src/virtio/block/device.rs
 @@ -9,6 +9,7 @@ use std::convert::From;
@@ -94,7 +94,7 @@ index 635c835..20e96d1 100644
              default_engine_type_for_kv(),
          )
 diff --git a/src/devices/src/virtio/block/persist.rs b/src/devices/src/virtio/block/persist.rs
-index 9ec65bd..3ab216a 100644
+index c587c59..15eba09 100644
 --- a/src/devices/src/virtio/block/persist.rs
 +++ b/src/devices/src/virtio/block/persist.rs
 @@ -94,6 +94,8 @@ pub struct BlockState {
@@ -166,7 +166,7 @@ index 9ec65bd..3ab216a 100644
              FileEngineType::default(),
          )
 diff --git a/src/devices/src/virtio/block/test_utils.rs b/src/devices/src/virtio/block/test_utils.rs
-index a3fff49..31b33ff 100644
+index bccb564..4f3150e 100644
 --- a/src/devices/src/virtio/block/test_utils.rs
 +++ b/src/devices/src/virtio/block/test_utils.rs
 @@ -54,6 +54,7 @@ pub fn default_block_with_path(path: String, file_engine_type: FileEngineType) -
@@ -178,10 +178,10 @@ index a3fff49..31b33ff 100644
          file_engine_type,
      )
 diff --git a/src/vmm/src/builder.rs b/src/vmm/src/builder.rs
-index 7aa948c..a9bcb55 100644
+index fa8dc93..4fa34d7 100644
 --- a/src/vmm/src/builder.rs
 +++ b/src/vmm/src/builder.rs
-@@ -1040,6 +1040,7 @@ pub mod tests {
+@@ -1055,6 +1055,7 @@ pub mod tests {
          is_root_device: bool,
          partuuid: Option<String>,
          is_read_only: bool,
@@ -189,7 +189,7 @@ index 7aa948c..a9bcb55 100644
          cache_type: CacheType,
      }
  
-@@ -1049,6 +1050,7 @@ pub mod tests {
+@@ -1064,6 +1065,7 @@ pub mod tests {
              is_root_device: bool,
              partuuid: Option<String>,
              is_read_only: bool,
@@ -197,7 +197,7 @@ index 7aa948c..a9bcb55 100644
              cache_type: CacheType,
          ) -> Self {
              CustomBlockConfig {
-@@ -1056,6 +1058,7 @@ pub mod tests {
+@@ -1071,6 +1073,7 @@ pub mod tests {
                  is_root_device,
                  partuuid,
                  is_read_only,
@@ -205,7 +205,7 @@ index 7aa948c..a9bcb55 100644
                  cache_type,
              }
          }
-@@ -1173,6 +1176,7 @@ pub mod tests {
+@@ -1191,6 +1194,7 @@ pub mod tests {
                  is_root_device: custom_block_cfg.is_root_device,
                  partuuid: custom_block_cfg.partuuid.clone(),
                  is_read_only: custom_block_cfg.is_read_only,
@@ -213,7 +213,7 @@ index 7aa948c..a9bcb55 100644
                  cache_type: custom_block_cfg.cache_type,
                  rate_limiter: None,
                  file_engine_type: FileEngineType::default(),
-@@ -1394,6 +1398,7 @@ pub mod tests {
+@@ -1432,6 +1436,7 @@ pub mod tests {
                  true,
                  None,
                  true,
@@ -221,7 +221,7 @@ index 7aa948c..a9bcb55 100644
                  CacheType::Unsafe,
              )];
              let mut vmm = default_vmm();
-@@ -1414,6 +1419,7 @@ pub mod tests {
+@@ -1452,6 +1457,7 @@ pub mod tests {
                  true,
                  Some("0eaa91a0-01".to_string()),
                  false,
@@ -229,7 +229,7 @@ index 7aa948c..a9bcb55 100644
                  CacheType::Unsafe,
              )];
              let mut vmm = default_vmm();
-@@ -1434,6 +1440,7 @@ pub mod tests {
+@@ -1472,6 +1478,7 @@ pub mod tests {
                  false,
                  Some("0eaa91a0-01".to_string()),
                  false,
@@ -237,7 +237,7 @@ index 7aa948c..a9bcb55 100644
                  CacheType::Unsafe,
              )];
              let mut vmm = default_vmm();
-@@ -1455,6 +1462,7 @@ pub mod tests {
+@@ -1493,6 +1500,7 @@ pub mod tests {
                      true,
                      Some("0eaa91a0-01".to_string()),
                      false,
@@ -245,7 +245,7 @@ index 7aa948c..a9bcb55 100644
                      CacheType::Unsafe,
                  ),
                  CustomBlockConfig::new(
-@@ -1462,6 +1470,7 @@ pub mod tests {
+@@ -1500,6 +1508,7 @@ pub mod tests {
                      false,
                      None,
                      true,
@@ -253,7 +253,7 @@ index 7aa948c..a9bcb55 100644
                      CacheType::Unsafe,
                  ),
                  CustomBlockConfig::new(
-@@ -1469,6 +1478,7 @@ pub mod tests {
+@@ -1507,6 +1516,7 @@ pub mod tests {
                      false,
                      None,
                      false,
@@ -261,7 +261,7 @@ index 7aa948c..a9bcb55 100644
                      CacheType::Unsafe,
                  ),
              ];
-@@ -1507,6 +1517,7 @@ pub mod tests {
+@@ -1545,6 +1555,7 @@ pub mod tests {
                  true,
                  None,
                  false,
@@ -269,7 +269,7 @@ index 7aa948c..a9bcb55 100644
                  CacheType::Unsafe,
              )];
              let mut vmm = default_vmm();
-@@ -1527,6 +1538,7 @@ pub mod tests {
+@@ -1565,6 +1576,7 @@ pub mod tests {
                  true,
                  Some("0eaa91a0-01".to_string()),
                  true,
@@ -277,7 +277,7 @@ index 7aa948c..a9bcb55 100644
                  CacheType::Unsafe,
              )];
              let mut vmm = default_vmm();
-@@ -1547,6 +1559,7 @@ pub mod tests {
+@@ -1585,6 +1597,7 @@ pub mod tests {
                  true,
                  None,
                  false,
@@ -285,7 +285,7 @@ index 7aa948c..a9bcb55 100644
                  CacheType::Writeback,
              )];
              let mut vmm = default_vmm();
-@@ -1558,6 +1571,32 @@ pub mod tests {
+@@ -1596,6 +1609,32 @@ pub mod tests {
                  .get_device(DeviceType::Virtio(TYPE_BLOCK), drive_id.as_str())
                  .is_some());
          }
@@ -319,10 +319,10 @@ index 7aa948c..a9bcb55 100644
  
      #[test]
 diff --git a/src/vmm/src/device_manager/persist.rs b/src/vmm/src/device_manager/persist.rs
-index 0df2607..600e613 100644
+index 9257b2e..2812b1b 100644
 --- a/src/vmm/src/device_manager/persist.rs
 +++ b/src/vmm/src/device_manager/persist.rs
-@@ -696,6 +696,7 @@ mod tests {
+@@ -769,6 +769,7 @@ mod tests {
                  true,
                  None,
                  true,
@@ -330,7 +330,7 @@ index 0df2607..600e613 100644
                  CacheType::Unsafe,
              )];
              _block_files =
-@@ -799,7 +800,8 @@ mod tests {
+@@ -903,7 +904,8 @@ mod tests {
        "is_read_only": true,
        "cache_type": "Unsafe",
        "rate_limiter": null,
@@ -341,10 +341,10 @@ index 0df2607..600e613 100644
    ],
    "boot-source": {{
 diff --git a/src/vmm/src/persist.rs b/src/vmm/src/persist.rs
-index 67aeebd..3bcee4f 100644
+index c2a371c..bc67725 100644
 --- a/src/vmm/src/persist.rs
 +++ b/src/vmm/src/persist.rs
-@@ -762,6 +762,7 @@ mod tests {
+@@ -775,6 +775,7 @@ mod tests {
              true,
              None,
              true,
@@ -353,10 +353,10 @@ index 67aeebd..3bcee4f 100644
          )];
          insert_block_devices(&mut vmm, &mut cmdline, &mut event_manager, block_configs);
 diff --git a/src/vmm/src/resources.rs b/src/vmm/src/resources.rs
-index 974a73a..a25bafd 100644
+index 91cc0fd..0224b01 100644
 --- a/src/vmm/src/resources.rs
 +++ b/src/vmm/src/resources.rs
-@@ -550,6 +550,7 @@ mod tests {
+@@ -536,6 +536,7 @@ mod tests {
                  partuuid: Some("0eaa91a0-01".to_string()),
                  cache_type: CacheType::Unsafe,
                  is_read_only: false,
@@ -365,10 +365,10 @@ index 974a73a..a25bafd 100644
                  file_engine_type: FileEngineType::default(),
              },
 diff --git a/src/vmm/src/rpc_interface.rs b/src/vmm/src/rpc_interface.rs
-index 1e154bd..1d23895 100644
+index 8bae780..9a69893 100644
 --- a/src/vmm/src/rpc_interface.rs
 +++ b/src/vmm/src/rpc_interface.rs
-@@ -1316,6 +1316,7 @@ mod tests {
+@@ -1362,6 +1362,7 @@ mod tests {
              drive_id: String::new(),
              rate_limiter: None,
              file_engine_type: FileEngineType::default(),
@@ -376,7 +376,7 @@ index 1e154bd..1d23895 100644
          });
          check_preboot_request(req, |result, vm_res| {
              assert_eq!(result, Ok(VmmData::Empty));
-@@ -1331,6 +1332,7 @@ mod tests {
+@@ -1377,6 +1378,7 @@ mod tests {
              drive_id: String::new(),
              rate_limiter: None,
              file_engine_type: FileEngineType::default(),
@@ -384,7 +384,7 @@ index 1e154bd..1d23895 100644
          });
          check_preboot_request_err(
              req,
-@@ -2025,6 +2027,7 @@ mod tests {
+@@ -2080,6 +2082,7 @@ mod tests {
                  drive_id: String::new(),
                  rate_limiter: None,
                  file_engine_type: FileEngineType::default(),
@@ -392,7 +392,7 @@ index 1e154bd..1d23895 100644
              }),
              VmmActionError::OperationNotSupportedPostBoot,
          );
-@@ -2128,6 +2131,7 @@ mod tests {
+@@ -2187,6 +2190,7 @@ mod tests {
              drive_id: String::new(),
              rate_limiter: None,
              file_engine_type: FileEngineType::default(),
@@ -401,10 +401,10 @@ index 1e154bd..1d23895 100644
          verify_load_snap_disallowed_after_boot_resources(req, "InsertBlockDevice");
  
 diff --git a/src/vmm/src/version_map.rs b/src/vmm/src/version_map.rs
-index 6294d5e..d729da3 100644
+index dce8521..55fa943 100644
 --- a/src/vmm/src/version_map.rs
 +++ b/src/vmm/src/version_map.rs
-@@ -60,10 +60,8 @@ lazy_static! {
+@@ -62,10 +62,8 @@ lazy_static! {
          #[cfg(target_arch = "x86_64")]
          version_map.set_type_version(VcpuState::type_id(), 3);
  
@@ -415,8 +415,8 @@ index 6294d5e..d729da3 100644
 +        // v1.3 state change mappings.
 +        version_map.new_version().set_type_version(BlockState::type_id(), 4);
  
-         version_map
-     };
+         // v1.4 state change mappings.
+         version_map.new_version().set_type_version(DeviceStates::type_id(), 4);
 diff --git a/src/vmm/src/vmm_config/drive.rs b/src/vmm/src/vmm_config/drive.rs
 index 8029c95..e94d511 100644
 --- a/src/vmm/src/vmm_config/drive.rs
@@ -584,7 +584,7 @@ index 8029c95..e94d511 100644
              FileEngineType::default(),
          )
 diff --git a/tests/framework/vm_config.json b/tests/framework/vm_config.json
-index abadbb8..ba7290d 100644
+index 7183058..7a27f9e 100644
 --- a/tests/framework/vm_config.json
 +++ b/tests/framework/vm_config.json
 @@ -13,7 +13,8 @@
@@ -598,10 +598,10 @@ index abadbb8..ba7290d 100644
    ],
    "machine-config": {
 diff --git a/tests/integration_tests/functional/test_api.py b/tests/integration_tests/functional/test_api.py
-index 42c5c48..a94e1a2 100644
+index e0151ab..a495a0e 100644
 --- a/tests/integration_tests/functional/test_api.py
 +++ b/tests/integration_tests/functional/test_api.py
-@@ -953,6 +953,7 @@ def _drive_patch(test_microvm):
+@@ -970,6 +970,7 @@ def _drive_patch(test_microvm):
              "is_root_device": True,
              "partuuid": None,
              "is_read_only": False,
@@ -609,7 +609,7 @@ index 42c5c48..a94e1a2 100644
              "cache_type": "Unsafe",
              "io_engine": "Sync",
              "rate_limiter": None,
-@@ -963,6 +964,7 @@ def _drive_patch(test_microvm):
+@@ -980,6 +981,7 @@ def _drive_patch(test_microvm):
              "is_root_device": False,
              "partuuid": None,
              "is_read_only": False,
@@ -617,7 +617,7 @@ index 42c5c48..a94e1a2 100644
              "cache_type": "Unsafe",
              "io_engine": "Async" if is_io_uring_supported() else "Sync",
              "rate_limiter": {
-@@ -1185,6 +1187,7 @@ def test_get_full_config_after_restoring_snapshot(bin_cloner_path):
+@@ -1223,6 +1225,7 @@ def test_get_full_config_after_restoring_snapshot(bin_cloner_path):
              "cache_type": "Unsafe",
              "rate_limiter": None,
              "io_engine": "Sync",
@@ -625,7 +625,7 @@ index 42c5c48..a94e1a2 100644
          }
      ]
  
-@@ -1302,6 +1305,7 @@ def test_get_full_config(test_microvm_with_api):
+@@ -1344,6 +1347,7 @@ def test_get_full_config(test_microvm_with_api):
              "cache_type": "Unsafe",
              "rate_limiter": None,
              "io_engine": "Sync",

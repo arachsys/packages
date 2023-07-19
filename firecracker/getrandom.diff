@@ -1,0 +1,90 @@
+diff --git a/resources/seccomp/aarch64-unknown-linux-musl.json b/resources/seccomp/aarch64-unknown-linux-musl.json
+index ef5755a..ecc5e48 100644
+--- a/resources/seccomp/aarch64-unknown-linux-musl.json
++++ b/resources/seccomp/aarch64-unknown-linux-musl.json
+@@ -104,7 +104,7 @@
+             },
+             {
+               "syscall": "getrandom",
+-              "comment": "getrandom is used by aws-lc library which we consume in virtio-rng"
++              "comment": "getrandom is used as an entropy source by virtio-rng"
+             },
+             {
+                 "syscall": "accept4",
+@@ -206,7 +206,7 @@
+             },
+             {
+                 "syscall": "madvise",
+-                "comment": "Used by the VirtIO balloon device and by musl for some customer workloads. It is also used by aws-lc during random number generation. They setup a memory page that mark with MADV_WIPEONFORK to be able to detect forks. They also call it with -1 to see if madvise is supported in certain platforms." 
++                "comment": "Used by the VirtIO balloon device and by musl"
+             },
+             {
+                 "syscall": "mmap",
+diff --git a/resources/seccomp/x86_64-unknown-linux-musl.json b/resources/seccomp/x86_64-unknown-linux-musl.json
+index 1a75429..101c1db 100644
+--- a/resources/seccomp/x86_64-unknown-linux-musl.json
++++ b/resources/seccomp/x86_64-unknown-linux-musl.json
+@@ -104,7 +104,7 @@
+             },
+             {
+               "syscall": "getrandom",
+-              "comment": "getrandom is used by aws-lc library which we consume in virtio-rng" 
++              "comment": "getrandom is used as an entropy source by virtio-rng"
+             },
+             {
+                 "syscall": "accept4",
+@@ -206,7 +206,7 @@
+             },
+             {
+                 "syscall": "madvise",
+-                "comment": "Used by the VirtIO balloon device and by musl for some customer workloads. It is also used by aws-lc during random number generation. They setup a memory page that mark with MADV_WIPEONFORK to be able to detect forks. They also call it with -1 to see if madvise is supported in certain platforms." 
++                "comment": "Used by the VirtIO balloon device and by musl"
+             },
+             {
+                 "syscall": "mmap",
+diff --git a/src/devices/Cargo.toml b/src/devices/Cargo.toml
+index 58df5d8..f38c54c 100644
+--- a/src/devices/Cargo.toml
++++ b/src/devices/Cargo.toml
+@@ -6,9 +6,9 @@ edition = "2021"
+ license = "Apache-2.0"
+ 
+ [dependencies]
+-aws-lc-rs = "1.0.2"
+ derive_more = { version = "0.99.17", default-features = false, features = ["from"] }
+ event-manager = "0.3.0"
++getrandom = { version = "0.2.10", features = ["std"] }
+ libc = "0.2.117"
+ thiserror = "1.0.32"
+ timerfd = "1.2.0"
+diff --git a/src/devices/src/virtio/rng/device.rs b/src/devices/src/virtio/rng/device.rs
+index d3ca386..18c68ae 100644
+--- a/src/devices/src/virtio/rng/device.rs
++++ b/src/devices/src/virtio/rng/device.rs
+@@ -5,7 +5,7 @@ use std::io;
+ use std::sync::atomic::AtomicUsize;
+ use std::sync::Arc;
+ 
+-use aws_lc_rs::rand;
++use getrandom::getrandom;
+ use logger::{debug, error, IncMetric, METRICS};
+ use rate_limiter::{RateLimiter, TokenType};
+ use utils::eventfd::EventFd;
+@@ -27,7 +27,7 @@ pub enum Error {
+     #[error("Bad guest memory buffer: {0}")]
+     GuestMemory(#[from] GuestMemoryError),
+     #[error("Could not get random bytes: {0}")]
+-    Random(#[from] aws_lc_rs::error::Unspecified),
++    Random(#[from] getrandom::Error),
+ }
+ 
+ type Result<T> = std::result::Result<T, Error>;
+@@ -109,7 +109,7 @@ impl Entropy {
+         }
+ 
+         let mut rand_bytes = vec![0; iovec.len()];
+-        rand::fill(&mut rand_bytes).map_err(|err| {
++        getrandom(&mut rand_bytes).map_err(|err| {
+             METRICS.entropy.host_rng_fails.inc();
+             err
+         })?;

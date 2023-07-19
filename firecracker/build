@@ -3,24 +3,26 @@ require rust
 
 check() {
   url https://github.com/firecracker-microvm/firecracker/tags
-  match version 1.3.3 'tags/v([0-9.]+)\.tar'
+  match version 1.4.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack firecracker-1.3.3.tar.gz \
-    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.3.3.tar.gz
+  unpack firecracker-1.4.0.tar.gz \
+    https://github.com/firecracker-microvm/firecracker/archive/refs/tags/v1.4.0.tar.gz
+  apply cosmetic.diff
+  apply direct.diff
+  apply getrandom.diff
+  apply seccomp.diff
+  apply serial.diff
+
+  ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
+  ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
+
   mkdir -p .cargo && rm -f .cargo/config .cargo/config.toml
   cargo vendor >.cargo/config
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
     vendor/*/.cargo-checksum.json
-  ln resources/seccomp/aarch64-{unknown,arachsys}-linux-musl.json
-  ln resources/seccomp/x86_64-{unknown,arachsys}-linux-musl.json
-  apply bindgen.diff
-  apply direct.diff
-  apply cosmetic.diff
-  apply seccomp.diff
-  apply serial.diff
-  tree 216b595c100b43ec589f009b17bbb1d34af8ad8cbaed855634f91e6a1f825c40
+  tree 8a43e9b493bfb026f67748bc36d0fc7d1612db6f3255c67b57a2d7abad759b39
 }
 
 build() {

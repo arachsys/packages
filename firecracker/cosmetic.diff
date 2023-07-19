@@ -1,8 +1,8 @@
 diff --git a/src/api_server/src/parsed_request.rs b/src/api_server/src/parsed_request.rs
-index 3550e6c..bca9517 100644
+index c45f849..fe1cb38 100644
 --- a/src/api_server/src/parsed_request.rs
 +++ b/src/api_server/src/parsed_request.rs
-@@ -225,10 +225,10 @@ fn log_received_api_request(api_description: String) {
+@@ -231,10 +231,10 @@ fn log_received_api_request(api_description: String) {
  /// * `body` - body of the API request
  fn describe(method: Method, path: &str, body: Option<&Body>) -> String {
      match (path, body) {
@@ -16,7 +16,7 @@ index 3550e6c..bca9517 100644
              path,
              std::str::from_utf8(value.body.as_slice())
                  .unwrap_or("inconvertible to UTF-8")
-@@ -529,15 +529,15 @@ pub(crate) mod tests {
+@@ -536,15 +536,15 @@ pub mod tests {
      fn test_describe() {
          assert_eq!(
              describe(Method::Get, "path", None),
@@ -35,21 +35,8 @@ index 3550e6c..bca9517 100644
          );
      }
  
-diff --git a/src/arch/src/aarch64/regs.rs b/src/arch/src/aarch64/regs.rs
-index 8a2dccc..62b530d 100644
---- a/src/arch/src/aarch64/regs.rs
-+++ b/src/arch/src/aarch64/regs.rs
-@@ -575,7 +575,7 @@ mod tests {
-         let id = arm64_core_reg_id!(KVM_REG_SIZE_U64, off);
-         let pstate = vcpu
-             .get_one_reg(id)
--            .expect("Failed to call kvm get one reg");
-+            .expect("Failed to call KVM get_one_reg");
-         assert!(state.contains(&Aarch64Register { id, value: pstate }));
-     }
- 
 diff --git a/src/devices/src/virtio/block/io/async_io.rs b/src/devices/src/virtio/block/io/async_io.rs
-index 656ef16..56fd177 100644
+index f28fcbf..d069c9f 100644
 --- a/src/devices/src/virtio/block/io/async_io.rs
 +++ b/src/devices/src/virtio/block/io/async_io.rs
 @@ -8,7 +8,6 @@ use std::os::unix::io::AsRawFd;
@@ -58,7 +45,7 @@ index 656ef16..56fd177 100644
  use io_uring::{Error as IoUringError, IoUring};
 -use logger::log_dev_preview_warning;
  use utils::eventfd::EventFd;
- use vm_memory::{mark_dirty_mem, GuestAddress, GuestMemory, GuestMemoryMmap};
+ use utils::vm_memory::{mark_dirty_mem, GuestAddress, GuestMemory, GuestMemoryMmap};
  
 @@ -63,8 +62,6 @@ impl<T> WrappedUserData<T> {
  
@@ -70,7 +57,7 @@ index 656ef16..56fd177 100644
          let ring = IoUring::new(
              u32::from(IO_URING_NUM_ENTRIES),
 diff --git a/src/devices/src/virtio/net/tap.rs b/src/devices/src/virtio/net/tap.rs
-index 67d8be1..4c90eed 100644
+index 5eb37c9..0d5ea80 100644
 --- a/src/devices/src/virtio/net/tap.rs
 +++ b/src/devices/src/virtio/net/tap.rs
 @@ -33,8 +33,7 @@ pub enum Error {
@@ -97,10 +84,10 @@ index 7e6b76d..f27a2dc 100644
      // Channels for both directions between Vmm and Api threads.
      let (to_vmm, from_api) = channel();
 diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
-index 409c6e0..6d0be35 100644
+index 40273d3..be5be31 100644
 --- a/src/firecracker/src/main.rs
 +++ b/src/firecracker/src/main.rs
-@@ -115,118 +115,105 @@ fn main_exitable() -> FcExitCode {
+@@ -115,118 +115,107 @@ fn main_exitable() -> FcExitCode {
              Argument::new("api-sock")
                  .takes_value(true)
                  .default_value(DEFAULT_API_SOCK_PATH)
@@ -197,10 +184,10 @@ index 409c6e0..6d0be35 100644
              Argument::new("show-log-origin")
                  .takes_value(false)
                  .requires("log-path")
--                .help(
+                 .help(
 -                    "Whether or not to include the file path and line number of the log's origin.",
--                ),
-+                .help("Include file and line number in logs"),
++                    "Include file and line number in logs",
+                 ),
          )
          .arg(
              Argument::new("metrics-path")
@@ -229,17 +216,17 @@ index 409c6e0..6d0be35 100644
                  .takes_value(true)
                  .default_value(&http_max_payload_size_str)
 -                .help("Http API request payload max size, in bytes."),
-+                .help("Maximum HTTP request bytes"),
++                .help("Maximum HTTP request size (bytes)"),
          )
          .arg(
              Argument::new("mmds-size-limit")
                  .takes_value(true)
 -                .help("Mmds data store limit, in bytes."),
-+                .help("Maximum MMDS data size in bytes"),
++                .help("Maximum MMDS data size (bytes)"),
          );
  
      let arguments = match arg_parser.parse_from_cmdline() {
-@@ -245,7 +232,7 @@ fn main_exitable() -> FcExitCode {
+@@ -245,7 +234,7 @@ fn main_exitable() -> FcExitCode {
              }
  
              if arg_parser.arguments().flag_present("version") {
@@ -248,7 +235,7 @@ index 409c6e0..6d0be35 100644
                  print_supported_snapshot_versions();
                  return vmm::FcExitCode::Ok;
              }
-@@ -435,7 +422,7 @@ fn warn_deprecated_parameters() {}
+@@ -435,7 +424,7 @@ fn warn_deprecated_parameters() {}
  
  // Print supported snapshot data format versions.
  fn print_supported_snapshot_versions() {
@@ -257,7 +244,7 @@ index 409c6e0..6d0be35 100644
      let mut snapshot_versions: Vec<String> = FC_VERSION_TO_SNAP_VERSION
          .iter()
          .map(|(key, _)| key.clone())
-@@ -446,7 +433,7 @@ fn print_supported_snapshot_versions() {
+@@ -446,7 +435,7 @@ fn print_supported_snapshot_versions() {
          .iter()
          .for_each(|v| snapshot_versions_str.push_str(format!(" v{},", v).as_str()));
      snapshot_versions_str.pop();
@@ -266,7 +253,7 @@ index 409c6e0..6d0be35 100644
  }
  
  // Print data format of provided snapshot state file.
-@@ -459,7 +446,7 @@ fn print_snapshot_data_format(snapshot_path: &str) {
+@@ -459,7 +448,7 @@ fn print_snapshot_data_format(snapshot_path: &str) {
      let data_format_version = Snapshot::get_data_version(&mut snapshot_reader, &VERSION_MAP)
          .unwrap_or_else(|err| {
              process::exit(generic_error_exit(&format!(
@@ -275,7 +262,7 @@ index 409c6e0..6d0be35 100644
                  err
              )) as i32);
          });
-@@ -469,7 +456,7 @@ fn print_snapshot_data_format(snapshot_path: &str) {
+@@ -469,7 +458,7 @@ fn print_snapshot_data_format(snapshot_path: &str) {
          .find(|(_, &val)| val == data_format_version)
          .unwrap_or_else(|| {
              process::exit(generic_error_exit(&format!(
@@ -284,7 +271,7 @@ index 409c6e0..6d0be35 100644
                  data_format_version
              )) as i32);
          });
-@@ -489,7 +476,7 @@ fn build_microvm_from_json(
+@@ -489,7 +478,7 @@ fn build_microvm_from_json(
      let mut vm_resources =
          VmResources::from_json(&config_json, &instance_info, mmds_size_limit, metadata_json)
              .map_err(|err| {
@@ -293,7 +280,7 @@ index 409c6e0..6d0be35 100644
                  vmm::FcExitCode::BadConfiguration
              })?;
      vm_resources.boot_timer = boot_timer_enabled;
-@@ -501,12 +488,12 @@ fn build_microvm_from_json(
+@@ -501,12 +490,12 @@ fn build_microvm_from_json(
      )
      .map_err(|err| {
          error!(
@@ -348,7 +335,7 @@ index 3c7b9e3..6b6fbb6 100644
  
          assert_eq!(
 diff --git a/src/utils/src/arg_parser.rs b/src/utils/src/arg_parser.rs
-index e6dd8e1..4ba6ad2 100644
+index e6dd8e1..7d8b4fa 100644
 --- a/src/utils/src/arg_parser.rs
 +++ b/src/utils/src/arg_parser.rs
 @@ -62,7 +62,7 @@ impl<'a> ArgParser<'a> {
@@ -389,9 +376,9 @@ index e6dd8e1..4ba6ad2 100644
          if self.takes_value {
 -            format!("  --{name} <{name}>", name = self.name)
 +            format!(
-+              "  --{name} <{placeholder}>",
-+              name = self.name,
-+              placeholder = self.name.split('-').last().unwrap_or("value")
++                "  --{name} <{placeholder}>",
++                name = self.name,
++                placeholder = self.name.split('-').last().unwrap_or("value")
 +            )
          } else {
              format!("  --{}", self.name)
@@ -414,38 +401,91 @@ index e6dd8e1..4ba6ad2 100644
              help_arg.user_value = Some(Value::Flag);
              self.insert_arg(help_arg);
              return Ok(());
+diff --git a/src/vmm/src/arch/aarch64/regs.rs b/src/vmm/src/arch/aarch64/regs.rs
+index 33af0d7..2c82aee 100644
+--- a/src/vmm/src/arch/aarch64/regs.rs
++++ b/src/vmm/src/arch/aarch64/regs.rs
+@@ -588,7 +588,7 @@ mod tests {
+         let id = arm64_core_reg_id!(KVM_REG_SIZE_U64, off);
+         let pstate = vcpu
+             .get_one_reg(id)
+-            .expect("Failed to call kvm get one reg");
++            .expect("Failed to call KVM get_one_reg");
+         assert!(state.contains(&Aarch64Register { id, value: pstate }));
+     }
+ 
 diff --git a/src/vmm/src/builder.rs b/src/vmm/src/builder.rs
-index ea0e986..7aa948c 100644
+index 4fa34d7..3fdf524 100644
 --- a/src/vmm/src/builder.rs
 +++ b/src/vmm/src/builder.rs
-@@ -148,9 +148,9 @@ impl Display for StartMicrovmError {
-                 err_msg = err_msg.replace('\"', "");
-                 write!(f, "Cannot load command line string. {}", err_msg)
-             }
--            MissingKernelConfig => write!(f, "Cannot start microvm without kernel configuration."),
-+            MissingKernelConfig => write!(f, "Cannot start microVM without kernel configuration."),
-             MissingMemSizeConfig => {
--                write!(f, "Cannot start microvm without guest mem_size config.")
-+                write!(f, "Cannot start microVM without guest mem_size config.")
-             }
-             MissingSeccompFilters(thread_category) => write!(
-                 f,
-@@ -176,8 +176,8 @@ impl Display for StartMicrovmError {
-                     err_msg
-                 )
-             }
--            RestoreMicrovmState(err) => write!(f, "Cannot restore microvm state. Error: {}", err),
--            SetVmResources(err) => write!(f, "Cannot set vm resources. Error: {}", err),
-+            RestoreMicrovmState(err) => write!(f, "Cannot restore microVM state. Error: {}", err),
-+            SetVmResources(err) => write!(f, "Cannot set VM resources. Error: {}", err),
-         }
-     }
- }
+@@ -103,10 +103,10 @@ pub enum StartMicrovmError {
+     #[error("Cannot load command line string: {}", format!("{}", .0).replace('\"', ""))]
+     LoadCommandline(linux_loader::loader::Error),
+     /// Cannot start the VM because the kernel builder was not configured.
+-    #[error("Cannot start microvm without kernel configuration.")]
++    #[error("Cannot start microVM without kernel configuration.")]
+     MissingKernelConfig,
+     /// Cannot start the VM because the size of the guest memory  was not specified.
+-    #[error("Cannot start microvm without guest mem_size config.")]
++    #[error("Cannot start microVM without guest mem_size config.")]
+     MissingMemSizeConfig,
+     /// The seccomp filter map is missing a key.
+     #[error("No seccomp filter for thread category: {0}")]
+@@ -119,15 +119,15 @@ pub enum StartMicrovmError {
+     OpenBlockDevice(io::Error),
+     /// Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline.
+     #[error(
+-        "Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline: {}",
++        "Cannot initialize a MMIO Device or add a device to the MMIO bus or cmdline: {}",
+         format!("{}", .0).replace('\"', "")
+     )]
+     RegisterMmioDevice(device_manager::mmio::Error),
+     /// Cannot restore microvm state.
+-    #[error("Cannot restore microvm state: {0}")]
++    #[error("Cannot restore microVM state: {0}")]
+     RestoreMicrovmState(MicrovmStateError),
+     /// Unable to set VmResources.
+-    #[error("Cannot set vm resources: {0}")]
++    #[error("Cannot set VM resources: {0}")]
+     SetVmResources(VmConfigError),
+     /// Failed to create an Entropy device
+     #[error("Cannot create the entropy device: {0}")]
 diff --git a/src/vmm/src/lib.rs b/src/vmm/src/lib.rs
-index cc054c8..9daa713 100644
+index 0d7cf30..9285f9e 100644
 --- a/src/vmm/src/lib.rs
 +++ b/src/vmm/src/lib.rs
-@@ -200,16 +200,16 @@ pub enum Error {
+@@ -171,7 +171,7 @@ pub enum Error {
+     #[error("Metrics error: {0}")]
+     Metrics(MetricsError),
+     /// Cannot add a device to the MMIO Bus.
+-    #[error("Cannot add a device to the MMIO Bus. {0}")]
++    #[error("Cannot add a device to the MMIO bus. {0}")]
+     RegisterMMIODevice(device_manager::mmio::Error),
+     /// Cannot install seccomp filters.
+     #[error("Cannot install seccomp filters: {0}")]
+@@ -183,10 +183,10 @@ pub enum Error {
+     #[error("Error creating timer fd: {0}")]
+     TimerFd(io::Error),
+     /// Vcpu configuration error.
+-    #[error("Error configuring the vcpu for boot: {0}")]
++    #[error("Error configuring the vCPU for boot: {0}")]
+     VcpuConfigure(KvmVcpuConfigureError),
+     /// Vcpu create error.
+-    #[error("Error creating the vcpu: {0}")]
++    #[error("Error creating the vCPU: {0}")]
+     VcpuCreate(vstate::vcpu::Error),
+     /// Cannot send event to vCPU.
+     #[error("Cannot send event to vCPU. {0}")]
+@@ -196,7 +196,7 @@ pub enum Error {
+     VcpuHandle(vstate::vcpu::Error),
+     /// Vcpu init error.
+     #[cfg(target_arch = "aarch64")]
+-    #[error("Error initializing the vcpu: {0}")]
++    #[error("Error initializing the vCPU: {0}")]
+     VcpuInit(vstate::vcpu::VcpuError),
+     /// vCPU start error.
+     #[error("Failed to start vCPUs")]
+@@ -214,16 +214,16 @@ pub enum Error {
      #[error("Failed to message the vCPUs.")]
      VcpuMessage,
      /// Cannot spawn a new Vcpu thread.
@@ -466,7 +506,20 @@ index cc054c8..9daa713 100644
      VmmObserverTeardown(utils::errno::Error),
  }
  
-@@ -774,7 +774,7 @@ impl Vmm {
+@@ -295,10 +295,10 @@ pub enum RestoreVcpusError {
+ #[derive(Debug, thiserror::Error)]
+ pub enum DumpCpuConfigError {
+     /// Failed to send an event to vcpu thread.
+-    #[error("Failed to send event to vcpu thread: {0:?}")]
++    #[error("Failed to send event to vCPU thread: {0:?}")]
+     SendEvent(#[from] VcpuSendEventError),
+     /// Got an unexpected response from vcpu thread.
+-    #[error("Got unexpected response from vcpu thread.")]
++    #[error("Got unexpected response from vCPU thread.")]
+     UnexpectedResponse,
+     /// Failed to dump CPU config.
+     #[error("Failed to dump CPU config: {0}")]
+@@ -835,7 +835,7 @@ impl Vmm {
          // Vmm initiated teardown starts from `pub fn Vmm::stop()` (step 4).
          // Once `vmm.shutdown_exit_code` becomes `Some(exit_code)`, it is the upper layer's
          // responsibility to break main event loop and propagate the exit code value.
@@ -475,7 +528,7 @@ index cc054c8..9daa713 100644
  
          // We send a "Finish" event.  If a VCPU has already exited, this is the only
          // message it will accept... but running and paused will take it as well.
-@@ -857,7 +857,7 @@ impl Drop for Vmm {
+@@ -918,7 +918,7 @@ impl Drop for Vmm {
          }
  
          if !self.vcpus_handles.is_empty() {
@@ -484,7 +537,7 @@ index cc054c8..9daa713 100644
          }
      }
  }
-@@ -884,19 +884,19 @@ impl MutEventSubscriber for Vmm {
+@@ -945,19 +945,19 @@ impl MutEventSubscriber for Vmm {
                      Ok(_response) => {} // Don't care about these, we are exiting.
                      Err(TryRecvError::Empty) => {} // Nothing pending in channel
                      Err(err) => {
@@ -508,10 +561,19 @@ index cc054c8..9daa713 100644
      }
  }
 diff --git a/src/vmm/src/persist.rs b/src/vmm/src/persist.rs
-index 6f96643..67aeebd 100644
+index bc67725..22269ec 100644
 --- a/src/vmm/src/persist.rs
 +++ b/src/vmm/src/persist.rs
-@@ -153,22 +153,22 @@ pub enum MicrovmStateError {
+@@ -158,7 +158,7 @@ pub enum MicrovmStateError {
+     #[error("Compatibility checks failed: {0}")]
+     IncompatibleState(String),
+     /// Provided MicroVM state is invalid.
+-    #[error("Provided MicroVM state is invalid.")]
++    #[error("Provided microVM state is invalid.")]
+     InvalidInput,
+     /// Operation not allowed.
+     #[error("Operation not allowed: {0}")]
+@@ -167,22 +167,22 @@ pub enum MicrovmStateError {
      #[error("Cannot restore devices: {0:?}")]
      RestoreDevices(DevicePersistError),
      /// Failed to restore Vcpu state.
@@ -527,7 +589,8 @@ index 6f96643..67aeebd 100644
 +    #[error("Cannot save vCPU state: {0:?}")]
      SaveVcpuState(vstate::vcpu::Error),
      /// Failed to save VM state.
-     #[error("Cannot save Vm state: {0:?}")]
+-    #[error("Cannot save Vm state: {0:?}")]
++    #[error("Cannot save VM state: {0:?}")]
      SaveVmState(vstate::vm::Error),
      /// Failed to send event.
 -    #[error("Cannot signal Vcpu: {0:?}")]
@@ -539,79 +602,126 @@ index 6f96643..67aeebd 100644
      UnexpectedVcpuResponse,
  }
  
-@@ -188,7 +188,7 @@ pub enum CreateSnapshotError {
-     #[error("Invalid microVM version format")]
-     InvalidVersionFormat,
-     /// MicroVM version does not support snapshot.
--    #[error("Cannot translate microVM version to snapshot data version")]
-+    #[error("Cannot translate microVM version to snapshot format")]
-     UnsupportedVersion,
-     /// Failed to write memory to snapshot.
-     #[error("Cannot write memory file: {0}")]
+@@ -192,9 +192,9 @@ pub enum CreateSnapshotError {
+     /// Failed to get dirty bitmap.
+     #[error("Cannot get dirty bitmap: {0}")]
+     DirtyBitmap(VmmError),
+-    /// The virtio devices uses a features that is incompatible with older versions of Firecracker.
++    /// The virtio devices use a feature that is incompatible with older versions of Firecracker.
+     #[error(
+-        "The virtio devices use a features that is incompatible with older versions of \
++        "The virtio devices use a feature that is incompatible with older versions of \
+          Firecracker: {0}"
+     )]
+     IncompatibleVirtioFeature(&'static str),
+@@ -615,16 +615,16 @@ pub enum GuestMemoryFromUffdError {
+     #[error("Failed to restore guest memory: {0}")]
+     Restore(#[from] crate::memory_snapshot::Error),
+     /// Failed to UFFD object.
+-    #[error("Failed to UFFD object: {0}")]
++    #[error("Failed to create userfaultfd object: {0}")]
+     Create(userfaultfd::Error),
+     /// Failed to register memory address range with the userfaultfd object.
+     #[error("Failed to register memory address range with the userfaultfd object: {0}")]
+     Register(userfaultfd::Error),
+     /// Failed to connect to UDS Unix stream.
+-    #[error("Failed to connect to UDS Unix stream: {0}")]
++    #[error("Failed to connect to unix stream socket: {0}")]
+     Connect(#[from] std::io::Error),
+     /// Failed to send file descriptor.
+-    #[error("Failed to sends file descriptor: {0}")]
++    #[error("Failed to send file descriptor: {0}")]
+     Send(#[from] utils::errno::Error),
+ }
+ 
 diff --git a/src/vmm/src/vmm_config/balloon.rs b/src/vmm/src/vmm_config/balloon.rs
-index 130c638..63d63ca 100644
+index 130c638..ee64692 100644
 --- a/src/vmm/src/vmm_config/balloon.rs
 +++ b/src/vmm/src/vmm_config/balloon.rs
-@@ -41,7 +41,7 @@ impl fmt::Display for BalloonConfigError {
-                 "Device is inactive, check if balloon driver is enabled in guest kernel."
+@@ -38,11 +38,11 @@ impl fmt::Display for BalloonConfigError {
+             DeviceNotFound => write!(f, "No balloon device found."),
+             DeviceNotActive => write!(
+                 f,
+-                "Device is inactive, check if balloon driver is enabled in guest kernel."
++                "Device is inactive: check if balloon driver is enabled in guest kernel."
              ),
              InvalidStatsUpdate => write!(f, "Cannot enable/disable the statistics after boot."),
 -            TooManyPagesRequested => write!(f, "Amount of pages requested is too large."),
+-            StatsNotFound => write!(f, "Statistics for the balloon device are not enabled"),
 +            TooManyPagesRequested => write!(f, "Number of pages requested is too large."),
-             StatsNotFound => write!(f, "Statistics for the balloon device are not enabled"),
++            StatsNotFound => write!(f, "Statistics for the balloon device are not enabled."),
              CreateFailure(err) => write!(f, "Error creating the balloon device: {:?}", err),
              UpdateFailure(err) => write!(
+                 f,
 diff --git a/src/vmm/src/vstate/vcpu/aarch64.rs b/src/vmm/src/vstate/vcpu/aarch64.rs
-index a423860..f3a0280 100644
+index d0c08c1..fdfcebc 100644
 --- a/src/vmm/src/vstate/vcpu/aarch64.rs
 +++ b/src/vmm/src/vstate/vcpu/aarch64.rs
-@@ -47,13 +47,13 @@ impl Display for Error {
-                     err
-                 )
-             }
--            CreateFd(err) => write!(f, "Error in opening the VCPU file descriptor: {}", err),
-+            CreateFd(err) => write!(f, "Error in opening the vCPU file descriptor: {}", err),
-             GetPreferredTarget(err) => {
--                write!(f, "Error retrieving the vcpu preferred target: {}", err)
-+                write!(f, "Error retrieving the vCPU preferred target: {}", err)
-             }
--            Init(err) => write!(f, "Error initializing the vcpu: {}", err),
--            RestoreState(err) => write!(f, "Failed to restore the state of the vcpu: {}", err),
--            SaveState(err) => write!(f, "Failed to save the state of the vcpu: {}", err),
-+            Init(err) => write!(f, "Error initializing the vCPU: {}", err),
-+            RestoreState(err) => write!(f, "Failed to restore the state of the vCPU: {}", err),
-+            SaveState(err) => write!(f, "Failed to save the state of the vCPU: {}", err),
-         }
-     }
+@@ -27,21 +27,21 @@ use crate::vstate::vm::Vm;
+ /// Errors associated with the wrappers over KVM ioctls.
+ #[derive(Debug, thiserror::Error)]
+ pub enum Error {
+-    #[error("Error configuring the vcpu registers: {0}")]
++    #[error("Error configuring the vCPU registers: {0}")]
+     ConfigureRegisters(ArchError),
+-    #[error("Error creating vcpu: {0}")]
++    #[error("Error creating vCPU: {0}")]
+     CreateVcpu(kvm_ioctls::Error),
+     #[error("Failed to dump CPU configuration: {0}")]
+     DumpCpuConfig(ArchError),
+-    #[error("Error getting the vcpu preferred target: {0}")]
++    #[error("Error getting the vCPU preferred target: {0}")]
+     GetPreferredTarget(kvm_ioctls::Error),
+-    #[error("Error initializing the vcpu: {0}")]
++    #[error("Error initializing the vCPU: {0}")]
+     Init(kvm_ioctls::Error),
+     #[error("Error applying template: {0}")]
+     ApplyCpuTemplate(ArchError),
+-    #[error("Failed to restore the state of the vcpu: {0}")]
++    #[error("Failed to restore the state of the vCPU: {0}")]
+     RestoreState(ArchError),
+-    #[error("Failed to save the state of the vcpu: {0}")]
++    #[error("Failed to save the state of the vCPU: {0}")]
+     SaveState(ArchError),
  }
-@@ -171,7 +171,7 @@ impl KvmVcpu {
-         METRICS.vcpu.failures.inc();
-         // TODO: Are we sure we want to finish running a vcpu upon
-         // receiving a vm exit that is not necessarily an error?
--        error!("Unexpected exit reason on vcpu run: {:?}", exit);
-+        error!("Unexpected exit reason on vCPU run: {:?}", exit);
-         Err(super::Error::UnhandledKvmExit(format!("{:?}", exit)))
-     }
- }
-@@ -223,7 +223,7 @@ mod tests {
+ 
+@@ -288,7 +288,7 @@ mod tests {
          assert!(err.is_err());
          assert_eq!(
              err.err().unwrap().to_string(),
--            "Error in opening the VCPU file descriptor: Bad file descriptor (os error 9)"
-+            "Error in opening the vCPU file descriptor: Bad file descriptor (os error 9)"
-                 .to_string()
+-            "Error creating vcpu: Bad file descriptor (os error 9)".to_string()
++            "Error creating vCPU: Bad file descriptor (os error 9)".to_string()
          );
      }
-@@ -267,7 +267,7 @@ mod tests {
+ 
+@@ -319,7 +319,7 @@ mod tests {
          assert!(err.is_err());
          assert_eq!(
              err.err().unwrap().to_string(),
--            "Error retrieving the vcpu preferred target: Bad file descriptor (os error 9)"
-+            "Error retrieving the vCPU preferred target: Bad file descriptor (os error 9)"
+-            "Error configuring the vcpu registers: Failed to set processor state register: Bad \
++            "Error configuring the vCPU registers: Failed to set processor state register: Bad \
+              file descriptor (os error 9)"
                  .to_string()
          );
+@@ -334,7 +334,7 @@ mod tests {
+         assert!(err.is_err());
+         assert_eq!(
+             err.err().unwrap().to_string(),
+-            "Error configuring the vcpu registers: Failed to set processor state register: Bad \
++            "Error configuring the vCPU registers: Failed to set processor state register: Bad \
+              file descriptor (os error 9)"
+                 .to_string()
+         );
+@@ -348,7 +348,7 @@ mod tests {
+         assert!(err.is_err());
+         assert_eq!(
+             err.err().unwrap().to_string(),
+-            "Error getting the vcpu preferred target: Bad file descriptor (os error 9)".to_string()
++            "Error getting the vCPU preferred target: Bad file descriptor (os error 9)".to_string()
+         );
      }
-@@ -283,7 +283,7 @@ mod tests {
+ 
+@@ -363,7 +363,7 @@ mod tests {
          assert!(res.is_err());
          assert_eq!(
              res.err().unwrap().to_string(),
@@ -620,12 +730,12 @@ index a423860..f3a0280 100644
               (os error 8)"
                  .to_string()
          );
-@@ -298,16 +298,16 @@ mod tests {
+@@ -378,16 +378,16 @@ mod tests {
          assert!(res.is_err());
          assert_eq!(
              res.err().unwrap().to_string(),
--            "Failed to restore the state of the vcpu: Failed to set register: Exec format error \
-+            "Failed to restore the state of the vCPU: Failed to set register: Exec format error \
+-            "Failed to restore the state of the vcpu: Failed to set register 0: Exec format error \
++            "Failed to restore the state of the vCPU: Failed to set register 0: Exec format error \
               (os error 8)"
                  .to_string()
          );
@@ -641,12 +751,16 @@ index a423860..f3a0280 100644
              .fd
              .get_one_reg(0x6030_0000_0010_003E)
 diff --git a/src/vmm/src/vstate/vcpu/mod.rs b/src/vmm/src/vstate/vcpu/mod.rs
-index ae83571..68cf6ae 100644
+index e452a2d..b706a88 100644
 --- a/src/vmm/src/vstate/vcpu/mod.rs
 +++ b/src/vmm/src/vstate/vcpu/mod.rs
-@@ -44,25 +44,25 @@ pub(crate) const VCPU_RTSIG_OFFSET: i32 = 0;
+@@ -44,28 +44,28 @@ pub(crate) const VCPU_RTSIG_OFFSET: i32 = 0;
  #[derive(Debug, thiserror::Error)]
  pub enum Error {
+     /// Error creating vcpu config.
+-    #[error("Error creating vcpu config: {0}")]
++    #[error("Error creating vCPU config: {0}")]
+     VcpuConfig(GuestConfigError),
      /// Error triggered by the KVM subsystem.
 -    #[error("Received error signaling kvm exit: {0}")]
 +    #[error("Received error signaling KVM exit: {0}")]
@@ -676,7 +790,16 @@ index ae83571..68cf6ae 100644
      VcpuTlsNotPresent,
  }
  
-@@ -239,7 +239,7 @@ impl Vcpu {
+@@ -196,7 +196,7 @@ impl Vcpu {
+         }
+ 
+         register_signal_handler(sigrtmin() + VCPU_RTSIG_OFFSET, handle_signal)
+-            .expect("Failed to register vcpu signal handler");
++            .expect("Failed to register vCPU signal handler");
+     }
+ 
+     /// Constructs a new VCPU for `vm`.
+@@ -242,7 +242,7 @@ impl Vcpu {
              .spawn(move || {
                  let filter = &*seccomp_filter;
                  self.init_thread_local_data()
@@ -685,7 +808,25 @@ index ae83571..68cf6ae 100644
                  // Synchronization to make sure thread local data is initialized.
                  barrier.wait();
                  self.run(filter);
-@@ -754,7 +754,7 @@ mod tests {
+@@ -503,7 +503,7 @@ impl Vcpu {
+                     // Hardware entry failure.
+                     METRICS.vcpu.failures.inc();
+                     error!(
+-                        "Received KVM_EXIT_FAIL_ENTRY signal: {} on cpu {}",
++                        "Received KVM_EXIT_FAIL_ENTRY signal: {} on CPU {}",
+                         hardware_entry_failure_reason, cpu
+                     );
+                     Err(Error::FaultyKvmExit(format!(
+@@ -567,7 +567,7 @@ impl Vcpu {
+                     }
+                     _ => {
+                         METRICS.vcpu.failures.inc();
+-                        error!("Failure during vcpu run: {}", err);
++                        error!("Failure during vCPU run: {}", err);
+                         Err(Error::FaultyKvmExit(format!("{}", err)))
+                     }
+                 }
+@@ -812,7 +812,7 @@ pub mod tests {
          assert!(res.is_err());
          assert_eq!(
              res.err().unwrap().to_string(),
@@ -695,81 +836,110 @@ index ae83571..68cf6ae 100644
  
          *(vcpu.test_vcpu_exit_reason.lock().unwrap()) = Some(Err(errno::Error::new(libc::EAGAIN)));
 diff --git a/src/vmm/src/vstate/vcpu/x86_64.rs b/src/vmm/src/vstate/vcpu/x86_64.rs
-index ea7d365..c3ec1c0 100644
+index a7bce62..678dff6 100644
 --- a/src/vmm/src/vstate/vcpu/x86_64.rs
 +++ b/src/vmm/src/vstate/vcpu/x86_64.rs
-@@ -115,7 +115,7 @@ impl Display for Error {
-                 "Cannot set the local interruption due to bad configuration: {:?}",
-                 err
-             ),
--            VcpuFd(err) => write!(f, "Cannot open the VCPU file descriptor: {}", err),
-+            VcpuFd(err) => write!(f, "Cannot open the vCPU file descriptor: {}", err),
-             MSRSConfiguration(err) => write!(f, "Error configuring the MSR registers: {:?}", err),
-             REGSConfiguration(err) => write!(
-                 f,
-@@ -131,32 +131,32 @@ impl Display for Error {
-                 "Error configuring the floating point related registers: {:?}",
-                 err
-             ),
--            VcpuGetDebugRegs(err) => write!(f, "Failed to get KVM vcpu debug regs: {}", err),
--            VcpuGetLapic(err) => write!(f, "Failed to get KVM vcpu lapic: {}", err),
--            VcpuGetMpState(err) => write!(f, "Failed to get KVM vcpu mp state: {}", err),
--            VcpuGetMsrs(err) => write!(f, "Failed to get KVM vcpu msrs: {}", err),
-+            VcpuGetDebugRegs(err) => write!(f, "Failed to get KVM vCPU debug regs: {}", err),
-+            VcpuGetLapic(err) => write!(f, "Failed to get KVM vCPU lapic: {}", err),
-+            VcpuGetMpState(err) => write!(f, "Failed to get KVM vCPU mp state: {}", err),
-+            VcpuGetMsrs(err) => write!(f, "Failed to get KVM vCPU msrs: {}", err),
-             VcpuGetMSRSIncomplete => write!(f, "Unexpected number of MSRS reported by the kernel"),
--            VcpuGetRegs(err) => write!(f, "Failed to get KVM vcpu regs: {}", err),
--            VcpuGetSregs(err) => write!(f, "Failed to get KVM vcpu sregs: {}", err),
--            VcpuGetVcpuEvents(err) => write!(f, "Failed to get KVM vcpu event: {}", err),
--            VcpuGetXcrs(err) => write!(f, "Failed to get KVM vcpu xcrs: {}", err),
--            VcpuGetXsave(err) => write!(f, "Failed to get KVM vcpu xsave: {}", err),
--            VcpuGetCpuid(err) => write!(f, "Failed to get KVM vcpu cpuid: {}", err),
-+            VcpuGetRegs(err) => write!(f, "Failed to get KVM vCPU regs: {}", err),
-+            VcpuGetSregs(err) => write!(f, "Failed to get KVM vCPU sregs: {}", err),
-+            VcpuGetVcpuEvents(err) => write!(f, "Failed to get KVM vCPU event: {}", err),
-+            VcpuGetXcrs(err) => write!(f, "Failed to get KVM vCPU xcrs: {}", err),
-+            VcpuGetXsave(err) => write!(f, "Failed to get KVM vCPU xsave: {}", err),
-+            VcpuGetCpuid(err) => write!(f, "Failed to get KVM vCPU cpuid: {}", err),
-             VcpuGetTSC(err) => write!(f, "Failed to get KVM TSC frequency: {}", err),
--            VcpuSetCpuid(err) => write!(f, "Failed to set KVM vcpu cpuid: {}", err),
--            VcpuSetDebugRegs(err) => write!(f, "Failed to set KVM vcpu debug regs: {}", err),
--            VcpuSetLapic(err) => write!(f, "Failed to set KVM vcpu lapic: {}", err),
--            VcpuSetMpState(err) => write!(f, "Failed to set KVM vcpu mp state: {}", err),
--            VcpuSetMsrs(err) => write!(f, "Failed to set KVM vcpu msrs: {}", err),
-+            VcpuSetCpuid(err) => write!(f, "Failed to set KVM vCPU cpuid: {}", err),
-+            VcpuSetDebugRegs(err) => write!(f, "Failed to set KVM vCPU debug regs: {}", err),
-+            VcpuSetLapic(err) => write!(f, "Failed to set KVM vCPU lapic: {}", err),
-+            VcpuSetMpState(err) => write!(f, "Failed to set KVM vCPU mp state: {}", err),
-+            VcpuSetMsrs(err) => write!(f, "Failed to set KVM vCPU msrs: {}", err),
-             VcpuSetMSRSIncomplete => write!(
-                 f,
-                 "Failed to set all KVM MSRs for this vCPU. Only a partial write was done."
-             ),
--            VcpuSetRegs(err) => write!(f, "Failed to set KVM vcpu regs: {}", err),
--            VcpuSetSregs(err) => write!(f, "Failed to set KVM vcpu sregs: {}", err),
--            VcpuSetVcpuEvents(err) => write!(f, "Failed to set KVM vcpu event: {}", err),
--            VcpuSetXcrs(err) => write!(f, "Failed to set KVM vcpu xcrs: {}", err),
--            VcpuSetXsave(err) => write!(f, "Failed to set KVM vcpu xsave: {}", err),
-+            VcpuSetRegs(err) => write!(f, "Failed to set KVM vCPU regs: {}", err),
-+            VcpuSetSregs(err) => write!(f, "Failed to set KVM vCPU sregs: {}", err),
-+            VcpuSetVcpuEvents(err) => write!(f, "Failed to set KVM vCPU event: {}", err),
-+            VcpuSetXcrs(err) => write!(f, "Failed to set KVM vCPU xcrs: {}", err),
-+            VcpuSetXsave(err) => write!(f, "Failed to set KVM vCPU xsave: {}", err),
-             VcpuSetTSC(err) => write!(f, "Failed to set KVM TSC frequency: {}", err),
-             VcpuTemplateError => write!(f, "Failed to apply CPU template"),
-         }
-@@ -261,7 +261,7 @@ impl KvmVcpu {
-             .map_err(|err| {
-                 METRICS.vcpu.filter_cpuid.inc();
-                 error!(
--                    "Failure in configuring CPUID for vcpu {}: {:?}",
-+                    "Failure in configuring CPUID for vCPU {}: {:?}",
-                     self.index, err
-                 );
-                 err
-@@ -536,7 +536,7 @@ impl KvmVcpu {
+@@ -55,76 +55,76 @@ pub enum Error {
+     #[error("Error configuring the special registers: {0:?}")]
+     SregsConfiguration(crate::arch::x86_64::regs::Error),
+     /// Cannot open the VCPU file descriptor.
+-    #[error("Cannot open the VCPU file descriptor: {0}")]
++    #[error("Cannot open the vCPU file descriptor: {0}")]
+     VcpuFd(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu debug regs.
+-    #[error("Failed to get KVM vcpu debug regs: {0}")]
++    #[error("Failed to get KVM vCPU debug regs: {0}")]
+     VcpuGetDebugRegs(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu lapic.
+-    #[error("Failed to get KVM vcpu lapic: {0}")]
++    #[error("Failed to get KVM vCPU lapic: {0}")]
+     VcpuGetLapic(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu mp state.
+-    #[error("Failed to get KVM vcpu mp state: {0}")]
++    #[error("Failed to get KVM vCPU mp state: {0}")]
+     VcpuGetMpState(kvm_ioctls::Error),
+     /// The number of MSRS returned by the kernel is unexpected.
+-    #[error("Unexpected number of MSRS reported by the kernel")]
++    #[error("Unexpected number of msrs reported by the kernel")]
+     VcpuGetMsrsIncomplete,
+     /// Failed to get KVM vcpu msrs.
+-    #[error("Failed to get KVM vcpu msrs: {0}")]
++    #[error("Failed to get KVM vCPU msrs: {0}")]
+     VcpuGetMsrs(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu regs.
+-    #[error("Failed to get KVM vcpu regs: {0}")]
++    #[error("Failed to get KVM vCPU regs: {0}")]
+     VcpuGetRegs(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu sregs.
+-    #[error("Failed to get KVM vcpu sregs: {0}")]
++    #[error("Failed to get KVM vCPU sregs: {0}")]
+     VcpuGetSregs(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu event.
+-    #[error("Failed to get KVM vcpu event: {0}")]
++    #[error("Failed to get KVM vCPU event: {0}")]
+     VcpuGetVcpuEvents(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu xcrs.
+-    #[error("Failed to get KVM vcpu xcrs: {0}")]
++    #[error("Failed to get KVM vCPU xcrs: {0}")]
+     VcpuGetXcrs(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu xsave.
+-    #[error("Failed to get KVM vcpu xsave: {0}")]
++    #[error("Failed to get KVM vCPU xsave: {0}")]
+     VcpuGetXsave(kvm_ioctls::Error),
+     /// Failed to get KVM vcpu cpuid.
+-    #[error("Failed to get KVM vcpu cpuid: {0}")]
++    #[error("Failed to get KVM vCPU cpuid: {0}")]
+     VcpuGetCpuid(kvm_ioctls::Error),
+     /// Failed to get KVM TSC freq.
+     #[error("Failed to get KVM TSC frequency: {0}")]
+     VcpuGetTsc(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu cpuid.
+-    #[error("Failed to set KVM vcpu cpuid: {0}")]
++    #[error("Failed to set KVM vCPU cpuid: {0}")]
+     VcpuSetCpuid(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu debug regs.
+-    #[error("Failed to set KVM vcpu debug regs: {0}")]
++    #[error("Failed to set KVM vCPU debug regs: {0}")]
+     VcpuSetDebugRegs(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu lapic.
+-    #[error("Failed to set KVM vcpu lapic: {0}")]
++    #[error("Failed to set KVM vCPU lapic: {0}")]
+     VcpuSetLapic(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu mp state.
+-    #[error("Failed to set KVM vcpu mp state: {0}")]
++    #[error("Failed to set KVM vCPU mp state: {0}")]
+     VcpuSetMpState(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu msrs.
+-    #[error("Failed to set KVM vcpu msrs: {0}")]
++    #[error("Failed to set KVM vCPU msrs: {0}")]
+     VcpuSetMsrs(kvm_ioctls::Error),
+     /// Failed to set all KVM vcpu MSRs. Only a partial set was done.
+-    #[error("Failed to set all KVM MSRs for this vCPU. Only a partial write was done.")]
++    #[error("Failed to set all KVM msrs for this vCPU. Only a partial write was done.")]
+     VcpuSetMsrsIncomplete,
+     /// Failed to set KVM vcpu regs.
+-    #[error("Failed to set KVM vcpu regs: {0}")]
++    #[error("Failed to set KVM vCPU regs: {0}")]
+     VcpuSetRegs(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu sregs.
+-    #[error("Failed to set KVM vcpu sregs: {0}")]
++    #[error("Failed to set KVM vCPU sregs: {0}")]
+     VcpuSetSregs(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu event.
+-    #[error("Failed to set KVM vcpu event: {0}")]
++    #[error("Failed to set KVM vCPU event: {0}")]
+     VcpuSetVcpuEvents(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu xcrs.
+-    #[error("Failed to set KVM vcpu xcrs: {0}")]
++    #[error("Failed to set KVM vCPU xcrs: {0}")]
+     VcpuSetXcrs(kvm_ioctls::Error),
+     /// Failed to set KVM vcpu xsave.
+-    #[error("Failed to set KVM vcpu xsave: {0}")]
++    #[error("Failed to set KVM vCPU xsave: {0}")]
+     VcpuSetXsave(kvm_ioctls::Error),
+     /// Failed to set KVM TSC freq.
+     #[error("Failed to set KVM TSC frequency: {0}")]
+@@ -548,7 +548,7 @@ impl KvmVcpu {
                  METRICS.vcpu.failures.inc();
                  // TODO: Are we sure we want to finish running a vcpu upon
                  // receiving a vm exit that is not necessarily an error?
@@ -778,93 +948,25 @@ index ea7d365..c3ec1c0 100644
                  Err(super::Error::UnhandledKvmExit(format!(
                      "{:?}",
                      unexpected_exit
+@@ -627,7 +627,7 @@ impl VcpuState {
+                 }
+             }
+             _ => Err(VersionizeError::Serialize(
+-                "Cannot serialize MSRs. The uVM state needs to save
++                "Cannot serialize MSRs. The microVM state needs to save
+                  more MSRs than the target snapshot version supports."
+                     .to_string(),
+             )),
 diff --git a/src/vmm/src/vstate/vm.rs b/src/vmm/src/vstate/vm.rs
-index ceb0a87..dc42e11 100644
+index 8282ef1..23d1d56 100644
 --- a/src/vmm/src/vstate/vm.rs
 +++ b/src/vmm/src/vstate/vm.rs
-@@ -100,7 +100,7 @@ impl fmt::Display for Error {
- 
-         match self {
-             #[cfg(target_arch = "x86_64")]
--            GuestMSRs(err) => write!(f, "Retrieving supported guest MSRs fails: {:?}", err),
-+            GuestMSRs(err) => write!(f, "Retrieving supported guest MSRs failed: {:?}", err),
-             #[cfg(target_arch = "aarch64")]
-             VmCreateGIC(err) => write!(
-                 f,
-@@ -108,24 +108,24 @@ impl fmt::Display for Error {
-                 err
-             ),
-             VmFd(err) => write!(f, "Cannot open the VM file descriptor: {}", err),
--            VmSetup(err) => write!(f, "Cannot configure the microvm: {}", err),
-+            VmSetup(err) => write!(f, "Cannot configure the microVM: {}", err),
-             NotEnoughMemorySlots => write!(
-                 f,
-                 "The number of configured slots is bigger than the maximum reported by KVM"
-             ),
-             SetUserMemoryRegion(err) => write!(f, "Cannot set the memory regions: {}", err),
-             #[cfg(target_arch = "x86_64")]
--            VmGetPit2(err) => write!(f, "Failed to get KVM vm pit state: {}", err),
-+            VmGetPit2(err) => write!(f, "Failed to get KVM VM PIT state: {}", err),
-             #[cfg(target_arch = "x86_64")]
--            VmGetClock(err) => write!(f, "Failed to get KVM vm clock: {}", err),
-+            VmGetClock(err) => write!(f, "Failed to get KVM VM clock: {}", err),
-             #[cfg(target_arch = "x86_64")]
--            VmGetIrqChip(err) => write!(f, "Failed to get KVM vm irqchip: {}", err),
-+            VmGetIrqChip(err) => write!(f, "Failed to get KVM VM irqchip: {}", err),
-             #[cfg(target_arch = "x86_64")]
--            VmSetPit2(err) => write!(f, "Failed to set KVM vm pit state: {}", err),
-+            VmSetPit2(err) => write!(f, "Failed to set KVM VM PIT state: {}", err),
-             #[cfg(target_arch = "x86_64")]
--            VmSetClock(err) => write!(f, "Failed to set KVM vm clock: {}", err),
-+            VmSetClock(err) => write!(f, "Failed to set KVM VM clock: {}", err),
-             #[cfg(target_arch = "x86_64")]
--            VmSetIrqChip(err) => write!(f, "Failed to set KVM vm irqchip: {}", err),
-+            VmSetIrqChip(err) => write!(f, "Failed to set KVM VM irqchip: {}", err),
-             #[cfg(target_arch = "aarch64")]
-             SaveGic(err) => write!(f, "Failed to save the VM's GIC state: {:?}", err),
-             #[cfg(target_arch = "aarch64")]
-@@ -411,7 +411,7 @@ pub(crate) mod tests {
-             vm_memory::test_utils::create_anon_guest_memory(&[(GuestAddress(0), mem_size)], false)
-                 .unwrap();
- 
--        let mut vm = Vm::new(kvm.fd()).expect("Cannot create new vm");
-+        let mut vm = Vm::new(kvm.fd()).expect("Cannot create new VM");
-         assert!(vm.memory_init(&gm, kvm.max_memslots(), false).is_ok());
- 
-         (vm, gm)
-@@ -436,7 +436,7 @@ pub(crate) mod tests {
-     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-     fn test_get_supported_cpuid() {
-         let kvm = KvmContext::new().unwrap();
--        let vm = Vm::new(kvm.fd()).expect("Cannot create new vm");
-+        let vm = Vm::new(kvm.fd()).expect("Cannot create new VM");
-         let cpuid = kvm
-             .fd()
-             .get_supported_cpuid(KVM_MAX_CPUID_ENTRIES)
-@@ -447,7 +447,7 @@ pub(crate) mod tests {
-     #[test]
-     fn test_vm_memory_init() {
-         let kvm_context = KvmContext::new().unwrap();
--        let mut vm = Vm::new(kvm_context.fd()).expect("Cannot create new vm");
-+        let mut vm = Vm::new(kvm_context.fd()).expect("Cannot create new VM");
- 
-         // Create valid memory region and test that the initialization is successful.
-         let gm =
-@@ -462,7 +462,7 @@ pub(crate) mod tests {
-     #[test]
-     fn test_vm_save_restore_state() {
-         let kvm_fd = Kvm::new().unwrap();
--        let vm = Vm::new(&kvm_fd).expect("new vm failed");
-+        let vm = Vm::new(&kvm_fd).expect("new VM failed");
-         // Irqchips, clock and pitstate are not configured so trying to save state should fail.
-         assert!(vm.save_state().is_err());
- 
-@@ -517,7 +517,7 @@ pub(crate) mod tests {
-     #[test]
-     fn test_set_kvm_memory_regions() {
-         let kvm_context = KvmContext::new().unwrap();
--        let vm = Vm::new(kvm_context.fd()).expect("Cannot create new vm");
-+        let vm = Vm::new(kvm_context.fd()).expect("Cannot create new VM");
- 
-         let gm =
-             vm_memory::test_utils::create_anon_guest_memory(&[(GuestAddress(0), 0x1000)], false)
+@@ -69,7 +69,7 @@ pub enum Error {
+     #[error("Failed to set KVM vm irqchip: {0}")]
+     VmSetIrqChip(kvm_ioctls::Error),
+     /// Cannot configure the microvm.
+-    #[error("Cannot configure the microvm: {0}")]
++    #[error("Cannot configure the microVM: {0}")]
+     VmSetup(kvm_ioctls::Error),
+     #[cfg(target_arch = "aarch64")]
+     /// Failed to save the VM's GIC state.
