@@ -16,25 +16,6 @@ index c45f849..fe1cb38 100644
              path,
              std::str::from_utf8(value.body.as_slice())
                  .unwrap_or("inconvertible to UTF-8")
-@@ -536,15 +536,15 @@ pub mod tests {
-     fn test_describe() {
-         assert_eq!(
-             describe(Method::Get, "path", None),
--            "Get request on \"path\""
-+            "GET request on \"path\""
-         );
-         assert_eq!(
-             describe(Method::Put, "/mmds", None),
--            "Put request on \"/mmds\""
-+            "PUT request on \"/mmds\""
-         );
-         assert_eq!(
-             describe(Method::Put, "path", Some(&Body::new("body"))),
--            "Put request on \"path\" with body \"body\""
-+            "PUT request on \"path\" with body \"body\""
-         );
-     }
- 
 diff --git a/src/devices/src/virtio/block/io/async_io.rs b/src/devices/src/virtio/block/io/async_io.rs
 index f28fcbf..d069c9f 100644
 --- a/src/devices/src/virtio/block/io/async_io.rs
@@ -325,15 +306,6 @@ index 3c7b9e3..6b6fbb6 100644
      MethodNotAllowed,
      #[error("No MMDS token provided. Use `X-metadata-token` header to specify the session token.")]
      NoTokenProvided,
-@@ -681,7 +681,7 @@ mod tests {
- 
-         assert_eq!(
-             Error::MethodNotAllowed.to_string(),
--            "Not allowed HTTP method."
-+            "HTTP method not allowed."
-         );
- 
-         assert_eq!(
 diff --git a/src/utils/src/arg_parser.rs b/src/utils/src/arg_parser.rs
 index e6dd8e1..7d8b4fa 100644
 --- a/src/utils/src/arg_parser.rs
@@ -685,71 +657,6 @@ index d0c08c1..fdfcebc 100644
      SaveState(ArchError),
  }
  
-@@ -288,7 +288,7 @@ mod tests {
-         assert!(err.is_err());
-         assert_eq!(
-             err.err().unwrap().to_string(),
--            "Error creating vcpu: Bad file descriptor (os error 9)".to_string()
-+            "Error creating vCPU: Bad file descriptor (os error 9)".to_string()
-         );
-     }
- 
-@@ -319,7 +319,7 @@ mod tests {
-         assert!(err.is_err());
-         assert_eq!(
-             err.err().unwrap().to_string(),
--            "Error configuring the vcpu registers: Failed to set processor state register: Bad \
-+            "Error configuring the vCPU registers: Failed to set processor state register: Bad \
-              file descriptor (os error 9)"
-                 .to_string()
-         );
-@@ -334,7 +334,7 @@ mod tests {
-         assert!(err.is_err());
-         assert_eq!(
-             err.err().unwrap().to_string(),
--            "Error configuring the vcpu registers: Failed to set processor state register: Bad \
-+            "Error configuring the vCPU registers: Failed to set processor state register: Bad \
-              file descriptor (os error 9)"
-                 .to_string()
-         );
-@@ -348,7 +348,7 @@ mod tests {
-         assert!(err.is_err());
-         assert_eq!(
-             err.err().unwrap().to_string(),
--            "Error getting the vcpu preferred target: Bad file descriptor (os error 9)".to_string()
-+            "Error getting the vCPU preferred target: Bad file descriptor (os error 9)".to_string()
-         );
-     }
- 
-@@ -363,7 +363,7 @@ mod tests {
-         assert!(res.is_err());
-         assert_eq!(
-             res.err().unwrap().to_string(),
--            "Failed to save the state of the vcpu: Failed to get X0 register: Exec format error \
-+            "Failed to save the state of the vCPU: Failed to get X0 register: Exec format error \
-              (os error 8)"
-                 .to_string()
-         );
-@@ -378,16 +378,16 @@ mod tests {
-         assert!(res.is_err());
-         assert_eq!(
-             res.err().unwrap().to_string(),
--            "Failed to restore the state of the vcpu: Failed to set register 0: Exec format error \
-+            "Failed to restore the state of the vCPU: Failed to set register 0: Exec format error \
-              (os error 8)"
-                 .to_string()
-         );
- 
-         init_vcpu(&vcpu.fd, vm.fd());
--        let state = vcpu.save_state().expect("Cannot save state of vcpu");
-+        let state = vcpu.save_state().expect("Cannot save state of vCPU");
-         assert!(!state.regs.is_empty());
-         vcpu.restore_state(&state)
--            .expect("Cannot restore state of vcpu");
-+            .expect("Cannot restore state of vCPU");
-         let value = vcpu
-             .fd
-             .get_one_reg(0x6030_0000_0010_003E)
 diff --git a/src/vmm/src/vstate/vcpu/mod.rs b/src/vmm/src/vstate/vcpu/mod.rs
 index e452a2d..b706a88 100644
 --- a/src/vmm/src/vstate/vcpu/mod.rs
@@ -826,15 +733,6 @@ index e452a2d..b706a88 100644
                          Err(Error::FaultyKvmExit(format!("{}", err)))
                      }
                  }
-@@ -812,7 +812,7 @@ pub mod tests {
-         assert!(res.is_err());
-         assert_eq!(
-             res.err().unwrap().to_string(),
--            "Unexpected kvm exit received: Unknown".to_string()
-+            "Unexpected KVM exit received: Unknown".to_string()
-         );
- 
-         *(vcpu.test_vcpu_exit_reason.lock().unwrap()) = Some(Err(errno::Error::new(libc::EAGAIN)));
 diff --git a/src/vmm/src/vstate/vcpu/x86_64.rs b/src/vmm/src/vstate/vcpu/x86_64.rs
 index a7bce62..678dff6 100644
 --- a/src/vmm/src/vstate/vcpu/x86_64.rs

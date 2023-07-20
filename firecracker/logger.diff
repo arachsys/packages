@@ -1,0 +1,216 @@
+diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
+index be5be31..bb9e9ed 100644
+--- a/src/firecracker/src/main.rs
++++ b/src/firecracker/src/main.rs
+@@ -172,20 +172,32 @@ fn main_exitable() -> FcExitCode {
+         .arg(
+             Argument::new("level")
+                 .takes_value(true)
+-                .requires("log-path")
+                 .default_value("Warning")
+                 .help("Log level"),
+         )
++        .arg(
++            Argument::new("show-timestamp")
++                .takes_value(false)
++                .help("Include timestamp in logs"),
++        )
++        .arg(
++            Argument::new("show-instance-id")
++                .takes_value(false)
++                .help("Include microVM identifier in logs"),
++        )
++        .arg(
++            Argument::new("show-thread-name")
++                .takes_value(false)
++                .help("Include thread name in logs"),
++        )
+         .arg(
+             Argument::new("show-level")
+                 .takes_value(false)
+-                .requires("log-path")
+                 .help("Include log level in logs"),
+         )
+         .arg(
+             Argument::new("show-log-origin")
+                 .takes_value(false)
+-                .requires("log-path")
+                 .help(
+                     "Include file and line number in logs",
+                 ),
+@@ -264,24 +276,25 @@ fn main_exitable() -> FcExitCode {
+         app_name: "Firecracker".to_string(),
+     };
+ 
+-    LOGGER.set_instance_id(instance_id.to_owned());
++    let level = arguments.single_value("level").unwrap().to_owned();
++    let logger_level = match LoggerLevel::from_string(level) {
++        Ok(level) => level,
++        Err(err) => {
++            return generic_error_exit(&format!(
++                "Invalid value for logger level: {}.Possible values: [Error, Warning, Info, \
++                 Debug]",
++                err
++            ));
++        }
++    };
++    let show_timestamp = arguments.flag_present("show-timestamp");
++    let show_instance_id = arguments.flag_present("show-instance-id");
++    let show_thread_name = arguments.flag_present("show-thread_name");
++    let show_level = arguments.flag_present("show-level");
++    let show_log_origin = arguments.flag_present("show-log-origin");
+ 
+     if let Some(log) = arguments.single_value("log-path") {
+         // It's safe to unwrap here because the field's been provided with a default value.
+-        let level = arguments.single_value("level").unwrap().to_owned();
+-        let logger_level = match LoggerLevel::from_string(level) {
+-            Ok(level) => level,
+-            Err(err) => {
+-                return generic_error_exit(&format!(
+-                    "Invalid value for logger level: {}.Possible values: [Error, Warning, Info, \
+-                     Debug]",
+-                    err
+-                ));
+-            }
+-        };
+-        let show_level = arguments.flag_present("show-level");
+-        let show_log_origin = arguments.flag_present("show-log-origin");
+-
+         let logger_config = LoggerConfig::new(
+             PathBuf::from(log),
+             logger_level,
+@@ -291,8 +304,17 @@ fn main_exitable() -> FcExitCode {
+         if let Err(err) = init_logger(logger_config, &instance_info) {
+             return generic_error_exit(&format!("Could not initialize logger: {}", err));
+         };
++    } else {
++        LOGGER.set_instance_id(instance_id.to_owned());
++        LOGGER.set_max_level(logger_level.into());
++        LOGGER.set_include_level(show_level);
++        LOGGER.set_include_origin(show_log_origin, show_log_origin);
+     }
+ 
++    LOGGER.set_include_timestamp(show_timestamp);
++    LOGGER.set_include_instance_id(show_instance_id);
++    LOGGER.set_include_thread_name(show_thread_name);
++
+     if let Some(metrics_path) = arguments.single_value("metrics-path") {
+         let metrics_config = MetricsConfig {
+             metrics_path: PathBuf::from(metrics_path),
+diff --git a/src/logger/src/logger.rs b/src/logger/src/logger.rs
+index 6f3d1cc..80ea388 100644
+--- a/src/logger/src/logger.rs
++++ b/src/logger/src/logger.rs
+@@ -113,6 +113,9 @@ pub struct Logger {
+     init: Init,
+     // Human readable logs will be outputted here.
+     log_buf: Mutex<Box<dyn Write + Send>>,
++    show_timestamp: AtomicBool,
++    show_instance_id: AtomicBool,
++    show_thread_name: AtomicBool,
+     show_level: AtomicBool,
+     show_file_path: AtomicBool,
+     show_line_numbers: AtomicBool,
+@@ -125,13 +128,28 @@ impl Logger {
+         Logger {
+             init: Init::new(),
+             log_buf: Mutex::new(Box::new(sink())),
++            show_timestamp: AtomicBool::new(false),
++            show_instance_id: AtomicBool::new(false),
++            show_thread_name: AtomicBool::new(false),
+             show_level: AtomicBool::new(false),
+-            show_line_numbers: AtomicBool::new(false),
+             show_file_path: AtomicBool::new(false),
++            show_line_numbers: AtomicBool::new(false),
+             instance_id: RwLock::new(String::new()),
+         }
+     }
+ 
++    fn show_timestamp(&self) -> bool {
++        self.show_timestamp.load(Ordering::Relaxed)
++    }
++
++    fn show_instance_id(&self) -> bool {
++        self.show_instance_id.load(Ordering::Relaxed)
++    }
++
++    fn show_thread_name(&self) -> bool {
++        self.show_thread_name.load(Ordering::Relaxed)
++    }
++
+     fn show_level(&self) -> bool {
+         self.show_level.load(Ordering::Relaxed)
+     }
+@@ -144,6 +162,21 @@ impl Logger {
+         self.show_line_numbers.load(Ordering::Relaxed)
+     }
+ 
++    pub fn set_include_timestamp(&self, option: bool) -> &Self {
++        self.show_timestamp.store(option, Ordering::Relaxed);
++        self
++    }
++
++    pub fn set_include_instance_id(&self, option: bool) -> &Self {
++        self.show_instance_id.store(option, Ordering::Relaxed);
++        self
++    }
++
++    pub fn set_include_thread_name(&self, option: bool) -> &Self {
++        self.show_thread_name.store(option, Ordering::Relaxed);
++        self
++    }
++
+     /// Enables or disables including the level in the log message's tag portion.
+     ///
+     /// # Arguments
+@@ -254,13 +287,16 @@ impl Logger {
+     fn create_prefix(&self, record: &Record) -> String {
+         let mut prefix: Vec<String> = vec![];
+ 
+-        let instance_id = extract_guard(self.instance_id.read());
+-        if !instance_id.is_empty() {
+-            prefix.push(instance_id.to_string());
++        if self.show_instance_id() {
++            let instance_id = extract_guard(self.instance_id.read());
++            if !instance_id.is_empty() {
++                prefix.push(instance_id.to_string());
++            }
+         }
+ 
+-        // Attach current thread name to prefix.
+-        prefix.push(self.get_thread_name());
++        if self.show_thread_name() {
++            prefix.push(self.get_thread_name());
++        }
+ 
+         if self.show_level() {
+             prefix.push(record.level().to_string());
+@@ -276,7 +312,17 @@ impl Logger {
+             }
+         }
+ 
+-        format!("[{}]", prefix.join(":"))
++        let prefix = if prefix.is_empty() {
++            String::new()
++        } else {
++            format!("[{}] ", prefix.join(":"))
++        };
++
++        if self.show_timestamp() {
++            format!("{} {}", LocalTime::now(), prefix)
++        } else {
++            prefix
++        }
+     }
+ 
+     /// if the max level hasn't been configured yet, set it to default
+@@ -407,8 +453,7 @@ impl Log for Logger {
+ 
+     fn log(&self, record: &Record) {
+         let msg = format!(
+-            "{} {} {}",
+-            LocalTime::now(),
++            "{}{}",
+             self.create_prefix(record),
+             record.args()
+         );

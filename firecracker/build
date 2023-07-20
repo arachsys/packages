@@ -12,6 +12,7 @@ prepare() {
   apply cosmetic.diff
   apply direct.diff
   apply getrandom.diff
+  apply logger.diff
   apply seccomp.diff
   apply serial.diff
 
@@ -22,7 +23,7 @@ prepare() {
   cargo vendor >.cargo/config
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
     vendor/*/.cargo-checksum.json
-  tree 8a43e9b493bfb026f67748bc36d0fc7d1612db6f3255c67b57a2d7abad759b39
+  tree e2efc3d07af868afa912b55ef1ecbd827e702f270edf9f6fd8b815e0112421cb
 }
 
 build() {
