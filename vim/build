@@ -4,10 +4,10 @@ check() {
 }
 
 prepare() {
-  unpack vim-9.0.1600.tar.gz \
-    https://github.com/vim/vim/archive/refs/tags/v9.0.1600.tar.gz
+  unpack vim-9.0.1677.tar.gz \
+    https://github.com/vim/vim/archive/refs/tags/v9.0.1677.tar.gz
   apply paths.diff
-  tree 431714ff8c32f7ec79c2401e274d4bd862738b87bfe6dae352f5531f88cdcc15
+  tree 5730410ba091ab056229eaae40a655f7dd8b40710b7bcfeed9217312b7b68544
 }
 
 build() {
