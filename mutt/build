@@ -1,4 +1,3 @@
-mode autotools
 require lmdb perl
 
 check() {
@@ -11,14 +10,11 @@ prepare() {
   tree 77af51eb4b299053c1ddac0c091a58c5c902d1b9173c68d3daef6ec9f8806fea
 }
 
-config-extra --docdir=/lib/doc/mutt --disable-{pgp,smime} \
-  --enable-{hcache,imap,pop,sidebar,smtp} --with-{lmdb,ssl} \
-  --with-homespool=Maildir SENDMAIL=/bin/sendmail
-
-post-config() {
+build() {
+  auto-config --docdir=/lib/doc/mutt --disable-{pgp,smime} \
+    --enable-{hcache,imap,pop,sidebar,smtp} --with-{lmdb,ssl} \
+    --with-homespool=Maildir SENDMAIL=/bin/sendmail
   sed -i '/MUTTLIBS =/s/-llmdb/-Wl,-Bstatic \0 -Wl,-Bdynamic/' Makefile
-}
-
-post-install() {
+  make install DESTDIR=/dst
   rm -f /dst/bin/flea /dst/bin/muttbug
 }

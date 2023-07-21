@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://download.samba.org/pub/rsync/
   match version 3.2.7 'rsync-([0-9.]+)\.tar'
@@ -16,13 +14,10 @@ prepare() {
   tree cd73ab8cbd90f1ed0594adcc460d38e01c014321e244f4cfa59329b5f4c0d23e
 }
 
-pre-config() {
+build() {
   make -C xxhash libxxhash.a
-}
-
-config-extra --disable-lz4 --enable-xxhash --with-included-popt \
-  --without-included-zlib CPPFLAGS=-I/src/xxhash LDFLAGS=-L/src/xxhash
-
-post-install() {
+  auto-config --disable-lz4 --enable-xxhash --with-included-popt \
+    --without-included-zlib CPPFLAGS=-I/src/xxhash LDFLAGS=-L/src/xxhash
+  make install DESTDIR=/dst
   rm -f /dst/{bin/rsync-ssl,lib/man/man1/rsync-ssl.1}
 }

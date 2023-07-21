@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://www.libarchive.org/downloads/
   match version 3.6.2 'libarchive-([0-9.]+)\.tar'
@@ -10,10 +8,10 @@ prepare() {
   tree bab92c8292cddacfd0f0aea477dd42f0e213df7b43d60f36cfb735c25331cd01
 }
 
-config-extra --disable-acl --enable-bsd{cat,cpio,tar}=dynamic \
-  --enable-xattr --without-{expat,xml2} --with-{bz2lib,lzma,zlib,zstd}
-
-post-install() {
+build() {
+  auto-config --disable-acl --enable-bsd{cat,cpio,tar}=dynamic \
+    --enable-xattr --without-{expat,xml2} --with-{bz2lib,lzma,zlib,zstd}
+  make install DESTDIR=/dst
   mv /dst/bin/{bsdcpio,cpio}
   mv /dst/bin/{bsdtar,tar}
 }

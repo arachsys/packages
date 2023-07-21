@@ -1,4 +1,3 @@
-mode autotools
 require bison libevent
 enable setuid
 enable setgid
@@ -23,18 +22,16 @@ prepare() {
   tree 000b1723a9a4a949fb114b3e17e719119bba2366df18f074863812833a76c9f4
 }
 
-pre-config() {
+build() {
   echo '#define HAVE_DECL_MAX 1' >fts/config.h
   cc -Ifts -O2 -Wall -c fts/fts.c -o fts/fts.o
   ar rcs fts/libfts.a fts/fts.o
-}
 
-config-extra --sysconfdir=/etc/mail --with-path-{pidfile,socket}=/run \
-  --with-path-{empty=/run/empty,mbox=/var/mail,queue=/var/lib/smtpd} \
-  --with-{group-queue,user-queue,user-smtpd}=mail \
-  --with-libfts CFLAGS=-I/src/fts LDFLAGS=-L/src/fts
-
-post-install() {
+  auto-config --sysconfdir=/etc/mail --with-path-{pidfile,socket}=/run \
+    --with-path-{empty=/run/empty,mbox=/var/mail,queue=/var/lib/smtpd} \
+    --with-{group-queue,user-queue,user-smtpd}=mail \
+    --with-libfts CFLAGS=-I/src/fts LDFLAGS=-L/src/fts
+  make install DESTDIR=/dst
   ln -s smtpctl /dst/bin/sendmail
   image - requires libevent
 }

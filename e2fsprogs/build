@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/refs/
   match version 1.47.0 'e2fsprogs-([0-9.]+)\.tar'
@@ -11,19 +9,13 @@ prepare() {
   tree b24e2ccfeba83c9f20e79b68139724b2c9758063ee429efa9e7c18d841b08256
 }
 
-config-extra --libexecdir='${prefix}/bin' --disable-libblkid \
-  --disable-elf-shlibs --disable-fsck --disable-libuuid --disable-uuidd \
-  PKG_CONFIG=/bin/true LDFLAGS="-lblkid -luuid"
-
-if enabled shared; then
-  config-extra --enable-elf-shlibs
-fi
-
-post-config() {
+build() {
+  auto-config --libexecdir='${prefix}/bin' --disable-elf-shlibs \
+    --disable-fsck --disable-libblkid --disable-libuuid --disable-uuidd \
+    $(enabled shared && echo --enable-elf-shlibs) PKG_CONFIG=/bin/true \
+    LDFLAGS="-lblkid -luuid"
   sed -i '/^E2SCRUB_DIR *=/s/^/#/' Makefile
-}
-
-post-install() {
+  make install DESTDIR=/dst
   make install-libs DESTDIR=/dst
   rm -f /dst/lib/e2initrd_helper
   if ! enabled shared; then

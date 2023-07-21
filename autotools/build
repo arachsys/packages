@@ -1,6 +1,4 @@
-mode autotools
 require m4 perl
-
 enabled bootstrap || require autotools
 
 check() {
@@ -30,34 +28,27 @@ prepare() {
 }
 
 build() {
-  config-remove --disable-nls
-  filter-defaults
-
   cd /src/autoconf
-  $PWD/configure "${CONFIGARGS[@]}"
-  make "${COMPILEARGS[@]}"
-  make "${INSTALLARGS[@]}"
+  auto-config
+  make install DESTDIR=/dst
 
   cd /src/gettext
-  $PWD/configure "${CONFIGARGS[@]}"
-  make "${COMPILEARGS[@]}"
-  make "${INSTALLARGS[@]}"
+  auto-config
+  make && make install DESTDIR=/dst
 
   cd /src/pkgconf
-  $PWD/configure --version | head -n 1 | while read _ _ VERSION; do
+  /src/pkgconf/configure --version | head -n 1 | while read _ _ VERSION; do
     sed "s/@VERSION@/$VERSION/g" pkg.m4.in >/dst/lib/aclocal/pkg.m4
   done
 
   if ! enabled bootstrap; then
     cd /src/automake
-    $PWD/configure "${CONFIGARGS[@]}"
-    make "${COMPILEARGS[@]}"
-    make "${INSTALLARGS[@]}"
+    auto-config
+    make install DESTDIR=/dst
 
     cd /src/libtool
-    $PWD/configure "${CONFIGARGS[@]}" --disable-shared
-    make "${COMPILEARGS[@]}"
-    make "${INSTALLARGS[@]}"
+    auto-config --disable-shared
+    make install DESTDIR=/dst
 
     sed -i 's:\(/lib/automake\)-[0-9.]*:\1:g' \
       /dst/bin/aclocal /dst/bin/automake /dst/lib/**/Config.pm

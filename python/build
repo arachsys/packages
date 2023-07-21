@@ -1,4 +1,3 @@
-mode autotools
 require libffi sqlite
 
 check() {
@@ -19,12 +18,13 @@ prepare() {
   tree f3f52a9fa74c81b4e22fb255edc7866606e8ef06e1f571219c407c55f70c5b1f
 }
 
-config-extra --enable-optimizations --enable-shared --with-ensurepip=no \
-  --with-openssl=/lib --with-ssl-default-suites=openssl \
-  CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x200000" \
-  LDFLAGS=-fno-semantic-interposition
+build() {
+  auto-config --enable-optimizations --enable-shared --with-ensurepip=no \
+    --with-openssl=/lib --with-ssl-default-suites=openssl \
+    CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x200000" \
+    LDFLAGS=-fno-semantic-interposition
+  make install DESTDIR=/dst
 
-post-install() {
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
   LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/pip install wheel-*.whl
 

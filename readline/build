@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/readline/
   match version 8.2 'readline-([0-9.]+)\.tar\.gz'
@@ -12,5 +10,7 @@ prepare() {
   tree c10c354bec88f05907832bf467e661e94f2dfee5edb421de66700a09bbf21cc2
 }
 
-config-extra --disable-install-examples
-compile-extra SHLIB_LIBS=-lncurses
+build() {
+  auto-config --disable-install-examples
+  make install DESTDIR=/dst SHLIB_LIBS=-lncurses
+}

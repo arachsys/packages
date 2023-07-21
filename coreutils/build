@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/coreutils/
   match version 9.3 'coreutils-([0-9.]+)\.tar'
@@ -11,7 +9,8 @@ prepare() {
   tree de99a27e9d2f6f2787bd323eee7c05d5301f3d207ce94bedc38ec2dba7c753c2
 }
 
-config-extra --enable-no-install-program=hostid,kill,pinky,uptime,users,who \
-  --enable-install-program=hostname FORCE_UNSAFE_CONFIGURE=1
-
-compile-extra run_help2man=/src/man/dummy-man
+build() {
+  FORCE_UNSAFE_CONFIGURE=1 auto-config --enable-install-program=hostname \
+    --enable-no-install-program=hostid,kill,pinky,uptime,users,who
+  make install DESTDIR=/dst run_help2man=/src/man/dummy-man
+}

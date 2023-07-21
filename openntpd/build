@@ -1,4 +1,3 @@
-mode autotools
 require autotools bison
 
 check() {
@@ -15,13 +14,14 @@ prepare() {
   tree 28174a226731a2ac750ec7d72cfef993b03c395e6047062b6af3a752ff1b8048
 }
 
-pre-config() {
+build() {
   bash update.sh
   apply adjtimex.diff
   apply cosmetic.diff
   apply paths.diff
   apply settime.diff
   autoreconf -i
-}
 
-config-extra --enable-https-constraint --with-privsep-user=ntp
+  auto-config --enable-https-constraint --with-privsep-user=ntp
+  make install DESTDIR=/dst
+}

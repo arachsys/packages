@@ -5,6 +5,5 @@ build() {
   cp -d -R /pkg/bin /dst/
   cp -d -R /pkg/lib /dst/lib/pkg
   cp -d -R /pkg/actions /dst/lib/pkg/actions
-  cp -d -R /pkg/modes /dst/lib/pkg/modes
   cp -d -R /pkg/skel /dst/lib/pkg/skel
 }

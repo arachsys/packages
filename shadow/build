@@ -1,4 +1,3 @@
-mode autotools
 enable setuid setgid
 
 check() {
@@ -15,17 +14,14 @@ prepare() {
   tree 908807ccf44aa1490e21128368918a88aa6da7ca592bd51516d6d21fa569b84a
 }
 
-config-extra --disable-shared --without-{audit,libpam} --with-bcrypt
-
-post-config() {
+build() {
+  auto-config --disable-shared --without-{audit,libpam} --with-bcrypt
   sed -e 's:^\(#define FAILLOG_FILE\).*:\1 "/dev/null":' \
       -e 's:^\(#define LASTLOG_FILE\).*:\1 "/dev/null":' \
       -e 's:^\(#define _UTMP_FILE\).*:\1 "/dev/null":' \
       -e 's:^\(#define _WTMP_FILE\).*:\1 "/dev/null":' \
       -i config.h
-}
-
-post-install() {
+  make install DESTDIR=/dst
   chgrp shadow /dst/bin/{chage,expiry}
   chmod u-s,g+s /dst/bin/{chage,expiry}
   rm -f /dst/bin/{chfn,faillog,groups,lastlog,logoutd}

@@ -1,4 +1,3 @@
-mode autotools
 enable setuid
 
 check() {
@@ -12,6 +11,8 @@ prepare() {
   tree 7b4b3e0aa020d1a324b77178f866d2dd357146c50133609960377e1f2e924f08
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f -r /dst/lib/bash-completion
 }

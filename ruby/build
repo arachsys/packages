@@ -1,10 +1,5 @@
-mode autotools
 require libffi
-
-if [[ $CHOST == @(aarch64|amd64|x86_64)* ]]; then
-  require rust
-  config-extra LIBS=-lunwind
-fi
+[[ $CHOST == @(aarch64|amd64|x86_64)* ]] && require rust
 
 check() {
   url https://www.ruby-lang.org/en/downloads/
@@ -24,13 +19,14 @@ prepare() {
   tree ae503a0ca76490449bd2560ca6940b8b842797f89501220b7015bee808715802
 }
 
-config-extra --disable-install-doc  --disable-rpath --enable-shared \
-  --with-libyaml-source-dir=/src/libyaml --with-ridir=/lib/ruby/doc \
-  --with-ruby{arch,}hdrdir=/lib/include \
-  --with-ruby{arch,lib}prefix=/lib/ruby \
-  --with-{site,vendor}{archdir,archhdrdir,dir,hdrdir}=no
-
-post-install() {
+build() {
+  auto-config --disable-install-doc  --disable-rpath --enable-shared \
+    --with-libyaml-source-dir=/src/libyaml --with-ridir=/lib/ruby/doc \
+    --with-ruby{arch,}hdrdir=/lib/include \
+    --with-ruby{arch,lib}prefix=/lib/ruby \
+    --with-{site,vendor}{archdir,archhdrdir,dir,hdrdir}=no \
+    $([[ $CHOST == @(aarch64|amd64|x86_64)* ]] && echo LIBS=-lunwind)
+  make install DESTDIR=/dst
   rm -f /dst/lib/include/rb_mjit_min_header-*.h
   image - requires libffi
 }

@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://tukaani.org/xz/
   match version 5.4.3 'xz-([0-9.]+)\.tar'
@@ -10,7 +8,9 @@ prepare() {
   tree a6a8dfc5fb23bda35fd80c8deff4b35c2a148a68ac5a76125506b3087db786bc
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f /dst/bin/{lz,xz}{cmp,diff,*grep,less,more} \
     /dst/lib/man/man1/{lz,xz}{cmp,diff,*grep,less,more}.1
 }

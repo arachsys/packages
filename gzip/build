@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/gzip/
   match version 1.12 'gzip-([0-9.]+)\.tar'
@@ -10,7 +8,9 @@ prepare() {
   tree 87aa290ec131182ea3b1a6a4d7b314b1f49d9ba9a93a4bc987ffea15bba13ea9
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f /dst/bin/z{cmp,diff,force,*grep,less,more,new} \
     /dst/lib/man/man1/z{cmp,diff,force,*grep,less,more,new}.1 \
     /dst/bin/{gzexe,uncompress} /dst/lib/man/man1/{gzexe,uncompress}.1

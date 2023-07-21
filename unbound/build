@@ -1,4 +1,3 @@
-mode autotools
 require expat
 
 check() {
@@ -11,16 +10,13 @@ prepare() {
   tree 0ad8db8169ebfa331b001cbb8fde47dd1151c6d629f55dadc6eb9ac89c0f4db3
 }
 
-config-extra --disable-{rpath,shared} --enable-subnet --with-chroot-dir= \
-  --with-conf-file=/etc/unbound.conf --with-{libexpat,ssl}=/lib \
-  --with-pidfile=/run/unbound.pid --with-run-dir=/var/lib/unbound \
-  --with-username=dns
-
-post-config() {
+build() {
+  auto-config --disable-{rpath,shared} --enable-subnet --with-chroot-dir= \
+    --with-conf-file=/etc/unbound.conf --with-{libexpat,ssl}=/lib \
+    --with-pidfile=/run/unbound.pid --with-run-dir=/var/lib/unbound \
+    --with-username=dns
   sed -i 's/-lexpat/-Wl,-Bstatic,\0,-Bdynamic/' Makefile
-}
-
-post-install() {
+  make install DESTDIR=/dst
   rm -f -r /dst/bin/unbound-control-setup /dst/include /dst/lib
   ln -s unbound-host /dst/bin/host
 }

@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://github.com/libevent/libevent/tags
   match version 2.1.12 'releases/tag/release-([0-9.]+)-stable'
@@ -12,10 +10,9 @@ prepare() {
   tree 3be65d98e315f36d87bdd5f70ccadab7aab52cd76591ca6dc441dab87f581d74
 }
 
-pre-config() {
+build() {
   sed -i '/GENERIC_LDFLAGS =/s/\$(RELEASE) //p' Makefile.{am,in}
-}
-
-post-install() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f /dst/bin/event_rpcgen.py
 }

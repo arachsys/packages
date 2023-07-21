@@ -1,4 +1,3 @@
-mode autotools
 require libevent
 
 check() {
@@ -11,7 +10,10 @@ prepare() {
   tree f8968a143b9efcc9f18fc4f8765121c5881d9861b52377cf8fe26351e15749d0
 }
 
-config-extra --enable-root-server --with-dbfile=/var/lib/nsd/nsd.db \
-  --with-libevent=/lib --with-pidfile=/run/nsd.pid --with-ssl=/lib \
-  --with-user=dns --with-xfrdfile=/var/lib/nsd/xfrd.state \
-  --with-zonelistfile=/var/lib/nsd/zone.list
+build() {
+  auto-config --enable-root-server --with-dbfile=/var/lib/nsd/nsd.db \
+    --with-libevent=/lib --with-pidfile=/run/nsd.pid --with-ssl=/lib \
+    --with-user=dns --with-xfrdfile=/var/lib/nsd/xfrd.state \
+    --with-zonelistfile=/var/lib/nsd/zone.list
+  make install DESTDIR=/dst
+}

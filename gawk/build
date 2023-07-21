@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/gawk/
   match version 5.2.2 'gawk-([0-9.]+)\.tar'
@@ -10,6 +8,8 @@ prepare() {
   tree 540c423741d312c0d5d72772a185fb0b854d847c5c499361857320eda501194f
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f /dst/bin/gawk{-*,bug}
 }

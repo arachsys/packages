@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://curl.haxx.se/download/
   match curl 8.2.0 'curl-([0-9.]+)\.tar'
@@ -16,21 +14,18 @@ prepare() {
   tree 93daf3eae6bbe81e64581b8e8febefc1268c73e3748295c8aac08b87c2dd23c6
 }
 
-pre-config() {
+build() {
   cd /src/nghttp2
-  /src/nghttp2/configure --disable-shared --enable-lib-only --with-pic
+  auto-config --disable-shared --enable-lib-only --with-pic
   make
 
   cd /src
   unexpand curl-config.in >curl-config.in.tmp
   mv -f curl-config.in{.tmp,}
-  export PATH_SEPARATOR=:
-}
-
-config-extra --with-ca-bundle=/etc/ssl/cert.pem --with-openssl \
-  CPPFLAGS="-DUSE_NGHTTP2=1 -I/src/nghttp2/lib/includes" \
-  LDFLAGS=-L/src/nghttp2/lib/.libs LIBS=-lnghttp2
-
-post-install() {
+  PATH_SEPARATOR=: auto-config \
+    --with-ca-bundle=/etc/ssl/cert.pem --with-openssl \
+    CPPFLAGS="-DUSE_NGHTTP2=1 -I/src/nghttp2/lib/includes" \
+    LDFLAGS=-L/src/nghttp2/lib/.libs LIBS=-lnghttp2
+  make install DESTDIR=/dst
   rm -f /dst/bin/curl-config /dst/lib/aclocal/libcurl.m4
 }

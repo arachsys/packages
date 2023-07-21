@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://sourceforge.net/projects/procps-ng/files/Production/
   match version 4.0.3 'procps-ng-([0-9.]+)\.tar'
@@ -13,9 +11,9 @@ prepare() {
   tree befb4826c3ce2c76501b7ab694376ab99c697ed4ed4b00dfa667ef8acb83231c
 }
 
-config-extra --disable-{kill,modern-top,shared} --enable-watch8bit \
-  NCURSES_CFLAGS= NCURSES_LIBS=-lncursesw PKG_CONFIG=/bin/true
-
-post-install() {
+build() {
+  auto-config --disable-{kill,modern-top,shared} --enable-watch8bit \
+    NCURSES_CFLAGS= NCURSES_LIBS=-lncursesw PKG_CONFIG=/bin/true
+  make install DESTDIR=/dst
   rm -f -r /dst/bin/w /dst/lib/{include,lib*.a,man/man1/w.1,pkgconfig}
 }

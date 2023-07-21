@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://sourceware.org/pub/libffi/
   match version 3.4.3 'libffi-([0-9.]+)\.tar'
@@ -10,4 +8,9 @@ prepare() {
   apply declare.diff
   apply paths.diff
   tree a19bab51324944d1637c6d4cdecc24365391ed7a32433a59cdee99ad8332ad04
+}
+
+build() {
+  auto-config
+  make install DESTDIR=/dst
 }

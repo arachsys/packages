@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/network/wireless/
   match version 2.7 'iwd-([0-9.]+)\.tar'
@@ -15,11 +13,11 @@ prepare() {
   tree a8ecb4cebc72d6df8ec9b272a7760579cf9ab9cf62f1718b8bd46263f24600bd
 }
 
-config-extra --disable-dbus-policy --disable-systemd-service \
-  --with-dbus-busdir=/lib/dbus/system-services \
-  READLINE_CFLAGS=-I/lib/include READLINE_LIBS=-lreadline
-
-post-install() {
+build() {
+  auto-config --disable-dbus-policy --disable-systemd-service \
+    --with-dbus-busdir=/lib/dbus/system-services \
+    READLINE_CFLAGS=-I/lib/include READLINE_LIBS=-lreadline
+  make install DESTDIR=/dst
   mv /dst/{lib,bin}/iwd
   cp /pkg/resolvconf /dst/bin/
 }

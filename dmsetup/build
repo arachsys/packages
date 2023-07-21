@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://sourceware.org/ftp/lvm2/
   match lvm2 2.03.21 'LVM2\.([0-9.]+)\.tgz'
@@ -13,10 +11,8 @@ prepare() {
   tree 06dda7944b3c0d1a9fe7d822d47a37975d7eaa00754839ebca02d3ab3bedd765
 }
 
-config-extra --enable-{static-link,dmfilemapd} --without-{cache,thin,vdo}
-
 build() {
-  filter-defaults && /src/configure "${CONFIGARGS[@]}"
+  auto-config --enable-{static-link,dmfilemapd} --without-{cache,thin,vdo}
   make device-mapper
   make -C libdm/dm-tools dmsetup dmfilemapd
   install -t /dst/bin -D libdm/dm-tools/{dmsetup,dmfilemapd}

@@ -1,4 +1,3 @@
-mode autotools
 require m4
 
 check() {
@@ -11,7 +10,9 @@ prepare() {
   tree 1b9552aecffe99f13275fab634b4ce41a723d97166858f9c48c5cb49c281854c
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f -r /dst/lib/{aclocal,bison/*.css,bison/xslt,**/README*}
   cat >/dst/bin/yacc <<'EOF'
 #!/bin/sh

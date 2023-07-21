@@ -1,4 +1,3 @@
-mode autotools
 require libevent
 
 check() {
@@ -11,6 +10,8 @@ prepare() {
   tree 63928cdad8b981bb47a0a33c9102ef78d1269ff91e8ba521abd203ca9287f68f
 }
 
-post-config() {
+build() {
+  auto-config
   sed -i 's:-l\(event[^ ]*\):/lib/static/lib\1.a:g' Makefile
+  make install DESTDIR=/dst
 }

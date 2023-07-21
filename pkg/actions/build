@@ -64,7 +64,7 @@ action() {
 
 helper() {
   build() {
-    die "Package neither declares mode nor defines build()"
+    die "Package does not define build()"
   }
 
   image() (

@@ -1,4 +1,3 @@
-mode autotools
 require libpcap
 
 check() {
@@ -11,7 +10,9 @@ prepare() {
   tree 5c93bc33e122be58ec4493b35b848cd4f03cbca63ed75b852df7ec9a4aa800e8
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f /dst/bin/tcpdump.*
   image - requires libpcap
 }

@@ -1,4 +1,3 @@
-mode autotools
 require bison flex
 
 check() {
@@ -10,4 +9,9 @@ prepare() {
   unpack https://bird.network.cz/download/bird-2.13.1.tar.gz
   apply history.diff
   tree 64ca0395a061d0b03cbbe871ec659ff37884b8e0b2912926a1a99e0db7be1e78
+}
+
+build() {
+  auto-config
+  make install DESTDIR=/dst
 }

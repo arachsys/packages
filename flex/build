@@ -1,4 +1,3 @@
-mode autotools
 require m4
 
 check() {
@@ -11,8 +10,8 @@ prepare() {
   tree 197f343600920bc033582bceb3d6901319b7f19f3adccc132b4e0e3db42c0980
 }
 
-config-extra --disable-shared
-
-post-install() {
+build() {
+  auto-config --disable-shared
+  make install DESTDIR=/dst
   image - requires m4
 }

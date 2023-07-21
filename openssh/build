@@ -1,4 +1,3 @@
-mode autotools
 enable setuid
 require libedit
 
@@ -16,17 +15,12 @@ prepare() {
   tree 2a449646b0d37fff8d14eab4865f28879fd4a23fbfaf92a620e37b524522edfa
 }
 
-config-extra --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
-  --disable-lastlog --disable-{u,w}tmp{,x} --with-4in6 \
-  --with-default-path=/bin --with-libedit --with-pid-dir=/run \
-  --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth
-
-install-reset install-nokeys DESTDIR=/dst
-
-post-config() {
+build() {
+  auto-config --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
+    --disable-lastlog --disable-{u,w}tmp{,x} --with-4in6 \
+    --with-default-path=/bin --with-libedit --with-pid-dir=/run \
+    --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth
   sed -i '/^CFLAGS=/s/ -fzero-call-used-regs=all//' **/Makefile
-}
-
-post-install() {
+  make && make install-nokeys DESTDIR=/dst
   chmod u+rw,go+r /dst/lib/openssh/*
 }

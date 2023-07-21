@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://github.com/pcre2project/pcre2/tags
   match version 10.42 'tags/pcre2-([0-9.]+)\.tar'
@@ -10,8 +8,8 @@ prepare() {
   tree 71dd0e0464941214c77b63e35d43acaebfc9c1bc4c3d478570eedb75dbddae28
 }
 
-config-extra --enable-jit
-
-post-install() {
+build() {
+  auto-config --enable-jit
+  make install DESTDIR=/dst
   rm -f -r /dst/bin
 }

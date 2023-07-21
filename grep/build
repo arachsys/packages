@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/grep/
   match version 3.11 'grep-([0-9.]+)\.tar'
@@ -10,7 +8,9 @@ prepare() {
   tree 347a8a0f5bddb0c1e694180f7bbb0d90b59c00f2272697375e51e23096b327f8
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   printf '#!/bin/sh\nexec grep -E "$@"\n' >/dst/bin/egrep
   printf '#!/bin/sh\nexec grep -F "$@"\n' >/dst/bin/fgrep
   chmod a+x /dst/bin/egrep /dst/bin/fgrep

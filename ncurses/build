@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/ncurses/
   match version 6.4 'ncurses-([0-9.]+)\.tar'
@@ -12,10 +10,10 @@ prepare() {
   tree dad32c4e7da96b5419d791a9341f102b6970ae7fe466570a24de5814ff3e143d
 }
 
-config-extra --disable-{rpath-hack,termcap} --enable-{const,widec} \
-  --without-{ada,debug,tests} --with-shared
-
-post-install() {
+build() {
+  auto-config --disable-{rpath-hack,termcap} --enable-{const,widec} \
+    --without-{ada,debug,tests} --with-shared
+  make install DESTDIR=/dst
   for LIB in ncurses form panel menu; do
     echo "INPUT(-l${LIB}w)" >/dst/lib/lib${LIB}.so
     ln -f -s lib${LIB}w.a /dst/lib/lib${LIB}.a

@@ -1,4 +1,3 @@
-mode autotools
 enable rpaths
 
 check() {
@@ -18,18 +17,18 @@ prepare() {
   tree 1a3aeca5212db7bab47a36090db01b8a013aeac3d0314e54e9a02d51ecbf67f7
 }
 
-config-extra --with-moduledir=/lib/dovecot/modules --with-rundir=/run/dovecot
-compile-extra pkgsysconfdir=/etc/mail pkglibdir=/lib/dovecot/shared
-install-extra pkgsysconfdir=/etc/mail pkglibdir=/lib/dovecot/shared
+build() {
+  auto-config --with-moduledir=/lib/dovecot/modules \
+    --with-rundir=/run/dovecot
+  make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
+    pkglibdir=/lib/dovecot/shared
 
-post-compile() (
   cd /src/pigeonhole
-  /src/pigeonhole/configure "${CONFIGARGS[@]}" --with-dovecot=/src
-  make "${COMPILEARGS[@]}"
-)
+  auto-config --with-dovecot=/src --with-moduledir=/lib/dovecot/modules \
+    --with-rundir=/run/dovecot
+  make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
+    pkglibdir=/lib/dovecot/shared
 
-post-install() {
-  make -C /src/pigeonhole "${INSTALLARGS[@]}"
   rm -f -r /dst/bin/dovecot-sysreport /dst/bin/sieve-dump /dst/lib/aclocal \
     /dst/lib/dovecot/**/{*.a,decode2test.sh} /dst/lib/include
 }

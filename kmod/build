@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/
   match version 30 'kmod-([0-9.]+)\.tar'
@@ -10,10 +8,10 @@ prepare() {
   tree 93a77128aada35b5ab01883b0d7d91832ee9c89236fa2485e6f0325165f1c4f9
 }
 
-config-extra --with-{xz,zlib} liblzma_CFLAGS=-I/lib/include \
-  liblzma_LIBS=-llzma zlib_CFLAGS=-I/lib/include zlib_LIBS=-lz
-
-post-install() {
+build() {
+  auto-config --with-{xz,zlib} liblzma_CFLAGS=-I/lib/include \
+    liblzma_LIBS=-llzma zlib_CFLAGS=-I/lib/include zlib_LIBS=-lz
+  make install DESTDIR=/dst
   for NAME in depmod insmod lsmod modinfo modprobe rmmod; do
     ln /dst/bin/kmod /dst/bin/$NAME
   done

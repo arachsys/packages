@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/bash/
   match version 5.2.15 'bash-([0-9.]+)\.tar\.gz'
@@ -14,9 +12,9 @@ prepare() {
   tree 8711c6092b2a94fe6b289c3d20b4a06fdb998a4dd4cb54c995f4dd8c56854cee
 }
 
-config-extra --without-bash-malloc --with-installed-readline
-
-post-install() {
+build() {
+  auto-config --without-bash-malloc --with-installed-readline
+  make install DESTDIR=/dst
   ln -f -s bash /dst/bin/sh
   rm -f /dst/bin/bashbug /dst/lib/bash/{*.h,Makefile.*}
 }

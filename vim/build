@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://github.com/vim/vim/tags
   match version '9.0.16??' 'v([0-9.]+)\.tar'
@@ -12,11 +10,9 @@ prepare() {
   tree 431714ff8c32f7ec79c2401e274d4bd862738b87bfe6dae352f5531f88cdcc15
 }
 
-config-extra --enable-{multibyte,terminal} --without-local-dir
-compile-extra VIMRTLOC=/lib/vim
-install-extra VIMRTLOC=/lib/vim
-
-post-install() {
+build() {
+  auto-config --enable-{multibyte,terminal} --without-local-dir
+  make install DESTDIR=/dst VIMRTLOC=/lib/vim
   ln -s vim /dst/bin/vi
   rm -r /dst/bin/vimtutor /dst/lib/{applications,icons} \
     /dst/lib/vim/{**/README.*,*_example.vim,tools}

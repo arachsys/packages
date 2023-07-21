@@ -1,4 +1,3 @@
-mode autotools
 require bison flex
 
 check() {
@@ -20,25 +19,21 @@ prepare() {
   tree 1ae72ee6734e74d984d71177167cd07b3d18ffabea99f654ca7c9dda6db32307
 }
 
-pre-config() {
-  cd libmnl
-  $PWD/configure --prefix=/src/libs --disable-shared
+build() {
+  cd /src/libmnl
+  /src/libmnl/configure --prefix=/src/libs --disable-shared
   make install
-  cd /src
 
-  cd libnftnl
-  $PWD/configure --prefix=/src/libs --disable-shared \
+  cd /src/libnftnl
+  /src/libnftnl/configure --prefix=/src/libs --disable-shared \
     LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl"
   make install
+
   cd /src
-
   sed -i '/^SUBDIRS =/s/ \(examples\|files\)//g' Makefile.in
-}
-
-config-extra --disable-shared --with-cli=readline --with-mini-gmp \
-  LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl" \
-  LIBNFTNL_CFLAGS=-I/src/libs/include LIBNFTNL_LIBS="-L/src/libs/lib -lnftnl"
-
-post-install() {
+  auto-config --disable-shared --with-cli=readline --with-mini-gmp \
+    LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl" \
+    LIBNFTNL_CFLAGS=-I/src/libs/include LIBNFTNL_LIBS="-L/src/libs/lib -lnftnl"
+  make install DESTDIR=/dst
   rm -f -r /dst/lib/{include,lib*.a,lib*.la}
 }

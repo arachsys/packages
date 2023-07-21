@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://github.com/dosfstools/dosfstools/tags
   match version 4.2 'tags/v([0-9.]+)\.tar'
@@ -10,7 +8,9 @@ prepare() {
   tree 7a8e801b524158678f759e53872b96d2c8355089e198f89bbfb12fc28396e2a8
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   ln -s fsck.fat /dst/bin/fsck.msdos
   ln -s fsck.fat /dst/bin/fsck.vfat
   ln -s mkfs.fat /dst/bin/mkfs.msdos

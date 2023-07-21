@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/diffutils/
   match version 3.10 'diffutils-([0-9.]+)\.tar'
@@ -8,4 +6,9 @@ check() {
 prepare() {
   unpack https://ftp.gnu.org/gnu/diffutils/diffutils-3.10.tar.xz
   tree ff63a524ba852f8234bd4a41818210b09b505c26b1530c6253fd6b0973583a72
+}
+
+build() {
+  auto-config
+  make install DESTDIR=/dst
 }

@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://ftp.gnu.org/gnu/findutils/
   match version 4.9.0 'findutils-([0-9.]+)\.tar'
@@ -11,8 +9,8 @@ prepare() {
   tree 9e781d385be69ea99d31ffa30ec58a29ef600ec3b60f21a77ab8a0feed17a892
 }
 
-config-extra --libexecdir='${prefix}/bin' --localstatedir=/var/lib/misc
-
-post-install() {
+build() {
+  auto-config --libexecdir='${prefix}/bin' --localstatedir=/var/lib/misc
+  make install DESTDIR=/dst
   rm -f /dst/bin/{frcode,locate,updatedb}
 }

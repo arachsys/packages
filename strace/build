@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://github.com/strace/strace/tags
   match version 6.4 'tags/v([0-9.]+)\.tar'
@@ -10,8 +8,8 @@ prepare() {
   tree 5d2c1153e8d9aa01dac7c7143b66f41629d8faaa1b00f45aaf4cd16df7f3ec91
 }
 
-config-extra --disable-gcc-Werror --disable-mpers --enable-bundled
-
-post-install() {
+build() {
+  auto-config --disable-gcc-Werror --disable-mpers --enable-bundled
+  make install DESTDIR=/dst
   rm -f /dst/bin/strace-{graph,log-merge}
 }

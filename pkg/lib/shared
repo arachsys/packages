@@ -31,6 +31,69 @@ apply() {
   fi
 }
 
+auto-config() {
+  declare -A CONFIG=(
+    [--build]="--build=$CHOST"
+    [--host]="--host=$CHOST"
+    [--prefix]='--prefix='
+    [--bindir]='--bindir=${prefix}/bin'
+    [--datadir]='--datadir=${prefix}/lib'
+    [--datarootdir]='--datarootdir=${prefix}/lib'
+    [--docdir]='--docdir=${prefix}/lib/doc'
+    [--includedir]='--includedir=${prefix}/lib/include'
+    [--infodir]='--infodir=${prefix}/lib/info'
+    [--libdir]='--libdir=${prefix}/lib'
+    [--libexecdir]='--libexecdir=${prefix}/lib'
+    [--localedir]='--localedir=${prefix}/lib/locale'
+    [--localstatedir]='--localstatedir=/var'
+    [--mandir]='--mandir=${prefix}/lib/man'
+    [--runstatedir]='--runstatedir=/run'
+    [--sbindir]='--sbindir=${prefix}/bin'
+    [--sharedstatedir]='--sharedstatedir=/var'
+    [--sysconfdir]='--sysconfdir=/etc'
+    [--disable-nls]='--disable-nls'
+  )
+  local ARG HELP KEY
+
+  if HELP=$("$PWD/configure" --help 2>&1); then
+    for ARG in "${!CONFIG[@]}"; do
+      if [[ $HELP == *[[:space:],]$ARG?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --disable-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/dis/en}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --disable-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/dis/en}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --enable-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/en/dis}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --without-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/out/}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --with-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/h/hout}?([[:space:]=,]*) ]]; then
+        continue
+      else
+        unset "CONFIG[$ARG]"
+      fi
+    done
+  fi
+
+  for ARG in "$@"; do
+    if [[ $ARG == --@(dis|en)able-* ]] && KEY=${ARG%%=*}; then
+      unset "CONFIG[${KEY/#--en/--dis}]"
+      unset "CONFIG[${KEY/#--dis/--en}]"
+    elif [[ $ARG == --with?(out)-* ]] && KEY=${ARG%%=*}; then
+      unset "CONFIG[${KEY/#--without/--with}]"
+      unset "CONFIG[${KEY/#--with/--without}]"
+    fi
+    CONFIG[${ARG%%=*}]=$ARG
+  done
+
+  "$PWD/configure" "${CONFIG[@]}"
+}
+
 curl() {
   command curl -A pkg/1.0 "$@"
 }
@@ -143,14 +206,6 @@ locate() {
 
 maybe() {
   [[ ${@:$#} == "--" ]] || "$@"
-}
-
-mode() {
-  if [[ -f $LIBRARY/modes/$1 ]]; then
-    source "$LIBRARY/modes/$1"
-  else
-    die "Unrecognised build mode: $1"
-  fi
 }
 
 populate() {

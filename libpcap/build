@@ -1,4 +1,3 @@
-mode autotools
 require bison flex libnl-tiny
 
 check() {
@@ -12,12 +11,9 @@ prepare() {
   tree f689037cb673e859df02ed657b8a62bba2f868b6934539192e7481a213d09e09
 }
 
-config-extra --with-libnl --with-pcap=linux
-
-post-config() {
+build() {
+  auto-config --with-libnl --with-pcap=linux
   sed -i 's/-lnl-tiny/-Wl,-Bstatic \0 -Wl,-Bdynamic/g' **/Makefile
-}
-
-post-install() {
+  make install DESTDIR=/dst
   rm -f /dst/bin/pcap-config
 }

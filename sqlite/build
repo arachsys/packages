@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://www.sqlite.org/index.html
   match version 3.42.0 'Version ([0-9.]*[0-9])'
@@ -11,4 +9,7 @@ prepare() {
   tree dd9c97423598f4bed7d4aff0869adb86b5fb1ee45ecdbe40c1c1da8a75394e63
 }
 
-config-extra --disable-static-shell
+build() {
+  auto-config --disable-static-shell
+  make install DESTDIR=/dst
+}

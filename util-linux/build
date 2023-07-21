@@ -1,4 +1,3 @@
-mode autotools
 enable setuid setgid
 
 check() {
@@ -15,21 +14,18 @@ prepare() {
   tree fb9d8fcc34f67414bd7a919dc2484c99fe51b9437e60c69ef7ccc09d6be664c9
 }
 
-config-extra --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \
-  --disable-{minix,more,newgrp,nologin,pivot_root,switch_root,su,ul} \
-  --disable-{use-tty-group,utmpdump,vipw,wall,whereis} \
-  --enable-{fs-paths-default=/bin,shared,sulogin-emergency-mount} \
-  ADJTIME_PATH=/var/lib/adjtime
-
-post-config() {
+build() {
+  auto-config --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \
+    --disable-{minix,more,newgrp,nologin,pivot_root,switch_root,su,ul} \
+    --disable-{use-tty-group,utmpdump,vipw,wall,whereis} \
+    --enable-{fs-paths-default=/bin,shared,sulogin-emergency-mount} \
+    ADJTIME_PATH=/var/lib/adjtime
   find . -type f -name Makefile | while read FILE; do
     sed -i 's:^\(usrsbin_execdir *=\).*:\1 /bin:' $FILE
     sed -i 's:^\(usrlib_execdir *=\).*:\1 /lib:' $FILE
     sed -i 's:^\(pkgconfigdir *=\).*:\1 /lib/pkgconfig:' $FILE
   done
-}
-
-post-install() {
+  make install DESTDIR=/dst
   rm -f /dst/bin/{chkdupexec,isosize,mcookie}
   rm -f -r /dst/lib/{getopt,bash-completion}
   find /dst/bin -lname setarch -delete

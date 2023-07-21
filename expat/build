@@ -1,5 +1,3 @@
-mode autotools
-
 check() {
   url https://github.com/libexpat/libexpat/tags
   match version 2.5.0 'tags/R_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
@@ -10,6 +8,8 @@ prepare() {
   tree 4603a163b2fc0ea8a5595686be7c308e78843e7a78657180fc911d9df34f7268
 }
 
-post-install() {
+build() {
+  auto-config
+  make install DESTDIR=/dst
   rm -f -r /dst/lib/cmake
 }

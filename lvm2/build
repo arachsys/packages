@@ -1,4 +1,3 @@
-mode autotools
 require libaio
 
 check() {
@@ -15,15 +14,12 @@ prepare() {
   tree 56d2f97ad32bf2a125d8f27a8f82554b6186f88638090fb9c6355ff1b80e603d
 }
 
-config-extra --enable-dmfilemapd --without-{cache,thin,vdo} \
-  --with-libexecdir=/lib/lvm2 AIO_LIBS='-Wl,-Bstatic -laio -Wl,-Bdynamic'
-
-post-config() {
+build() {
+  auto-config --enable-dmfilemapd --without-{cache,thin,vdo} \
+    --with-libexecdir=/lib/lvm2 AIO_LIBS='-Wl,-Bstatic -laio -Wl,-Bdynamic'
   sed -i 's:/lib/lvm2/lvresize_fs_helper:/lib/lvm2/lvresize-fs-helper:' \
     include/configure.h
-}
-
-post-install() {
+  make install DESTDIR=/dst
   rm -f -r /dst/bin/{blkdeactivate,fsadm,lvm_import_vdo,lvmdump} /dst/lib
   find /dst/bin -type l -delete
 }
