@@ -1,8 +1,20 @@
-require autotools
+require m4 perl
 
 check() {
   url https://codeberg.org/ipmitool/ipmitool/tags
   match version 1.8.19 'archive/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
+
+  url https://ftp.gnu.org/gnu/autoconf/
+  match autoconf 2.71 'autoconf-([0-9.]+)\.tar'
+
+  url https://ftp.gnu.org/gnu/automake/
+  match automake 1.16.5 'automake-([0-9.]+)\.tar'
+
+  url https://ftp.gnu.org/gnu/libtool/
+  match libtool 2.4.7 'libtool-([0-9.]+)\.tar'
+
+  url https://pkgconfig.freedesktop.org/releases/
+  match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -11,12 +23,43 @@ prepare() {
   curl -o enterprise-numbers.gz -L \
     https://ftp.openbsd.org/pub/OpenBSD/distfiles/enterprise-numbers.20220204.gz
   gunzip enterprise-numbers.gz
+
+  unpack -d tools/autoconf \
+    https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.xz
+  unpack -d tools/automake \
+    https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz
+  unpack -d tools/libtool \
+    https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz
+  unpack -d tools/pkgconf \
+    https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
+
   apply console.diff
   apply lanplus.diff
-  tree d0b5f0909f3adfde144110d93003cea6fa11c9f9fed8fbfdde7646e03a2e7fa9
+  tree be8a06e38e3a2b1db3b6b6536041c97d630988866520f976cfdf13ac602da01d
 }
 
 build() {
+  export PATH=$PATH:/src/tools/bin
+
+  cd /src/tools/autoconf
+  auto-config --prefix=/src/tools
+  make install
+
+  cd /src/tools/automake
+  auto-config --prefix=/src/tools
+  make install
+
+  cd /src/tools/libtool
+  auto-config --prefix=/src/tools
+  make install
+
+  cd /src/tools
+  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' bin/*
+  pkgconf/configure --version | head -n 1 | while read _ _ VERSION; do
+    sed "s/@VERSION@/$VERSION/g" pkgconf/pkg.m4.in >lib/aclocal/pkg.m4
+  done
+
+  cd /src
   bash bootstrap
   auto-config --disable-intf-{bmc,free,imb,lipmi,serial} \
     IANADIR=/lib/ipmitool IANAUSERDIR=.local/lib/ipmitool
