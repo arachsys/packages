@@ -63,100 +63,9 @@ action() {
 }
 
 helper() {
-  build() {
-    die "Package does not define build()"
-  }
-
-  image() (
-    if [[ $2 == contains ]] && [[ $1 != ?(-) ]]; then
-      cd /dst && mkdir -p "/img/$1"
-      while [[ $# -gt 2 ]]; do
-        cp -a -l -t "/img/$1" --parents -- "${3#/dst/}"
-        rm -f -r -- "${3#/dst/}"
-        set -- "$1" "$2" "${@:4}"
-      done
-    elif [[ $2 == requires ]] && [[ $# -gt 2 ]]; then
-      if [[ $1 == ?(-) ]]; then
-        mkdir -p /dst/info
-        printf '%s\n' "${@:3}" >>/dst/info/requirements
-      else
-        mkdir -p "/img/$1/info"
-        printf '%s\n' "${@:3}" >>/img/$1/info/requirements
-      fi
-    else
-      die "Invalid command: image $*"
-    fi
-  )
-
+  source "$LIBRARY/build"
   ( setup /pkg "${@:2}" && build "${@:2}" 2>&1 )
-  eval "$( setup /pkg "${@:2}" && declare -p FEATURES )"
-
-  for FILE in /img/*/bin /img/*/info /img/*/lib; do
-    if [[ ! -d $FILE ]]; then
-      die "$FILE is not a directory"
-    fi
-  done
-
-  find /img -type d -exec chown -f 0:0 {} + -exec chmod -f u=rwx,go=rx {} +
-  find /img -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
-    -exec chmod -f u=rwX,go=rX {} +
-  find /img -type f -perm /ug+s -exec chmod -f u+rw,go+r {} +
-  rm -f -r /img/*/{etc,lib/{doc,info,man,pkgconfig,**/*.la},run,tmp,var}
-
-  for LIB in /img/*/lib; do
-    mkdir -p "$LIB"/{shared,static}
-    maybe mv -t "$LIB"/static -- "$LIB"{,/shared}/*.[ao]
-    maybe mv -t "$LIB"/shared -- "$LIB"{,/static}/!(ld*).so?(.*)
-  done
-
-  maybe chmod -f u=rw,go=r -- /img/*/lib/**/{*.so,*.so.*}
-  maybe chmod -f a+x -- /img/*/lib/ld*.so?(.*)
-  find /img -mindepth 1 -depth -type d -empty -delete
-
-  ( find /img -mindepth 2 -type f -print0 | while read -d '' -r FILE; do
-      if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
-        # ELF executable or shared object
-        if readelf -d "$FILE" | grep -q ' (R\(UN\)\?PATH) ' \
-             && ! enabled rpaths; then
-          echo "$FILE has been compiled with an RPATH or RUNPATH"
-        fi
-        if ! enabled unstripped; then
-          strip --strip-unneeded "$FILE"
-        fi
-      elif [[ $(hexdump -e '/1 "%02x"' -n 2 -v "$FILE") == 2321 ]]; then
-        # Script with '#!' magic
-        sed -e '1s:^#! *//*:#!/:' \
-            -e '1s:^#!/usr/local/:#!/:' \
-            -e '1s:^#!/usr/:#!/:' \
-            -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
-            -i "$FILE"
-      else
-        chmod u=rw,go=r "$FILE"
-      fi
-
-      if [[ -u $FILE ]] && ! enabled setuid; then
-        echo "$FILE has been installed setuid"
-      elif [[ -g $FILE ]] && ! enabled setgid; then
-        echo "$FILE has been installed setgid"
-      fi
-    done
-
-    for FILE in /img/*/!(bin|info|lib)/**; do
-      echo "$FILE is in neither /bin nor /lib"
-    done
-
-    find /img -lname '/*' -printf '%p is an absolute symlink\n' \
-      -or -xtype l -printf '%p is a dangling symlink\n' \
-      -or -not -xtype d -not -xtype f -printf '%p is a special file\n'
-
-    for FILE in /img/*/bin/*; do
-      if [[ -d $FILE ]]; then
-        echo "$FILE is a directory"
-      elif [[ ! -x $FILE ]]; then
-        echo "$FILE is not executable"
-      fi
-    done
-  ) | [[ -z $(tee /dev/stderr) ]]
+  ( setup /pkg "${@:2}" && tidy )
 
   for IMG in /img/*; do
     if [[ -d "$IMG" ]]; then
@@ -168,8 +77,8 @@ helper() {
     fi
   done
 
+  maybe hardlink -q -t -- /img/*/info
   find /img -depth -exec touch -r / {} +
-  hardlink -q -t /img
 }
 
 if [[ $$ -eq 1 ]]; then

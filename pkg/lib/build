@@ -1,0 +1,158 @@
+auto-config() {
+  declare -A CONFIG=(
+    [--build]="--build=$CHOST"
+    [--host]="--host=$CHOST"
+    [--prefix]='--prefix='
+    [--bindir]='--bindir=${prefix}/bin'
+    [--datadir]='--datadir=${prefix}/lib'
+    [--datarootdir]='--datarootdir=${prefix}/lib'
+    [--docdir]='--docdir=${prefix}/lib/doc'
+    [--includedir]='--includedir=${prefix}/lib/include'
+    [--infodir]='--infodir=${prefix}/lib/info'
+    [--libdir]='--libdir=${prefix}/lib'
+    [--libexecdir]='--libexecdir=${prefix}/lib'
+    [--localedir]='--localedir=${prefix}/lib/locale'
+    [--localstatedir]='--localstatedir=/var'
+    [--mandir]='--mandir=${prefix}/lib/man'
+    [--runstatedir]='--runstatedir=/run'
+    [--sbindir]='--sbindir=${prefix}/bin'
+    [--sharedstatedir]='--sharedstatedir=/var'
+    [--sysconfdir]='--sysconfdir=/etc'
+    [--disable-nls]='--disable-nls'
+  )
+  local ARG HELP KEY
+
+  if HELP=$("$PWD/configure" --help 2>&1); then
+    for ARG in "${!CONFIG[@]}"; do
+      if [[ $HELP == *[[:space:],]$ARG?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --disable-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/dis/en}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --disable-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/dis/en}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --enable-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/en/dis}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --without-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/out/}?([[:space:]=,]*) ]]; then
+        continue
+      elif [[ $ARG == --with-* ]] &&
+           [[ $HELP == *[[:space:],]${ARG/h/hout}?([[:space:]=,]*) ]]; then
+        continue
+      else
+        unset "CONFIG[$ARG]"
+      fi
+    done
+  fi
+
+  for ARG in "$@"; do
+    if [[ $ARG == --@(dis|en)able-* ]] && KEY=${ARG%%=*}; then
+      unset "CONFIG[${KEY/#--en/--dis}]"
+      unset "CONFIG[${KEY/#--dis/--en}]"
+    elif [[ $ARG == --with?(out)-* ]] && KEY=${ARG%%=*}; then
+      unset "CONFIG[${KEY/#--without/--with}]"
+      unset "CONFIG[${KEY/#--with/--without}]"
+    fi
+    CONFIG[${ARG%%=*}]=$ARG
+  done
+
+  "$PWD/configure" "${CONFIG[@]}"
+}
+
+build() {
+  die "Package does not define build()"
+}
+
+image() (
+  if [[ $2 == contains ]] && [[ $1 != ?(-) ]]; then
+    cd /dst && mkdir -p "/img/$1"
+    while [[ $# -gt 2 ]]; do
+      cp -a -l -t "/img/$1" --parents -- "${3#/dst/}"
+      rm -f -r -- "${3#/dst/}"
+      set -- "$1" "$2" "${@:4}"
+    done
+  elif [[ $2 == requires ]] && [[ $# -gt 2 ]]; then
+    if [[ $1 == ?(-) ]]; then
+      mkdir -p /dst/info
+      printf '%s\n' "${@:3}" >>/dst/info/requirements
+    else
+      mkdir -p "/img/$1/info"
+      printf '%s\n' "${@:3}" >>/img/$1/info/requirements
+    fi
+  else
+    die "Invalid command: image $*"
+  fi
+)
+
+tidy() {
+  for FILE in /img/*/bin /img/*/info /img/*/lib; do
+    if [[ ! -d $FILE ]]; then
+      die "$FILE is not a directory"
+    fi
+  done
+
+  find /img -type d -exec chown -f 0:0 {} + -exec chmod -f u=rwx,go=rx {} +
+  find /img -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
+    -exec chmod -f u=rwX,go=rX {} +
+  find /img -type f -perm /ug+s -exec chmod -f u+rw,go+r {} +
+  rm -f -r /img/*/{etc,lib/{doc,info,man,pkgconfig,**/*.la},run,tmp,var}
+
+  for LIB in /img/*/lib; do
+    mkdir -p "$LIB"/{shared,static}
+    maybe mv -t "$LIB"/static -- "$LIB"{,/shared}/*.[ao]
+    maybe mv -t "$LIB"/shared -- "$LIB"{,/static}/!(ld*).so?(.*)
+  done
+
+  maybe chmod -f u=rw,go=r -- /img/*/lib/**/{*.so,*.so.*}
+  maybe chmod -f a+x -- /img/*/lib/ld*.so?(.*)
+  find /img -mindepth 1 -depth -type d -empty -delete
+
+  ( find /img -mindepth 2 -type f -print0 | while read -d '' -r FILE; do
+      if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
+        # ELF executable or shared object
+        if readelf -d "$FILE" | grep -q ' (R\(UN\)\?PATH) ' \
+             && ! enabled rpaths; then
+          echo "$FILE has been compiled with an RPATH or RUNPATH"
+        fi
+        if ! enabled unstripped; then
+          strip --strip-unneeded "$FILE"
+        fi
+      elif [[ $(hexdump -e '/1 "%02x"' -n 2 -v "$FILE") == 2321 ]]; then
+        # Script with '#!' magic
+        sed -e '1s:^#! *//*:#!/:' \
+            -e '1s:^#!/usr/local/:#!/:' \
+            -e '1s:^#!/usr/:#!/:' \
+            -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
+            -i "$FILE"
+      else
+        chmod u=rw,go=r "$FILE"
+      fi
+
+      if [[ -u $FILE ]] && ! enabled setuid; then
+        echo "$FILE has been installed setuid"
+      elif [[ -g $FILE ]] && ! enabled setgid; then
+        echo "$FILE has been installed setgid"
+      fi
+    done
+
+    for FILE in /img/*/!(bin|info|lib)/**; do
+      echo "$FILE is in neither /bin nor /lib"
+    done
+
+    find /img -lname '/*' -printf '%p is an absolute symlink\n' \
+      -or -xtype l -printf '%p is a dangling symlink\n' \
+      -or -not -xtype d -not -xtype f -printf '%p is a special file\n'
+
+    for FILE in /img/*/bin/*; do
+      if [[ -d $FILE ]]; then
+        echo "$FILE is a directory"
+      elif [[ ! -x $FILE ]]; then
+        echo "$FILE is not executable"
+      fi
+    done
+  ) | [[ -z $(tee /dev/stderr) ]]
+
+  hardlink -q -t /img
+}
