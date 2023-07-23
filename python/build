@@ -23,7 +23,7 @@ build() {
     --with-openssl=/lib --with-ssl-default-suites=openssl \
     CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x200000" \
     LDFLAGS=-fno-semantic-interposition
-  make install DESTDIR=/dst
+  make && make install DESTDIR=/dst
 
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
   LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/pip install wheel-*.whl
