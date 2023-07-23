@@ -1,0 +1,18 @@
+diff --git a/lib/ext2fs/llseek.c b/lib/ext2fs/llseek.c
+index 45f21d0..45dce1c 100644
+--- a/lib/ext2fs/llseek.c
++++ b/lib/ext2fs/llseek.c
+@@ -51,11 +51,11 @@ extern long long llseek (int fd, long long offset, int origin);
+ 
+ #else	/* ! HAVE_LLSEEK */
+ 
+-#if SIZEOF_LONG == SIZEOF_LONG_LONG || _FILE_OFFSET_BITS+0 == 64
++#if SIZEOF_OFF_T == SIZEOF_LONG_LONG || _FILE_OFFSET_BITS+0 == 64
+ 
+ #define my_llseek lseek
+ 
+-#else /* SIZEOF_LONG != SIZEOF_LONG_LONG */
++#else /* SIZEOF_OFF_T != SIZEOF_LONG_LONG */
+ 
+ #include <linux/unistd.h>
+ 

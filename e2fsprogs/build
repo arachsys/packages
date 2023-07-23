@@ -5,8 +5,9 @@ check() {
 
 prepare() {
   unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.0/e2fsprogs-1.47.0.tar.xz
+  apply llseek.diff
   apply paths.diff
-  tree b24e2ccfeba83c9f20e79b68139724b2c9758063ee429efa9e7c18d841b08256
+  tree f1258b218bf02f08592ca62ac4052d4de8e62a8db191aca33bef48e4e81790c5
 }
 
 build() {
