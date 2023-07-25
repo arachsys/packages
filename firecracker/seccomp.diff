@@ -1,30 +1,48 @@
 diff --git a/resources/seccomp/aarch64-unknown-linux-musl.json b/resources/seccomp/aarch64-unknown-linux-musl.json
-index b87e46d..eced67f 100644
+index cfd9410..cdf5f27 100644
 --- a/resources/seccomp/aarch64-unknown-linux-musl.json
 +++ b/resources/seccomp/aarch64-unknown-linux-musl.json
-@@ -184,8 +184,8 @@
-                         "index": 3,
-                         "type": "dword",
-                         "op": "eq",
--                        "val": 50,
--                        "comment": "libc::MAP_FIXED | libc::MAP_ANONYMOUS | libc::MAP_PRIVATE"
-+                        "val": 34,
-+                        "comment": "libc::MAP_ANONYMOUS | libc::MAP_PRIVATE"
+@@ -838,6 +838,19 @@
                      }
                  ]
              },
++            {
++                "syscall": "mmap",
++                "comment": "Required with newer rust and musl",
++                "args": [
++                    {
++                        "index": 3,
++                        "type": "dword",
++                        "op": "eq",
++                        "val": 34,
++                        "comment": "libc::MAP_ANONYMOUS | libc::MAP_PRIVATE"
++                    }
++                ]
++            },
+             {
+                 "syscall": "rt_sigaction",
+                 "comment": "rt_sigaction is used by libc::abort during a panic to install the default handler for SIGABRT",
 diff --git a/resources/seccomp/x86_64-unknown-linux-musl.json b/resources/seccomp/x86_64-unknown-linux-musl.json
-index 16973dc..7c612be 100644
+index 524a6e7..783ae1a 100644
 --- a/resources/seccomp/x86_64-unknown-linux-musl.json
 +++ b/resources/seccomp/x86_64-unknown-linux-musl.json
-@@ -184,8 +184,8 @@
-                         "index": 3,
-                         "type": "dword",
-                         "op": "eq",
--                        "val": 50,
--                        "comment": "libc::MAP_FIXED | libc::MAP_ANONYMOUS | libc::MAP_PRIVATE"
-+                        "val": 34,
-+                        "comment": "libc::MAP_ANONYMOUS | libc::MAP_PRIVATE"
+@@ -850,6 +850,19 @@
                      }
                  ]
              },
++            {
++                "syscall": "mmap",
++                "comment": "Required with newer rust and musl",
++                "args": [
++                    {
++                        "index": 3,
++                        "type": "dword",
++                        "op": "eq",
++                        "val": 34,
++                        "comment": "libc::MAP_ANONYMOUS | libc::MAP_PRIVATE"
++                    }
++                ]
++            },
+             {
+                 "syscall": "rt_sigaction",
+                 "comment": "rt_sigaction is used by libc::abort during a panic to install the default handler for SIGABRT",

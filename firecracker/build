@@ -23,7 +23,7 @@ prepare() {
   cargo vendor >.cargo/config
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
     vendor/*/.cargo-checksum.json
-  tree e2efc3d07af868afa912b55ef1ecbd827e702f270edf9f6fd8b815e0112421cb
+  tree d3bf8606587a40ef20da41c21f90652c705b590e9d56484bd7f698fd5dd51880
 }
 
 build() {
