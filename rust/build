@@ -33,6 +33,6 @@ build() {
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
     python x.py install
-  rm -f /dst/bin/{rust-*db*,rust-analyzer-proc-macro-srv}
+  rm -f /dst/bin/{rust-*db*,rust-analyzer-proc-macro-srv,*.old}
   rm -f -r /dst/{etc,lib/rustlib/!($CHOST),share,src/etc}
 }
