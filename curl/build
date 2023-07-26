@@ -1,17 +1,17 @@
 check() {
   url https://curl.haxx.se/download/
-  match curl 8.2.0 'curl-([0-9.]+)\.tar'
+  match curl 8.2.1 'curl-([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
   match nghttp2 1.55.1 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://curl.haxx.se/download/curl-8.2.0.tar.xz
+  unpack https://curl.haxx.se/download/curl-8.2.1.tar.xz
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.55.1/nghttp2-1.55.1.tar.xz
   apply paths.diff
-  tree 93daf3eae6bbe81e64581b8e8febefc1268c73e3748295c8aac08b87c2dd23c6
+  tree 05588dd9943c45e8f550b4d1098f4a078d68feb716e5fa093dc8057cdaba20e6
 }
 
 build() {
