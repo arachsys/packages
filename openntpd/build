@@ -52,6 +52,7 @@ build() {
   bash update.sh
   apply adjtimex.diff
   apply cosmetic.diff
+  apply daemon.diff
   apply paths.diff
   apply settime.diff
   autoreconf -i
