@@ -127,20 +127,22 @@ index 6ad87fd..9c72995 100644
 +0	string/fwt	#!\ /bin/env\ julia	Julia script executable
  0	string/fwt	#!\ /usr/bin/env\ julia	Julia script executable
 diff --git a/magic/Magdir/javascript b/magic/Magdir/javascript
-index dcb5a93..6093a72 100644
+index 90a09cc..a856ec6 100644
 --- a/magic/Magdir/javascript
 +++ b/magic/Magdir/javascript
-@@ -11,6 +11,10 @@
+@@ -11,8 +11,12 @@
  !:mime application/javascript
- 0	string/w	#!/usr/bin/nodejs	Node.js script text executable
+ 0	string/tw	#!/usr/bin/nodejs	Node.js script executable
  !:mime application/javascript
-+0	string		#!/bin/env\ node	Node.js script text executable
++0	string/t		#!/bin/env\ node	Node.js script executable
 +!:mime application/javascript
-+0	string		#!/bin/env\ nodejs	Node.js script text executable
-+!:mime application/javascript
- 0	string		#!/usr/bin/env\ node	Node.js script text executable
+ 0	string/t		#!/usr/bin/env\ node	Node.js script executable
  !:mime application/javascript
- 0	string		#!/usr/bin/env\ nodejs	Node.js script text executable
++0	string/t		#!/bin/env\ nodejs	Node.js script executable
++!:mime application/javascript
+ 0	string/t		#!/usr/bin/env\ nodejs	Node.js script executable
+ !:mime application/javascript
+ 
 diff --git a/magic/Magdir/lua b/magic/Magdir/lua
 index ab17374..a6ddd46 100644
 --- a/magic/Magdir/lua
@@ -163,7 +165,7 @@ index ab17374..a6ddd46 100644
  !:mime	text/x-lua
  0	search/1	#!\ /usr/bin/env\ lua	Lua script text executable
 diff --git a/magic/Magdir/perl b/magic/Magdir/perl
-index c391d4a..5182bb6 100644
+index 4a3756a..837e1e2 100644
 --- a/magic/Magdir/perl
 +++ b/magic/Magdir/perl
 @@ -23,6 +23,10 @@
