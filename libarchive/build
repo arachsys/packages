@@ -1,11 +1,11 @@
 check() {
   url https://www.libarchive.org/downloads/
-  match version 3.6.2 'libarchive-([0-9.]+)\.tar'
+  match version 3.7.1 'libarchive-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.libarchive.org/downloads/libarchive-3.6.2.tar.xz
-  tree bab92c8292cddacfd0f0aea477dd42f0e213df7b43d60f36cfb735c25331cd01
+  unpack https://www.libarchive.org/downloads/libarchive-3.7.1.tar.xz
+  tree beb9075ca19da9917d1d8fa45fa01d874989d3f46d71ebf33200093577a0ec40
 }
 
 build() {
