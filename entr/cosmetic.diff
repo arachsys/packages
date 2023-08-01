@@ -1,21 +1,25 @@
 diff --git a/entr.c b/entr.c
-index 00388a8..c7d1a6f 100644
+index a43a2f3..743cce5 100644
 --- a/entr.c
 +++ b/entr.c
-@@ -159,10 +159,10 @@ main(int argc, char *argv[]) {
+@@ -164,14 +164,14 @@ main(int argc, char *argv[]) {
+ 	shell = getenv("SHELL");
+ 	shell_base = strdup(shell);
+ 	if (shell_base == NULL)
+-		err(1, "cannot duplicate string");
++		err(1, "Cannot duplicate string");
+ 	shell_base = basename(shell_base);
+ 
+ 	/* sequential scan may depend on a 0 at the end */
  	files = calloc(open_max+1, sizeof(WatchFile *));
  
  	if ((kq = kqueue()) == -1)
 -		err(1, "cannot create kqueue");
 +		err(1, "Cannot create kqueue");
  
- 	if (fcntl(kq, F_SETFD, FD_CLOEXEC) == -1)
--		warn("failed to set FD_CLOEXEC to kqueue descriptor");
-+		warn("Failed to set FD_CLOEXEC to kqueue descriptor");
- 
  	/* expect file list from a pipe */
  	if (isatty(fileno(stdin)))
-@@ -173,9 +173,7 @@ main(int argc, char *argv[]) {
+@@ -182,9 +182,7 @@ main(int argc, char *argv[]) {
  	if (n_files == 0)
  		errx(1, "No regular files to watch");
  	if (n_files == -1)
@@ -26,7 +30,7 @@ index 00388a8..c7d1a6f 100644
  	for (i=0; i<n_files; i++)
  		watch_file(kq, files[i]);
  
-@@ -184,18 +182,18 @@ main(int argc, char *argv[]) {
+@@ -193,18 +191,18 @@ main(int argc, char *argv[]) {
  		ttyfd = open(_PATH_TTY, O_RDONLY);
  		if (ttyfd > STDIN_FILENO) {
  			if (dup2(ttyfd, STDIN_FILENO) != 0)
@@ -48,7 +52,7 @@ index 00388a8..c7d1a6f 100644
  	}
  
  	watch_loop(kq, argv+argv_index);
-@@ -206,9 +204,25 @@ main(int argc, char *argv[]) {
+@@ -215,9 +213,25 @@ main(int argc, char *argv[]) {
  
  void
  usage() {
@@ -77,7 +81,7 @@ index 00388a8..c7d1a6f 100644
  }
  
  void
-@@ -291,7 +305,7 @@ process_input(FILE *file, WatchFile *files[], int max_files) {
+@@ -307,7 +321,7 @@ process_input(FILE *file, WatchFile *files[], int max_files) {
  			continue;
  
  		if (stat(buf, &sb) == -1) {
@@ -86,7 +90,7 @@ index 00388a8..c7d1a6f 100644
  			continue;
  		}
  		if (S_ISREG(sb.st_mode) != 0) {
-@@ -335,7 +349,7 @@ int list_dir(char *dir) {
+@@ -351,7 +365,7 @@ int list_dir(char *dir) {
  	int count = 0;
  
  	if (dfd == NULL)
@@ -95,7 +99,7 @@ index 00388a8..c7d1a6f 100644
  	while((dp = readdir(dfd)) != NULL)
  		if ((dirwatch_opt == 2) || (dp->d_name[0] != '.'))
  			count++;
-@@ -440,7 +454,7 @@ run_utility(char *argv[]) {
+@@ -456,7 +470,7 @@ run_utility(char *argv[]) {
  
  	pid = fork();
  	if (pid == -1)
@@ -104,7 +108,7 @@ index 00388a8..c7d1a6f 100644
  
  	if (pid == 0) {
  		/* 2J - erase the entire display
-@@ -503,7 +517,7 @@ watch_file(int kq, WatchFile *file) {
+@@ -519,7 +533,7 @@ watch_file(int kq, WatchFile *file) {
  		else break;
  	}
  	if (file->fd == -1) {
@@ -113,7 +117,7 @@ index 00388a8..c7d1a6f 100644
  		terminate_utility();
  		exit(1);
  	}
-@@ -512,11 +526,9 @@ watch_file(int kq, WatchFile *file) {
+@@ -528,11 +542,9 @@ watch_file(int kq, WatchFile *file) {
  	    file);
  	if (kevent(kq, &evSet, 1, NULL, 0, NULL) == -1) {
  		if (errno == ENOSPC)
@@ -127,7 +131,7 @@ index 00388a8..c7d1a6f 100644
  	}
  }
  
-@@ -604,7 +616,7 @@ main:
+@@ -620,7 +632,7 @@ main:
  				EV_SET(&evSet, STDIN_FILENO, EVFILT_READ,
  				    EV_DELETE, NOTE_LOWAT, 0, NULL);
  				if (kevent(kq, &evSet, 1, NULL, 0, NULL) == -1)
@@ -136,7 +140,7 @@ index 00388a8..c7d1a6f 100644
  			}
  			else {
  				if (c == ' ')
-@@ -633,11 +645,11 @@ main:
+@@ -649,11 +661,11 @@ main:
  			EV_SET(&evSet, file->fd, EVFILT_VNODE, EV_DELETE,
  			    NOTE_ALL, 0, file);
  			if (kevent(kq, &evSet, 1, NULL, 0, NULL) == -1)
@@ -150,7 +154,7 @@ index 00388a8..c7d1a6f 100644
  #endif
  			watch_file(kq, file);
  			collate_only = 1;
-@@ -709,7 +721,7 @@ main:
+@@ -725,7 +737,7 @@ main:
  	}
  	if (dir_modified > 0) {
  		terminate_utility();
@@ -160,12 +164,12 @@ index 00388a8..c7d1a6f 100644
  
  	goto main;
 diff --git a/missing/kqueue_inotify.c b/missing/kqueue_inotify.c
-index 75ba40a..51d71d5 100644
+index 7891dda..0f6f12e 100644
 --- a/missing/kqueue_inotify.c
 +++ b/missing/kqueue_inotify.c
 @@ -93,9 +93,9 @@ kqueue(void) {
  	if (inotify_queue == 0)
- 		inotify_queue = inotify_init();
+ 		inotify_queue = inotify_init1(IN_CLOEXEC);
  	if (getenv("ENTR_INOTIFY_WORKAROUND"))
 -		warnx("broken inotify workaround enabled");
 +		warnx("Enabled broken inotify workaround");
