@@ -15,9 +15,10 @@ prepare() {
   apply paths.diff
   apply sync.diff
   apply tabs.diff
+  apply warnings.diff
   apply windowing.diff
   find -xtype l -delete
-  tree 3e157419afc332d45e50f9705d44124c129dd98f1c94670d5e70342dffaa8395
+  tree eb92d5399e00bc09c415359ed4f055272be5aff2f4507898d245f80213026ffb
 }
 
 build() {
