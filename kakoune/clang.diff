@@ -24,21 +24,6 @@ index 1075c33..cf4c32a 100644
              else
                  CommandManager::instance().execute(join(parser, ' ', false), context, shell_context);
          });
-diff --git a/src/display_buffer.hh b/src/display_buffer.hh
-index a59ca99..d765a33 100644
---- a/src/display_buffer.hh
-+++ b/src/display_buffer.hh
-@@ -141,8 +141,8 @@ public:
-         if (auto first = std::find_if(beg, end, has_buffer_range); first != end)
-         {
-             auto last = std::find_if(std::reverse_iterator(end), std::reverse_iterator(first), has_buffer_range);
--            m_range.begin = std::min(m_range.begin, first->begin());
--            m_range.end = std::max(m_range.end, last->end());
-+            m_range.begin = std::min(m_range.begin, (*first).begin());
-+            m_range.end = std::max(m_range.end, (*last).end());
-         }
-         return m_atoms.insert(pos, beg, end);
-     }
 diff --git a/src/highlighters.cc b/src/highlighters.cc
 index d2daa08..ab23b9d 100644
 --- a/src/highlighters.cc
