@@ -110,7 +110,7 @@ tidy() {
   find /img -mindepth 1 -depth -type d -empty -delete
 
   ( find /img -mindepth 2 -type f -print0 | while read -d '' -r FILE; do
-      if [[ $(hexdump -e '/1 "%02x"' -n 4 -v "$FILE") == 7f454c46 ]]; then
+      if read -r -N 4 < "$FILE" && [[ $REPLY == $'\x7fELF' ]]; then
         # ELF executable or shared object
         if readelf -d "$FILE" | grep -q ' (R\(UN\)\?PATH) ' \
              && ! enabled rpaths; then
@@ -119,7 +119,7 @@ tidy() {
         if ! enabled unstripped; then
           strip --strip-unneeded "$FILE"
         fi
-      elif [[ $(hexdump -e '/1 "%02x"' -n 2 -v "$FILE") == 2321 ]]; then
+      elif read -r -N 2 < "$FILE" && [[ $REPLY == '#!' ]]; then
         # Script with '#!' magic
         sed -e '1s:^#! *//*:#!/:' \
             -e '1s:^#!/usr/local/:#!/:' \
