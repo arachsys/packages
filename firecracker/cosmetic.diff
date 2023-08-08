@@ -1,5 +1,5 @@
 diff --git a/src/api_server/src/parsed_request.rs b/src/api_server/src/parsed_request.rs
-index c45f849..fe1cb38 100644
+index c45f849..1556463 100644
 --- a/src/api_server/src/parsed_request.rs
 +++ b/src/api_server/src/parsed_request.rs
 @@ -231,10 +231,10 @@ fn log_received_api_request(api_description: String) {
@@ -16,41 +16,6 @@ index c45f849..fe1cb38 100644
              path,
              std::str::from_utf8(value.body.as_slice())
                  .unwrap_or("inconvertible to UTF-8")
-diff --git a/src/devices/src/virtio/block/io/async_io.rs b/src/devices/src/virtio/block/io/async_io.rs
-index f28fcbf..d069c9f 100644
---- a/src/devices/src/virtio/block/io/async_io.rs
-+++ b/src/devices/src/virtio/block/io/async_io.rs
-@@ -8,7 +8,6 @@ use std::os::unix::io::AsRawFd;
- use io_uring::operation::{Cqe, OpCode, Operation};
- use io_uring::restriction::Restriction;
- use io_uring::{Error as IoUringError, IoUring};
--use logger::log_dev_preview_warning;
- use utils::eventfd::EventFd;
- use utils::vm_memory::{mark_dirty_mem, GuestAddress, GuestMemory, GuestMemoryMmap};
- 
-@@ -63,8 +62,6 @@ impl<T> WrappedUserData<T> {
- 
- impl<T> AsyncFileEngine<T> {
-     pub fn from_file(file: File) -> Result<AsyncFileEngine<T>, Error> {
--        log_dev_preview_warning("Async file IO", Option::None);
--
-         let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(Error::EventFd)?;
-         let ring = IoUring::new(
-             u32::from(IO_URING_NUM_ENTRIES),
-diff --git a/src/devices/src/virtio/net/tap.rs b/src/devices/src/virtio/net/tap.rs
-index 5eb37c9..0d5ea80 100644
---- a/src/devices/src/virtio/net/tap.rs
-+++ b/src/devices/src/virtio/net/tap.rs
-@@ -33,8 +33,7 @@ pub enum Error {
-     InvalidIfname,
-     /// Error while creating ifreq structure
-     #[error(
--        "Error while creating ifreq structure: {0}. Invalid TUN/TAP Backend provided by {1}. \
--         Check our documentation on setting up the network devices."
-+        "Error while creating ifreq structure: {0}. Invalid TUN/TAP backend provided by {1}."
-     )]
-     IfreqExecuteError(IoError, String),
-     /// Error while setting the offload flags
 diff --git a/src/firecracker/src/api_server_adapter.rs b/src/firecracker/src/api_server_adapter.rs
 index 7e6b76d..f27a2dc 100644
 --- a/src/firecracker/src/api_server_adapter.rs
@@ -294,7 +259,7 @@ index 345d027..6f3d1cc 100644
          }
      }
 diff --git a/src/mmds/src/lib.rs b/src/mmds/src/lib.rs
-index 3c7b9e3..6b6fbb6 100644
+index 3c7b9e3..a60794a 100644
 --- a/src/mmds/src/lib.rs
 +++ b/src/mmds/src/lib.rs
 @@ -25,7 +25,7 @@ pub enum Error {
@@ -387,7 +352,7 @@ index 33af0d7..2c82aee 100644
      }
  
 diff --git a/src/vmm/src/builder.rs b/src/vmm/src/builder.rs
-index 4fa34d7..3fdf524 100644
+index 1be12b1..c333165 100644
 --- a/src/vmm/src/builder.rs
 +++ b/src/vmm/src/builder.rs
 @@ -103,10 +103,10 @@ pub enum StartMicrovmError {
@@ -422,11 +387,46 @@ index 4fa34d7..3fdf524 100644
      SetVmResources(VmConfigError),
      /// Failed to create an Entropy device
      #[error("Cannot create the entropy device: {0}")]
+diff --git a/src/vmm/src/devices/virtio/block/io/async_io.rs b/src/vmm/src/devices/virtio/block/io/async_io.rs
+index af9181e..7d22d7b 100644
+--- a/src/vmm/src/devices/virtio/block/io/async_io.rs
++++ b/src/vmm/src/devices/virtio/block/io/async_io.rs
+@@ -8,7 +8,6 @@ use std::os::unix::io::AsRawFd;
+ use io_uring::operation::{Cqe, OpCode, Operation};
+ use io_uring::restriction::Restriction;
+ use io_uring::{Error as IoUringError, IoUring};
+-use logger::log_dev_preview_warning;
+ use utils::eventfd::EventFd;
+ use utils::vm_memory::{mark_dirty_mem, GuestAddress, GuestMemory, GuestMemoryMmap};
+ 
+@@ -63,8 +62,6 @@ impl<T> WrappedUserData<T> {
+ 
+ impl<T> AsyncFileEngine<T> {
+     pub fn from_file(file: File) -> Result<AsyncFileEngine<T>, Error> {
+-        log_dev_preview_warning("Async file IO", Option::None);
+-
+         let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(Error::EventFd)?;
+         let ring = IoUring::new(
+             u32::from(IO_URING_NUM_ENTRIES),
+diff --git a/src/vmm/src/devices/virtio/net/tap.rs b/src/vmm/src/devices/virtio/net/tap.rs
+index a0a3ebe..e5fc09b 100644
+--- a/src/vmm/src/devices/virtio/net/tap.rs
++++ b/src/vmm/src/devices/virtio/net/tap.rs
+@@ -33,8 +33,7 @@ pub enum Error {
+     InvalidIfname,
+     /// Error while creating ifreq structure
+     #[error(
+-        "Error while creating ifreq structure: {0}. Invalid TUN/TAP Backend provided by {1}. \
+-         Check our documentation on setting up the network devices."
++        "Error while creating ifreq structure: {0}. Invalid TUN/TAP backend provided by {1}."
+     )]
+     IfreqExecuteError(IoError, String),
+     /// Error while setting the offload flags
 diff --git a/src/vmm/src/lib.rs b/src/vmm/src/lib.rs
-index 0d7cf30..9285f9e 100644
+index d38c835..7831bef 100644
 --- a/src/vmm/src/lib.rs
 +++ b/src/vmm/src/lib.rs
-@@ -171,7 +171,7 @@ pub enum Error {
+@@ -175,7 +175,7 @@ pub enum Error {
      #[error("Metrics error: {0}")]
      Metrics(MetricsError),
      /// Cannot add a device to the MMIO Bus.
@@ -435,7 +435,7 @@ index 0d7cf30..9285f9e 100644
      RegisterMMIODevice(device_manager::mmio::Error),
      /// Cannot install seccomp filters.
      #[error("Cannot install seccomp filters: {0}")]
-@@ -183,10 +183,10 @@ pub enum Error {
+@@ -187,10 +187,10 @@ pub enum Error {
      #[error("Error creating timer fd: {0}")]
      TimerFd(io::Error),
      /// Vcpu configuration error.
@@ -448,7 +448,7 @@ index 0d7cf30..9285f9e 100644
      VcpuCreate(vstate::vcpu::Error),
      /// Cannot send event to vCPU.
      #[error("Cannot send event to vCPU. {0}")]
-@@ -196,7 +196,7 @@ pub enum Error {
+@@ -200,7 +200,7 @@ pub enum Error {
      VcpuHandle(vstate::vcpu::Error),
      /// Vcpu init error.
      #[cfg(target_arch = "aarch64")]
@@ -457,7 +457,7 @@ index 0d7cf30..9285f9e 100644
      VcpuInit(vstate::vcpu::VcpuError),
      /// vCPU start error.
      #[error("Failed to start vCPUs")]
-@@ -214,16 +214,16 @@ pub enum Error {
+@@ -218,16 +218,16 @@ pub enum Error {
      #[error("Failed to message the vCPUs.")]
      VcpuMessage,
      /// Cannot spawn a new Vcpu thread.
@@ -478,7 +478,7 @@ index 0d7cf30..9285f9e 100644
      VmmObserverTeardown(utils::errno::Error),
  }
  
-@@ -295,10 +295,10 @@ pub enum RestoreVcpusError {
+@@ -299,10 +299,10 @@ pub enum RestoreVcpusError {
  #[derive(Debug, thiserror::Error)]
  pub enum DumpCpuConfigError {
      /// Failed to send an event to vcpu thread.
@@ -491,7 +491,7 @@ index 0d7cf30..9285f9e 100644
      UnexpectedResponse,
      /// Failed to dump CPU config.
      #[error("Failed to dump CPU config: {0}")]
-@@ -835,7 +835,7 @@ impl Vmm {
+@@ -839,7 +839,7 @@ impl Vmm {
          // Vmm initiated teardown starts from `pub fn Vmm::stop()` (step 4).
          // Once `vmm.shutdown_exit_code` becomes `Some(exit_code)`, it is the upper layer's
          // responsibility to break main event loop and propagate the exit code value.
@@ -500,7 +500,7 @@ index 0d7cf30..9285f9e 100644
  
          // We send a "Finish" event.  If a VCPU has already exited, this is the only
          // message it will accept... but running and paused will take it as well.
-@@ -918,7 +918,7 @@ impl Drop for Vmm {
+@@ -922,7 +922,7 @@ impl Drop for Vmm {
          }
  
          if !self.vcpus_handles.is_empty() {
@@ -509,7 +509,7 @@ index 0d7cf30..9285f9e 100644
          }
      }
  }
-@@ -945,19 +945,19 @@ impl MutEventSubscriber for Vmm {
+@@ -949,19 +949,19 @@ impl MutEventSubscriber for Vmm {
                      Ok(_response) => {} // Don't care about these, we are exiting.
                      Err(TryRecvError::Empty) => {} // Nothing pending in channel
                      Err(err) => {
@@ -533,7 +533,7 @@ index 0d7cf30..9285f9e 100644
      }
  }
 diff --git a/src/vmm/src/persist.rs b/src/vmm/src/persist.rs
-index bc67725..22269ec 100644
+index abf649e..d7c0118 100644
 --- a/src/vmm/src/persist.rs
 +++ b/src/vmm/src/persist.rs
 @@ -158,7 +158,7 @@ pub enum MicrovmStateError {
@@ -607,10 +607,10 @@ index bc67725..22269ec 100644
  }
  
 diff --git a/src/vmm/src/vmm_config/balloon.rs b/src/vmm/src/vmm_config/balloon.rs
-index 130c638..ee64692 100644
+index 69ad166..8c95b74 100644
 --- a/src/vmm/src/vmm_config/balloon.rs
 +++ b/src/vmm/src/vmm_config/balloon.rs
-@@ -38,11 +38,11 @@ impl fmt::Display for BalloonConfigError {
+@@ -39,11 +39,11 @@ impl fmt::Display for BalloonConfigError {
              DeviceNotFound => write!(f, "No balloon device found."),
              DeviceNotActive => write!(
                  f,
@@ -626,7 +626,7 @@ index 130c638..ee64692 100644
              UpdateFailure(err) => write!(
                  f,
 diff --git a/src/vmm/src/vstate/vcpu/aarch64.rs b/src/vmm/src/vstate/vcpu/aarch64.rs
-index d0c08c1..fdfcebc 100644
+index d6b68fe..0ae1128 100644
 --- a/src/vmm/src/vstate/vcpu/aarch64.rs
 +++ b/src/vmm/src/vstate/vcpu/aarch64.rs
 @@ -27,21 +27,21 @@ use crate::vstate::vm::Vm;
@@ -658,7 +658,7 @@ index d0c08c1..fdfcebc 100644
  }
  
 diff --git a/src/vmm/src/vstate/vcpu/mod.rs b/src/vmm/src/vstate/vcpu/mod.rs
-index e452a2d..b706a88 100644
+index 408e563..8618f77 100644
 --- a/src/vmm/src/vstate/vcpu/mod.rs
 +++ b/src/vmm/src/vstate/vcpu/mod.rs
 @@ -44,28 +44,28 @@ pub(crate) const VCPU_RTSIG_OFFSET: i32 = 0;
@@ -734,7 +734,7 @@ index e452a2d..b706a88 100644
                      }
                  }
 diff --git a/src/vmm/src/vstate/vcpu/x86_64.rs b/src/vmm/src/vstate/vcpu/x86_64.rs
-index a7bce62..678dff6 100644
+index 70d2869..73287fa 100644
 --- a/src/vmm/src/vstate/vcpu/x86_64.rs
 +++ b/src/vmm/src/vstate/vcpu/x86_64.rs
 @@ -55,76 +55,76 @@ pub enum Error {

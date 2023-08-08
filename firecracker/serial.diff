@@ -1,7 +1,7 @@
-diff --git a/src/devices/src/legacy/serial.rs b/src/devices/src/legacy/serial.rs
-index 2e37188..3e607c6 100644
---- a/src/devices/src/legacy/serial.rs
-+++ b/src/devices/src/legacy/serial.rs
+diff --git a/src/vmm/src/devices/legacy/serial.rs b/src/vmm/src/devices/legacy/serial.rs
+index 8656c38..d787a40 100644
+--- a/src/vmm/src/devices/legacy/serial.rs
++++ b/src/vmm/src/devices/legacy/serial.rs
 @@ -253,9 +253,7 @@ impl<W: std::io::Write> MutEventSubscriber
              let serial_fd = self.serial_input_fd();
              let buf_ready_evt = self.buffer_ready_evt_fd();

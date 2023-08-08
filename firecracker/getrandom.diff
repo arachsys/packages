@@ -1,5 +1,5 @@
 diff --git a/resources/seccomp/aarch64-unknown-linux-musl.json b/resources/seccomp/aarch64-unknown-linux-musl.json
-index ef5755a..ecc5e48 100644
+index 25136dc..cfd9410 100644
 --- a/resources/seccomp/aarch64-unknown-linux-musl.json
 +++ b/resources/seccomp/aarch64-unknown-linux-musl.json
 @@ -104,7 +104,7 @@
@@ -21,7 +21,7 @@ index ef5755a..ecc5e48 100644
              {
                  "syscall": "mmap",
 diff --git a/resources/seccomp/x86_64-unknown-linux-musl.json b/resources/seccomp/x86_64-unknown-linux-musl.json
-index 1a75429..101c1db 100644
+index 97ead10..524a6e7 100644
 --- a/resources/seccomp/x86_64-unknown-linux-musl.json
 +++ b/resources/seccomp/x86_64-unknown-linux-musl.json
 @@ -104,7 +104,7 @@
@@ -42,25 +42,26 @@ index 1a75429..101c1db 100644
              },
              {
                  "syscall": "mmap",
-diff --git a/src/devices/Cargo.toml b/src/devices/Cargo.toml
-index 58df5d8..f38c54c 100644
---- a/src/devices/Cargo.toml
-+++ b/src/devices/Cargo.toml
-@@ -6,9 +6,9 @@ edition = "2021"
+diff --git a/src/vmm/Cargo.toml b/src/vmm/Cargo.toml
+index d696cda..7866ce3 100644
+--- a/src/vmm/Cargo.toml
++++ b/src/vmm/Cargo.toml
+@@ -6,10 +6,10 @@ edition = "2021"
  license = "Apache-2.0"
  
  [dependencies]
 -aws-lc-rs = "1.0.2"
- derive_more = { version = "0.99.17", default-features = false, features = ["from"] }
+ bitflags = "2.0.2"
+ derive_more = { version = "0.99.17", default-features = false, features = ["from", "display"] }
  event-manager = "0.3.0"
 +getrandom = { version = "0.2.10", features = ["std"] }
- libc = "0.2.117"
- thiserror = "1.0.32"
- timerfd = "1.2.0"
-diff --git a/src/devices/src/virtio/rng/device.rs b/src/devices/src/virtio/rng/device.rs
-index d3ca386..18c68ae 100644
---- a/src/devices/src/virtio/rng/device.rs
-+++ b/src/devices/src/virtio/rng/device.rs
+ kvm-bindings = { version = "0.6.0", features = ["fam-wrappers"] }
+ kvm-ioctls = "0.12.0"
+ lazy_static = "1.4.0"
+diff --git a/src/vmm/src/devices/virtio/rng/device.rs b/src/vmm/src/devices/virtio/rng/device.rs
+index 7d4ba53..410dba5 100644
+--- a/src/vmm/src/devices/virtio/rng/device.rs
++++ b/src/vmm/src/devices/virtio/rng/device.rs
 @@ -5,7 +5,7 @@ use std::io;
  use std::sync::atomic::AtomicUsize;
  use std::sync::Arc;

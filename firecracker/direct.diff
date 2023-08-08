@@ -1,184 +1,5 @@
-diff --git a/src/devices/src/virtio/block/device.rs b/src/devices/src/virtio/block/device.rs
-index 43c845a..b69f671 100644
---- a/src/devices/src/virtio/block/device.rs
-+++ b/src/devices/src/virtio/block/device.rs
-@@ -9,6 +9,7 @@ use std::convert::From;
- use std::fs::{File, OpenOptions};
- use std::io::{Seek, SeekFrom, Write};
- use std::os::linux::fs::MetadataExt;
-+use std::os::unix::fs::OpenOptionsExt;
- use std::path::PathBuf;
- use std::sync::atomic::AtomicUsize;
- use std::sync::Arc;
-@@ -71,6 +72,7 @@ impl FileEngineType {
- /// Helper object for setting up all `Block` fields derived from its backing file.
- pub(crate) struct DiskProperties {
-     cache_type: CacheType,
-+    is_disk_direct_io: bool,
-     file_path: String,
-     file_engine: FileEngine<PendingRequest>,
-     nsectors: u64,
-@@ -81,12 +83,15 @@ impl DiskProperties {
-     pub fn new(
-         disk_image_path: String,
-         is_disk_read_only: bool,
-+        is_disk_direct_io: bool,
-         cache_type: CacheType,
-         file_engine_type: FileEngineType,
-     ) -> result::Result<Self, Error> {
-+        let custom_flags = if is_disk_direct_io { libc::O_DIRECT } else { 0 };
-         let mut disk_image = OpenOptions::new()
-             .read(true)
-             .write(!is_disk_read_only)
-+            .custom_flags(custom_flags)
-             .open(PathBuf::from(&disk_image_path))
-             .map_err(|x| Error::BackingFile(x, disk_image_path.clone()))?;
-         let disk_size = disk_image
-@@ -105,6 +110,7 @@ impl DiskProperties {
- 
-         Ok(Self {
-             cache_type,
-+            is_disk_direct_io,
-             nsectors: disk_size >> SECTOR_SHIFT,
-             image_id: Self::build_disk_image_id(&disk_image),
-             file_path: disk_image_path,
-@@ -234,12 +240,14 @@ impl Block {
-         disk_image_path: String,
-         is_disk_read_only: bool,
-         is_disk_root: bool,
-+        is_disk_direct_io: bool,
-         rate_limiter: RateLimiter,
-         file_engine_type: FileEngineType,
-     ) -> result::Result<Block, Error> {
-         let disk_properties = DiskProperties::new(
-             disk_image_path,
-             is_disk_read_only,
-+            is_disk_direct_io,
-             cache_type,
-             file_engine_type,
-         )?;
-@@ -444,6 +452,7 @@ impl Block {
-         let disk_properties = DiskProperties::new(
-             disk_image_path,
-             self.is_read_only(),
-+            self.is_direct_io(),
-             self.cache_type(),
-             self.file_engine_type(),
-         )?;
-@@ -482,6 +491,11 @@ impl Block {
-         self.avail_features & (1u64 << VIRTIO_BLK_F_RO) != 0
-     }
- 
-+    /// Specifies if his block device uses DIRECT_IO.
-+    pub fn is_direct_io(&self) -> bool {
-+        self.disk.is_disk_direct_io
-+    }
-+
-     /// Specifies if this block device is read only.
-     pub fn is_root_device(&self) -> bool {
-         self.root_device
-@@ -656,6 +670,7 @@ pub(crate) mod tests {
-         let disk_properties = DiskProperties::new(
-             String::from(f.as_path().to_str().unwrap()),
-             true,
-+            false,
-             CacheType::Unsafe,
-             default_engine_type_for_kv(),
-         )
-@@ -674,6 +689,7 @@ pub(crate) mod tests {
-         assert!(DiskProperties::new(
-             "invalid-disk-path".to_string(),
-             true,
-+            false,
-             CacheType::Unsafe,
-             default_engine_type_for_kv(),
-         )
-diff --git a/src/devices/src/virtio/block/persist.rs b/src/devices/src/virtio/block/persist.rs
-index c587c59..15eba09 100644
---- a/src/devices/src/virtio/block/persist.rs
-+++ b/src/devices/src/virtio/block/persist.rs
-@@ -94,6 +94,8 @@ pub struct BlockState {
-     // v1.0 are incompatible with older FC versions (due to incompatible notification suppression
-     // feature).
-     file_engine_type: FileEngineTypeState,
-+    #[version(start = 4, default_fn = "default_is_direct_io")]
-+    is_direct_io: bool,
- }
- 
- impl BlockState {
-@@ -111,6 +113,10 @@ impl BlockState {
-     fn default_cache_type_flush(_source_version: u16) -> CacheTypeState {
-         CacheTypeState::Unsafe
-     }
-+
-+    fn default_is_direct_io(_source_version: u16) -> bool {
-+        false
-+    }
- }
- 
- pub struct BlockConstructorArgs {
-@@ -129,6 +135,7 @@ impl Persist<'_> for Block {
-             partuuid: self.partuuid.clone(),
-             cache_type: CacheTypeState::from(self.cache_type()),
-             root_device: self.root_device,
-+            is_direct_io: self.is_direct_io(),
-             disk_path: self.disk.file_path().clone(),
-             virtio_state: VirtioDeviceState::from_device(self),
-             rate_limiter_state: self.rate_limiter.save(),
-@@ -151,6 +158,7 @@ impl Persist<'_> for Block {
-             state.disk_path.clone(),
-             is_disk_read_only,
-             state.root_device,
-+            state.is_direct_io,
-             rate_limiter,
-             state.file_engine_type.into(),
-         )
-@@ -172,6 +180,7 @@ impl Persist<'_> for Block {
-                     state.disk_path.clone(),
-                     is_disk_read_only,
-                     state.root_device,
-+                    state.is_direct_io,
-                     rate_limiter,
-                     FileEngineType::Sync,
-                 )
-@@ -250,6 +259,7 @@ mod tests {
-             f.as_path().to_str().unwrap().to_string(),
-             false,
-             false,
-+            false,
-             RateLimiter::default(),
-             FileEngineType::default(),
-         )
-@@ -302,6 +312,7 @@ mod tests {
-                 f.as_path().to_str().unwrap().to_string(),
-                 false,
-                 false,
-+                false,
-                 RateLimiter::default(),
-                 // Need to use Sync because it will otherwise return an error.
-                 // We'll overwrite the state instead.
-@@ -347,6 +358,7 @@ mod tests {
-             f.as_path().to_str().unwrap().to_string(),
-             false,
-             false,
-+            false,
-             RateLimiter::default(),
-             FileEngineType::default(),
-         )
-diff --git a/src/devices/src/virtio/block/test_utils.rs b/src/devices/src/virtio/block/test_utils.rs
-index bccb564..4f3150e 100644
---- a/src/devices/src/virtio/block/test_utils.rs
-+++ b/src/devices/src/virtio/block/test_utils.rs
-@@ -54,6 +54,7 @@ pub fn default_block_with_path(path: String, file_engine_type: FileEngineType) -
-         path,
-         false,
-         false,
-+        false,
-         rate_limiter,
-         file_engine_type,
-     )
 diff --git a/src/vmm/src/builder.rs b/src/vmm/src/builder.rs
-index fa8dc93..4fa34d7 100644
+index c333165..821e953 100644
 --- a/src/vmm/src/builder.rs
 +++ b/src/vmm/src/builder.rs
 @@ -1055,6 +1055,7 @@ pub mod tests {
@@ -319,10 +140,10 @@ index fa8dc93..4fa34d7 100644
  
      #[test]
 diff --git a/src/vmm/src/device_manager/persist.rs b/src/vmm/src/device_manager/persist.rs
-index 9257b2e..2812b1b 100644
+index 0085ed4..04ca408 100644
 --- a/src/vmm/src/device_manager/persist.rs
 +++ b/src/vmm/src/device_manager/persist.rs
-@@ -769,6 +769,7 @@ mod tests {
+@@ -773,6 +773,7 @@ mod tests {
                  true,
                  None,
                  true,
@@ -330,7 +151,7 @@ index 9257b2e..2812b1b 100644
                  CacheType::Unsafe,
              )];
              _block_files =
-@@ -903,7 +904,8 @@ mod tests {
+@@ -907,7 +908,8 @@ mod tests {
        "is_read_only": true,
        "cache_type": "Unsafe",
        "rate_limiter": null,
@@ -340,8 +161,187 @@ index 9257b2e..2812b1b 100644
      }}
    ],
    "boot-source": {{
+diff --git a/src/vmm/src/devices/virtio/block/device.rs b/src/vmm/src/devices/virtio/block/device.rs
+index 8902761..4668319 100644
+--- a/src/vmm/src/devices/virtio/block/device.rs
++++ b/src/vmm/src/devices/virtio/block/device.rs
+@@ -9,6 +9,7 @@ use std::convert::From;
+ use std::fs::{File, OpenOptions};
+ use std::io::{Seek, SeekFrom, Write};
+ use std::os::linux::fs::MetadataExt;
++use std::os::unix::fs::OpenOptionsExt;
+ use std::path::PathBuf;
+ use std::sync::atomic::AtomicUsize;
+ use std::sync::Arc;
+@@ -74,6 +75,7 @@ impl FileEngineType {
+ /// Helper object for setting up all `Block` fields derived from its backing file.
+ pub(crate) struct DiskProperties {
+     cache_type: CacheType,
++    is_disk_direct_io: bool,
+     file_path: String,
+     file_engine: FileEngine<PendingRequest>,
+     nsectors: u64,
+@@ -84,12 +86,15 @@ impl DiskProperties {
+     pub fn new(
+         disk_image_path: String,
+         is_disk_read_only: bool,
++        is_disk_direct_io: bool,
+         cache_type: CacheType,
+         file_engine_type: FileEngineType,
+     ) -> result::Result<Self, BlockError> {
++        let custom_flags = if is_disk_direct_io { libc::O_DIRECT } else { 0 };
+         let mut disk_image = OpenOptions::new()
+             .read(true)
+             .write(!is_disk_read_only)
++            .custom_flags(custom_flags)
+             .open(PathBuf::from(&disk_image_path))
+             .map_err(|x| BlockError::BackingFile(x, disk_image_path.clone()))?;
+         let disk_size = disk_image
+@@ -108,6 +113,7 @@ impl DiskProperties {
+ 
+         Ok(Self {
+             cache_type,
++            is_disk_direct_io,
+             nsectors: disk_size >> SECTOR_SHIFT,
+             image_id: Self::build_disk_image_id(&disk_image),
+             file_path: disk_image_path,
+@@ -237,12 +243,14 @@ impl Block {
+         disk_image_path: String,
+         is_disk_read_only: bool,
+         is_disk_root: bool,
++        is_disk_direct_io: bool,
+         rate_limiter: RateLimiter,
+         file_engine_type: FileEngineType,
+     ) -> result::Result<Block, BlockError> {
+         let disk_properties = DiskProperties::new(
+             disk_image_path,
+             is_disk_read_only,
++            is_disk_direct_io,
+             cache_type,
+             file_engine_type,
+         )?;
+@@ -447,6 +455,7 @@ impl Block {
+         let disk_properties = DiskProperties::new(
+             disk_image_path,
+             self.is_read_only(),
++            self.is_direct_io(),
+             self.cache_type(),
+             self.file_engine_type(),
+         )?;
+@@ -485,6 +494,11 @@ impl Block {
+         self.avail_features & (1u64 << VIRTIO_BLK_F_RO) != 0
+     }
+ 
++    /// Specifies if his block device uses DIRECT_IO.
++    pub fn is_direct_io(&self) -> bool {
++        self.disk.is_disk_direct_io
++    }
++
+     /// Specifies if this block device is read only.
+     pub fn is_root_device(&self) -> bool {
+         self.root_device
+@@ -658,6 +672,7 @@ mod tests {
+         let disk_properties = DiskProperties::new(
+             String::from(f.as_path().to_str().unwrap()),
+             true,
++            false,
+             CacheType::Unsafe,
+             default_engine_type_for_kv(),
+         )
+@@ -676,6 +691,7 @@ mod tests {
+         assert!(DiskProperties::new(
+             "invalid-disk-path".to_string(),
+             true,
++            false,
+             CacheType::Unsafe,
+             default_engine_type_for_kv(),
+         )
+diff --git a/src/vmm/src/devices/virtio/block/persist.rs b/src/vmm/src/devices/virtio/block/persist.rs
+index bb67437..acc043a 100644
+--- a/src/vmm/src/devices/virtio/block/persist.rs
++++ b/src/vmm/src/devices/virtio/block/persist.rs
+@@ -94,6 +94,8 @@ pub struct BlockState {
+     // v1.0 are incompatible with older FC versions (due to incompatible notification suppression
+     // feature).
+     file_engine_type: FileEngineTypeState,
++    #[version(start = 4, default_fn = "default_is_direct_io")]
++    is_direct_io: bool,
+ }
+ 
+ impl BlockState {
+@@ -111,6 +113,10 @@ impl BlockState {
+     fn default_cache_type_flush(_source_version: u16) -> CacheTypeState {
+         CacheTypeState::Unsafe
+     }
++
++    fn default_is_direct_io(_source_version: u16) -> bool {
++        false
++    }
+ }
+ 
+ pub struct BlockConstructorArgs {
+@@ -129,6 +135,7 @@ impl Persist<'_> for Block {
+             partuuid: self.partuuid.clone(),
+             cache_type: CacheTypeState::from(self.cache_type()),
+             root_device: self.root_device,
++            is_direct_io: self.is_direct_io(),
+             disk_path: self.disk.file_path().clone(),
+             virtio_state: VirtioDeviceState::from_device(self),
+             rate_limiter_state: self.rate_limiter.save(),
+@@ -151,6 +158,7 @@ impl Persist<'_> for Block {
+             state.disk_path.clone(),
+             is_disk_read_only,
+             state.root_device,
++            state.is_direct_io,
+             rate_limiter,
+             state.file_engine_type.into(),
+         )
+@@ -172,6 +180,7 @@ impl Persist<'_> for Block {
+                     state.disk_path.clone(),
+                     is_disk_read_only,
+                     state.root_device,
++                    state.is_direct_io,
+                     rate_limiter,
+                     FileEngineType::Sync,
+                 )
+@@ -255,6 +264,7 @@ mod tests {
+             f.as_path().to_str().unwrap().to_string(),
+             false,
+             false,
++            false,
+             RateLimiter::default(),
+             FileEngineType::default(),
+         )
+@@ -307,6 +317,7 @@ mod tests {
+                 f.as_path().to_str().unwrap().to_string(),
+                 false,
+                 false,
++                false,
+                 RateLimiter::default(),
+                 // Need to use Sync because it will otherwise return an error.
+                 // We'll overwrite the state instead.
+@@ -352,6 +363,7 @@ mod tests {
+             f.as_path().to_str().unwrap().to_string(),
+             false,
+             false,
++            false,
+             RateLimiter::default(),
+             FileEngineType::default(),
+         )
+diff --git a/src/vmm/src/devices/virtio/block/test_utils.rs b/src/vmm/src/devices/virtio/block/test_utils.rs
+index 0f6e7b7..d7544af 100644
+--- a/src/vmm/src/devices/virtio/block/test_utils.rs
++++ b/src/vmm/src/devices/virtio/block/test_utils.rs
+@@ -54,6 +54,7 @@ pub fn default_block_with_path(path: String, file_engine_type: FileEngineType) -
+         path,
+         false,
+         false,
++        false,
+         rate_limiter,
+         file_engine_type,
+     )
 diff --git a/src/vmm/src/persist.rs b/src/vmm/src/persist.rs
-index c2a371c..bc67725 100644
+index d7c0118..ede3db2 100644
 --- a/src/vmm/src/persist.rs
 +++ b/src/vmm/src/persist.rs
 @@ -775,6 +775,7 @@ mod tests {
@@ -353,7 +353,7 @@ index c2a371c..bc67725 100644
          )];
          insert_block_devices(&mut vmm, &mut cmdline, &mut event_manager, block_configs);
 diff --git a/src/vmm/src/resources.rs b/src/vmm/src/resources.rs
-index 91cc0fd..0224b01 100644
+index 3e3a3fd..5f3f38f 100644
 --- a/src/vmm/src/resources.rs
 +++ b/src/vmm/src/resources.rs
 @@ -536,6 +536,7 @@ mod tests {
@@ -365,7 +365,7 @@ index 91cc0fd..0224b01 100644
                  file_engine_type: FileEngineType::default(),
              },
 diff --git a/src/vmm/src/rpc_interface.rs b/src/vmm/src/rpc_interface.rs
-index 8bae780..9a69893 100644
+index de76b7f..e033e9c 100644
 --- a/src/vmm/src/rpc_interface.rs
 +++ b/src/vmm/src/rpc_interface.rs
 @@ -1362,6 +1362,7 @@ mod tests {
@@ -401,7 +401,7 @@ index 8bae780..9a69893 100644
          verify_load_snap_disallowed_after_boot_resources(req, "InsertBlockDevice");
  
 diff --git a/src/vmm/src/version_map.rs b/src/vmm/src/version_map.rs
-index dce8521..55fa943 100644
+index c4c81bb..5dd31e8 100644
 --- a/src/vmm/src/version_map.rs
 +++ b/src/vmm/src/version_map.rs
 @@ -62,10 +62,8 @@ lazy_static! {
@@ -418,7 +418,7 @@ index dce8521..55fa943 100644
          // v1.4 state change mappings.
          version_map.new_version().set_type_version(DeviceStates::type_id(), 4);
 diff --git a/src/vmm/src/vmm_config/drive.rs b/src/vmm/src/vmm_config/drive.rs
-index 8029c95..e94d511 100644
+index 28d0365..33e070f 100644
 --- a/src/vmm/src/vmm_config/drive.rs
 +++ b/src/vmm/src/vmm_config/drive.rs
 @@ -67,6 +67,9 @@ pub struct BlockDeviceConfig {
