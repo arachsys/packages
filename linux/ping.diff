@@ -1,0 +1,20 @@
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 10ebe39dc..978280130 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1837,11 +1837,11 @@ static __net_init int inet_init_net(struct net *net)
+ 
+ 	seqlock_init(&net->ipv4.ping_group_range.lock);
+ 	/*
+-	 * Sane defaults - nobody may create ping sockets.
+-	 * Boot scripts should set this to distro-specific group.
++	 * Saner defaults: all users can create ping sockets. Disabling them at
++	 * boot is a crazy default which every distribution ends up overriding.
+ 	 */
+-	net->ipv4.ping_group_range.range[0] = make_kgid(&init_user_ns, 1);
+-	net->ipv4.ping_group_range.range[1] = make_kgid(&init_user_ns, 0);
++	net->ipv4.ping_group_range.range[0] = make_kgid(&init_user_ns, 0);
++	net->ipv4.ping_group_range.range[1] = make_kgid(&init_user_ns, GID_T_MAX);
+ 
+ 	/* Default values for sysctl-controlled parameters.
+ 	 * We set them here, in case sysctl is not compiled.
