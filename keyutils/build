@@ -1,11 +1,11 @@
 check() {
-  url https://people.redhat.com/~dhowells/keyutils/
-  match version 1.6.1 'keyutils-([0-9.]+)\.tar'
+  url https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/refs
+  match version 1.6.3 'keyutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://people.redhat.com/~dhowells/keyutils/keyutils-1.6.1.tar.bz2
-  tree 0aa9537866a1b215710d22ef9bb6986761bab60d392e6cf6e378d8302278c204
+  unpack https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/snapshot/keyutils-1.6.3.tar.gz
+  tree 112e6a59313458dd91582a54045e0e38881c0af2c6e27936af94b202e0b10bc5
 }
 
 build() {
