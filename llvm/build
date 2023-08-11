@@ -5,14 +5,14 @@ check() {
   match llvm 16.0.6 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
-  match cmake 3.27.1 'tags/v([0-9.]+)\.tar'
+  match cmake 3.27.2 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-16.0.6.tar.gz \
     https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-16.0.6.tar.gz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.27.1/cmake-3.27.1.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.27.2/cmake-3.27.2.tar.gz
   apply backport.diff
   apply cmake.diff
   apply config.diff
@@ -21,7 +21,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree dd244722a1c0946341240ee9500f4bc33e9081d0c10e52496f4b5d7a43178e7f
+  tree eaa8b0ed84a1c906cadf07473a2638ef7e03231952404bba411e12a22d1f940b
 }
 
 build() {
