@@ -1,0 +1,42 @@
+diff --git a/ui/curses.c b/ui/curses.c
+index 34bf30d..2b4fa63 100644
+--- a/ui/curses.c
++++ b/ui/curses.c
+@@ -693,8 +693,7 @@ void mtr_curses_redraw(
+ 
+     move(0, 0);
+     attron(A_BOLD);
+-    snprintf(buf, sizeof(buf), "%s%s%s", "My traceroute  [v",
+-             PACKAGE_VERSION, "]");
++    snprintf(buf, sizeof(buf), "My Traceroute %s", PACKAGE_VERSION);
+     pwcenter(buf);
+     attroff(A_BOLD);
+ 
+@@ -721,7 +720,7 @@ void mtr_curses_redraw(
+     attroff(A_BOLD);
+     printw("rder of fields   ");
+     attron(A_BOLD);
+-    printw("q");
++    printw("Q");
+     attroff(A_BOLD);
+     printw("uit\n");
+ 
+diff --git a/ui/report.c b/ui/report.c
+index b79f593..e936501 100644
+--- a/ui/report.c
++++ b/ui/report.c
+@@ -127,10 +127,12 @@ void report_close(
+             if (!ctl->ipinfo_no)
+                 len_tmp += 2;   /* align header: AS */
+         }
++    } else if (ctl->reportwide) {
++        len_tmp += 2;
+     }
+-    snprintf(fmt, sizeof(fmt), "HOST: %%-%ds", len_tmp);
++    snprintf(fmt, sizeof(fmt), "Host: %%-%ds", len_tmp);
+ #else
+-    snprintf(fmt, sizeof(fmt), "HOST: %%-%zus", len_hosts);
++    snprintf(fmt, sizeof(fmt), "Host: %%-%zus", len_hosts);
+ #endif
+     snprintf(buf, sizeof(buf), fmt, ctl->LocalHostname);
+     len = ctl->reportwide ? strlen(buf) : len_hosts;

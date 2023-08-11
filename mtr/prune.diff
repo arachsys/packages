@@ -1,0 +1,172 @@
+diff --git a/ui/display.c b/ui/display.c
+index 7127be5..1e7844b 100644
+--- a/ui/display.c
++++ b/ui/display.c
+@@ -86,12 +86,16 @@ void display_open(
+         json_open();
+         break;
+ #endif
++#ifdef HAVE_XML
+     case DisplayXML:
+         xml_open();
+         break;
++#endif
++#ifdef HAVE_CSV
+     case DisplayCSV:
+         csv_open();
+         break;
++#endif
+ #ifdef HAVE_CURSES
+     case DisplayCurses:
+         mtr_curses_open(ctl);
+@@ -134,12 +138,16 @@ void display_close(
+         json_close(ctl);
+         break;
+ #endif
++#ifdef HAVE_XML
+     case DisplayXML:
+         xml_close(ctl);
+         break;
++#endif
++#ifdef HAVE_CSV
+     case DisplayCSV:
+         csv_close(ctl, now);
+         break;
++#endif
+ #ifdef HAVE_CURSES
+     case DisplayCurses:
+ #ifdef HAVE_IPINFO
+diff --git a/ui/mtr.c b/ui/mtr.c
+index b33a136..5624967 100644
+--- a/ui/mtr.c
++++ b/ui/mtr.c
+@@ -150,10 +150,16 @@ static void __attribute__ ((__noreturn__)) usage(FILE * out)
+     fputs(" -w, --report-wide          output wide report\n", out);
+     fputs(" -c, --report-cycles COUNT  set the number of pings sent\n",
+           out);
++#ifdef HAVE_JANSSON
+     fputs(" -j, --json                 output json\n", out);
++#endif
++#ifdef HAVE_XML
+     fputs(" -x, --xml                  output xml\n", out);
++#endif
++#ifdef HAVE_CSV
+     fputs(" -C, --csv                  output comma separated values\n",
+           out);
++#endif
+     fputs(" -l, --raw                  output raw format\n", out);
+     fputs(" -p, --split                split output\n", out);
+ #ifdef HAVE_CURSES
+@@ -340,7 +346,9 @@ static void parse_arg(
+ 
+         {"report", 0, NULL, 'r'},
+         {"report-wide", 0, NULL, 'w'},
++#ifdef HAVE_XML
+         {"xml", 0, NULL, 'x'},
++#endif
+ #ifdef HAVE_CURSES
+         {"curses", 0, NULL, 't'},
+ #endif
+@@ -348,7 +356,9 @@ static void parse_arg(
+         {"gtk", 0, NULL, 'g'},
+ #endif
+         {"raw", 0, NULL, 'l'},
++#ifdef HAVE_CSV
+         {"csv", 0, NULL, 'C'},
++#endif
+ #ifdef HAVE_JANSSON
+         {"json", 0, NULL, 'j'},
+ #endif
+@@ -444,17 +454,21 @@ static void parse_arg(
+         case 'l':
+             ctl->DisplayMode = DisplayRaw;
+             break;
++#ifdef HAVE_CSV
+         case 'C':
+             ctl->DisplayMode = DisplayCSV;
+             break;
++#endif
+ #ifdef HAVE_JANSSON
+         case 'j':
+             ctl->DisplayMode = DisplayJSON;
+             break;
+ #endif
++#ifdef HAVE_XML
+         case 'x':
+             ctl->DisplayMode = DisplayXML;
+             break;
++#endif
+ 
+         case OPT_DISPLAYMODE:
+             ctl->display_mode =
+@@ -651,8 +665,13 @@ static void parse_arg(
+ #ifdef HAVE_JANSSON
+         ctl->DisplayMode == DisplayJSON ||
+ #endif
++#ifdef HAVE_XML
+         ctl->DisplayMode == DisplayXML ||
+-        ctl->DisplayMode == DisplayRaw || ctl->DisplayMode == DisplayCSV)
++#endif
++#ifdef HAVE_CSV
++        ctl->DisplayMode == DisplayCSV ||
++#endif
++        ctl->DisplayMode == DisplayRaw)
+         ctl->Interactive = 0;
+ 
+     if (optind > argc - 1)
+diff --git a/ui/report.c b/ui/report.c
+index e936501..221b0c7 100644
+--- a/ui/report.c
++++ b/ui/report.c
+@@ -395,7 +395,7 @@ on_error:
+ }
+ #endif
+ 
+-
++#ifdef HAVE_XML
+ void xml_open(
+     void)
+ {
+@@ -461,8 +461,9 @@ void xml_close(
+     }
+     printf("</MTR>\n");
+ }
++#endif
+ 
+-
++#ifdef HAVE_CSV
+ void csv_open(
+     void)
+ {
+@@ -531,3 +532,4 @@ void csv_close(
+         printf("\n");
+     }
+ }
++#endif
+diff --git a/ui/report.h b/ui/report.h
+index 96eb46f..16b9359 100644
+--- a/ui/report.h
++++ b/ui/report.h
+@@ -26,16 +26,22 @@ extern void txt_open(
+     void);
+ extern void txt_close(
+     struct mtr_ctl *ctl);
++#ifdef HAVE_JANSSON
+ extern void json_open(
+     void);
+ extern void json_close(
+     struct mtr_ctl *ctl);
++#endif
++#ifdef HAVE_XML
+ extern void xml_open(
+     void);
+ extern void xml_close(
+     struct mtr_ctl *ctl);
++#endif
++#ifdef HAVE_CSV
+ extern void csv_open(
+     void);
+ extern void csv_close(
+     struct mtr_ctl *ctl,
+     time_t now);
++#endif
