@@ -6,18 +6,18 @@ check() {
 }
 
 prepare() {
-  unpack iputils-20230526.tar.gz \
-    https://github.com/iputils/iputils/archive/471942de.tar.gz
+  unpack iputils-20230810.tar.gz \
+    https://github.com/iputils/iputils/archive/b5071131.tar.gz
   apply cosmetic.diff
   apply usage.diff
-  tree 685a83c2f9978f93f8b9df42e7644a9145c039bf4c112111736e0aedcd9a1888
+  tree 1597cdb3deca2ac3018863a7b18756863de6e69551f1b0a0a878d50a5babc03d
 }
 
 build() {
   echo '#define PACKAGE_NAME "iputils"' >config.h
-  sed 's/@VCS_TAG@/20230526/' git-version.h.meson >>config.h
+  sed 's/@VCS_TAG@/20230810/' git-version.h.meson >>config.h
   cc -Os -Wall -DHAVE___FPENDING -DHAVE_GETRANDOM -I. -include config.h \
     iputils_common.c md5.c ping/*.c -lm -lresolv -o ping/ping
-  install -m 4755 -s -D ping/ping /dst/bin/ping
-  install -D /pkg/await-net /dst/bin/await-net
+  install -s -t /dst/bin -D ping/ping
+  install -t /dst/bin -D /pkg/await-net
 }
