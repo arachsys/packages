@@ -16,7 +16,7 @@ index f60db6ef0..bfd23bf33 100644
  
  # We support checking out the clang-tools-extra repository into the 'extra'
 diff --git a/llvm/cmake/modules/AddLLVM.cmake b/llvm/cmake/modules/AddLLVM.cmake
-index 93e6d6755..68cd59414 100644
+index 93e6d6755..40ed98e97 100644
 --- a/llvm/cmake/modules/AddLLVM.cmake
 +++ b/llvm/cmake/modules/AddLLVM.cmake
 @@ -1284,6 +1284,8 @@ endfunction()
@@ -28,7 +28,15 @@ index 93e6d6755..68cd59414 100644
      llvm-cov
      llvm-cxxfilt
      llvm-dwp
-@@ -1305,6 +1307,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
+@@ -1295,6 +1297,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
+     llvm-objdump
+     llvm-pdbutil
+     llvm-rc
++    llvm-readelf
+     llvm-readobj
+     llvm-size
+     llvm-strings
+@@ -1305,6 +1308,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
      # LLVM_INSTALL_BINUTILS_SYMLINKS.
      addr2line
      ar
