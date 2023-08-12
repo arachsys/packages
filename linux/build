@@ -9,13 +9,14 @@ prepare() {
   apply ncurses.diff
   apply ping.diff
   apply regdom.diff
+  apply srso.diff
 
   find . -type f -executable -exec sed -e '1s:^#! *//*:#!/:' \
     -e '1s:^#!/usr/local/:#!/:' -e '1s:^#!/usr/:#!/:' \
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree 91fc3d34a76b2b1164b2ea201a236b29205a31df2d24d8abd0c26e6dfe78097b
+  tree a306900ab30daab1665ac1486485921694ca7debc677c9519a0c82ccccd166fe
 }
 
 build() {
