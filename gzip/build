@@ -1,11 +1,11 @@
 check() {
   url https://ftp.gnu.org/gnu/gzip/
-  match version 1.12 'gzip-([0-9.]+)\.tar'
+  match version 1.13 'gzip-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/gzip/gzip-1.12.tar.xz
-  tree 87aa290ec131182ea3b1a6a4d7b314b1f49d9ba9a93a4bc987ffea15bba13ea9
+  unpack https://ftp.gnu.org/gnu/gzip/gzip-1.13.tar.xz
+  tree b379cc688c9ff3613ba5a81534eebf056d525e82b41e4248ea2aaf229c517b06
 }
 
 build() {
