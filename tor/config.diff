@@ -1,8 +1,8 @@
 diff --git a/src/app/config/config.c b/src/app/config/config.c
-index e02bcf0..0e2557a 100644
+index e40a583..851623a 100644
 --- a/src/app/config/config.c
 +++ b/src/app/config/config.c
-@@ -6550,7 +6550,7 @@ parse_ports(or_options_t *options, int validate_only,
+@@ -6563,7 +6563,7 @@ parse_ports(or_options_t *options, int validate_only,
    if (port_parse_config(ports,
               options->SocksPort_lines,
               "Socks", CONN_TYPE_AP_LISTENER,

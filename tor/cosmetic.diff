@@ -1,8 +1,8 @@
 diff --git a/src/app/config/config.c b/src/app/config/config.c
-index 2877bc1..aae1bd1 100644
+index a10329c..e40a583 100644
 --- a/src/app/config/config.c
 +++ b/src/app/config/config.c
-@@ -2677,12 +2677,16 @@ static void
+@@ -2695,12 +2695,16 @@ static void
  print_usage(void)
  {
    printf(
@@ -25,9 +25,9 @@ index 2877bc1..aae1bd1 100644
  }
  
  /** Print all non-obsolete torrc options. */
-@@ -4488,21 +4492,17 @@ options_init_from_torrc(int argc, char **argv)
-   if (config_line_find(cmdline_only_options, "--version")) {
-     printf("Tor version %s.\n",get_version());
+@@ -4510,21 +4514,17 @@ options_init_from_torrc(int argc, char **argv)
+             "(https://www.gnu.org/licenses/gpl-3.0.en.html)\n");
+ #endif
      printf("Tor is running on %s with Libevent %s, "
 -            "%s %s, Zlib %s, Liblzma %s, Libzstd %s and %s %s as libc.\n",
 +            "%s, Zlib %s, Liblzma %s and Libzstd %s.\n",
@@ -51,10 +51,10 @@ index 2877bc1..aae1bd1 100644
              COMPILER:COMPILER_VENDOR, COMPILER_VERSION);
  
 diff --git a/src/app/main/main.c b/src/app/main/main.c
-index bc9d535..d5c9f92 100644
+index a50a0aa..a606d09 100644
 --- a/src/app/main/main.c
 +++ b/src/app/main/main.c
-@@ -576,25 +576,17 @@ tor_init(int argc, char *argv[])
+@@ -572,25 +572,17 @@ tor_init(int argc, char *argv[])
      const char *version = get_version();
  
      log_notice(LD_GENERAL, "Tor %s running on %s with Libevent %s, "
@@ -83,7 +83,7 @@ index bc9d535..d5c9f92 100644
      if (strstr(version, "alpha") || strstr(version, "beta"))
        log_notice(LD_GENERAL, "This version is not a stable Tor release. "
 diff --git a/src/lib/crypt_ops/crypto_rand.c b/src/lib/crypt_ops/crypto_rand.c
-index 5bf3a65..6c2a038 100644
+index f39ee6c..a17f914 100644
 --- a/src/lib/crypt_ops/crypto_rand.c
 +++ b/src/lib/crypt_ops/crypto_rand.c
 @@ -67,8 +67,7 @@ ENABLE_GCC_WARNING("-Wstrict-prototypes")
@@ -123,19 +123,6 @@ index db57ee6..9670897 100644
      }
      openlog(buf, LOG_PID | LOG_NDELAY, LOGFACILITY);
    }
-diff --git a/src/lib/tls/tortls_openssl.c b/src/lib/tls/tortls_openssl.c
-index d59d65d..a145624 100644
---- a/src/lib/tls/tortls_openssl.c
-+++ b/src/lib/tls/tortls_openssl.c
-@@ -340,7 +340,7 @@ tor_tls_init(void)
-     SSL_load_error_strings();
- #endif /* defined(OPENSSL_1_1_API) */
- 
--#if (SIZEOF_VOID_P >= 8 &&                              \
-+#if (SIZEOF_VOID_P >= 8 && !defined(LIBRESSL_VERSION_NUMBER) && \
-      OPENSSL_VERSION_NUMBER >= OPENSSL_V_SERIES(1,0,1))
-     long version = tor_OpenSSL_version_num();
- 
 diff --git a/src/tools/tor-gencert.c b/src/tools/tor-gencert.c
 index efd4d00..587bcda 100644
 --- a/src/tools/tor-gencert.c
@@ -174,10 +161,10 @@ index 7d4e0b1..2477122 100644
    }
  
 diff --git a/src/tools/tor-resolve.c b/src/tools/tor-resolve.c
-index 09ff8df..7b77606 100644
+index ad52fda..94f0f7c 100644
 --- a/src/tools/tor-resolve.c
 +++ b/src/tools/tor-resolve.c
-@@ -532,8 +532,8 @@ do_resolve(const char *hostname,
+@@ -551,8 +551,8 @@ do_resolve(const char *hostname,
  static void
  usage(void)
  {
