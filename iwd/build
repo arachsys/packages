@@ -1,16 +1,16 @@
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/network/wireless/
-  match version 2.7 'iwd-([0-9.]+)\.tar'
+  match version 2.8 'iwd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.7.tar.xz
+  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.8.tar.xz
   apply clang.diff
   apply defaults.diff
   apply dbus.diff
   apply paths.diff
   apply syslog.diff
-  tree a8ecb4cebc72d6df8ec9b272a7760579cf9ab9cf62f1718b8bd46263f24600bd
+  tree e6d4b418911fdc22afd34bd8ce4513005c18741aceb2235000a5ea654036992d
 }
 
 build() {
