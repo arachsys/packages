@@ -1,18 +1,15 @@
 diff --git a/src/bootstrap/tool.rs b/src/bootstrap/tool.rs
-index d4fab6084..d517b34aa 100644
+index 1108a8d8d..ce60db4f2 100644
 --- a/src/bootstrap/tool.rs
 +++ b/src/bootstrap/tool.rs
-@@ -688,6 +688,7 @@ impl Step for Cargo {
-             })
-             .expect("expected to build -- essential tool");
- 
+@@ -584,10 +584,12 @@ impl Step for Cargo {
+                 "src/tools/cargo/credential/cargo-credential-macos-keychain",
+             );
+         }
 +        /*
-         let build_cred = |name, path| {
-             // These credential helpers are currently experimental.
-             // Any build failures will be ignored.
-@@ -720,6 +721,7 @@ impl Step for Cargo {
+         build_cred(
              "cargo-credential-1password",
-             "src/tools/cargo/crates/credential/cargo-credential-1password",
+             "src/tools/cargo/credential/cargo-credential-1password",
          );
 +        */
          cargo_bin_path

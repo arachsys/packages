@@ -1,5 +1,5 @@
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 76aad16c1..92583d540 100644
+index b34a4b2dc..668d82409 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
 @@ -420,7 +420,7 @@ impl Step for Rustc {
@@ -11,7 +11,7 @@ index 76aad16c1..92583d540 100644
              }
  
              let libdir_relative = builder.libdir_relative(compiler);
-@@ -1073,7 +1073,7 @@ impl Step for Cargo {
+@@ -1081,7 +1081,7 @@ impl Step for Cargo {
          for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
              let dirent = dirent.expect("read dir entry");
              if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
@@ -21,10 +21,10 @@ index 76aad16c1..92583d540 100644
          }
  
 diff --git a/src/bootstrap/tool.rs b/src/bootstrap/tool.rs
-index d1fd2e8c4..d4fab6084 100644
+index 06c031788..1108a8d8d 100644
 --- a/src/bootstrap/tool.rs
 +++ b/src/bootstrap/tool.rs
-@@ -851,7 +851,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -719,7 +719,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -33,11 +33,11 @@ index d1fd2e8c4..d4fab6084 100644
          t!(fs::create_dir_all(&libexec_path));
          builder.copy(&path, &libexec_path.join("rust-analyzer-proc-macro-srv"));
  
-diff --git a/src/tools/cargo/src/cargo/util/auth.rs b/src/tools/cargo/src/cargo/util/auth.rs
-index f19acaebe..a89fa7341 100644
---- a/src/tools/cargo/src/cargo/util/auth.rs
-+++ b/src/tools/cargo/src/cargo/util/auth.rs
-@@ -826,7 +826,7 @@ fn sysroot_credential(
+diff --git a/src/tools/cargo/src/cargo/util/auth/mod.rs b/src/tools/cargo/src/cargo/util/auth/mod.rs
+index 58309964f..16a577171 100644
+--- a/src/tools/cargo/src/cargo/util/auth/mod.rs
++++ b/src/tools/cargo/src/cargo/util/auth/mod.rs
+@@ -711,7 +711,7 @@ fn sysroot_credential(
          .parent()
          .and_then(|p| p.parent())
          .ok_or_else(|| format_err!("expected cargo path {}", cargo.display()))?;
@@ -47,11 +47,11 @@ index f19acaebe..a89fa7341 100644
          cred_name,
          std::env::consts::EXE_SUFFIX
 diff --git a/src/tools/rust-analyzer/crates/project-model/src/workspace.rs b/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
-index d1e53e12e..1b6612780 100644
+index b5fe237fc..16620882f 100644
 --- a/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
 +++ b/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
-@@ -446,7 +446,7 @@ impl ProjectWorkspace {
-             | ProjectWorkspace::Json { sysroot: Ok(sysroot), .. } => {
+@@ -454,7 +454,7 @@ impl ProjectWorkspace {
+             | ProjectWorkspace::DetachedFiles { sysroot: Ok(sysroot), .. } => {
                  let standalone_server_name =
                      format!("rust-analyzer-proc-macro-srv{}", std::env::consts::EXE_SUFFIX);
 -                ["libexec", "lib"]
