@@ -1,17 +1,18 @@
 check() {
   url https://thrysoee.dk/editline/
-  match version 20221030-3.1 'libedit-([-0-9.]+)\.tar'
+  match version 20230827-3.1 'libedit-([-0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://thrysoee.dk/editline/libedit-20221030-3.1.tar.gz
+  unpack https://thrysoee.dk/editline/libedit-20230827-3.1.tar.gz
   apply config.diff
-  tree 7bcaf6d802717cddbbfbd085e13963d14ebb1196e147025a407f7f94620c7214
+  apply musl.diff
+  tree be0950fb14b9308e7357ddb491f3ebbf9879ddc1d31141de7af58b16cfacf793
 }
 
 build() {
   auto-config
-  make install CFLAGS='-O2 -D__STDC_ISO_10646__=201103L' DESTDIR=/dst
+  make install DESTDIR=/dst
   rm -f /dst/lib/{include/editline/readline.h,libedit.so}
   echo 'INPUT ( libedit.a libncurses.so )' >/dst/lib/libedit.so
 }
