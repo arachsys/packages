@@ -1,13 +1,13 @@
 check() {
   url https://thrysoee.dk/editline/
-  match version 20230827-3.1 'libedit-([-0-9.]+)\.tar'
+  match version 20230828-3.1 'libedit-([-0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://thrysoee.dk/editline/libedit-20230827-3.1.tar.gz
+  unpack https://thrysoee.dk/editline/libedit-20230828-3.1.tar.gz
   apply config.diff
   apply musl.diff
-  tree be0950fb14b9308e7357ddb491f3ebbf9879ddc1d31141de7af58b16cfacf793
+  tree 2c63f91c64a75d19baeef391e7bcd95af0a26b213a00b365a627a099f00ab60a
 }
 
 build() {

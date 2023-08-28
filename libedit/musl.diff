@@ -1,15 +1,3 @@
-diff --git a/src/chartype.c b/src/chartype.c
-index b731d63..81a27a0 100644
---- a/src/chartype.c
-+++ b/src/chartype.c
-@@ -36,6 +36,7 @@ __RCSID("$NetBSD: chartype.c,v 1.37 2023/08/10 20:38:00 mrg Exp $");
- 
- #include <ctype.h>
- #include <limits.h>
-+#include <stdint.h>
- #include <stdlib.h>
- #include <string.h>
- 
 diff --git a/src/chartype.h b/src/chartype.h
 index bcdb293..2f16c99 100644
 --- a/src/chartype.h
