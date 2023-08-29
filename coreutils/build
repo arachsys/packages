@@ -1,12 +1,12 @@
 check() {
   url https://ftp.gnu.org/gnu/coreutils/
-  match version 9.3 'coreutils-([0-9.]+)\.tar'
+  match version 9.4 'coreutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/coreutils/coreutils-9.3.tar.xz
+  unpack https://ftp.gnu.org/gnu/coreutils/coreutils-9.4.tar.xz
   apply fmt.diff
-  tree de99a27e9d2f6f2787bd323eee7c05d5301f3d207ce94bedc38ec2dba7c753c2
+  tree 45a4e31ecd853334174ea1be1fd7f21ac4dd254452b618b2646c0a1440a61939
 }
 
 build() {
