@@ -10,7 +10,8 @@ prepare() {
 }
 
 build() {
-  /src/configure --disable-{dane-ta-usage,shared} --with-{drill,ssl=/lib}
+  /src/configure --disable-dane-ta-usage --disable-gost --disable-shared \
+    --with-drill --with-ssl=/lib
   make setup-builddir drill
   cc -g -I. -L.libs -Os -Wall ldns-host.c -lldns -lcrypto -o host
   install -s -t /dst/bin -D drill/drill host
