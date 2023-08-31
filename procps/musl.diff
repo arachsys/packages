@@ -1,8 +1,8 @@
 diff --git a/library/readproc.c b/library/readproc.c
-index 4bc9d96..cefad52 100644
+index 2dfe4c9..51f049b 100644
 --- a/library/readproc.c
 +++ b/library/readproc.c
-@@ -33,6 +33,7 @@
+@@ -37,6 +37,7 @@
  #include <sys/stat.h>
  #include <limits.h>
  #include <stdint.h>
@@ -10,28 +10,11 @@ index 4bc9d96..cefad52 100644
  #ifdef WITH_SYSTEMD
  #include <systemd/sd-login.h>
  #endif
-diff --git a/src/w.c b/src/w.c
-index 8b37179..b0e9e59 100644
---- a/src/w.c
-+++ b/src/w.c
-@@ -43,11 +43,7 @@
- #include <termios.h>
- #include <time.h>
- #include <unistd.h>
--#ifdef HAVE_UTMPX_H
--#	include <utmpx.h>
--#else
--#	include <utmp.h>
--#endif
-+#include <utmp.h>
- #include <arpa/inet.h>
- 
- #include "c.h"
 diff --git a/src/watch.c b/src/watch.c
-index a69a402..389db61 100644
+index 5c159a9..45fc377 100644
 --- a/src/watch.c
 +++ b/src/watch.c
-@@ -52,10 +52,8 @@
+@@ -53,10 +53,8 @@
  # define _XOPEN_SOURCE_EXTENDED 1
  # include <wchar.h>
  # include <wctype.h>
