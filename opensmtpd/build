@@ -14,12 +14,13 @@ prepare() {
   unpack https://www.opensmtpd.org/archives/opensmtpd-7.3.0p1.tar.gz
   unpack -d fts musl-fts-1.2.7.tar.gz \
     https://github.com/void-linux/musl-fts/archive/v1.2.7.tar.gz
+  apply engine.diff
   apply english.diff
   apply forward.diff
   apply libressl.diff
   apply libtls.diff
   apply paths.diff
-  tree 000b1723a9a4a949fb114b3e17e719119bba2366df18f074863812833a76c9f4
+  tree cea6b4f0796162caa3e2616365fadb8b1c7041682e2f3447a2c7dabc234eee28
 }
 
 build() {
