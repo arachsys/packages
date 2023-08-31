@@ -19,7 +19,8 @@ build() {
   auto-config --sysconfdir=/etc/ssh --libexecdir=/lib/openssh \
     --disable-lastlog --disable-{u,w}tmp{,x} --with-4in6 \
     --with-default-path=/bin --with-libedit --with-pid-dir=/run \
-    --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth
+    --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth \
+    --without-zlib-version-check
   sed -i '/^CFLAGS=/s/ -fzero-call-used-regs=all//' **/Makefile
   make && make install-nokeys DESTDIR=/dst
   chmod u+rw,go+r /dst/lib/openssh/*
