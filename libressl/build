@@ -11,4 +11,14 @@ prepare() {
 build() {
   auto-config --enable-nc
   make && make install DESTDIR=/dst
+
+  for LIB in /lib/shared/lib{crypto,ssl,tls}.so; do
+    LIB=$(objdump -p $LIB | awk '$1 == "SONAME" { print $2 }')
+    if [[ -f /lib/shared/$LIB ]] && [[ ! -f /dst/lib/$LIB ]]; then
+      echo "Including compatibility ${LIB##*/} as soname has changed"
+      cp -a -u /lib/shared/$LIB{,.*} /dst/lib/
+    fi
+  done | if [[ -n $(tee /dev/stderr) ]]; then
+    echo "Rebuild dependants then libressl again to complete transition" >&2
+  fi
 }
