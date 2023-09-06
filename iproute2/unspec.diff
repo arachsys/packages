@@ -1,5 +1,5 @@
 diff --git a/ip/iproute.c b/ip/iproute.c
-index fdf1f9a9..3e8f0064 100644
+index fdf1f9a..3e8f006 100644
 --- a/ip/iproute.c
 +++ b/ip/iproute.c
 @@ -1941,9 +1941,6 @@ static int iproute_list_flush_or_save(int argc, char **argv, int action)

@@ -1,20 +1,8 @@
-diff --git a/bridge/mdb.c b/bridge/mdb.c
-index fbb4f70..1879345 100644
---- a/bridge/mdb.c
-+++ b/bridge/mdb.c
-@@ -15,6 +15,7 @@
- #include <string.h>
- #include <arpa/inet.h>
- #include <netdb.h>
-+#include <limits.h>
- 
- #include "libnetlink.h"
- #include "utils.h"
 diff --git a/include/json_print.h b/include/json_print.h
-index 91b3457..b3e8413 100644
+index 0b1d84f..403de29 100644
 --- a/include/json_print.h
 +++ b/include/json_print.h
-@@ -12,6 +12,7 @@
+@@ -8,6 +8,7 @@
  #ifndef _JSON_PRINT_H_
  #define _JSON_PRINT_H_
  
@@ -23,10 +11,10 @@ index 91b3457..b3e8413 100644
  #include "color.h"
  
 diff --git a/misc/arpd.c b/misc/arpd.c
-index 504961c..a9c0fc2 100644
+index 1ef837c..cf36809 100644
 --- a/misc/arpd.c
 +++ b/misc/arpd.c
-@@ -18,7 +18,7 @@
+@@ -14,7 +14,7 @@
  #include <netdb.h>
  #include <db_185.h>
  #include <sys/ioctl.h>
@@ -36,10 +24,10 @@ index 504961c..a9c0fc2 100644
  #include <fcntl.h>
  #include <sys/uio.h>
 diff --git a/misc/ifstat.c b/misc/ifstat.c
-index 291f288..df82bd7 100644
+index f6f9ba5..441a337 100644
 --- a/misc/ifstat.c
 +++ b/misc/ifstat.c
-@@ -21,7 +21,7 @@
+@@ -17,7 +17,7 @@
  #include <sys/file.h>
  #include <sys/socket.h>
  #include <sys/un.h>
@@ -49,10 +37,10 @@ index 291f288..df82bd7 100644
  #include <sys/stat.h>
  #include <signal.h>
 diff --git a/misc/nstat.c b/misc/nstat.c
-index 7160c59..0e69027 100644
+index 2c10fea..9270b72 100644
 --- a/misc/nstat.c
 +++ b/misc/nstat.c
-@@ -21,7 +21,7 @@
+@@ -17,7 +17,7 @@
  #include <sys/file.h>
  #include <sys/socket.h>
  #include <sys/un.h>
@@ -62,10 +50,10 @@ index 7160c59..0e69027 100644
  #include <sys/stat.h>
  #include <signal.h>
 diff --git a/misc/rtacct.c b/misc/rtacct.c
-index 47b27e3..690b673 100644
+index 08363bf..cd84b7f 100644
 --- a/misc/rtacct.c
 +++ b/misc/rtacct.c
-@@ -21,7 +21,7 @@
+@@ -16,7 +16,7 @@
  #include <sys/file.h>
  #include <sys/socket.h>
  #include <sys/un.h>

@@ -1,8 +1,8 @@
 diff --git a/ip/ipaddress.c b/ip/ipaddress.c
-index 7accbf7..b5347e5 100644
+index 8197709..68489b9 100644
 --- a/ip/ipaddress.c
 +++ b/ip/ipaddress.c
-@@ -2577,16 +2577,8 @@ static int ipaddr_modify(int cmd, int flags, int argc, char **argv)
+@@ -2581,16 +2581,8 @@ static int ipaddr_modify(int cmd, int flags, int argc, char **argv)
  	}
  
  	if (peer_len == 0 && local_len) {

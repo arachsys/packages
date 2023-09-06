@@ -2,21 +2,20 @@ require bison flex
 
 check() {
   url https://www.kernel.org/pub/linux/utils/net/iproute2/
-  match version 6.4.0 'iproute2-([0-9.]+)\.tar'
+  match version 6.5.0 'iproute2-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.4.0.tar.xz
+  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.5.0.tar.xz
   apply includes.diff
   apply nocompat.diff
   apply paths.diff
   apply unspec.diff
-  tree 6d7d2f25ddc723cdeb616cc78c56132ae09b3b1668b1b5a7949829d797df7f4f
+  tree fb8449364854eb32fa223d5b6c48a3d667528880e82fdecd7f7031e511a981ce
 }
 
 build() {
-  CC=cc PKG_CONFIG=/bin/false /src/configure
-  make install CC=cc DESTDIR=/dst PREFIX= DATADIR=/lib HDRDIR=/lib/include \
-    LIBDIR=/lib SBINDIR=/bin {DBM,KERNEL}_INCLUDE=/lib/include
+  CC=cc PKG_CONFIG=/bin/false /src/configure --prefix=
+  make install CC=cc DESTDIR=/dst
   rm -f -r /dst/bin/{ifcfg,routef,routel,rtpr} /dst/lib/bash-completion
 }

@@ -1,16 +1,49 @@
 diff --git a/Makefile b/Makefile
-index f621453..faf3ead 100644
+index 7d1819c..1916013 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -17,7 +17,7 @@ endif
- PREFIX?=/usr
- SBINDIR?=/sbin
- CONFDIR?=/etc/iproute2
+@@ -14,22 +14,22 @@ ifeq ($(VERBOSE),0)
+ MAKEFLAGS += --no-print-directory
+ endif
+ 
+-PREFIX?=/usr
+-SBINDIR?=/sbin
++PREFIX?=
++SBINDIR?=/bin
+ CONF_ETC_DIR?=/etc/iproute2
+ CONF_USR_DIR?=$(PREFIX)/lib/iproute2
 -NETNS_RUN_DIR?=/var/run/netns
 +NETNS_RUN_DIR?=/run/netns
  NETNS_ETC_DIR?=/etc/netns
- DATADIR?=$(PREFIX)/share
- HDRDIR?=$(PREFIX)/include/iproute2
+-DATADIR?=$(PREFIX)/share
+-HDRDIR?=$(PREFIX)/include/iproute2
++DATADIR?=$(PREFIX)/lib
++HDRDIR?=$(PREFIX)/lib/include
+ DOCDIR?=$(DATADIR)/doc/iproute2
+ MANDIR?=$(DATADIR)/man
+ ARPDDIR?=/var/lib/arpd
+-KERNEL_INCLUDE?=/usr/include
++KERNEL_INCLUDE?=/lib/include
+ BASH_COMPDIR?=$(DATADIR)/bash-completion/completions
+ 
+ # Path to db_185.h include
+-DBM_INCLUDE:=$(DESTDIR)/usr/include
++DBM_INCLUDE:=/lib/include
+ 
+ SHARED_LIBS = y
+ 
+diff --git a/configure b/configure
+index 18be5a0..5d1f3e5 100755
+--- a/configure
++++ b/configure
+@@ -572,7 +572,6 @@ if [ "${LIBBPF_FORCE-unused}" != "unused" ]; then
+ 		usage 1
+ 	fi
+ fi
+-[ -z "$PREFIX" ] && usage 1
+ [ -z "$LIBDIR" ] && usage 1
+ 
+ echo "# Generated config based on" $INCLUDE >$CONFIG
 diff --git a/include/namespace.h b/include/namespace.h
 index e47f9b5..d495e6b 100644
 --- a/include/namespace.h
@@ -25,10 +58,10 @@ index e47f9b5..d495e6b 100644
  
  #ifndef NETNS_ETC_DIR
 diff --git a/lib/fs.c b/lib/fs.c
-index 3752931..7d1cf87 100644
+index 622f28b..e174321 100644
 --- a/lib/fs.c
 +++ b/lib/fs.c
-@@ -32,7 +32,7 @@
+@@ -27,7 +27,7 @@
  #define CGROUP2_FS_NAME "cgroup2"
  
  /* if not already mounted cgroup2 is mounted here for iproute2's use */
