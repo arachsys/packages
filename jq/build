@@ -1,0 +1,15 @@
+check() {
+  url https://github.com/jqlang/jq/tags
+  match version 1.7 'tags/jq-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://github.com/jqlang/jq/releases/download/jq-1.7/jq-1.7.tar.gz
+  tree 276db571c7056d275241b7285cbfacf3b2bd8d4a30ebca9cb349f4755cedde97
+}
+
+build() {
+  auto-config --disable-shared
+  make all
+  install -s -t /dst/bin -D jq
+}
