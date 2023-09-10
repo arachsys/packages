@@ -5,9 +5,10 @@ check() {
 
 prepare() {
   unpack https://musl.libc.org/releases/musl-1.2.4.tar.gz
+  apply nodata.diff
   apply paths.diff
   apply usage.diff
-  tree 28fb223b6db42907afa10a4883b226621f00454de614f6d269e964cc718b01a3
+  tree b27cc76a0ce6e2ef1091c370ecf6aa72df952c03e3ee6268b225b7e6289e3804
 }
 
 build() {
