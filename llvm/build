@@ -21,7 +21,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree edba8574fe1f2f662b9c3b42c035daf0bdce79b2662a2d9b05d89f4e78c793c8
+  tree 441bf0eae5ac313291a847a347f9e9760e401c71e909105efb1deec4fa67b2de
 }
 
 build() {
@@ -61,6 +61,7 @@ build() {
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
+    -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$CHOST \
     -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=Yes \
     -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld;lldb" \
     -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi" \
@@ -72,6 +73,7 @@ build() {
     -DCLANG_DEFAULT_RTLIB=compiler-rt \
     -DCLANG_LINKS_TO_CREATE="c++;cc;clang++;clang-cl;clang-cpp;cpp" \
     -DCLANG_RESOURCE_DIR=../lib/clang \
+    -DCOMPILER_RT_DEFAULT_TARGET_ONLY=Yes \
     -DLIBCXX_CXX_ABI=libcxxabi \
     -DLIBCXX_HAS_ATOMIC_LIB=No \
     -DLIBCXX_HAS_MUSL_LIBC=Yes \
