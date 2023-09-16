@@ -6,7 +6,7 @@ check() {
 prepare() {
   unpack sqlite-3.43.1.tar.gz \
     https://www.sqlite.org/2023/sqlite-autoconf-3430100.tar.gz
-  tree debe5d1873b6e6e0d6aeba2f8ee9e7002eb69972d687afe4630fce586ee4c7ca
+  tree 624c89fd6525b665b044eba5a84d7aaef8761498784c53c96b3d7b67c16795a3
 }
 
 build() {
