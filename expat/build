@@ -9,7 +9,7 @@ prepare() {
 }
 
 build() {
-  auto-config
+  auto-config LDFLAGS=-Wl,--as-needed,-lunwind
   make install DESTDIR=/dst
   rm -f -r /dst/lib/cmake
 }
