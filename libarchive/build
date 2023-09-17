@@ -5,7 +5,8 @@ check() {
 
 prepare() {
   unpack https://www.libarchive.org/downloads/libarchive-3.7.2.tar.xz
-  tree cd9065152e179926769cdb0eb847e1e83ec061c98b480f129d51d24c33c59d76
+  apply cosmetic.diff
+  tree 03ea8ee622069166c7278a8bde08be3fe04f286746948a47aba34a6b9fc6944c
 }
 
 build() {

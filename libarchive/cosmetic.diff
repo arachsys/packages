@@ -1,0 +1,54 @@
+diff --git a/cpio/cpio.c b/cpio/cpio.c
+index b02a142..a37dc50 100644
+--- a/cpio/cpio.c
++++ b/cpio/cpio.c
+@@ -470,7 +470,7 @@ static const char *long_help_msg =
+ 	"Common Options:\n"
+ 	"  -v Verbose filenames     -V  one dot per file\n"
+ 	"Create: %p -o [options]  < [list of files] > [archive]\n"
+-	"  -J,-y,-z,--lzma  Compress archive with xz/bzip2/gzip/lzma\n"
++	"  -J,-y,-z,--lzma,--zstd  Compress archive with xz/bzip2/gzip/lzma/zstd\n"
+ 	"  --format {pwb|bin|odc|newc|ustar}  Select archive format\n"
+ 	"List: %p -it < [archive]\n"
+ 	"Extract: %p -i [options] < [archive]\n";
+diff --git a/tar/bsdtar.c b/tar/bsdtar.c
+index 75249d1..c333b3f 100644
+--- a/tar/bsdtar.c
++++ b/tar/bsdtar.c
+@@ -70,19 +70,6 @@ __FBSDID("$FreeBSD: src/usr.bin/tar/bsdtar.c,v 1.93 2008/11/08 04:43:24 kientzle
+ #include "bsdtar.h"
+ #include "err.h"
+ 
+-#if ARCHIVE_VERSION_NUMBER < 4000000 && !defined(_PATH_DEFTAPE)
+-// Libarchive 4.0 and later will NOT define _PATH_DEFTAPE
+-// but will honor it if it's set in the build.
+-// Until then, we'll continue to set it by default on certain platforms:
+-#if defined(__linux)
+-#define _PATH_DEFTAPE "/dev/st0"
+-#elif defined(_WIN32) && !defined(__CYGWIN__)
+-#define _PATH_DEFTAPE "\\\\.\\tape0"
+-#elif !defined(__APPLE__)
+-#define _PATH_DEFTAPE "/dev/tape"
+-#endif
+-#endif
+-
+ #define _PATH_STDIO "-"
+ 
+ #ifdef __MINGW32__
+@@ -1013,13 +1000,13 @@ static const char *long_help_msg =
+ 	"  -c Create  -r Add/Replace  -t List  -u Update  -x Extract\n"
+ 	"Common Options:\n"
+ 	"  -b #  Use # 512-byte records per I/O block\n"
+-	"  -f <filename>  Location of archive (default " _PATH_DEFTAPE ")\n"
++	"  -f <filename>  Location of archive (default stdio)\n"
+ 	"  -v    Verbose\n"
+ 	"  -w    Interactive\n"
+ 	"Create: %p -c [options] [<file> | <dir> | @<archive> | -C <dir> ]\n"
+ 	"  <file>, <dir>  add these items to archive\n"
+-	"  -z, -j, -J, --lzma  Compress archive with gzip/bzip2/xz/lzma\n"
+-	"  --format {ustar|pax|cpio|shar}  Select archive format\n"
++	"  -z, -j, -J, --lzma, --zstd  Compress archive with gzip/bzip2/xz/lzma/zstd\n"
++	"  --format {ustar|pax|cpio|newc|shar}  Select archive format\n"
+ 	"  --exclude <pattern>  Skip files that match pattern\n"
+ 	"  -C <dir>  Change to <dir> before processing remaining files\n"
+ 	"  @<archive>  Add entries from <archive> to output\n"
