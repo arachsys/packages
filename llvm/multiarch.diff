@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index c6fb290ff..4cf052a24 100644
+index 1ba222bf8..00bf213c3 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
 @@ -43,7 +43,8 @@ std::string Linux::getMultiarchTriple(const Driver &D,
@@ -12,7 +12,7 @@ index c6fb290ff..4cf052a24 100644
    bool IsMipsR6 = TargetTriple.getSubArch() == llvm::Triple::MipsSubArch_r6;
    bool IsMipsN32Abi = TargetTriple.getEnvironment() == llvm::Triple::GNUABIN32;
  
-@@ -59,80 +60,68 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -59,32 +60,24 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    // regardless of what the actual target triple is.
    case llvm::Triple::arm:
    case llvm::Triple::thumb:
@@ -52,6 +52,11 @@ index c6fb290ff..4cf052a24 100644
 -    return "aarch64_be-linux-gnu";
 +    return "aarch64_be-linux-" + EnvName;
  
+   case llvm::Triple::loongarch64: {
+     const char *Libc;
+@@ -120,50 +113,48 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+   }
+ 
    case llvm::Triple::m68k:
 -    return "m68k-linux-gnu";
 +    return "m68k-linux-" + EnvName;
@@ -60,8 +65,6 @@ index c6fb290ff..4cf052a24 100644
 -    return IsMipsR6 ? "mipsisa32r6-linux-gnu" : "mips-linux-gnu";
 +    return (IsMipsR6 ? "mipsisa32r6-linux-" : "mips-linux-") + EnvName;
    case llvm::Triple::mipsel:
--    if (IsAndroid)
--      return "mipsel-linux-android";
 -    return IsMipsR6 ? "mipsisa32r6el-linux-gnu" : "mipsel-linux-gnu";
 +    return (IsMipsR6 ? "mipsisa32r6el-linux-" : "mipsel-linux-") + EnvName;
    case llvm::Triple::mips64: {
@@ -77,8 +80,6 @@ index c6fb290ff..4cf052a24 100644
      break;
    }
    case llvm::Triple::mips64el: {
--    if (IsAndroid)
--      return "mips64el-linux-android";
      std::string MT = std::string(IsMipsR6 ? "mipsisa64r6el" : "mips64el") +
 -                     "-linux-" + (IsMipsN32Abi ? "gnuabin32" : "gnuabi64");
 +                     "-linux-" + EnvName + (IsMipsN32Abi ? "abin32" : "abi64");
@@ -107,6 +108,8 @@ index c6fb290ff..4cf052a24 100644
 -    return "powerpc64le-linux-gnu";
 +    return "powerpc64le-linux-" + EnvName;
    case llvm::Triple::riscv64:
+-    if (IsAndroid)
+-      return "riscv64-linux-android";
 -    return "riscv64-linux-gnu";
 +    return "riscv64-linux-" + EnvName;
    case llvm::Triple::sparc:

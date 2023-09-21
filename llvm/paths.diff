@@ -1,8 +1,8 @@
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index a268f2fa8..f6605cd0e 100644
+index bdbdad936..c35b20545 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
-@@ -175,6 +175,7 @@ std::string Driver::GetResourcesPath(StringRef BinaryPath,
+@@ -177,6 +177,7 @@ std::string Driver::GetResourcesPath(StringRef BinaryPath,
    SmallString<128> P(Dir);
    if (CustomResourceDir != "") {
      llvm::sys::path::append(P, CustomResourceDir);
@@ -11,10 +11,10 @@ index a268f2fa8..f6605cd0e 100644
      // On Windows, libclang.dll is in bin/.
      // On non-Windows, libclang.so/.dylib is in lib/.
 diff --git a/clang/lib/Driver/ToolChains/Cuda.cpp b/clang/lib/Driver/ToolChains/Cuda.cpp
-index aa125bb30..79c30f617 100644
+index 3a577650e..e8fc63126 100644
 --- a/clang/lib/Driver/ToolChains/Cuda.cpp
 +++ b/clang/lib/Driver/ToolChains/Cuda.cpp
-@@ -168,15 +168,7 @@ CudaInstallationDetector::CudaInstallationDetector(
+@@ -172,15 +172,7 @@ CudaInstallationDetector::CudaInstallationDetector(
        }
      }
  
@@ -32,10 +32,10 @@ index aa125bb30..79c30f617 100644
  
    bool NoCudaLib = Args.hasArg(options::OPT_nogpulib);
 diff --git a/clang/lib/Driver/ToolChains/Gnu.cpp b/clang/lib/Driver/ToolChains/Gnu.cpp
-index 4f2340316..81e56a89b 100644
+index 40038dce4..c6ea4ea2e 100644
 --- a/clang/lib/Driver/ToolChains/Gnu.cpp
 +++ b/clang/lib/Driver/ToolChains/Gnu.cpp
-@@ -2175,29 +2175,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
+@@ -2255,29 +2255,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
      return;
    }
  
@@ -66,7 +66,7 @@ index 4f2340316..81e56a89b 100644
  }
  
  /*static*/ void Generic_GCC::GCCInstallationDetector::CollectLibDirsAndTriples(
-@@ -3087,14 +3065,12 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
+@@ -3122,14 +3100,12 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
    // Android never uses the libc++ headers installed alongside the toolchain,
    // which are generally incompatible with the NDK libraries anyway.
    if (!getTriple().isAndroid())
@@ -83,7 +83,7 @@ index 4f2340316..81e56a89b 100644
      return;
  }
  
-@@ -3168,7 +3144,7 @@ bool Generic_GCC::addGCCLibStdCxxIncludePaths(
+@@ -3203,7 +3179,7 @@ bool Generic_GCC::addGCCLibStdCxxIncludePaths(
      return true;
  
    // Try /../include/c++/$version (gcc --print-multiarch is empty).
@@ -93,10 +93,10 @@ index 4f2340316..81e56a89b 100644
                                 CC1Args))
      return true;
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index c6fb290ff..16d9f54c1 100644
+index 00bf213c3..0a01e8282 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -137,7 +137,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -159,7 +159,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    return TargetTriple.str();
  }
  
@@ -109,7 +109,7 @@ index c6fb290ff..16d9f54c1 100644
    if (Triple.isMIPS()) {
      if (Triple.isAndroid()) {
        StringRef CPUName;
-@@ -191,13 +195,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -213,13 +217,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
  
    Distro Distro(D.getVFS(), Triple);
  
@@ -125,7 +125,7 @@ index c6fb290ff..16d9f54c1 100644
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
-@@ -258,20 +262,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -280,20 +284,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
    // to the link paths.
    path_list &Paths = getFilePaths();
  
@@ -149,7 +149,7 @@ index c6fb290ff..16d9f54c1 100644
  
    if (IsAndroid) {
      // Android sysroots contain a library directory for each supported OS
-@@ -284,32 +281,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -306,25 +303,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
          Paths);
    }
  
@@ -170,29 +170,22 @@ index c6fb290ff..16d9f54c1 100644
 -
    Generic_GCC::AddMultiarchPaths(D, SysRoot, OSLibDir, Paths);
 -
--  // The deprecated -DLLVM_ENABLE_PROJECTS=libcxx configuration installs
--  // libc++.so in D.Dir+"/../lib/". Detect this path.
--  // TODO Remove once LLVM_ENABLE_PROJECTS=libcxx is unsupported.
--  if (StringRef(D.Dir).startswith(SysRoot) &&
--      D.getVFS().exists(D.Dir + "/../lib/libc++.so"))
--    addPathIfExists(D, D.Dir + "/../lib", Paths);
--
 -  addPathIfExists(D, concat(SysRoot, "/lib"), Paths);
 -  addPathIfExists(D, concat(SysRoot, "/usr/lib"), Paths);
  }
  
  ToolChain::RuntimeLibType Linux::GetDefaultRuntimeLibType() const {
-@@ -402,6 +374,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
+@@ -417,6 +396,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
  
    const Distro Distro(getDriver().getVFS(), Triple);
  
 +  if (Distro.IsArachsys())
 +    return "/lib/ld.so";
 +
-   if (Triple.isAndroid())
-     return Triple.isArch64Bit() ? "/system/bin/linker64" : "/system/bin/linker";
- 
-@@ -597,8 +572,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+   if (Triple.isAndroid()) {
+     if (getSanitizerArgs(Args).needsHwasanRt() &&
+         !Triple.isAndroidVersionLT(34) && Triple.isArch64Bit()) {
+@@ -620,8 +602,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (DriverArgs.hasArg(options::OPT_nostdlibinc))
      return;
  
@@ -201,7 +194,7 @@ index c6fb290ff..16d9f54c1 100644
    // TOOL_INCLUDE_DIR
    AddMultilibIncludeArgs(DriverArgs, CC1Args);
  
-@@ -619,10 +592,10 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -642,10 +622,10 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // /usr/include.
    std::string MultiarchIncludeDir = getMultiarchTriple(D, getTriple(), SysRoot);
    if (!MultiarchIncludeDir.empty() &&
@@ -214,7 +207,7 @@ index c6fb290ff..16d9f54c1 100644
  
    if (getTriple().getOS() == llvm::Triple::RTEMS)
      return;
-@@ -630,9 +603,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -653,9 +633,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // Add an include of '/include' directly. This isn't provided by default by
    // system GCCs, but is often used with cross-compiling GCCs, and harmless to
    // add even when Clang is acting as-if it were a system compiler.
@@ -226,10 +219,10 @@ index c6fb290ff..16d9f54c1 100644
    if (!DriverArgs.hasArg(options::OPT_nobuiltininc) && getTriple().isMusl())
      addSystemInclude(DriverArgs, CC1Args, ResourceDirInclude);
 diff --git a/clang/lib/Driver/ToolChains/WebAssembly.cpp b/clang/lib/Driver/ToolChains/WebAssembly.cpp
-index a1c4cd9ef..57987f374 100644
+index 36bed3166..5151780d6 100644
 --- a/clang/lib/Driver/ToolChains/WebAssembly.cpp
 +++ b/clang/lib/Driver/ToolChains/WebAssembly.cpp
-@@ -416,9 +416,9 @@ void WebAssembly::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -417,9 +417,9 @@ void WebAssembly::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (getTriple().getOS() != llvm::Triple::UnknownOS) {
      const std::string MultiarchTriple =
          getMultiarchTriple(D, getTriple(), D.SysRoot);
@@ -241,7 +234,7 @@ index a1c4cd9ef..57987f374 100644
  }
  
  void WebAssembly::AddClangCXXStdlibIncludeArgs(const ArgList &DriverArgs,
-@@ -471,7 +471,7 @@ void WebAssembly::addLibCxxIncludePaths(
+@@ -475,7 +475,7 @@ void WebAssembly::addLibCxxIncludePaths(
      llvm::opt::ArgStringList &CC1Args) const {
    const Driver &D = getDriver();
    std::string SysRoot = computeSysRoot();
@@ -250,7 +243,7 @@ index a1c4cd9ef..57987f374 100644
    const std::string MultiarchTriple =
        getMultiarchTriple(D, getTriple(), SysRoot);
    bool IsKnownOs = (getTriple().getOS() != llvm::Triple::UnknownOS);
-@@ -499,7 +499,7 @@ void WebAssembly::addLibStdCXXIncludePaths(
+@@ -503,7 +503,7 @@ void WebAssembly::addLibStdCXXIncludePaths(
    // to how we do it for libc++.
    const Driver &D = getDriver();
    std::string SysRoot = computeSysRoot();
@@ -260,7 +253,7 @@ index a1c4cd9ef..57987f374 100644
        getMultiarchTriple(D, getTriple(), SysRoot);
    bool IsKnownOs = (getTriple().getOS() != llvm::Triple::UnknownOS);
 diff --git a/clang/tools/driver/CMakeLists.txt b/clang/tools/driver/CMakeLists.txt
-index 237ed453e..646ec2d7b 100644
+index 2182486f9..24a156972 100644
 --- a/clang/tools/driver/CMakeLists.txt
 +++ b/clang/tools/driver/CMakeLists.txt
 @@ -48,7 +48,7 @@ clang_target_link_libraries(clang
@@ -273,7 +266,7 @@ index 237ed453e..646ec2d7b 100644
  
  # Support plugins.
 diff --git a/cmake/Modules/GetClangResourceDir.cmake b/cmake/Modules/GetClangResourceDir.cmake
-index fb56e611a..3f2d82cfe 100644
+index def5bd604..1e6ec7e7c 100644
 --- a/cmake/Modules/GetClangResourceDir.cmake
 +++ b/cmake/Modules/GetClangResourceDir.cmake
 @@ -10,7 +10,7 @@ function(get_clang_resource_dir out_var)
@@ -283,45 +276,5 @@ index fb56e611a..3f2d82cfe 100644
 -    set(ret_dir bin/${CLANG_RESOURCE_DIR})
 +    cmake_path(SET ret_dir NORMALIZE bin/${CLANG_RESOURCE_DIR})
    else()
-     string(REGEX MATCH "^[0-9]+" CLANG_VERSION_MAJOR ${PACKAGE_VERSION})
-     set(ret_dir lib${LLVM_LIBDIR_SUFFIX}/clang/${CLANG_VERSION_MAJOR})
-diff --git a/llvm/runtimes/CMakeLists.txt b/llvm/runtimes/CMakeLists.txt
-index 694f346ee..b5ac2b358 100644
---- a/llvm/runtimes/CMakeLists.txt
-+++ b/llvm/runtimes/CMakeLists.txt
-@@ -75,7 +75,7 @@ function(builtin_default_target compiler_rt_path)
-                            CMAKE_ARGS -DLLVM_LIBRARY_OUTPUT_INTDIR=${LLVM_LIBRARY_DIR}
-                                       -DLLVM_RUNTIME_OUTPUT_INTDIR=${LLVM_TOOLS_BINARY_DIR}
-                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${LLVM_TARGET_TRIPLE}
--                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=${LLVM_ENABLE_PER_TARGET_RUNTIME_DIR_default}
-+                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
-                                       -DCMAKE_C_COMPILER_WORKS=ON
-                                       -DCMAKE_ASM_COMPILER_WORKS=ON
-                                       ${COMMON_CMAKE_ARGS}
-@@ -109,7 +109,7 @@ function(builtin_register_target compiler_rt_path target)
-                            CMAKE_ARGS -DLLVM_LIBRARY_OUTPUT_INTDIR=${LLVM_LIBRARY_DIR}
-                                       -DLLVM_RUNTIME_OUTPUT_INTDIR=${LLVM_TOOLS_BINARY_DIR}
-                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${target}
--                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=ON
-+                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
-                                       -DCMAKE_C_COMPILER_WORKS=ON
-                                       -DCMAKE_ASM_COMPILER_WORKS=ON
-                                       -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON
-@@ -231,7 +231,7 @@ function(runtime_default_target)
-                                       -DLLVM_INCLUDE_TESTS=${LLVM_INCLUDE_TESTS}
-                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${LLVM_TARGET_TRIPLE}
-                                       -DLLVM_ENABLE_PROJECTS_USED=${LLVM_ENABLE_PROJECTS_USED}
--                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=${LLVM_ENABLE_PER_TARGET_RUNTIME_DIR_default}
-+                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
-                                       -DLLVM_BUILD_TOOLS=${LLVM_BUILD_TOOLS}
-                                       -DCMAKE_C_COMPILER_WORKS=ON
-                                       -DCMAKE_CXX_COMPILER_WORKS=ON
-@@ -356,7 +356,7 @@ function(runtime_register_target name target)
-                                       -DLLVM_INCLUDE_TESTS=${LLVM_INCLUDE_TESTS}
-                                       -DLLVM_DEFAULT_TARGET_TRIPLE=${target}
-                                       -DLLVM_ENABLE_PROJECTS_USED=${LLVM_ENABLE_PROJECTS_USED}
--                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=ON
-+                                      -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=OFF
-                                       -DCMAKE_C_COMPILER_WORKS=ON
-                                       -DCMAKE_CXX_COMPILER_WORKS=ON
-                                       -DCMAKE_ASM_COMPILER_WORKS=ON
+     if (NOT CLANG_VERSION_MAJOR)
+       string(REGEX MATCH "^[0-9]+" CLANG_VERSION_MAJOR ${PACKAGE_VERSION})
