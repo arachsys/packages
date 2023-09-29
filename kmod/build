@@ -1,11 +1,11 @@
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/
-  match version 30 'kmod-([0-9.]+)\.tar'
+  match version 31 'kmod-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-30.tar.xz
-  tree 93a77128aada35b5ab01883b0d7d91832ee9c89236fa2485e6f0325165f1c4f9
+  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-31.tar.xz
+  tree b12e075f306b456aa49c37684c8a8687fb102b76ab2afbaa1607ae2ef8e92c4a
 }
 
 build() {
