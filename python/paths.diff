@@ -31,7 +31,7 @@ index 8787567..dc094f2 100755
  """Support module for CGI (Common Gateway Interface) scripts.
  
 diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
-index 0c2510e..9261ef8 100644
+index 0c2510e..268fbfd 100644
 --- a/Lib/ctypes/util.py
 +++ b/Lib/ctypes/util.py
 @@ -90,7 +90,7 @@ elif sys.platform.startswith("aix"):
@@ -43,86 +43,15 @@ index 0c2510e..9261ef8 100644
      import re, tempfile
  
      def _is_elf(filename):
-@@ -286,7 +286,7 @@ elif os.name == "posix":
-             regex = r'\s+(lib%s\.[^\s]+)\s+\(%s'
-             regex = os.fsencode(regex % (re.escape(name), abi_type))
+@@ -209,7 +209,7 @@ elif os.name == "posix":
+             expr = os.fsencode(expr)
+ 
              try:
--                with subprocess.Popen(['/sbin/ldconfig', '-p'],
-+                with subprocess.Popen(['/bin/ldconfig', '-p'],
-                                       stdin=subprocess.DEVNULL,
-                                       stderr=subprocess.DEVNULL,
-                                       stdout=subprocess.PIPE,
-diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index 01d5331..64a661f 100644
---- a/Lib/distutils/command/install.py
-+++ b/Lib/distutils/command/install.py
-@@ -72,8 +72,8 @@ if HAS_USER_SITE:
-     INSTALL_SCHEMES['nt_user'] = {
-         'purelib': '$usersite',
-         'platlib': '$usersite',
--        'headers': '$userbase/Python$py_version_nodot/Include/$dist_name',
--        'scripts': '$userbase/Python$py_version_nodot/Scripts',
-+        'headers': '$userbase/Python/Include/$dist_name',
-+        'scripts': '$userbase/Python/Scripts',
-         'data'   : '$userbase',
-         }
- 
-@@ -81,7 +81,7 @@ if HAS_USER_SITE:
-         'purelib': '$usersite',
-         'platlib': '$usersite',
-         'headers':
--            '$userbase/include/python$py_version_short$abiflags/$dist_name',
-+            '$userbase/include/python/$dist_name',
-         'scripts': '$userbase/bin',
-         'data'   : '$userbase',
-         }
-@@ -320,8 +320,8 @@ class install(Command):
-                            }
- 
-         if HAS_USER_SITE:
--            self.config_vars['userbase'] = self.install_userbase
--            self.config_vars['usersite'] = self.install_usersite
-+            self.config_vars['userbase'] = self.install_userbase.rstrip(os.sep)
-+            self.config_vars['usersite'] = self.install_usersite.rstrip(os.sep)
- 
-         if sysconfig.is_python_build(True):
-             self.config_vars['srcdir'] = sysconfig.get_config_var('srcdir')
-@@ -332,8 +332,8 @@ class install(Command):
- 
-         # Now define config vars for the base directories so we can expand
-         # everything else.
--        self.config_vars['base'] = self.install_base
--        self.config_vars['platbase'] = self.install_platbase
-+        self.config_vars['base'] = self.install_base.rstrip(os.sep)
-+        self.config_vars['platbase'] = self.install_platbase.rstrip(os.sep)
- 
-         if DEBUG:
-             from pprint import pprint
-diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
-index 03b8558..e3efb5f 100644
---- a/Lib/distutils/sysconfig.py
-+++ b/Lib/distutils/sysconfig.py
-@@ -286,8 +286,8 @@ def get_python_inc(plat_specific=0, prefix=None):
-             else:
-                 incdir = os.path.join(get_config_var('srcdir'), 'Include')
-                 return os.path.normpath(incdir)
--        python_dir = 'python' + get_python_version() + build_flags
--        return os.path.join(prefix, "include", python_dir)
-+        python_dir = 'python'
-+        return os.path.join(prefix, "lib", "include", python_dir)
-     elif os.name == "nt":
-         if python_build:
-             # Include both the include and PC dir to ensure we can find
-@@ -329,8 +329,7 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
-         else:
-             # Pure Python
-             libdir = "lib"
--        libpython = os.path.join(prefix, libdir,
--                                 "python" + get_python_version())
-+        libpython = os.path.join(prefix, libdir, "python")
-         if standard_lib:
-             return libpython
-         else:
+-                proc = subprocess.Popen(('/sbin/ldconfig', '-r'),
++                proc = subprocess.Popen(('/bin/ldconfig', '-r'),
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.DEVNULL)
+             except OSError:  # E.g. command not found
 diff --git a/Lib/encodings/rot_13.py b/Lib/encodings/rot_13.py
 index 5627bfb..80f3f99 100755
 --- a/Lib/encodings/rot_13.py
@@ -134,7 +63,7 @@ index 5627bfb..80f3f99 100755
  
  This codec de/encodes from str to str.
 diff --git a/Lib/mailcap.py b/Lib/mailcap.py
-index 7278ea7..fd33105 100644
+index 2f4656e..268f1c6 100644
 --- a/Lib/mailcap.py
 +++ b/Lib/mailcap.py
 @@ -66,8 +66,7 @@ def listmailcapfiles():
@@ -148,7 +77,7 @@ index 7278ea7..fd33105 100644
  
  
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index f6c43b3..0ceaa52 100644
+index 37228de..94cfce8 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -47,14 +47,6 @@ __all__ = [
@@ -166,8 +95,23 @@ index f6c43b3..0ceaa52 100644
      ]
  
  inited = False
+diff --git a/Lib/platform.py b/Lib/platform.py
+index 7bb2220..032705e 100755
+--- a/Lib/platform.py
++++ b/Lib/platform.py
+@@ -1292,8 +1292,8 @@ def platform(aliased=False, terse=False):
+ ### freedesktop.org os-release standard
+ # https://www.freedesktop.org/software/systemd/man/os-release.html
+ 
+-# /etc takes precedence over /usr/lib
+-_os_release_candidates = ("/etc/os-release", "/usr/lib/os-release")
++# /etc takes precedence over /lib
++_os_release_candidates = ("/etc/os-release", "/lib/os-release")
+ _os_release_cache = None
+ 
+ 
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index 5e1ebe3..e2daff7 100644
+index e4f155e..1349e6f 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -179,30 +123,8 @@ index 5e1ebe3..e2daff7 100644
  altsep = None
  devnull = '/dev/null'
  
-@@ -362,12 +362,6 @@ except ImportError:
-         if path == empty:
-             return dot
-         initial_slashes = path.startswith(sep)
--        # POSIX allows one or two initial slashes, but treats three or more
--        # as single slash.
--        # (see https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap04.html#tag_04_13)
--        if (initial_slashes and
--            path.startswith(sep*2) and not path.startswith(sep*3)):
--            initial_slashes = 2
-         comps = path.split(sep)
-         new_comps = []
-         for comp in comps:
-@@ -381,7 +375,7 @@ except ImportError:
-         comps = new_comps
-         path = sep.join(comps)
-         if initial_slashes:
--            path = sep*initial_slashes + path
-+            path = sep + path
-         return path or dot
- 
- else:
 diff --git a/Lib/site.py b/Lib/site.py
-index 1d79029..1b3680a 100644
+index 8bc0e3c..c556513 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
 @@ -290,12 +290,12 @@ def _get_path(userbase):
@@ -232,10 +154,10 @@ index 1d79029..1b3680a 100644
          else:
              sitepackages.append(prefix)
 diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index ebe3711..e917ea1 100644
+index 122d441..591f8a0 100644
 --- a/Lib/sysconfig.py
 +++ b/Lib/sysconfig.py
-@@ -25,14 +25,12 @@ _ALWAYS_STR = {
+@@ -26,14 +26,12 @@ _ALWAYS_STR = {
  
  _INSTALL_SCHEMES = {
      'posix_prefix': {
@@ -256,7 +178,7 @@ index ebe3711..e917ea1 100644
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -41,8 +39,8 @@ _INSTALL_SCHEMES = {
+@@ -42,8 +40,8 @@ _INSTALL_SCHEMES = {
          'platstdlib': '{base}/lib/python',
          'purelib': '{base}/lib/python',
          'platlib': '{base}/lib/python',
@@ -267,7 +189,7 @@ index ebe3711..e917ea1 100644
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -74,14 +72,12 @@ _INSTALL_SCHEMES = {
+@@ -75,14 +73,12 @@ _INSTALL_SCHEMES = {
      # Downstream distributors who patch posix_prefix/nt scheme are encouraged to
      # leave the following schemes unchanged
      'posix_venv': {
@@ -288,7 +210,7 @@ index ebe3711..e917ea1 100644
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -134,20 +130,20 @@ if _HAS_USER_BASE:
+@@ -135,20 +131,20 @@ if _HAS_USER_BASE:
      _INSTALL_SCHEMES |= {
          # NOTE: When modifying "purelib" scheme, update site._get_path() too.
          'nt_user': {
@@ -320,17 +242,8 @@ index ebe3711..e917ea1 100644
              'scripts': '{userbase}/bin',
              'data': '{userbase}',
              },
-@@ -156,7 +152,7 @@ if _HAS_USER_BASE:
-             'platstdlib': '{userbase}/lib/python',
-             'purelib': '{userbase}/lib/python/site-packages',
-             'platlib': '{userbase}/lib/python/site-packages',
--            'include': '{userbase}/include/python{py_version_short}',
-+            'include': '{userbase}/lib/include/python',
-             'scripts': '{userbase}/bin',
-             'data': '{userbase}',
-             },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index 480c172..cf73e6f 100644
+index 2b4f431..5c84d67 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
 @@ -170,7 +170,7 @@ def _candidate_tempdir_list():
@@ -343,7 +256,7 @@ index 480c172..cf73e6f 100644
      # As a last resort, the current directory.
      try:
 diff --git a/Lib/uuid.py b/Lib/uuid.py
-index 8fe2479..2da2c4d 100644
+index 470bc0d..8969f6e 100644
 --- a/Lib/uuid.py
 +++ b/Lib/uuid.py
 @@ -362,7 +362,6 @@ def _get_command_stdout(command, *args):
@@ -355,12 +268,12 @@ index 8fe2479..2da2c4d 100644
          if executable is None:
              return None
 diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
-index 6032f36..e45133b 100644
+index 2173c9b..21bf875 100644
 --- a/Lib/venv/__init__.py
 +++ b/Lib/venv/__init__.py
-@@ -139,12 +139,6 @@ class EnvBuilder:
-         context.inc_path = incpath
+@@ -145,12 +145,6 @@ class EnvBuilder:
          create_if_needed(incpath)
+         context.lib_path = libpath
          create_if_needed(libpath)
 -        # Issue 21197: create lib64 as a symlink to lib on 64-bit non-OS X POSIX
 -        if ((sys.maxsize > 2**32) and (os.name == 'posix') and
@@ -372,10 +285,10 @@ index 6032f36..e45133b 100644
          context.bin_name = os.path.relpath(binpath, env_dir)
          context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 8fbcd7a..944f025 100644
+index 09ceccd..1129aa8 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -146,7 +146,7 @@ BINDIR=		@bindir@
+@@ -147,7 +147,7 @@ BINDIR=		@bindir@
  LIBDIR=		@libdir@
  MANDIR=		@mandir@
  INCLUDEDIR=	@includedir@
@@ -384,7 +297,7 @@ index 8fbcd7a..944f025 100644
  PLATLIBDIR=	@PLATLIBDIR@
  SCRIPTDIR=	$(prefix)/$(PLATLIBDIR)
  ABIFLAGS=	@ABIFLAGS@
-@@ -155,9 +155,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
+@@ -158,9 +158,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
  
  # Detailed destination directories
  BINLIBDEST=	@BINLIBDEST@
@@ -398,7 +311,7 @@ index 8fbcd7a..944f025 100644
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.py b/Modules/getpath.py
-index dceeed7..d4774b1 100644
+index 9913fcb..17c27b9 100644
 --- a/Modules/getpath.py
 +++ b/Modules/getpath.py
 @@ -177,9 +177,9 @@ if os_name == 'posix' or os_name == 'darwin':
@@ -414,10 +327,10 @@ index dceeed7..d4774b1 100644
      VENV_LANDMARK = 'pyvenv.cfg'
      ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}.zip'
 diff --git a/configure b/configure
-index 784f8d3..b5275e9 100755
+index b6f90bc..0b459e7 100755
 --- a/configure
 +++ b/configure
-@@ -20553,7 +20553,7 @@ fi
+@@ -24370,7 +24370,7 @@ fi
  
  
  
@@ -426,7 +339,7 @@ index 784f8d3..b5275e9 100755
  
  
  # Check for --with-platlibdir
-@@ -20589,9 +20589,9 @@ fi
+@@ -24407,9 +24407,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then
@@ -438,69 +351,3 @@ index 784f8d3..b5275e9 100755
  fi
  
  
-diff --git a/setup.py b/setup.py
-index 30d0f91..11be654 100644
---- a/setup.py
-+++ b/setup.py
-@@ -703,9 +703,11 @@ class PyBuildExt(build_ext):
- 
-         if multiarch_path_component != '':
-             add_dir_to_list(self.compiler.library_dirs,
--                            '/usr/lib/' + multiarch_path_component)
-+                            '/lib/shared' + multiarch_path_component)
-+            add_dir_to_list(self.compiler.library_dirs,
-+                            '/lib/static' + multiarch_path_component)
-             add_dir_to_list(self.compiler.include_dirs,
--                            '/usr/include/' + multiarch_path_component)
-+                            '/lib/include/' + multiarch_path_component)
-             return
- 
-         if not find_executable('dpkg-architecture'):
-@@ -724,9 +726,11 @@ class PyBuildExt(build_ext):
-                 with open(tmpfile) as fp:
-                     multiarch_path_component = fp.readline().strip()
-                 add_dir_to_list(self.compiler.library_dirs,
--                                '/usr/lib/' + multiarch_path_component)
-+                                '/lib/shared' + multiarch_path_component)
-+                add_dir_to_list(self.compiler.library_dirs,
-+                                '/lib/static' + multiarch_path_component)
-                 add_dir_to_list(self.compiler.include_dirs,
--                                '/usr/include/' + multiarch_path_component)
-+                                '/lib/include/' + multiarch_path_component)
-         finally:
-             os.unlink(tmpfile)
- 
-@@ -869,8 +873,8 @@ class PyBuildExt(build_ext):
-             add_dir_to_list(self.compiler.include_dirs,
-                             sysconfig.get_config_var("INCLUDEDIR"))
- 
--        system_lib_dirs = ['/lib64', '/usr/lib64', '/lib', '/usr/lib']
--        system_include_dirs = ['/usr/include']
-+        system_lib_dirs = ['/lib/shared', '/lib/static', '/lib']
-+        system_include_dirs = ['/lib/include']
-         # lib_dirs and inc_dirs are used to search for files;
-         # if a file is found in one of those directories, it can
-         # be assumed that no additional -I,-L directives are needed.
-@@ -1106,11 +1110,11 @@ class PyBuildExt(build_ext):
-             elif curses_library:
-                 readline_libs.append(curses_library)
-             elif self.compiler.find_library_file(self.lib_dirs +
--                                                     ['/usr/lib/termcap'],
-+                                                     ['/lib/termcap'],
-                                                      'termcap'):
-                 readline_libs.append('termcap')
-             self.add(Extension('readline', ['readline.c'],
--                               library_dirs=['/usr/lib/termcap'],
-+                               library_dirs=['/lib/termcap'],
-                                libraries=readline_libs))
-         else:
-             self.missing.append('readline')
-@@ -1123,7 +1127,7 @@ class PyBuildExt(build_ext):
-         if curses_library == 'ncursesw':
-             curses_defines.append(('HAVE_NCURSESW', '1'))
-             if not CROSS_COMPILING:
--                curses_includes.append('/usr/include/ncursesw')
-+                curses_includes.append('/lib/include/ncursesw')
-             # Bug 1464056: If _curses.so links with ncursesw,
-             # _curses_panel.so must link with panelw.
-             panel_library = 'panelw'
