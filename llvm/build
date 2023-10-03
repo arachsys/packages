@@ -2,15 +2,15 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/tags
-  match llvm 17.0.1 'llvmorg-([0-9.]+)\.tar'
+  match llvm 17.0.2 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
   match cmake 3.27.6 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-17.0.1.tar.gz \
-    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-17.0.1.tar.gz
+  unpack llvm-17.0.2.tar.gz \
+    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-17.0.2.tar.gz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.27.6/cmake-3.27.6.tar.gz
   apply cmake.diff
@@ -20,7 +20,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 9d6acfb7497b3ee76d11ef383e19edda442a6f092e9de107ca4e802b4848e64d
+  tree 50e304fd660f391608b5f8623494bfb416d68225d981bdb35511461bd0c7c253
 }
 
 build() {
@@ -126,6 +126,7 @@ build() {
     -or -name '*.inc' -or -name '*.td' -or -delete
   rm -f -r /dst/lib/llvm/include/**/{CMakeFiles,config.h}
 
+  rm -f -r /dst/bin/{amdgpu,nvptx}-arch
   rm -f -r /dst/bin/{git-clang-format,hmaptool,lldb-vscode,llvm-pdbutil}
   rm -f -r /dst/lib/include/{clang-c,llvm-c}
   rm -f -r /dst/lib/{cmake,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
