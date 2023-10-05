@@ -1,8 +1,21 @@
+diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
+index f44a05a6b..2e55d1861 100644
+--- a/src/bootstrap/bootstrap.py
++++ b/src/bootstrap/bootstrap.py
+@@ -596,7 +596,7 @@ class RustBuild(object):
+ 
+                 self.fix_bin_or_dylib("{}/bin/rustc".format(bin_root))
+                 self.fix_bin_or_dylib("{}/bin/rustdoc".format(bin_root))
+-                self.fix_bin_or_dylib("{}/libexec/rust-analyzer-proc-macro-srv".format(bin_root))
++                self.fix_bin_or_dylib("{}/bin/rust-analyzer-proc-macro-srv".format(bin_root))
+                 lib_dir = "{}/lib".format(bin_root)
+                 for lib in os.listdir(lib_dir):
+                     if lib.endswith(".so"):
 diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index b34a4b2dc..668d82409 100644
+index 32da4ac29..1144ec431 100644
 --- a/src/bootstrap/dist.rs
 +++ b/src/bootstrap/dist.rs
-@@ -420,7 +420,7 @@ impl Step for Rustc {
+@@ -423,7 +423,7 @@ impl Step for Rustc {
                  },
                  builder.kind,
              ) {
@@ -11,20 +24,24 @@ index b34a4b2dc..668d82409 100644
              }
  
              let libdir_relative = builder.libdir_relative(compiler);
-@@ -1081,7 +1081,7 @@ impl Step for Cargo {
-         for dirent in fs::read_dir(cargo.parent().unwrap()).expect("read_dir") {
-             let dirent = dirent.expect("read dir entry");
-             if dirent.file_name().to_str().expect("utf8").starts_with("cargo-credential-") {
--                tarball.add_file(&dirent.path(), "libexec", 0o755);
-+                tarball.add_file(&dirent.path(), "bin", 0o755);
-             }
-         }
- 
+diff --git a/src/bootstrap/download.rs b/src/bootstrap/download.rs
+index a4135b06e..c57fec567 100644
+--- a/src/bootstrap/download.rs
++++ b/src/bootstrap/download.rs
+@@ -484,7 +484,7 @@ impl Config {
+                 self.fix_bin_or_dylib(&bin_root.join("bin").join("rustc"));
+                 self.fix_bin_or_dylib(&bin_root.join("bin").join("rustdoc"));
+                 self.fix_bin_or_dylib(
+-                    &bin_root.join("libexec").join("rust-analyzer-proc-macro-srv"),
++                    &bin_root.join("bin").join("rust-analyzer-proc-macro-srv"),
+                 );
+                 let lib_dir = bin_root.join("lib");
+                 for lib in t!(fs::read_dir(&lib_dir), lib_dir.display().to_string()) {
 diff --git a/src/bootstrap/tool.rs b/src/bootstrap/tool.rs
-index 06c031788..1108a8d8d 100644
+index e6d27757a..387797fc8 100644
 --- a/src/bootstrap/tool.rs
 +++ b/src/bootstrap/tool.rs
-@@ -719,7 +719,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -689,7 +689,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -33,24 +50,11 @@ index 06c031788..1108a8d8d 100644
          t!(fs::create_dir_all(&libexec_path));
          builder.copy(&path, &libexec_path.join("rust-analyzer-proc-macro-srv"));
  
-diff --git a/src/tools/cargo/src/cargo/util/auth/mod.rs b/src/tools/cargo/src/cargo/util/auth/mod.rs
-index 58309964f..16a577171 100644
---- a/src/tools/cargo/src/cargo/util/auth/mod.rs
-+++ b/src/tools/cargo/src/cargo/util/auth/mod.rs
-@@ -711,7 +711,7 @@ fn sysroot_credential(
-         .parent()
-         .and_then(|p| p.parent())
-         .ok_or_else(|| format_err!("expected cargo path {}", cargo.display()))?;
--    let exe = root.join("libexec").join(format!(
-+    let exe = root.join("bin").join(format!(
-         "cargo-credential-{}{}",
-         cred_name,
-         std::env::consts::EXE_SUFFIX
 diff --git a/src/tools/rust-analyzer/crates/project-model/src/workspace.rs b/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
-index b5fe237fc..16620882f 100644
+index f51ea7eeb..c86b04501 100644
 --- a/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
 +++ b/src/tools/rust-analyzer/crates/project-model/src/workspace.rs
-@@ -454,7 +454,7 @@ impl ProjectWorkspace {
+@@ -446,7 +446,7 @@ impl ProjectWorkspace {
              | ProjectWorkspace::DetachedFiles { sysroot: Ok(sysroot), .. } => {
                  let standalone_server_name =
                      format!("rust-analyzer-proc-macro-srv{}", std::env::consts::EXE_SUFFIX);

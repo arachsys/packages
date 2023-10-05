@@ -1,5 +1,5 @@
 diff --git a/compiler/rustc_session/src/filesearch.rs b/compiler/rustc_session/src/filesearch.rs
-index 7fdbd48d5..1a0b9af39 100644
+index 3988416d0..3d33a9e60 100644
 --- a/compiler/rustc_session/src/filesearch.rs
 +++ b/compiler/rustc_session/src/filesearch.rs
 @@ -172,9 +172,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
@@ -91,10 +91,10 @@ index 61553e71b..0108e8dcb 100644
      base
  }
 diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index 4a4e7adcb..eed14c526 100644
+index 9c68e5a78..bd9e679ed 100644
 --- a/src/bootstrap/compile.rs
 +++ b/src/bootstrap/compile.rs
-@@ -245,40 +245,7 @@ fn copy_self_contained_objects(
+@@ -255,40 +255,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -105,7 +105,7 @@ index 4a4e7adcb..eed14c526 100644
 -    // to using gcc from a glibc-targeting toolchain for linking.
 -    // To do that we have to distribute musl startup objects as a part of Rust toolchain
 -    // and link with them manually in the self-contained mode.
--    if target.contains("musl") {
+-    if target.contains("musl") && !target.contains("unikraft") {
 -        let srcdir = builder.musl_libdir(target).unwrap_or_else(|| {
 -            panic!("Target {:?} does not have a \"musl-libdir\" key", target.triple)
 -        });
@@ -131,16 +131,16 @@ index 4a4e7adcb..eed14c526 100644
 -            let libunwind_path = copy_llvm_libunwind(builder, target, &libdir_self_contained);
 -            target_deps.push((libunwind_path, DependencyType::TargetSelfContained));
 -        }
--    } else if target.ends_with("-wasi") {
-+    if target.ends_with("-wasi") {
+-    } else if target.contains("-wasi") {
++    if target.contains("-wasi") {
          let srcdir = builder
              .wasi_root(target)
              .unwrap_or_else(|| {
 diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 419bcbc63..49c4c8edd 100644
+index 4396bbc51..be5b2cd90 100644
 --- a/src/bootstrap/lib.rs
 +++ b/src/bootstrap/lib.rs
-@@ -245,6 +245,7 @@ pub struct Build {
+@@ -250,6 +250,7 @@ pub struct Build {
      metrics: metrics::BuildMetrics,
  }
  
@@ -149,7 +149,7 @@ index 419bcbc63..49c4c8edd 100644
  struct Crate {
      name: Interned<String>,
 diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index 8a40b0f64..59e11d304 100644
+index 7e83b508e..761e83ddc 100644
 --- a/src/bootstrap/sanity.rs
 +++ b/src/bootstrap/sanity.rs
 @@ -11,7 +11,6 @@
@@ -165,7 +165,7 @@ index 8a40b0f64..59e11d304 100644
          }
  
 -        // Make sure musl-root is valid
--        if target.contains("musl") {
+-        if target.contains("musl") && !target.contains("unikraft") {
 -            // If this is a native target (host is also musl) and no musl-root is given,
 -            // fall back to the system toolchain in /usr before giving up
 -            if build.musl_root(*target).is_none() && build.config.build == *target {
