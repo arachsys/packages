@@ -74,7 +74,8 @@ helper() {
     die "Cannot unpack sources: directory is not empty"
   fi
 
-  ( setup /pkg "${@:2}" && prepare "${@:2}" )
+  setup /pkg "${@:2}"
+  prepare
 
   find /src -type d -or -type f -or -not -type l -delete \
     -or -lname '/*' -delete -or -xtype l -delete

@@ -68,7 +68,7 @@ helper() {
 
   cd /pkg
   setup /pkg "${@:2}"
-  PKGNAME=$1 check "${@:2}" </dev/null
+  PKGNAME=$1 check </dev/null
 }
 
 if [[ $$ -eq 1 ]]; then

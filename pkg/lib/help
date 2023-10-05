@@ -11,7 +11,7 @@ pkg build [-f] [-o OUTDIR] [-s SRC] PKG [FEATURE]...
   untouched. An alternative output directory to $IMGDIR can be specified
   with the -o option, and a pre-prepared tree of source code to build can
   be provided with the -s option. The -f flag forces an update of invalid
-  tree hashes.
+  tree hashes and starts a debug shell in the sandbox if the build fails.
 
 pkg check [-p JOBS] [PKG]...
   Check for upstream updates of each package PKG using PKG/check. If no

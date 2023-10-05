@@ -64,8 +64,16 @@ action() {
 
 helper() {
   source "$LIBRARY/build"
-  ( setup /pkg "${@:2}" && build "${@:2}" 2>&1 )
-  ( setup /pkg "${@:2}" && tidy )
+  setup /pkg "${@:2}"
+
+  if enabled force; then
+    trap '(( $? )) && echo "Build failed: starting debug shell" && bash' EXIT
+  else
+    trap '(( $? )) && echo "Build failed"' EXIT
+  fi
+
+  build 2>&1
+  tidy
 
   for IMG in /img/*; do
     if [[ -d "$IMG" ]]; then
