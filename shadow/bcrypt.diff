@@ -1,7 +1,7 @@
-diff --git a/libmisc/obscure.c b/libmisc/obscure.c
+diff --git a/lib/obscure.c b/lib/obscure.c
 index 15da760..b6894b3 100644
---- a/libmisc/obscure.c
-+++ b/libmisc/obscure.c
+--- a/lib/obscure.c
++++ b/lib/obscure.c
 @@ -251,6 +251,9 @@ static /*@observer@*//*@null@*/const char *obscure_msg (
  	}
  
@@ -12,10 +12,10 @@ index 15da760..b6894b3 100644
  	if (NULL == result) {
  	/* The traditional crypt() truncates passwords to 8 chars.  It is
  	   possible to circumvent the above checks by choosing an easy
-diff --git a/libmisc/salt.c b/libmisc/salt.c
+diff --git a/lib/salt.c b/lib/salt.c
 index e1a7ac8..7f182a9 100644
---- a/libmisc/salt.c
-+++ b/libmisc/salt.c
+--- a/lib/salt.c
++++ b/lib/salt.c
 @@ -321,6 +321,9 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
  		method = meth;
  	else {

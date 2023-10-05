@@ -11,10 +11,10 @@ index 7adb58f..46382d2 100644
  	const char *spawnedArgs[] = {"nscd", "-i", service, NULL};
  	const char *spawnedEnv[] = {NULL};
  
-diff --git a/libmisc/setupenv.c b/libmisc/setupenv.c
+diff --git a/lib/setupenv.c b/lib/setupenv.c
 index 666b1c7..f4b1fe9 100644
---- a/libmisc/setupenv.c
-+++ b/libmisc/setupenv.c
+--- a/lib/setupenv.c
++++ b/lib/setupenv.c
 @@ -265,7 +265,7 @@ void setup_env (struct passwd *info)
  
  	if (NULL == cp) {

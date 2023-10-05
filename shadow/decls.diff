@@ -1,7 +1,7 @@
-diff --git a/libmisc/readpassphrase.h b/libmisc/readpassphrase.h
+diff --git a/lib/readpassphrase.h b/lib/readpassphrase.h
 index 2462ecc..9d09ed8 100644
---- a/libmisc/readpassphrase.h
-+++ b/libmisc/readpassphrase.h
+--- a/lib/readpassphrase.h
++++ b/lib/readpassphrase.h
 @@ -36,8 +36,6 @@
  #endif
  #include <sys/types.h>
