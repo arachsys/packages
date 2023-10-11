@@ -1,216 +1,204 @@
 diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
-index be5be31..bb9e9ed 100644
+index 0c7bc35..ae1b7fd 100644
 --- a/src/firecracker/src/main.rs
 +++ b/src/firecracker/src/main.rs
-@@ -172,20 +172,32 @@ fn main_exitable() -> FcExitCode {
-         .arg(
-             Argument::new("level")
-                 .takes_value(true)
--                .requires("log-path")
-                 .default_value("Warning")
-                 .help("Log level"),
-         )
-+        .arg(
-+            Argument::new("show-timestamp")
-+                .takes_value(false)
-+                .help("Include timestamp in logs"),
-+        )
-+        .arg(
-+            Argument::new("show-instance-id")
-+                .takes_value(false)
-+                .help("Include microVM identifier in logs"),
-+        )
-+        .arg(
-+            Argument::new("show-thread-name")
-+                .takes_value(false)
-+                .help("Include thread name in logs"),
-+        )
-         .arg(
-             Argument::new("show-level")
-                 .takes_value(false)
--                .requires("log-path")
-                 .help("Include log level in logs"),
-         )
-         .arg(
-             Argument::new("show-log-origin")
-                 .takes_value(false)
--                .requires("log-path")
-                 .help(
-                     "Include file and line number in logs",
-                 ),
-@@ -264,24 +276,25 @@ fn main_exitable() -> FcExitCode {
-         app_name: "Firecracker".to_string(),
-     };
+@@ -195,6 +195,11 @@ fn main_exec() -> Result<(), MainError> {
+                     .default_value("Warning")
+                     .help("Log level"),
+             )
++            .arg(
++                Argument::new("show-instance-id")
++                    .takes_value(false)
++                    .help("Include microVM identifier in logs"),
++            )
+             .arg(
+                 Argument::new("show-level")
+                     .takes_value(false)
+@@ -203,6 +208,16 @@ fn main_exec() -> Result<(), MainError> {
+             .arg(Argument::new("show-log-origin").takes_value(false).help(
+                 "Include file and line number in logs",
+             ))
++            .arg(
++                Argument::new("show-thread-name")
++                    .takes_value(false)
++                    .help("Include thread name in logs"),
++            )
++            .arg(
++                Argument::new("show-timestamp")
++                    .takes_value(false)
++                    .help("Include timestamp in logs"),
++            )
+             .arg(
+                 Argument::new("metrics-path")
+                     .takes_value(true)
+@@ -287,7 +302,6 @@ fn main_exec() -> Result<(), MainError> {
  
--    LOGGER.set_instance_id(instance_id.to_owned());
-+    let level = arguments.single_value("level").unwrap().to_owned();
-+    let logger_level = match LoggerLevel::from_string(level) {
-+        Ok(level) => level,
-+        Err(err) => {
-+            return generic_error_exit(&format!(
-+                "Invalid value for logger level: {}.Possible values: [Error, Warning, Info, \
-+                 Debug]",
-+                err
-+            ));
-+        }
-+    };
-+    let show_timestamp = arguments.flag_present("show-timestamp");
-+    let show_instance_id = arguments.flag_present("show-instance-id");
-+    let show_thread_name = arguments.flag_present("show-thread_name");
-+    let show_level = arguments.flag_present("show-level");
-+    let show_log_origin = arguments.flag_present("show-log-origin");
+     let id = arguments.single_value("id").map(|s| s.as_str()).unwrap();
+     vmm::logger::INSTANCE_ID.set(String::from(id)).unwrap();
+-    info!("Running Firecracker v{FIRECRACKER_VERSION}");
  
-     if let Some(log) = arguments.single_value("log-path") {
-         // It's safe to unwrap here because the field's been provided with a default value.
--        let level = arguments.single_value("level").unwrap().to_owned();
--        let logger_level = match LoggerLevel::from_string(level) {
--            Ok(level) => level,
--            Err(err) => {
--                return generic_error_exit(&format!(
--                    "Invalid value for logger level: {}.Possible values: [Error, Warning, Info, \
--                     Debug]",
--                    err
--                ));
--            }
--        };
--        let show_level = arguments.flag_present("show-level");
--        let show_log_origin = arguments.flag_present("show-log-origin");
--
-         let logger_config = LoggerConfig::new(
-             PathBuf::from(log),
-             logger_level,
-@@ -291,8 +304,17 @@ fn main_exitable() -> FcExitCode {
-         if let Err(err) = init_logger(logger_config, &instance_info) {
-             return generic_error_exit(&format!("Could not initialize logger: {}", err));
-         };
-+    } else {
-+        LOGGER.set_instance_id(instance_id.to_owned());
-+        LOGGER.set_max_level(logger_level.into());
-+        LOGGER.set_include_level(show_level);
-+        LOGGER.set_include_origin(show_log_origin, show_log_origin);
-     }
+     // Apply the logger configuration.
+     let log_path = arguments.single_value("log-path").map(PathBuf::from);
+@@ -296,16 +310,23 @@ fn main_exec() -> Result<(), MainError> {
+         .map(|s| vmm::logger::LevelFilter::from_str(s))
+         .transpose()
+         .map_err(MainError::InvalidLogLevel)?;
++    let show_timestamp = arguments.flag_present("show-timestamp").then_some(true);
++    let show_instance_id = arguments.flag_present("show-instance-id").then_some(true);
++    let show_thread_name = arguments.flag_present("show-thread-name").then_some(true);
+     let show_level = arguments.flag_present("show-level").then_some(true);
+-    let show_log_origin = arguments.flag_present("show-level").then_some(true);
++    let show_log_origin = arguments.flag_present("show-log-origin").then_some(true);
+     LOGGER
+         .update(LoggerConfig {
+             log_path,
+             level,
++            show_timestamp,
++            show_instance_id,
++            show_thread_name,
+             show_level,
+             show_log_origin,
+         })
+         .map_err(MainError::LoggerInitialization)?;
++    info!("Running Firecracker v{FIRECRACKER_VERSION}");
  
-+    LOGGER.set_include_timestamp(show_timestamp);
-+    LOGGER.set_include_instance_id(show_instance_id);
-+    LOGGER.set_include_thread_name(show_thread_name);
-+
      if let Some(metrics_path) = arguments.single_value("metrics-path") {
          let metrics_config = MetricsConfig {
-             metrics_path: PathBuf::from(metrics_path),
-diff --git a/src/logger/src/logger.rs b/src/logger/src/logger.rs
-index 6f3d1cc..80ea388 100644
---- a/src/logger/src/logger.rs
-+++ b/src/logger/src/logger.rs
-@@ -113,6 +113,9 @@ pub struct Logger {
-     init: Init,
-     // Human readable logs will be outputted here.
-     log_buf: Mutex<Box<dyn Write + Send>>,
-+    show_timestamp: AtomicBool,
-+    show_instance_id: AtomicBool,
-+    show_thread_name: AtomicBool,
-     show_level: AtomicBool,
-     show_file_path: AtomicBool,
-     show_line_numbers: AtomicBool,
-@@ -125,13 +128,28 @@ impl Logger {
-         Logger {
-             init: Init::new(),
-             log_buf: Mutex::new(Box::new(sink())),
-+            show_timestamp: AtomicBool::new(false),
-+            show_instance_id: AtomicBool::new(false),
-+            show_thread_name: AtomicBool::new(false),
-             show_level: AtomicBool::new(false),
--            show_line_numbers: AtomicBool::new(false),
-             show_file_path: AtomicBool::new(false),
-+            show_line_numbers: AtomicBool::new(false),
-             instance_id: RwLock::new(String::new()),
+diff --git a/src/vmm/src/logger/logging.rs b/src/vmm/src/logger/logging.rs
+index fb9a27e..58abf79 100644
+--- a/src/vmm/src/logger/logging.rs
++++ b/src/vmm/src/logger/logging.rs
+@@ -17,7 +17,7 @@ use super::metrics::{IncMetric, METRICS};
+ 
+ /// Default level filter for logger matching the swagger specification
+ /// (`src/api_server/swagger/firecracker.yaml`).
+-pub const DEFAULT_LEVEL: log::LevelFilter = log::LevelFilter::Info;
++pub const DEFAULT_LEVEL: log::LevelFilter = log::LevelFilter::Warn;
+ /// Default instance id.
+ pub const DEFAULT_INSTANCE_ID: &str = "anonymous-instance";
+ /// Instance id.
+@@ -31,6 +31,9 @@ const FIRECRACKER_VERSION: &str = env!("CARGO_PKG_VERSION");
+ pub static LOGGER: Logger = Logger(Mutex::new(LoggerConfiguration {
+     target: None,
+     format: LogFormat {
++        show_timestamp: false,
++        show_instance_id: false,
++        show_thread_name: false,
+         show_level: false,
+         show_log_origin: false,
+     },
+@@ -76,6 +79,18 @@ impl Logger {
+             false
+         };
+ 
++        if let Some(show_timestamp) = config.show_timestamp {
++            guard.format.show_timestamp = show_timestamp;
++        }
++
++        if let Some(show_instance_id) = config.show_instance_id {
++            guard.format.show_instance_id = show_instance_id;
++        }
++
++        if let Some(show_thread_name) = config.show_thread_name {
++            guard.format.show_thread_name = show_thread_name;
++        }
++
+         if let Some(show_level) = config.show_level {
+             guard.format.show_level = show_level;
          }
-     }
+@@ -99,6 +114,9 @@ impl Logger {
  
-+    fn show_timestamp(&self) -> bool {
-+        self.show_timestamp.load(Ordering::Relaxed)
-+    }
-+
-+    fn show_instance_id(&self) -> bool {
-+        self.show_instance_id.load(Ordering::Relaxed)
-+    }
-+
-+    fn show_thread_name(&self) -> bool {
-+        self.show_thread_name.load(Ordering::Relaxed)
-+    }
-+
-     fn show_level(&self) -> bool {
-         self.show_level.load(Ordering::Relaxed)
-     }
-@@ -144,6 +162,21 @@ impl Logger {
-         self.show_line_numbers.load(Ordering::Relaxed)
-     }
+ #[derive(Debug)]
+ pub struct LogFormat {
++    pub show_timestamp: bool,
++    pub show_instance_id: bool,
++    pub show_thread_name: bool,
+     pub show_level: bool,
+     pub show_log_origin: bool,
+ }
+@@ -122,33 +140,50 @@ impl Log for Logger {
  
-+    pub fn set_include_timestamp(&self, option: bool) -> &Self {
-+        self.show_timestamp.store(option, Ordering::Relaxed);
-+        self
-+    }
-+
-+    pub fn set_include_instance_id(&self, option: bool) -> &Self {
-+        self.show_instance_id.store(option, Ordering::Relaxed);
-+        self
-+    }
-+
-+    pub fn set_include_thread_name(&self, option: bool) -> &Self {
-+        self.show_thread_name.store(option, Ordering::Relaxed);
-+        self
-+    }
-+
-     /// Enables or disables including the level in the log message's tag portion.
-     ///
-     /// # Arguments
-@@ -254,13 +287,16 @@ impl Logger {
-     fn create_prefix(&self, record: &Record) -> String {
-         let mut prefix: Vec<String> = vec![];
+         // Prints log message
+         {
+-            let thread = thread::current().name().unwrap_or("-").to_string();
+-            let level = match guard.format.show_level {
+-                true => format!(":{}", record.level()),
++            let timestamp = match guard.format.show_timestamp {
++                true => format!("{} ", LocalTime::now()),
+                 false => String::new(),
+             };
  
--        let instance_id = extract_guard(self.instance_id.read());
--        if !instance_id.is_empty() {
--            prefix.push(instance_id.to_string());
-+        if self.show_instance_id() {
-+            let instance_id = extract_guard(self.instance_id.read());
-+            if !instance_id.is_empty() {
-+                prefix.push(instance_id.to_string());
+-            let origin = match guard.format.show_log_origin {
+-                true => {
+-                    let file = record.file().unwrap_or("?");
+-                    let line = match record.line() {
+-                        Some(x) => x.to_string(),
+-                        None => String::from("?"),
+-                    };
+-                    format!(":{file}:{line}")
+-                }
+-                false => String::new(),
++            let mut prefix: Vec<String> = vec![];
++
++            if guard.format.show_instance_id {
++                prefix.push(
++                    INSTANCE_ID
++                        .get()
++                        .map(|s| s.as_str())
++                        .unwrap_or(DEFAULT_INSTANCE_ID)
++                        .to_string()
++                );
 +            }
-         }
- 
--        // Attach current thread name to prefix.
--        prefix.push(self.get_thread_name());
-+        if self.show_thread_name() {
-+            prefix.push(self.get_thread_name());
-+        }
- 
-         if self.show_level() {
-             prefix.push(record.level().to_string());
-@@ -276,7 +312,17 @@ impl Logger {
-             }
-         }
- 
--        format!("[{}]", prefix.join(":"))
-+        let prefix = if prefix.is_empty() {
-+            String::new()
-+        } else {
-+            format!("[{}] ", prefix.join(":"))
-+        };
 +
-+        if self.show_timestamp() {
-+            format!("{} {}", LocalTime::now(), prefix)
-+        } else {
-+            prefix
-+        }
-     }
++            if guard.format.show_thread_name {
++                prefix.push(
++                    thread::current().name().unwrap_or("-").to_string()
++                );
++            }
++
++            if guard.format.show_level {
++                prefix.push(
++                    record.level().to_string()
++                );
++            }
++
++            if guard.format.show_log_origin {
++                prefix.push(record.file().unwrap_or("?").to_string());
++                prefix.push(match record.line() {
++                    Some(x) => x.to_string(),
++                    None => String::from("?"),
++                });
++            }
++
++            let prefix = if prefix.is_empty() {
++                String::new()
++            } else {
++                format!("[{}] ", prefix.join(":"))
+             };
  
-     /// if the max level hasn't been configured yet, set it to default
-@@ -407,8 +453,7 @@ impl Log for Logger {
+-            let message = format!(
+-                "{} [{}:{thread}{level}{origin}] {}\n",
+-                LocalTime::now(),
+-                INSTANCE_ID
+-                    .get()
+-                    .map(|s| s.as_str())
+-                    .unwrap_or(DEFAULT_INSTANCE_ID),
+-                record.args()
+-            );
++            let message = format!("{timestamp}{prefix}{}\n", record.args());
  
-     fn log(&self, record: &Record) {
-         let msg = format!(
--            "{} {} {}",
--            LocalTime::now(),
-+            "{}{}",
-             self.create_prefix(record),
-             record.args()
-         );
+             let result = if let Some(file) = &mut guard.target {
+                 file.write_all(message.as_bytes())
+@@ -178,6 +213,12 @@ pub struct LoggerConfig {
+     pub log_path: Option<PathBuf>,
+     /// The level of the Logger.
+     pub level: Option<LevelFilter>,
++    /// Whether to show timestamps in the log.
++    pub show_timestamp: Option<bool>,
++    /// Whether to show the instance id in the log.
++    pub show_instance_id: Option<bool>,
++    /// Whether to show the thread name in the log.
++    pub show_thread_name: Option<bool>,
+     /// Whether to show the log level in the log.
+     pub show_level: Option<bool>,
+     /// Whether to show the log origin in the log.

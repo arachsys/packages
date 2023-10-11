@@ -1,281 +1,346 @@
 diff --git a/src/api_server/src/parsed_request.rs b/src/api_server/src/parsed_request.rs
-index c45f849..1556463 100644
+index aba3984..442a149 100644
 --- a/src/api_server/src/parsed_request.rs
 +++ b/src/api_server/src/parsed_request.rs
-@@ -231,10 +231,10 @@ fn log_received_api_request(api_description: String) {
+@@ -224,7 +224,7 @@ fn log_received_api_request(api_description: String) {
  /// * `body` - body of the API request
  fn describe(method: Method, path: &str, body: Option<&Body>) -> String {
      match (path, body) {
 -        ("/mmds", Some(_)) | (_, None) => format!("{:?} request on {:?}", method, path),
 +        ("/mmds", Some(_)) | (_, None) => format!("{} request on {:?}", method.to_str(), path),
-         (_, Some(value)) => format!(
--            "{:?} request on {:?} with body {:?}",
--            method,
-+            "{} request on {:?} with body {:?}",
-+            method.to_str(),
-             path,
-             std::str::from_utf8(value.body.as_slice())
-                 .unwrap_or("inconvertible to UTF-8")
+         ("/cpu-config", Some(payload_value)) => {
+             // If the log level is at Debug or higher, include the CPU template in
+             // the log line.
+@@ -232,9 +232,8 @@ fn describe(method: Method, path: &str, body: Option<&Body>) -> String {
+                 describe_with_body(method, path, payload_value)
+             } else {
+                 format!(
+-                    "{:?} request on {:?}. To view the CPU template received by the API, \
+-                     configure log-level to DEBUG",
+-                    method, path
++                    "{} request on {:?}",
++                    method.to_str(), path
+                 )
+             }
+         }
 diff --git a/src/firecracker/src/api_server_adapter.rs b/src/firecracker/src/api_server_adapter.rs
-index 7e6b76d..f27a2dc 100644
+index 7a53246..b9679cc 100644
 --- a/src/firecracker/src/api_server_adapter.rs
 +++ b/src/firecracker/src/api_server_adapter.rs
-@@ -129,7 +129,7 @@ pub(crate) fn run_with_api(
+@@ -26,7 +26,7 @@ pub enum ApiServerError {
+     MicroVMStoppedWithoutError(FcExitCode),
+     /// MicroVMStopped with an error: {0:?}
+     MicroVMStoppedWithError(FcExitCode),
+-    /// Failed to open the API socket at: {0}. Check that it is not already used.
++    /// Failed to open the API socket '{0}'. Is it already in use?
+     FailedToBindSocket(String),
+     /// Failed to bind and run the HTTP server: {0}
+     FailedToBindAndRunHttpServer(ServerError),
+@@ -144,7 +144,7 @@ pub(crate) fn run_with_api(
      // FD to notify of API events. This is a blocking eventfd by design.
      // It is used in the config/pre-boot loop which is a simple blocking loop
      // which only consumes API events.
 -    let api_event_fd = EventFd::new(libc::EFD_SEMAPHORE).expect("Cannot create API Eventfd.");
 +    let api_event_fd = EventFd::new(libc::EFD_SEMAPHORE).expect("Cannot create API eventfd.");
+     // FD used to signal API thread to stop/shutdown.
+     let api_kill_switch = EventFd::new(libc::EFD_NONBLOCK).expect("Cannot create API kill switch.");
  
-     // Channels for both directions between Vmm and Api threads.
-     let (to_vmm, from_api) = channel();
 diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
-index 40273d3..be5be31 100644
+index cf95ff1..b195527 100644
 --- a/src/firecracker/src/main.rs
 +++ b/src/firecracker/src/main.rs
-@@ -115,118 +115,107 @@ fn main_exitable() -> FcExitCode {
-             Argument::new("api-sock")
-                 .takes_value(true)
-                 .default_value(DEFAULT_API_SOCK_PATH)
--                .help("Path to unix domain socket used by the API."),
-+                .help("API socket"),
-         )
-         .arg(
-             Argument::new("id")
-                 .takes_value(true)
-                 .default_value(DEFAULT_INSTANCE_ID)
--                .help("MicroVM unique identifier."),
-+                .help("MicroVM identifier"),
-         )
-         .arg(
-             Argument::new("seccomp-filter")
-                 .takes_value(true)
-                 .forbids(vec!["no-seccomp"])
--                .help(
--                    "Optional parameter which allows specifying the path to a custom seccomp \
--                     filter. For advanced users.",
--                ),
-+                .help("Custom seccomp filter file"),
-         )
-         .arg(
-             Argument::new("no-seccomp")
-                 .takes_value(false)
-                 .forbids(vec!["seccomp-filter"])
--                .help(
--                    "Optional parameter which allows starting and using a microVM without seccomp \
--                     filtering. Not recommended.",
--                ),
-+                .help("Disable seccomp filtering"),
-         )
-         .arg(
-             Argument::new("start-time-us")
-                 .takes_value(true)
--                .help("Process start time (wall clock, microseconds). This parameter is optional."),
-+                .help("Process start time"),
-         )
-         .arg(
-             Argument::new("start-time-cpu-us").takes_value(true).help(
--                "Process start CPU time (wall clock, microseconds). This parameter is optional.",
-+                "Process start CPU time",
-             ),
-         )
-         .arg(Argument::new("parent-cpu-time-us").takes_value(true).help(
--            "Parent process CPU time (wall clock, microseconds). This parameter is optional.",
-+            "Parent process CPU time",
-         ))
-         .arg(
-             Argument::new("config-file")
-                 .takes_value(true)
--                .help("Path to a file that contains the microVM configuration in JSON format."),
-+                .help("JSON configuration file"),
-         )
-         .arg(
-             Argument::new(MMDS_CONTENT_ARG)
-                 .takes_value(true)
--                .help("Path to a file that contains metadata in JSON format to add to the mmds."),
-+                .help("JSON file to initialize MMDS"),
-         )
-         .arg(
-             Argument::new("no-api")
-                 .takes_value(false)
-                 .requires("config-file")
--                .help(
--                    "Optional parameter which allows starting and using a microVM without an \
--                     active API socket.",
--                ),
-+                .help("Disable API socket"),
-         )
-         .arg(
-             Argument::new("log-path")
-                 .takes_value(true)
--                .help("Path to a fifo or a file used for configuring the logger on startup."),
-+                .help("Log file or fifo"),
-         )
-         .arg(
-             Argument::new("level")
-                 .takes_value(true)
-                 .requires("log-path")
-                 .default_value("Warning")
--                .help("Set the logger level."),
-+                .help("Log level"),
-         )
-         .arg(
-             Argument::new("show-level")
-                 .takes_value(false)
-                 .requires("log-path")
--                .help("Whether or not to output the level in the logs."),
-+                .help("Include log level in logs"),
-         )
-         .arg(
-             Argument::new("show-log-origin")
-                 .takes_value(false)
-                 .requires("log-path")
-                 .help(
--                    "Whether or not to include the file path and line number of the log's origin.",
-+                    "Include file and line number in logs",
-                 ),
-         )
-         .arg(
-             Argument::new("metrics-path")
-                 .takes_value(true)
--                .help("Path to a fifo or a file used for configuring the metrics on startup."),
-+                .help("Metrics configuration file or fifo"),
-         )
-         .arg(Argument::new("boot-timer").takes_value(false).help(
--            "Whether or not to load boot timer device for logging elapsed time since \
--             InstanceStart command.",
-+            "Log time since instance start",
-         ))
-         .arg(Argument::new("version").takes_value(false).help(
--            "Print the binary version number and a list of supported snapshot data format \
--             versions.",
-+            "Show version and supported snapshot formats",
-         ))
-         .arg(
-             Argument::new("describe-snapshot")
-                 .takes_value(true)
--                .help("Print the data format version of the provided snapshot state file."),
-+                .help("Show format of snapshot"),
-         )
-         .arg(
-             Argument::new("http-api-max-payload-size")
-                 .takes_value(true)
-                 .default_value(&http_max_payload_size_str)
--                .help("Http API request payload max size, in bytes."),
-+                .help("Maximum HTTP request size (bytes)"),
-         )
-         .arg(
-             Argument::new("mmds-size-limit")
-                 .takes_value(true)
--                .help("Mmds data store limit, in bytes."),
-+                .help("Maximum MMDS data size (bytes)"),
-         );
- 
-     let arguments = match arg_parser.parse_from_cmdline() {
-@@ -245,7 +234,7 @@ fn main_exitable() -> FcExitCode {
-             }
- 
-             if arg_parser.arguments().flag_present("version") {
--                println!("Firecracker v{}\n", FIRECRACKER_VERSION);
-+                println!("Firecracker v{}", FIRECRACKER_VERSION);
-                 print_supported_snapshot_versions();
-                 return vmm::FcExitCode::Ok;
-             }
-@@ -435,7 +424,7 @@ fn warn_deprecated_parameters() {}
- 
- // Print supported snapshot data format versions.
- fn print_supported_snapshot_versions() {
--    let mut snapshot_versions_str = "Supported snapshot data format versions:".to_string();
-+    let mut snapshot_versions_str = "Supported snapshot formats:".to_string();
-     let mut snapshot_versions: Vec<String> = FC_VERSION_TO_SNAP_VERSION
-         .iter()
-         .map(|(key, _)| key.clone())
-@@ -446,7 +435,7 @@ fn print_supported_snapshot_versions() {
-         .iter()
-         .for_each(|v| snapshot_versions_str.push_str(format!(" v{},", v).as_str()));
-     snapshot_versions_str.pop();
--    println!("{}\n", snapshot_versions_str);
-+    println!("{}", snapshot_versions_str);
+@@ -46,23 +46,23 @@ enum MainError {
+     SetLogger(vmm::logger::LoggerInitError),
+     /// Failed to register signal handlers: {0}
+     RegisterSignalHandlers(#[source] utils::errno::Error),
+-    /// Arguments parsing error: {0} \n\nFor more information try --help.
++    /// {0}
+     ParseArguments(#[from] utils::arg_parser::Error),
+-    /// When printing Snapshot Data format: {0}
++    /// When printing snapshot format: {0}
+     PrintSnapshotDataFormat(#[from] SnapshotVersionError),
+-    /// Invalid value for logger level: {0}.Possible values: [Error, Warning, Info, Debug]
++    /// Invalid value for logger level: {0}. Possible values: [Error, Warning, Info, Debug]
+     InvalidLogLevel(vmm::logger::LevelFilterFromStrError),
+     /// Could not initialize logger: {0}
+     LoggerInitialization(vmm::logger::LoggerUpdateError),
+-    /// Could not initialize metrics: {0:?}
++    /// Could not initialize metrics: {0}
+     MetricsInitialization(MetricsConfigError),
+     /// Seccomp error: {0}
+     SeccompFilter(FilterError),
+     /// Failed to resize fd table: {0}
+     ResizeFdtable(ResizeFdTableError),
+-    /// RunWithApiError error: {0}
++    /// {0}
+     RunWithApi(ApiServerError),
+-    /// RunWithoutApiError error: {0}
++    /// {0}
+     RunWithoutApiError(RunWithoutApiError),
  }
  
- // Print data format of provided snapshot state file.
-@@ -459,7 +448,7 @@ fn print_snapshot_data_format(snapshot_path: &str) {
-     let data_format_version = Snapshot::get_data_version(&mut snapshot_reader, &VERSION_MAP)
-         .unwrap_or_else(|err| {
-             process::exit(generic_error_exit(&format!(
--                "Invalid data format version of snapshot file: {:?}",
-+                "Invalid snapshot format: {:?}",
-                 err
-             )) as i32);
-         });
-@@ -469,7 +458,7 @@ fn print_snapshot_data_format(snapshot_path: &str) {
-         .find(|(_, &val)| val == data_format_version)
-         .unwrap_or_else(|| {
-             process::exit(generic_error_exit(&format!(
--                "Cannot translate snapshot data version {} to Firecracker microVM version",
-+                "Cannot translate snapshot format {} to Firecracker microVM version",
-                 data_format_version
-             )) as i32);
-         });
-@@ -489,7 +478,7 @@ fn build_microvm_from_json(
-     let mut vm_resources =
-         VmResources::from_json(&config_json, &instance_info, mmds_size_limit, metadata_json)
-             .map_err(|err| {
--                error!("Configuration for VMM from one single json failed: {}", err);
-+                error!("Parsing JSON configuration failed: {}", err);
-                 vmm::FcExitCode::BadConfiguration
-             })?;
-     vm_resources.boot_timer = boot_timer_enabled;
-@@ -501,12 +490,12 @@ fn build_microvm_from_json(
+@@ -76,26 +76,21 @@ enum ResizeFdTableError {
+     Close(io::Error),
+ }
+ 
+-impl From<MainError> for ExitCode {
+-    fn from(value: MainError) -> Self {
+-        let exit_code = match value {
++fn main() -> ExitCode {
++    let result = main_exec();
++    if let Err(err) = result {
++        let exit_code = match err {
+             MainError::ParseArguments(_) => FcExitCode::ArgParsing,
+             MainError::InvalidLogLevel(_) => FcExitCode::BadConfiguration,
+             MainError::RunWithApi(ApiServerError::MicroVMStoppedWithoutError(code)) => code,
+             MainError::RunWithApi(ApiServerError::MicroVMStoppedWithError(code)) => code,
++            MainError::RunWithoutApiError(RunWithoutApiError::Shutdown(code)) => code,
+             _ => FcExitCode::GenericError,
+         };
+-
++        if exit_code != FcExitCode::Ok {
++            error!("{err}");
++        }
+         ExitCode::from(exit_code as u8)
+-    }
+-}
+-
+-fn main() -> ExitCode {
+-    let result = main_exec();
+-    if let Err(err) = result {
+-        error!("{err}");
+-        eprintln!("Error: {err:?}");
+-        ExitCode::from(err)
+     } else {
+         ExitCode::SUCCESS
+     }
+@@ -139,51 +134,45 @@ fn main_exec() -> Result<(), MainError> {
+                 Argument::new("api-sock")
+                     .takes_value(true)
+                     .default_value(DEFAULT_API_SOCK_PATH)
+-                    .help("Path to unix domain socket used by the API."),
++                    .help("API socket"),
+             )
+             .arg(
+                 Argument::new("id")
+                     .takes_value(true)
+                     .default_value(vmm::logger::DEFAULT_INSTANCE_ID)
+-                    .help("MicroVM unique identifier."),
++                    .help("MicroVM identifier"),
+             )
+             .arg(
+                 Argument::new("seccomp-filter")
+                     .takes_value(true)
+                     .forbids(vec!["no-seccomp"])
+-                    .help(
+-                        "Optional parameter which allows specifying the path to a custom seccomp \
+-                         filter. For advanced users.",
+-                    ),
++                    .help("Custom seccomp filter file"),
+             )
+             .arg(
+                 Argument::new("no-seccomp")
+                     .takes_value(false)
+                     .forbids(vec!["seccomp-filter"])
+-                    .help(
+-                        "Optional parameter which allows starting and using a microVM without \
+-                         seccomp filtering. Not recommended.",
+-                    ),
++                    .help("Disable seccomp filtering"),
+             )
+             .arg(
+                 Argument::new("start-time-us").takes_value(true).help(
+-                    "Process start time (wall clock, microseconds). This parameter is optional.",
++                    "Process start time",
+                 ),
+             )
+             .arg(Argument::new("start-time-cpu-us").takes_value(true).help(
+-                "Process start CPU time (wall clock, microseconds). This parameter is optional.",
++                "Process start CPU time",
+             ))
+             .arg(Argument::new("parent-cpu-time-us").takes_value(true).help(
+-                "Parent process CPU time (wall clock, microseconds). This parameter is optional.",
++                "Parent process CPU time",
+             ))
+             .arg(
+                 Argument::new("config-file")
+                     .takes_value(true)
+-                    .help("Path to a file that contains the microVM configuration in JSON format."),
++                    .help("JSON configuration file"),
+             )
+             .arg(
+                 Argument::new(MMDS_CONTENT_ARG).takes_value(true).help(
+-                    "Path to a file that contains metadata in JSON format to add to the mmds.",
++                    "JSON file to initialize MMDS",
+                 ),
+             )
+             .arg(
+@@ -191,69 +180,67 @@ fn main_exec() -> Result<(), MainError> {
+                     .takes_value(false)
+                     .requires("config-file")
+                     .help(
+-                        "Optional parameter which allows starting and using a microVM without an \
+-                         active API socket.",
++                        "Disable API socket",
+                     ),
+             )
+             .arg(
+                 Argument::new("log-path")
+                     .takes_value(true)
+-                    .help("Path to a fifo or a file used for configuring the logger on startup."),
++                    .help("Log file or fifo"),
+             )
+             .arg(
+                 Argument::new("level")
+                     .takes_value(true)
+-                    .help("Set the logger level."),
++                    .default_value("Warning")
++                    .help("Log level"),
+             )
+             .arg(
+                 Argument::new("show-level")
+                     .takes_value(false)
+-                    .help("Whether or not to output the level in the logs."),
++                    .help("Include log level in logs"),
+             )
+             .arg(Argument::new("show-log-origin").takes_value(false).help(
+-                "Whether or not to include the file path and line number of the log's origin.",
++                "Include file and line number in logs",
+             ))
+             .arg(
+                 Argument::new("metrics-path")
+                     .takes_value(true)
+-                    .help("Path to a fifo or a file used for configuring the metrics on startup."),
++                    .help("Metrics configuration file or fifo"),
+             )
+             .arg(Argument::new("boot-timer").takes_value(false).help(
+-                "Whether or not to load boot timer device for logging elapsed time since \
+-                 InstanceStart command.",
++                "Log time since instance start",
+             ))
+             .arg(Argument::new("version").takes_value(false).help(
+-                "Print the binary version number and a list of supported snapshot data format \
+-                 versions.",
++                "Show version and supported snapshot formats",
+             ))
+             .arg(
+                 Argument::new("describe-snapshot")
+                     .takes_value(true)
+-                    .help("Print the data format version of the provided snapshot state file."),
++                    .help("Show format of snapshot"),
+             )
+             .arg(
+                 Argument::new("http-api-max-payload-size")
+                     .takes_value(true)
+                     .default_value(&http_max_payload_size_str)
+-                    .help("Http API request payload max size, in bytes."),
++                    .help("Maximum HTTP request size (bytes)"),
+             )
+             .arg(
+                 Argument::new("mmds-size-limit")
+                     .takes_value(true)
+-                    .help("Mmds data store limit, in bytes."),
++                    .help("Maximum MMDS data size (bytes)"),
+             );
+ 
+     arg_parser.parse_from_cmdline()?;
+     let arguments = arg_parser.arguments();
+ 
+     if arguments.flag_present("help") {
+-        println!("Firecracker v{}\n", FIRECRACKER_VERSION);
++        println!("Firecracker v{}", FIRECRACKER_VERSION);
+         println!("{}", arg_parser.formatted_help());
+         return Ok(());
+     }
+ 
+     if arguments.flag_present("version") {
+-        println!("Firecracker v{}\n", FIRECRACKER_VERSION);
++        println!("Firecracker v{}", FIRECRACKER_VERSION);
+         print_supported_snapshot_versions();
+         return Ok(());
+     }
+@@ -515,9 +502,9 @@ fn print_supported_snapshot_versions() {
+         .collect();
+     versions.sort();
+ 
+-    println!("Supported snapshot data format versions:");
++    println!("Supported snapshot formats:");
+     for v in versions.iter() {
+-        println!("{v}");
++        println!("  {v}");
+     }
+ }
+ 
+@@ -525,9 +512,9 @@ fn print_supported_snapshot_versions() {
+ enum SnapshotVersionError {
+     /// Unable to open snapshot state file: {0}
+     OpenSnapshot(io::Error),
+-    /// Invalid data format version of snapshot file: {0}
++    /// Invalid snapshot format: {0}
+     SnapshotVersion(SnapshotError),
+-    /// Cannot translate snapshot data version {0} to Firecracker microVM version
++    /// Cannot translate snapshot format {0} to Firecracker microVM version
+     FirecrackerVersion(u16),
+ }
+ 
+@@ -550,9 +537,9 @@ fn print_snapshot_data_format(snapshot_path: &str) -> Result<(), SnapshotVersion
+ 
+ #[derive(Debug, thiserror::Error, displaydoc::Display)]
+ pub enum BuildFromJsonError {
+-    /// Configuration for VMM from one single json failed: {0}
++    /// Parsing JSON configuration failed: {0}
+     ParseFromJson(vmm::resources::ResourcesError),
+-    /// Could not Start MicroVM from one single json: {0}
++    /// Could not start microVM from JSON configuration: {0}
+     StartMicroVM(StartMicrovmError),
+ }
+ 
+@@ -578,16 +565,16 @@ fn build_microvm_from_json(
      )
-     .map_err(|err| {
-         error!(
--            "Building VMM configured from cmdline json failed: {:?}",
-+            "Building microVM failed: {:?}",
-             err
-         );
-         vmm::FcExitCode::BadConfiguration
-     })?;
+     .map_err(BuildFromJsonError::StartMicroVM)?;
+ 
 -    info!("Successfully started microvm that was configured from one single json");
 +    info!("Successfully started microVM from JSON configuration");
  
      Ok((vm_resources, vmm))
  }
-diff --git a/src/logger/src/logger.rs b/src/logger/src/logger.rs
-index 345d027..6f3d1cc 100644
---- a/src/logger/src/logger.rs
-+++ b/src/logger/src/logger.rs
-@@ -125,9 +125,9 @@ impl Logger {
-         Logger {
-             init: Init::new(),
-             log_buf: Mutex::new(Box::new(sink())),
--            show_level: AtomicBool::new(true),
--            show_line_numbers: AtomicBool::new(true),
--            show_file_path: AtomicBool::new(true),
-+            show_level: AtomicBool::new(false),
-+            show_line_numbers: AtomicBool::new(false),
-+            show_file_path: AtomicBool::new(false),
-             instance_id: RwLock::new(String::new()),
-         }
-     }
-diff --git a/src/mmds/src/lib.rs b/src/mmds/src/lib.rs
-index 3c7b9e3..a60794a 100644
---- a/src/mmds/src/lib.rs
-+++ b/src/mmds/src/lib.rs
-@@ -25,7 +25,7 @@ pub enum Error {
-     InvalidToken,
-     #[error("Invalid URI.")]
-     InvalidURI,
--    #[error("Not allowed HTTP method.")]
-+    #[error("HTTP method not allowed.")]
-     MethodNotAllowed,
-     #[error("No MMDS token provided. Use `X-metadata-token` header to specify the session token.")]
-     NoTokenProvided,
+ 
+ #[derive(Debug, thiserror::Error, displaydoc::Display)]
+ enum RunWithoutApiError {
+-    /// MicroVMStopped without an error: {0:?}
++    /// MicroVM stopped without an error: {0:?}
+     Shutdown(FcExitCode),
+-    /// Failed to build MicroVM from Json: {0}
++    /// Failed to build microVM from JSON configuration: {0}
+     BuildMicroVMFromJson(BuildFromJsonError),
+ }
+ 
 diff --git a/src/utils/src/arg_parser.rs b/src/utils/src/arg_parser.rs
-index e6dd8e1..7d8b4fa 100644
+index a414c6d..c653232 100644
 --- a/src/utils/src/arg_parser.rs
 +++ b/src/utils/src/arg_parser.rs
-@@ -62,7 +62,7 @@ impl<'a> ArgParser<'a> {
+@@ -14,15 +14,15 @@ const VERSION_ARG: &str = "--version";
+ /// Errors associated with parsing and validating arguments.
+ #[derive(Debug, PartialEq, Eq, thiserror::Error, displaydoc::Display)]
+ pub enum Error {
+-    /// Argument '{1}' cannot be used together with argument '{0}'.
++    /// Option '{1}' cannot be used together with option '{0}'.
+     ForbiddenArgument(String, String),
+-    /// Argument '{0}' required, but not found.
++    /// Option '{0}' required but not found.
+     MissingArgument(String),
+-    /// The argument '{0}' requires a value, but none was supplied.
++    /// Option '{0}' requires a value but none was supplied.
+     MissingValue(String),
+-    /// Found argument '{0}' which wasn't expected, or isn't valid in this context.
++    /// Option '{0}' wasn't expected or isn't valid in this context.
+     UnexpectedArgument(String),
+-    /// The argument '{0}' was provided more than once.
++    /// Option '{0}' was provided more than once.
+     DuplicateArgument(String),
+ }
+ 
+@@ -57,7 +57,7 @@ impl<'a> ArgParser<'a> {
  
          let required_arguments = self.format_arguments(true);
          if !required_arguments.is_empty() {
@@ -284,7 +349,7 @@ index e6dd8e1..7d8b4fa 100644
              help_builder.push(required_arguments);
          }
  
-@@ -73,7 +73,7 @@ impl<'a> ArgParser<'a> {
+@@ -68,7 +68,7 @@ impl<'a> ArgParser<'a> {
                  help_builder.push("".to_string());
              }
  
@@ -293,7 +358,7 @@ index e6dd8e1..7d8b4fa 100644
              help_builder.push(optional_arguments);
          }
  
-@@ -200,11 +200,11 @@ impl<'a> Argument<'a> {
+@@ -195,11 +195,11 @@ impl<'a> Argument<'a> {
  
          match (self.help, &self.default_value) {
              (Some(help), Some(default_value)) => {
@@ -307,7 +372,7 @@ index e6dd8e1..7d8b4fa 100644
              }
              (None, None) => (),
          };
-@@ -214,7 +214,11 @@ impl<'a> Argument<'a> {
+@@ -209,7 +209,11 @@ impl<'a> Argument<'a> {
  
      fn format_name(&self) -> String {
          if self.takes_value {
@@ -320,7 +385,7 @@ index e6dd8e1..7d8b4fa 100644
          } else {
              format!("  --{}", self.name)
          }
-@@ -253,7 +257,7 @@ impl fmt::Display for Value {
+@@ -248,7 +252,7 @@ impl fmt::Display for Value {
      fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
          match self {
              Value::Flag => write!(f, "true"),
@@ -329,7 +394,7 @@ index e6dd8e1..7d8b4fa 100644
              Value::Multiple(v) => write!(f, "{:?}", v),
          }
      }
-@@ -339,7 +343,7 @@ impl<'a> Arguments<'a> {
+@@ -334,7 +338,7 @@ impl<'a> Arguments<'a> {
          // command line arguments by adding just the help argument to the parsed list and
          // returning.
          if args.contains(&HELP_ARG.to_string()) {
@@ -338,24 +403,11 @@ index e6dd8e1..7d8b4fa 100644
              help_arg.user_value = Some(Value::Flag);
              self.insert_arg(help_arg);
              return Ok(());
-diff --git a/src/vmm/src/arch/aarch64/regs.rs b/src/vmm/src/arch/aarch64/regs.rs
-index 33af0d7..2c82aee 100644
---- a/src/vmm/src/arch/aarch64/regs.rs
-+++ b/src/vmm/src/arch/aarch64/regs.rs
-@@ -588,7 +588,7 @@ mod tests {
-         let id = arm64_core_reg_id!(KVM_REG_SIZE_U64, off);
-         let pstate = vcpu
-             .get_one_reg(id)
--            .expect("Failed to call kvm get one reg");
-+            .expect("Failed to call KVM get_one_reg");
-         assert!(state.contains(&Aarch64Register { id, value: pstate }));
-     }
- 
 diff --git a/src/vmm/src/builder.rs b/src/vmm/src/builder.rs
-index 1be12b1..c333165 100644
+index 730bd16..56739b3 100644
 --- a/src/vmm/src/builder.rs
 +++ b/src/vmm/src/builder.rs
-@@ -103,10 +103,10 @@ pub enum StartMicrovmError {
+@@ -109,10 +109,10 @@ pub enum StartMicrovmError {
      #[error("Cannot load command line string: {}", format!("{}", .0).replace('\"', ""))]
      LoadCommandline(linux_loader::loader::Error),
      /// Cannot start the VM because the kernel builder was not configured.
@@ -368,15 +420,18 @@ index 1be12b1..c333165 100644
      MissingMemSizeConfig,
      /// The seccomp filter map is missing a key.
      #[error("No seccomp filter for thread category: {0}")]
-@@ -119,15 +119,15 @@ pub enum StartMicrovmError {
+@@ -123,17 +123,17 @@ pub enum StartMicrovmError {
+     /// Cannot open the block device backing file.
+     #[error("Cannot open the block device backing file: {}", format!("{:?}", .0).replace('\"', ""))]
      OpenBlockDevice(io::Error),
-     /// Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline.
+-    /// Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline.
++    /// Cannot initialize an MMIO Device or add a device to the MMIO Bus or cmdline.
      #[error(
 -        "Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline: {}",
-+        "Cannot initialize a MMIO Device or add a device to the MMIO bus or cmdline: {}",
++        "Cannot initialize an MMIO Device or add a device to the MMIO bus or cmdline: {}",
          format!("{}", .0).replace('\"', "")
      )]
-     RegisterMmioDevice(device_manager::mmio::Error),
+     RegisterMmioDevice(device_manager::mmio::MmioError),
      /// Cannot restore microvm state.
 -    #[error("Cannot restore microvm state: {0}")]
 +    #[error("Cannot restore microVM state: {0}")]
@@ -387,120 +442,167 @@ index 1be12b1..c333165 100644
      SetVmResources(VmConfigError),
      /// Failed to create an Entropy device
      #[error("Cannot create the entropy device: {0}")]
+diff --git a/src/vmm/src/device_manager/mmio.rs b/src/vmm/src/device_manager/mmio.rs
+index 127b44a..76a37a7 100644
+--- a/src/vmm/src/device_manager/mmio.rs
++++ b/src/vmm/src/device_manager/mmio.rs
+@@ -389,7 +389,7 @@ impl MMIODeviceManager {
+ 
+     /// Artificially kick devices as if they had external events.
+     pub fn kick_devices(&self) {
+-        info!("Artificially kick devices.");
++        info!("Artificially kicking devices");
+         // We only kick virtio devices for now.
+         let _: Result<(), MmioError> =
+             self.for_each_virtio_device(|virtio_type, id, _info, dev| {
+@@ -401,7 +401,7 @@ impl MMIODeviceManager {
+                         // pending or in-flight epoll events we may have not captured in snapshot.
+                         // Stats queue doesn't need kicking as it is notified via a `timer_fd`.
+                         if balloon.is_activated() {
+-                            info!("kick balloon {}.", id);
++                            info!("Kicking balloon {}", id);
+                             balloon.process_virtio_queues();
+                         }
+                     }
+@@ -412,7 +412,7 @@ impl MMIODeviceManager {
+                         // No need to kick Ratelimiters because they are restored 'unblocked' so
+                         // any inflight `timer_fd` events can be safely discarded.
+                         if block.is_activated() {
+-                            info!("kick block {}.", id);
++                            info!("Kicking block {}", id);
+                             block.process_virtio_queues();
+                         }
+                     }
+@@ -423,7 +423,7 @@ impl MMIODeviceManager {
+                         // No need to kick Ratelimiters because they are restored 'unblocked' so
+                         // any inflight `timer_fd` events can be safely discarded.
+                         if net.is_activated() {
+-                            info!("kick net {}.", id);
++                            info!("Kicking net {}", id);
+                             net.process_virtio_queues();
+                         }
+                     }
+@@ -436,7 +436,7 @@ impl MMIODeviceManager {
+                     TYPE_RNG => {
+                         let entropy = virtio.as_mut_any().downcast_mut::<Entropy>().unwrap();
+                         if entropy.is_activated() {
+-                            info!("kick entropy {id}.");
++                            info!("Kicking entropy {id}");
+                             entropy.process_virtio_queues();
+                         }
+                     }
 diff --git a/src/vmm/src/devices/virtio/block/io/async_io.rs b/src/vmm/src/devices/virtio/block/io/async_io.rs
-index af9181e..7d22d7b 100644
+index 5e4caaf..4676575 100644
 --- a/src/vmm/src/devices/virtio/block/io/async_io.rs
 +++ b/src/vmm/src/devices/virtio/block/io/async_io.rs
-@@ -8,7 +8,6 @@ use std::os::unix::io::AsRawFd;
- use io_uring::operation::{Cqe, OpCode, Operation};
- use io_uring::restriction::Restriction;
- use io_uring::{Error as IoUringError, IoUring};
--use logger::log_dev_preview_warning;
- use utils::eventfd::EventFd;
- use utils::vm_memory::{mark_dirty_mem, GuestAddress, GuestMemory, GuestMemoryMmap};
+@@ -14,7 +14,6 @@ use crate::devices::virtio::block::IO_URING_NUM_ENTRIES;
+ use crate::io_uring::operation::{Cqe, OpCode, Operation};
+ use crate::io_uring::restriction::Restriction;
+ use crate::io_uring::{IoUring, IoUringError};
+-use crate::logger::log_dev_preview_warning;
  
-@@ -63,8 +62,6 @@ impl<T> WrappedUserData<T> {
+ #[derive(Debug)]
+ pub enum AsyncIoError {
+@@ -66,8 +65,6 @@ impl<T: Debug> WrappedUserData<T> {
  
- impl<T> AsyncFileEngine<T> {
-     pub fn from_file(file: File) -> Result<AsyncFileEngine<T>, Error> {
+ impl<T: Debug> AsyncFileEngine<T> {
+     pub fn from_file(file: File) -> Result<AsyncFileEngine<T>, AsyncIoError> {
 -        log_dev_preview_warning("Async file IO", Option::None);
 -
-         let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(Error::EventFd)?;
+         let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(AsyncIoError::EventFd)?;
          let ring = IoUring::new(
              u32::from(IO_URING_NUM_ENTRIES),
 diff --git a/src/vmm/src/devices/virtio/net/tap.rs b/src/vmm/src/devices/virtio/net/tap.rs
-index a0a3ebe..e5fc09b 100644
+index 3d59c0f..70882b4 100644
 --- a/src/vmm/src/devices/virtio/net/tap.rs
 +++ b/src/vmm/src/devices/virtio/net/tap.rs
-@@ -33,8 +33,7 @@ pub enum Error {
+@@ -31,7 +31,7 @@ pub enum TapError {
+     /// Invalid interface name
      InvalidIfname,
-     /// Error while creating ifreq structure
-     #[error(
--        "Error while creating ifreq structure: {0}. Invalid TUN/TAP Backend provided by {1}. \
--         Check our documentation on setting up the network devices."
-+        "Error while creating ifreq structure: {0}. Invalid TUN/TAP backend provided by {1}."
-     )]
+     #[rustfmt::skip]
+-    #[doc = "Error while creating ifreq structure: {0}. Invalid TUN/TAP Backend provided by {1}. Check our documentation on setting up the network devices."]
++    #[doc = "Error while creating ifreq structure: {0}. Invalid TUN/TAP backend provided by {1}."]
      IfreqExecuteError(IoError, String),
-     /// Error while setting the offload flags
+     /// Error while setting the offload flags: {0}
+     SetOffloadFlags(IoError),
 diff --git a/src/vmm/src/lib.rs b/src/vmm/src/lib.rs
-index d38c835..7831bef 100644
+index 3aec20f..d61913f 100644
 --- a/src/vmm/src/lib.rs
 +++ b/src/vmm/src/lib.rs
-@@ -175,7 +175,7 @@ pub enum Error {
-     #[error("Metrics error: {0}")]
+@@ -209,11 +209,11 @@ pub enum VmmError {
+     /// Cannot access kernel file: {0}
+     KernelFile(io::Error),
+     #[cfg(target_arch = "x86_64")]
+-    /// Cannot add devices to the legacy I/O Bus. {0}
++    /// Cannot add devices to the legacy I/O bus. {0}
+     LegacyIOBus(device_manager::legacy::LegacyDeviceError),
+     /// Metrics error: {0}
      Metrics(MetricsError),
-     /// Cannot add a device to the MMIO Bus.
--    #[error("Cannot add a device to the MMIO Bus. {0}")]
-+    #[error("Cannot add a device to the MMIO bus. {0}")]
-     RegisterMMIODevice(device_manager::mmio::Error),
-     /// Cannot install seccomp filters.
-     #[error("Cannot install seccomp filters: {0}")]
-@@ -187,10 +187,10 @@ pub enum Error {
-     #[error("Error creating timer fd: {0}")]
+-    /// Cannot add a device to the MMIO Bus. {0}
++    /// Cannot add a device to the MMIO bus. {0}
+     RegisterMMIODevice(device_manager::mmio::MmioError),
+     /// Cannot install seccomp filters: {0}
+     SeccompFilters(seccompiler::InstallationError),
+@@ -221,16 +221,16 @@ pub enum VmmError {
+     Serial(io::Error),
+     /// Error creating timer fd: {0}
      TimerFd(io::Error),
-     /// Vcpu configuration error.
--    #[error("Error configuring the vcpu for boot: {0}")]
-+    #[error("Error configuring the vCPU for boot: {0}")]
+-    /// Error configuring the vcpu for boot: {0}
++    /// Error configuring the vCPU for boot: {0}
      VcpuConfigure(KvmVcpuConfigureError),
-     /// Vcpu create error.
--    #[error("Error creating the vcpu: {0}")]
-+    #[error("Error creating the vCPU: {0}")]
-     VcpuCreate(vstate::vcpu::Error),
-     /// Cannot send event to vCPU.
-     #[error("Cannot send event to vCPU. {0}")]
-@@ -200,7 +200,7 @@ pub enum Error {
-     VcpuHandle(vstate::vcpu::Error),
-     /// Vcpu init error.
+-    /// Error creating the vcpu: {0}
++    /// Error creating the vCPU: {0}
+     VcpuCreate(vstate::vcpu::VcpuError),
+     /// Cannot send event to vCPU. {0}
+     VcpuEvent(vstate::vcpu::VcpuError),
+     /// Cannot create a vCPU handle. {0}
+     VcpuHandle(vstate::vcpu::VcpuError),
      #[cfg(target_arch = "aarch64")]
--    #[error("Error initializing the vcpu: {0}")]
-+    #[error("Error initializing the vCPU: {0}")]
-     VcpuInit(vstate::vcpu::VcpuError),
-     /// vCPU start error.
-     #[error("Failed to start vCPUs")]
-@@ -218,16 +218,16 @@ pub enum Error {
-     #[error("Failed to message the vCPUs.")]
+-    /// Error initializing the vcpu: {0}
++    /// Error initializing the vCPU: {0}
+     VcpuInit(vstate::vcpu::KvmVcpuError),
+     /// Failed to start vCPUs
+     VcpuStart(StartVcpusError),
+@@ -242,13 +242,13 @@ pub enum VmmError {
+     VcpuResume,
+     /// Failed to message the vCPUs.
      VcpuMessage,
-     /// Cannot spawn a new Vcpu thread.
--    #[error("Cannot spawn Vcpu thread: {0}")]
-+    #[error("Cannot spawn vCPU thread: {0}")]
+-    /// Cannot spawn Vcpu thread: {0}
++    /// Cannot spawn vCPU thread: {0}
      VcpuSpawn(io::Error),
-     /// Vm error.
--    #[error("Vm error: {0}")]
-+    #[error("VM error: {0}")]
-     Vm(vstate::vm::Error),
-     /// Error thrown by observer object on Vmm initialization.
--    #[error("Error thrown by observer object on Vmm initialization: {0}")]
-+    #[error("Error thrown by observer object on VMM initialization: {0}")]
+-    /// Vm error: {0}
++    /// VM error: {0}
+     Vm(vstate::vm::VmError),
+-    /// Error thrown by observer object on Vmm initialization: {0}
++    /// Error thrown by observer object on VMM initialization: {0}
      VmmObserverInit(utils::errno::Error),
-     /// Error thrown by observer object on Vmm teardown.
--    #[error("Error thrown by observer object on Vmm teardown: {0}")]
-+    #[error("Error thrown by observer object on VMM teardown: {0}")]
+-    /// Error thrown by observer object on Vmm teardown: {0}
++    /// Error thrown by observer object on VMM teardown: {0}
      VmmObserverTeardown(utils::errno::Error),
  }
  
-@@ -299,10 +299,10 @@ pub enum RestoreVcpusError {
- #[derive(Debug, thiserror::Error)]
+@@ -290,9 +290,9 @@ pub enum RestoreVcpusError {
+ /// Error type for [`Vmm::dump_cpu_config()`]
+ #[derive(Debug, thiserror::Error, displaydoc::Display)]
  pub enum DumpCpuConfigError {
-     /// Failed to send an event to vcpu thread.
--    #[error("Failed to send event to vcpu thread: {0:?}")]
-+    #[error("Failed to send event to vCPU thread: {0:?}")]
+-    /// Failed to send event to vcpu thread: {0:?}
++    /// Failed to send event to vCPU thread: {0:?}
      SendEvent(#[from] VcpuSendEventError),
-     /// Got an unexpected response from vcpu thread.
--    #[error("Got unexpected response from vcpu thread.")]
-+    #[error("Got unexpected response from vCPU thread.")]
+-    /// Got unexpected response from vcpu thread.
++    /// Got unexpected response from vCPU thread.
      UnexpectedResponse,
-     /// Failed to dump CPU config.
-     #[error("Failed to dump CPU config: {0}")]
-@@ -839,7 +839,7 @@ impl Vmm {
+     /// Failed to dump CPU config: {0}
+     DumpCpuConfig(#[from] vcpu::VcpuError),
+@@ -803,7 +803,7 @@ impl Vmm {
          // Vmm initiated teardown starts from `pub fn Vmm::stop()` (step 4).
          // Once `vmm.shutdown_exit_code` becomes `Some(exit_code)`, it is the upper layer's
          // responsibility to break main event loop and propagate the exit code value.
 -        info!("Vmm is stopping.");
-+        info!("VMM is stopping.");
++        info!("VMM is stopping");
  
          // We send a "Finish" event.  If a VCPU has already exited, this is the only
          // message it will accept... but running and paused will take it as well.
-@@ -922,7 +922,7 @@ impl Drop for Vmm {
+@@ -888,7 +888,7 @@ impl Drop for Vmm {
          }
  
          if !self.vcpus_handles.is_empty() {
@@ -509,7 +611,7 @@ index d38c835..7831bef 100644
          }
      }
  }
-@@ -949,19 +949,19 @@ impl MutEventSubscriber for Vmm {
+@@ -915,19 +915,19 @@ impl MutEventSubscriber for Vmm {
                      Ok(_response) => {} // Don't care about these, we are exiting.
                      Err(TryRecvError::Empty) => {} // Nothing pending in channel
                      Err(err) => {
@@ -532,172 +634,176 @@ index d38c835..7831bef 100644
          }
      }
  }
+diff --git a/src/vmm/src/mmds/mod.rs b/src/vmm/src/mmds/mod.rs
+index 4f9e3f6..6eff9bb 100644
+--- a/src/vmm/src/mmds/mod.rs
++++ b/src/vmm/src/mmds/mod.rs
+@@ -30,7 +30,7 @@ pub enum Error {
+     InvalidToken,
+     /// Invalid URI.
+     InvalidURI,
+-    /// Not allowed HTTP method.
++    /// HTTP method not allowed.
+     MethodNotAllowed,
+     /// No MMDS token provided. Use `X-metadata-token` header to specify the session token.
+     NoTokenProvided,
+@@ -685,7 +685,7 @@ mod tests {
+ 
+         assert_eq!(
+             Error::MethodNotAllowed.to_string(),
+-            "Not allowed HTTP method."
++            "HTTP method not allowed."
+         );
+ 
+         assert_eq!(
 diff --git a/src/vmm/src/persist.rs b/src/vmm/src/persist.rs
-index abf649e..d7c0118 100644
+index ed0dfda..aff6d4a 100644
 --- a/src/vmm/src/persist.rs
 +++ b/src/vmm/src/persist.rs
-@@ -158,7 +158,7 @@ pub enum MicrovmStateError {
-     #[error("Compatibility checks failed: {0}")]
+@@ -160,23 +160,23 @@ pub struct GuestRegionUffdMapping {
+ pub enum MicrovmStateError {
+     /// Compatibility checks failed: {0}
      IncompatibleState(String),
-     /// Provided MicroVM state is invalid.
--    #[error("Provided MicroVM state is invalid.")]
-+    #[error("Provided microVM state is invalid.")]
+-    /// Provided MicroVM state is invalid.
++    /// Provided microVM state is invalid.
      InvalidInput,
-     /// Operation not allowed.
-     #[error("Operation not allowed: {0}")]
-@@ -167,22 +167,22 @@ pub enum MicrovmStateError {
-     #[error("Cannot restore devices: {0:?}")]
+     /// Operation not allowed: {0}
+     NotAllowed(String),
+     /// Cannot restore devices: {0:?}
      RestoreDevices(DevicePersistError),
-     /// Failed to restore Vcpu state.
--    #[error("Cannot restore Vcpu state: {0:?}")]
-+    #[error("Cannot restore vCPU state: {0:?}")]
-     RestoreVcpuState(vstate::vcpu::Error),
-     /// Failed to restore VM state.
--    #[error("Cannot restore Vm state: {0:?}")]
-+    #[error("Cannot restore VM state: {0:?}")]
-     RestoreVmState(vstate::vm::Error),
-     /// Failed to save Vcpu state.
--    #[error("Cannot save Vcpu state: {0:?}")]
-+    #[error("Cannot save vCPU state: {0:?}")]
-     SaveVcpuState(vstate::vcpu::Error),
-     /// Failed to save VM state.
--    #[error("Cannot save Vm state: {0:?}")]
-+    #[error("Cannot save VM state: {0:?}")]
-     SaveVmState(vstate::vm::Error),
-     /// Failed to send event.
--    #[error("Cannot signal Vcpu: {0:?}")]
-+    #[error("Cannot signal vCPU: {0:?}")]
+-    /// Cannot restore Vcpu state: {0:?}
++    /// Cannot restore vCPU state: {0:?}
+     RestoreVcpuState(vstate::vcpu::VcpuError),
+-    /// Cannot restore Vm state: {0:?}
++    /// Cannot restore VM state: {0:?}
+     RestoreVmState(vstate::vm::VmError),
+-    /// Cannot save Vcpu state: {0:?}
++    /// Cannot save vCPU state: {0:?}
+     SaveVcpuState(vstate::vcpu::VcpuError),
+-    /// Cannot save Vm state: {0:?}
++    /// Cannot save VM state: {0:?}
+     SaveVmState(vstate::vm::VmError),
+-    /// Cannot signal Vcpu: {0:?}
++    /// Cannot signal vCPU: {0:?}
      SignalVcpu(VcpuSendEventError),
-     /// Vcpu is in unexpected state.
--    #[error("Vcpu is in unexpected state.")]
-+    #[error("vCPU is in unexpected state.")]
+-    /// Vcpu is in unexpected state.
++    /// vCPU is in unexpected state.
      UnexpectedVcpuResponse,
  }
  
-@@ -192,9 +192,9 @@ pub enum CreateSnapshotError {
-     /// Failed to get dirty bitmap.
-     #[error("Cannot get dirty bitmap: {0}")]
+@@ -186,7 +186,7 @@ pub enum CreateSnapshotError {
+     /// Cannot get dirty bitmap: {0}
      DirtyBitmap(VmmError),
--    /// The virtio devices uses a features that is incompatible with older versions of Firecracker.
-+    /// The virtio devices use a feature that is incompatible with older versions of Firecracker.
-     #[error(
--        "The virtio devices use a features that is incompatible with older versions of \
-+        "The virtio devices use a feature that is incompatible with older versions of \
-          Firecracker: {0}"
-     )]
+     #[rustfmt::skip]
+-    #[doc = "The virtio devices use a features that is incompatible with older versions of Firecracker: {0}"]
++    #[doc = "The virtio devices use a feature that is incompatible with older versions of Firecracker: {0}"]
      IncompatibleVirtioFeature(&'static str),
-@@ -615,16 +615,16 @@ pub enum GuestMemoryFromUffdError {
-     #[error("Failed to restore guest memory: {0}")]
-     Restore(#[from] crate::memory_snapshot::Error),
-     /// Failed to UFFD object.
--    #[error("Failed to UFFD object: {0}")]
-+    #[error("Failed to create userfaultfd object: {0}")]
+     /// Invalid microVM version format
+     InvalidVersionFormat,
+@@ -575,13 +575,13 @@ fn guest_memory_from_file(
+ pub enum GuestMemoryFromUffdError {
+     /// Failed to restore guest memory: {0}
+     Restore(#[from] crate::memory_snapshot::SnapshotMemoryError),
+-    /// Failed to UFFD object: {0}
++    /// Failed to userfaultfd object: {0}
      Create(userfaultfd::Error),
-     /// Failed to register memory address range with the userfaultfd object.
-     #[error("Failed to register memory address range with the userfaultfd object: {0}")]
+     /// Failed to register memory address range with the userfaultfd object: {0}
      Register(userfaultfd::Error),
-     /// Failed to connect to UDS Unix stream.
--    #[error("Failed to connect to UDS Unix stream: {0}")]
-+    #[error("Failed to connect to unix stream socket: {0}")]
+-    /// Failed to connect to UDS Unix stream: {0}
++    /// Failed to connect to unix stream socket: {0}
      Connect(#[from] std::io::Error),
-     /// Failed to send file descriptor.
--    #[error("Failed to sends file descriptor: {0}")]
-+    #[error("Failed to send file descriptor: {0}")]
+-    /// Failed to sends file descriptor: {0}
++    /// Failed to send file descriptor: {0}
      Send(#[from] utils::errno::Error),
  }
  
 diff --git a/src/vmm/src/vmm_config/balloon.rs b/src/vmm/src/vmm_config/balloon.rs
-index 69ad166..8c95b74 100644
+index 27230a3..54d6c93 100644
 --- a/src/vmm/src/vmm_config/balloon.rs
 +++ b/src/vmm/src/vmm_config/balloon.rs
-@@ -39,11 +39,11 @@ impl fmt::Display for BalloonConfigError {
-             DeviceNotFound => write!(f, "No balloon device found."),
-             DeviceNotActive => write!(
-                 f,
--                "Device is inactive, check if balloon driver is enabled in guest kernel."
-+                "Device is inactive: check if balloon driver is enabled in guest kernel."
-             ),
-             InvalidStatsUpdate => write!(f, "Cannot enable/disable the statistics after boot."),
--            TooManyPagesRequested => write!(f, "Amount of pages requested is too large."),
--            StatsNotFound => write!(f, "Statistics for the balloon device are not enabled"),
-+            TooManyPagesRequested => write!(f, "Number of pages requested is too large."),
-+            StatsNotFound => write!(f, "Statistics for the balloon device are not enabled."),
-             CreateFailure(err) => write!(f, "Error creating the balloon device: {:?}", err),
-             UpdateFailure(err) => write!(
-                 f,
+@@ -16,13 +16,13 @@ type MutexBalloon = Arc<Mutex<Balloon>>;
+ pub enum BalloonConfigError {
+     /// No balloon device found.
+     DeviceNotFound,
+-    /// Device is inactive, check if balloon driver is enabled in guest kernel.
++    /// Device is inactive: check if balloon driver is enabled in guest kernel.
+     DeviceNotActive,
+     /// Cannot enable/disable the statistics after boot.
+     InvalidStatsUpdate,
+-    /// Amount of pages requested is too large.
++    /// Number of pages requested is too large.
+     TooManyPagesRequested,
+-    /// Statistics for the balloon device are not enabled
++    /// Statistics for the balloon device are not enabled.
+     StatsNotFound,
+     /// Error creating the balloon device: {0:?}
+     CreateFailure(crate::devices::virtio::balloon::BalloonError),
 diff --git a/src/vmm/src/vstate/vcpu/aarch64.rs b/src/vmm/src/vstate/vcpu/aarch64.rs
-index d6b68fe..0ae1128 100644
+index 052371e..b01c448 100644
 --- a/src/vmm/src/vstate/vcpu/aarch64.rs
 +++ b/src/vmm/src/vstate/vcpu/aarch64.rs
-@@ -27,21 +27,21 @@ use crate::vstate::vm::Vm;
+@@ -29,21 +29,21 @@ use crate::vstate::vm::Vm;
  /// Errors associated with the wrappers over KVM ioctls.
- #[derive(Debug, thiserror::Error)]
- pub enum Error {
--    #[error("Error configuring the vcpu registers: {0}")]
-+    #[error("Error configuring the vCPU registers: {0}")]
+ #[derive(Debug, PartialEq, Eq, thiserror::Error, displaydoc::Display)]
+ pub enum KvmVcpuError {
+-    /// Error configuring the vcpu registers: {0}
++    /// Error configuring the vCPU registers: {0}
      ConfigureRegisters(ArchError),
--    #[error("Error creating vcpu: {0}")]
-+    #[error("Error creating vCPU: {0}")]
+-    /// Error creating vcpu: {0}
++    /// Error creating vCPU: {0}
      CreateVcpu(kvm_ioctls::Error),
-     #[error("Failed to dump CPU configuration: {0}")]
+     /// Failed to dump CPU configuration: {0}
      DumpCpuConfig(ArchError),
--    #[error("Error getting the vcpu preferred target: {0}")]
-+    #[error("Error getting the vCPU preferred target: {0}")]
+-    /// Error getting the vcpu preferred target: {0}
++    /// Error getting the vCPU preferred target: {0}
      GetPreferredTarget(kvm_ioctls::Error),
--    #[error("Error initializing the vcpu: {0}")]
-+    #[error("Error initializing the vCPU: {0}")]
+-    /// Error initializing the vcpu: {0}
++    /// Error initializing the vCPU: {0}
      Init(kvm_ioctls::Error),
-     #[error("Error applying template: {0}")]
+     /// Error applying template: {0}
      ApplyCpuTemplate(ArchError),
--    #[error("Failed to restore the state of the vcpu: {0}")]
-+    #[error("Failed to restore the state of the vCPU: {0}")]
+-    /// Failed to restore the state of the vcpu: {0}
++    /// Failed to restore the state of the vCPU: {0}
      RestoreState(ArchError),
--    #[error("Failed to save the state of the vcpu: {0}")]
-+    #[error("Failed to save the state of the vCPU: {0}")]
+-    /// Failed to save the state of the vcpu: {0}
++    /// Failed to save the state of the vCPU: {0}
      SaveState(ArchError),
  }
  
 diff --git a/src/vmm/src/vstate/vcpu/mod.rs b/src/vmm/src/vstate/vcpu/mod.rs
-index 408e563..8618f77 100644
+index 3a9a840..bf8b618 100644
 --- a/src/vmm/src/vstate/vcpu/mod.rs
 +++ b/src/vmm/src/vstate/vcpu/mod.rs
-@@ -44,28 +44,28 @@ pub(crate) const VCPU_RTSIG_OFFSET: i32 = 0;
- #[derive(Debug, thiserror::Error)]
- pub enum Error {
-     /// Error creating vcpu config.
--    #[error("Error creating vcpu config: {0}")]
-+    #[error("Error creating vCPU config: {0}")]
+@@ -46,21 +46,21 @@ pub const VCPU_RTSIG_OFFSET: i32 = 0;
+ /// Errors associated with the wrappers over KVM ioctls.
+ #[derive(Debug, thiserror::Error, displaydoc::Display)]
+ pub enum VcpuError {
+-    /// Error creating vcpu config: {0}
++    /// Error creating vCPU config: {0}
      VcpuConfig(GuestConfigError),
-     /// Error triggered by the KVM subsystem.
--    #[error("Received error signaling kvm exit: {0}")]
-+    #[error("Received error signaling KVM exit: {0}")]
+-    /// Received error signaling kvm exit: {0}
++    /// Received error signaling KVM exit: {0}
      FaultyKvmExit(String),
-     /// Failed to signal Vcpu.
--    #[error("Failed to signal vcpu: {0}")]
-+    #[error("Failed to signal vCPU: {0}")]
+-    /// Failed to signal vcpu: {0}
++    /// Failed to signal vCPU: {0}
      SignalVcpu(utils::errno::Error),
-     /// Kvm Exit is not handled by our implementation.
--    #[error("Unexpected kvm exit received: {0}")]
-+    #[error("Unexpected KVM exit received: {0}")]
+-    /// Unexpected kvm exit received: {0}
++    /// Unexpected KVM exit received: {0}
      UnhandledKvmExit(String),
-     /// Wrapper over error triggered by some vcpu action.
--    #[error("Failed to run action on vcpu: {0}")]
-+    #[error("Failed to run action on vCPU: {0}")]
-     VcpuResponse(VcpuError),
-     /// Cannot spawn a new vCPU thread.
-     #[error("Cannot spawn a new vCPU thread: {0}")]
+-    /// Failed to run action on vcpu: {0}
++    /// Failed to run action on vCPU: {0}
+     VcpuResponse(KvmVcpuError),
+     /// Cannot spawn a new vCPU thread: {0}
      VcpuSpawn(io::Error),
-     /// Cannot cleanly initialize vcpu TLS.
--    #[error("Cannot clean init vcpu TLS")]
-+    #[error("Cannot clean init vCPU TLS")]
+-    /// Cannot clean init vcpu TLS
++    /// Cannot clean init vCPU TLS
      VcpuTlsInit,
-     /// Vcpu not present in TLS.
--    #[error("Vcpu not present in TLS")]
-+    #[error("vCPU not present in TLS")]
+-    /// Vcpu not present in TLS
++    /// vCPU not present in TLS
      VcpuTlsNotPresent,
  }
  
-@@ -196,7 +196,7 @@ impl Vcpu {
+@@ -185,7 +185,7 @@ impl Vcpu {
          }
  
          register_signal_handler(sigrtmin() + VCPU_RTSIG_OFFSET, handle_signal)
@@ -706,7 +812,7 @@ index 408e563..8618f77 100644
      }
  
      /// Constructs a new VCPU for `vm`.
-@@ -242,7 +242,7 @@ impl Vcpu {
+@@ -231,7 +231,7 @@ impl Vcpu {
              .spawn(move || {
                  let filter = &*seccomp_filter;
                  self.init_thread_local_data()
@@ -715,7 +821,7 @@ index 408e563..8618f77 100644
                  // Synchronization to make sure thread local data is initialized.
                  barrier.wait();
                  self.run(filter);
-@@ -503,7 +503,7 @@ impl Vcpu {
+@@ -476,7 +476,7 @@ impl Vcpu {
                      // Hardware entry failure.
                      METRICS.vcpu.failures.inc();
                      error!(
@@ -723,130 +829,107 @@ index 408e563..8618f77 100644
 +                        "Received KVM_EXIT_FAIL_ENTRY signal: {} on CPU {}",
                          hardware_entry_failure_reason, cpu
                      );
-                     Err(Error::FaultyKvmExit(format!(
-@@ -567,7 +567,7 @@ impl Vcpu {
+                     Err(VcpuError::FaultyKvmExit(format!(
+@@ -540,7 +540,7 @@ impl Vcpu {
                      }
                      _ => {
                          METRICS.vcpu.failures.inc();
 -                        error!("Failure during vcpu run: {}", err);
 +                        error!("Failure during vCPU run: {}", err);
-                         Err(Error::FaultyKvmExit(format!("{}", err)))
+                         Err(VcpuError::FaultyKvmExit(format!("{}", err)))
                      }
                  }
 diff --git a/src/vmm/src/vstate/vcpu/x86_64.rs b/src/vmm/src/vstate/vcpu/x86_64.rs
-index 70d2869..73287fa 100644
+index fe0ba7c..43782db 100644
 --- a/src/vmm/src/vstate/vcpu/x86_64.rs
 +++ b/src/vmm/src/vstate/vcpu/x86_64.rs
-@@ -55,76 +55,76 @@ pub enum Error {
-     #[error("Error configuring the special registers: {0:?}")]
-     SregsConfiguration(crate::arch::x86_64::regs::Error),
-     /// Cannot open the VCPU file descriptor.
--    #[error("Cannot open the VCPU file descriptor: {0}")]
-+    #[error("Cannot open the vCPU file descriptor: {0}")]
+@@ -48,53 +48,53 @@ pub enum KvmVcpuError {
+     RegsConfiguration(crate::arch::x86_64::regs::RegsError),
+     /// Error configuring the special registers: {0:?}
+     SregsConfiguration(crate::arch::x86_64::regs::RegsError),
+-    /// Cannot open the VCPU file descriptor: {0}
++    /// Cannot open the vCPU file descriptor: {0}
      VcpuFd(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu debug regs.
--    #[error("Failed to get KVM vcpu debug regs: {0}")]
-+    #[error("Failed to get KVM vCPU debug regs: {0}")]
+-    /// Failed to get KVM vcpu debug regs: {0}
++    /// Failed to get KVM vCPU debug regs: {0}
      VcpuGetDebugRegs(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu lapic.
--    #[error("Failed to get KVM vcpu lapic: {0}")]
-+    #[error("Failed to get KVM vCPU lapic: {0}")]
+-    /// Failed to get KVM vcpu lapic: {0}
++    /// Failed to get KVM vCPU lapic: {0}
      VcpuGetLapic(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu mp state.
--    #[error("Failed to get KVM vcpu mp state: {0}")]
-+    #[error("Failed to get KVM vCPU mp state: {0}")]
+-    /// Failed to get KVM vcpu mp state: {0}
++    /// Failed to get KVM vCPU mp state: {0}
      VcpuGetMpState(kvm_ioctls::Error),
-     /// The number of MSRS returned by the kernel is unexpected.
--    #[error("Unexpected number of MSRS reported by the kernel")]
-+    #[error("Unexpected number of msrs reported by the kernel")]
+-    /// Unexpected number of MSRS reported by the kernel
++    /// Unexpected number of msrs reported by the kernel
      VcpuGetMsrsIncomplete,
-     /// Failed to get KVM vcpu msrs.
--    #[error("Failed to get KVM vcpu msrs: {0}")]
-+    #[error("Failed to get KVM vCPU msrs: {0}")]
+-    /// Failed to get KVM vcpu msrs: {0}
++    /// Failed to get KVM vCPU msrs: {0}
      VcpuGetMsrs(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu regs.
--    #[error("Failed to get KVM vcpu regs: {0}")]
-+    #[error("Failed to get KVM vCPU regs: {0}")]
+-    /// Failed to get KVM vcpu regs: {0}
++    /// Failed to get KVM vCPU regs: {0}
      VcpuGetRegs(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu sregs.
--    #[error("Failed to get KVM vcpu sregs: {0}")]
-+    #[error("Failed to get KVM vCPU sregs: {0}")]
+-    /// Failed to get KVM vcpu sregs: {0}
++    /// Failed to get KVM vCPU sregs: {0}
      VcpuGetSregs(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu event.
--    #[error("Failed to get KVM vcpu event: {0}")]
-+    #[error("Failed to get KVM vCPU event: {0}")]
+-    /// Failed to get KVM vcpu event: {0}
++    /// Failed to get KVM vCPU event: {0}
      VcpuGetVcpuEvents(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu xcrs.
--    #[error("Failed to get KVM vcpu xcrs: {0}")]
-+    #[error("Failed to get KVM vCPU xcrs: {0}")]
+-    /// Failed to get KVM vcpu xcrs: {0}
++    /// Failed to get KVM vCPU xcrs: {0}
      VcpuGetXcrs(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu xsave.
--    #[error("Failed to get KVM vcpu xsave: {0}")]
-+    #[error("Failed to get KVM vCPU xsave: {0}")]
+-    /// Failed to get KVM vcpu xsave: {0}
++    /// Failed to get KVM vCPU xsave: {0}
      VcpuGetXsave(kvm_ioctls::Error),
-     /// Failed to get KVM vcpu cpuid.
--    #[error("Failed to get KVM vcpu cpuid: {0}")]
-+    #[error("Failed to get KVM vCPU cpuid: {0}")]
+-    /// Failed to get KVM vcpu cpuid: {0}
++    /// Failed to get KVM vCPU cpuid: {0}
      VcpuGetCpuid(kvm_ioctls::Error),
-     /// Failed to get KVM TSC freq.
-     #[error("Failed to get KVM TSC frequency: {0}")]
+     /// Failed to get KVM TSC frequency: {0}
      VcpuGetTsc(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu cpuid.
--    #[error("Failed to set KVM vcpu cpuid: {0}")]
-+    #[error("Failed to set KVM vCPU cpuid: {0}")]
+-    /// Failed to set KVM vcpu cpuid: {0}
++    /// Failed to set KVM vCPU cpuid: {0}
      VcpuSetCpuid(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu debug regs.
--    #[error("Failed to set KVM vcpu debug regs: {0}")]
-+    #[error("Failed to set KVM vCPU debug regs: {0}")]
+-    /// Failed to set KVM vcpu debug regs: {0}
++    /// Failed to set KVM vCPU debug regs: {0}
      VcpuSetDebugRegs(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu lapic.
--    #[error("Failed to set KVM vcpu lapic: {0}")]
-+    #[error("Failed to set KVM vCPU lapic: {0}")]
+-    /// Failed to set KVM vcpu lapic: {0}
++    /// Failed to set KVM vCPU lapic: {0}
      VcpuSetLapic(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu mp state.
--    #[error("Failed to set KVM vcpu mp state: {0}")]
-+    #[error("Failed to set KVM vCPU mp state: {0}")]
+-    /// Failed to set KVM vcpu mp state: {0}
++    /// Failed to set KVM vCPU mp state: {0}
      VcpuSetMpState(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu msrs.
--    #[error("Failed to set KVM vcpu msrs: {0}")]
-+    #[error("Failed to set KVM vCPU msrs: {0}")]
+-    /// Failed to set KVM vcpu msrs: {0}
++    /// Failed to set KVM vCPU msrs: {0}
      VcpuSetMsrs(kvm_ioctls::Error),
-     /// Failed to set all KVM vcpu MSRs. Only a partial set was done.
--    #[error("Failed to set all KVM MSRs for this vCPU. Only a partial write was done.")]
-+    #[error("Failed to set all KVM msrs for this vCPU. Only a partial write was done.")]
+-    /// Failed to set all KVM MSRs for this vCPU. Only a partial write was done.
++    /// Failed to set all KVM msrs for this vCPU. Only a partial write was done.
      VcpuSetMsrsIncomplete,
-     /// Failed to set KVM vcpu regs.
--    #[error("Failed to set KVM vcpu regs: {0}")]
-+    #[error("Failed to set KVM vCPU regs: {0}")]
+-    /// Failed to set KVM vcpu regs: {0}
++    /// Failed to set KVM vCPU regs: {0}
      VcpuSetRegs(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu sregs.
--    #[error("Failed to set KVM vcpu sregs: {0}")]
-+    #[error("Failed to set KVM vCPU sregs: {0}")]
+-    /// Failed to set KVM vcpu sregs: {0}
++    /// Failed to set KVM vCPU sregs: {0}
      VcpuSetSregs(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu event.
--    #[error("Failed to set KVM vcpu event: {0}")]
-+    #[error("Failed to set KVM vCPU event: {0}")]
+-    /// Failed to set KVM vcpu event: {0}
++    /// Failed to set KVM vCPU event: {0}
      VcpuSetVcpuEvents(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu xcrs.
--    #[error("Failed to set KVM vcpu xcrs: {0}")]
-+    #[error("Failed to set KVM vCPU xcrs: {0}")]
+-    /// Failed to set KVM vcpu xcrs: {0}
++    /// Failed to set KVM vCPU xcrs: {0}
      VcpuSetXcrs(kvm_ioctls::Error),
-     /// Failed to set KVM vcpu xsave.
--    #[error("Failed to set KVM vcpu xsave: {0}")]
-+    #[error("Failed to set KVM vCPU xsave: {0}")]
+-    /// Failed to set KVM vcpu xsave: {0}
++    /// Failed to set KVM vCPU xsave: {0}
      VcpuSetXsave(kvm_ioctls::Error),
-     /// Failed to set KVM TSC freq.
-     #[error("Failed to set KVM TSC frequency: {0}")]
-@@ -548,7 +548,7 @@ impl KvmVcpu {
+     /// Failed to set KVM TSC frequency: {0}
+     VcpuSetTsc(kvm_ioctls::Error),
+@@ -529,7 +529,7 @@ impl KvmVcpu {
                  METRICS.vcpu.failures.inc();
                  // TODO: Are we sure we want to finish running a vcpu upon
                  // receiving a vm exit that is not necessarily an error?
 -                error!("Unexpected exit reason on vcpu run: {:?}", unexpected_exit);
 +                error!("Unexpected exit reason on vCPU run: {:?}", unexpected_exit);
-                 Err(super::Error::UnhandledKvmExit(format!(
+                 Err(super::VcpuError::UnhandledKvmExit(format!(
                      "{:?}",
                      unexpected_exit
-@@ -627,7 +627,7 @@ impl VcpuState {
+@@ -620,7 +620,7 @@ impl VcpuState {
                  }
              }
              _ => Err(VersionizeError::Serialize(
@@ -856,14 +939,26 @@ index 70d2869..73287fa 100644
                      .to_string(),
              )),
 diff --git a/src/vmm/src/vstate/vm.rs b/src/vmm/src/vstate/vm.rs
-index 8282ef1..23d1d56 100644
+index 544f2cc..ae3791e 100644
 --- a/src/vmm/src/vstate/vm.rs
 +++ b/src/vmm/src/vstate/vm.rs
-@@ -69,7 +69,7 @@ pub enum Error {
+@@ -39,8 +39,7 @@ pub enum VmError {
+     #[error("{}", ({
+         if .0.errno() == libc::EACCES {
+             format!(
+-                "Error creating KVM object. [{}]\nMake sure the user \
+-                launching the firecracker process is configured on the /dev/kvm file's ACL.",
++                "Error creating KVM object. [{}]\nDoes firecracker have access to /dev/kvm?",
+                 .0
+             )
+         } else {
+@@ -89,8 +88,8 @@ pub enum VmError {
+     /// Failed to set KVM vm irqchip.
      #[error("Failed to set KVM vm irqchip: {0}")]
      VmSetIrqChip(kvm_ioctls::Error),
-     /// Cannot configure the microvm.
+-    /// Cannot configure the microvm.
 -    #[error("Cannot configure the microvm: {0}")]
++    /// Cannot configure the microVM.
 +    #[error("Cannot configure the microVM: {0}")]
      VmSetup(kvm_ioctls::Error),
      #[cfg(target_arch = "aarch64")]
