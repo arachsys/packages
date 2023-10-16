@@ -8,6 +8,7 @@ prepare() {
   apply llvm.diff
   apply ncurses.diff
   apply ping.diff
+  apply proxy.diff
   apply regdom.diff
 
   find . -type f -executable -exec sed -e '1s:^#! *//*:#!/:' \
@@ -15,7 +16,7 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree 509cf1f8e0ce37deca1daf974ed3e17ca617f32094d1b04abfd6d8caf9a5720a
+  tree 4c49510ce6e822e1476e552f108420ebd7f5991dd345b87efd6b275090eea8c4
 }
 
 build() {
