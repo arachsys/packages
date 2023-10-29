@@ -4,12 +4,13 @@ check() {
 }
 
 prepare() {
-  unpack https://musl.libc.org/releases/musl-1.2.4.tar.gz
+  unpack musl-20230824-79bdacff.tar.gz \
+    https://git.musl-libc.org/cgit/musl/snapshot/musl-79bdacff.tar.gz
   apply nodata.diff
   apply paths.diff
   apply rrlimit.diff
   apply usage.diff
-  tree 1297440665d2366e6479235ceb2673aa4c3011330b0bfd8cc6109034e24e7a6a
+  tree 72b5949f073d9e9047082b3ab07c6d7e32156b1968df83a5744cce98d8d2d68a
 }
 
 build() {
