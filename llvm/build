@@ -57,7 +57,7 @@ build() {
   mkdir -p /src/build
   cd /src/build
   /src/cmake/bin/cmake -W no-dev \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$CHOST \
@@ -110,7 +110,7 @@ build() {
       /src/cmake/bin/cmake -W no-dev \
         -DCMAKE_{ASM,C,CXX}_COMPILER=/src/build/bin/clang \
         -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET-wasi \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DCMAKE_C_COMPILER_WORKS=Yes \
         -DLLVM_CMAKE_DIR=../build \
         -DCOMPILER_RT_BAREMETAL_BUILD=Yes \
@@ -136,6 +136,8 @@ build() {
   UNWIND=$(readlink /dst/lib/libunwind.so)
   rm -f /dst/lib/libunwind.so
   echo "INPUT ( $UNWIND ../${RUNTIME#/*/lib/} )" >/dst/lib/libunwind.so
+
+  strip --strip-unneeded /dst/lib/llvm/lib/lib*.a
 
   image lldb contains /dst/bin/lldb* /dst/lib/liblldb*.{a,so,so.*}
   image lldb requires llvm-shared

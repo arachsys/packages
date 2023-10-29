@@ -16,7 +16,7 @@ prepare() {
 build() {
   /src/configure --host=$CHOST --build=$CHOST --prefix= \
     --includedir='$(prefix)/lib/include' --libdir='$(prefix)/lib/shared' \
-    --syslibdir='$(prefix)/lib' --disable-wrapper
+    --syslibdir='$(prefix)/lib' --disable-wrapper --enable-debug
   mkdir -p /dst/bin /dst/lib
   make install DESTDIR=/dst
 
