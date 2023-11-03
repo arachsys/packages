@@ -43,7 +43,7 @@ index 3661ac8..35850b7 100644
          char buf[7] = {'\\', *next, 0};
 -        if (*next >= 0 and *next <= 0x1F)
 +        if ((unsigned char) *next <= 0x1F)
-             sprintf(buf, "\\u%04x", *next);
+             format_to(buf, "\\u{:04}", hex(*next));
  
          res += buf;
 diff --git a/src/regex_impl.cc b/src/regex_impl.cc

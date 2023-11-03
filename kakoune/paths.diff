@@ -61,32 +61,11 @@ index 801a2e2..5661637 100644
  
  os := $(shell uname)
  
-diff --git a/src/assert.cc b/src/assert.cc
-index fd97c0b..604abef 100644
---- a/src/assert.cc
-+++ b/src/assert.cc
-@@ -27,16 +27,7 @@ private:
- 
- bool notify_fatal_error(StringView msg)
- {
--#if defined(__CYGWIN__)
--    return MessageBox(NULL, msg.zstr(), "Kakoune: fatal error",
--                      MB_OKCANCEL | MB_ICONERROR) == IDOK;
--#elif defined(__linux__)
--    auto cmd = format("xmessage -buttons 'quit:0,ignore:1' '{}'", replace(msg, "'", "'\\''"));
--    int status = system(cmd.c_str());
--    return (WIFEXITED(status)) ? (WEXITSTATUS(status)) == 1 : false;
--#else
-     return false;
--#endif
- }
- 
- void on_assert_failed(const char* message)
 diff --git a/src/main.cc b/src/main.cc
-index aff025a..461c51a 100644
+index 5cfbe3f..8e53120 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -184,12 +184,12 @@ String runtime_directory()
+@@ -192,12 +192,12 @@ String runtime_directory()
          return runtime_directory;
  
      char relpath[PATH_MAX+1];
@@ -101,7 +80,7 @@ index aff025a..461c51a 100644
  }
  
  String config_directory()
-@@ -545,7 +545,7 @@ void register_options()
+@@ -553,7 +553,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -110,7 +89,7 @@ index aff025a..461c51a 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1296,7 +1296,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
+@@ -1280,7 +1280,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"
