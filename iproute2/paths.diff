@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 7d1819c..1916013 100644
+index 54539ce..5c359ab 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -14,22 +14,22 @@ ifeq ($(VERBOSE),0)
@@ -11,7 +11,7 @@ index 7d1819c..1916013 100644
 +PREFIX?=
 +SBINDIR?=/bin
  CONF_ETC_DIR?=/etc/iproute2
- CONF_USR_DIR?=$(PREFIX)/lib/iproute2
+ CONF_USR_DIR?=$(LIBDIR)/iproute2
 -NETNS_RUN_DIR?=/var/run/netns
 +NETNS_RUN_DIR?=/run/netns
  NETNS_ETC_DIR?=/etc/netns
