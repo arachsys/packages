@@ -2,14 +2,14 @@ require libevent
 
 check() {
   url https://dist.torproject.org/
-  match version 0.4.8.8 'tor-([0-9.]+)\.tar'
+  match version 0.4.8.9 'tor-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dist.torproject.org/tor-0.4.8.8.tar.gz
+  unpack https://dist.torproject.org/tor-0.4.8.9.tar.gz
   apply cosmetic.diff
   apply config.diff
-  tree b81c66a1c762146c756121b3eadc9c724ed655793cc287c63895b94cdae3f158
+  tree 6f18bdce3bdd2ed0761475c99d9248850e61b50a781562f5da62e06d6783ee6a
 }
 
 build() {
