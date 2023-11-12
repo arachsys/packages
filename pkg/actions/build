@@ -67,7 +67,7 @@ helper() {
   setup /pkg "${@:2}"
 
   if enabled force; then
-    trap '(( $? )) && echo "Build failed: starting debug shell" && bash' EXIT
+    trap '(( $? )) && echo "Build failed" && PS1="[build] \\$ " bash' EXIT
   else
     trap '(( $? )) && echo "Build failed"' EXIT
   fi
