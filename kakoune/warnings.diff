@@ -24,8 +24,21 @@ index 0fef525..c13bd0b 100644
              m_range.end = std::max(m_range.end, last.end());
          }
          return m_atoms.insert(pos, beg, end);
+diff --git a/src/input_handler.cc b/src/input_handler.cc
+index 9bc495a..8557fd2 100644
+--- a/src/input_handler.cc
++++ b/src/input_handler.cc
+@@ -1050,7 +1050,7 @@ public:
+             m_idle_timer.set_next_date(Clock::now() + get_idle_timeout(context()));
+     }
+ 
+-    void refresh_ifn()
++    void refresh_ifn() override
+     {
+         bool explicit_completion_selected = m_current_completion != -1 and
+             (not m_prefix_in_completions or m_current_completion != m_completions.candidates.size() - 1);
 diff --git a/src/json.cc b/src/json.cc
-index 3661ac8..35850b7 100644
+index 82fc0f2..7323e2f 100644
 --- a/src/json.cc
 +++ b/src/json.cc
 @@ -20,7 +20,7 @@ String to_json(StringView str)
@@ -46,21 +59,8 @@ index 3661ac8..35850b7 100644
              format_to(buf, "\\u{:04}", hex(*next));
  
          res += buf;
-diff --git a/src/regex_impl.cc b/src/regex_impl.cc
-index a380e7f..21a494a 100644
---- a/src/regex_impl.cc
-+++ b/src/regex_impl.cc
-@@ -44,7 +44,7 @@ struct ParsedRegex
-         NegativeLookBehind,
-     };
- 
--    struct Quantifier
-+    struct [[gnu::packed]] Quantifier
-     {
-         enum Type : char
-         {
 diff --git a/src/terminal_ui.cc b/src/terminal_ui.cc
-index a35d3c7..0d00bca 100644
+index 9919cc9..cbfaaf6 100644
 --- a/src/terminal_ui.cc
 +++ b/src/terminal_ui.cc
 @@ -30,8 +30,8 @@ static String fix_atom_text(StringView str)
