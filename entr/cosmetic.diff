@@ -1,8 +1,8 @@
 diff --git a/entr.c b/entr.c
-index a43a2f3..743cce5 100644
+index 7db2d33..3f976e3 100644
 --- a/entr.c
 +++ b/entr.c
-@@ -164,14 +164,14 @@ main(int argc, char *argv[]) {
+@@ -165,14 +165,14 @@ main(int argc, char *argv[]) {
  	shell = getenv("SHELL");
  	shell_base = strdup(shell);
  	if (shell_base == NULL)
@@ -19,7 +19,7 @@ index a43a2f3..743cce5 100644
  
  	/* expect file list from a pipe */
  	if (isatty(fileno(stdin)))
-@@ -182,9 +182,7 @@ main(int argc, char *argv[]) {
+@@ -183,9 +183,7 @@ main(int argc, char *argv[]) {
  	if (n_files == 0)
  		errx(1, "No regular files to watch");
  	if (n_files == -1)
@@ -30,7 +30,7 @@ index a43a2f3..743cce5 100644
  	for (i=0; i<n_files; i++)
  		watch_file(kq, files[i]);
  
-@@ -193,18 +191,18 @@ main(int argc, char *argv[]) {
+@@ -194,18 +192,18 @@ main(int argc, char *argv[]) {
  		ttyfd = open(_PATH_TTY, O_RDONLY);
  		if (ttyfd > STDIN_FILENO) {
  			if (dup2(ttyfd, STDIN_FILENO) != 0)
@@ -52,7 +52,7 @@ index a43a2f3..743cce5 100644
  	}
  
  	watch_loop(kq, argv+argv_index);
-@@ -215,9 +213,25 @@ main(int argc, char *argv[]) {
+@@ -216,9 +214,25 @@ main(int argc, char *argv[]) {
  
  void
  usage() {
@@ -81,7 +81,7 @@ index a43a2f3..743cce5 100644
  }
  
  void
-@@ -307,7 +321,7 @@ process_input(FILE *file, WatchFile *files[], int max_files) {
+@@ -308,7 +322,7 @@ process_input(FILE *file, WatchFile *files[], int max_files) {
  			continue;
  
  		if (stat(buf, &sb) == -1) {
@@ -90,7 +90,7 @@ index a43a2f3..743cce5 100644
  			continue;
  		}
  		if (S_ISREG(sb.st_mode) != 0) {
-@@ -351,7 +365,7 @@ int list_dir(char *dir) {
+@@ -352,7 +366,7 @@ int list_dir(char *dir) {
  	int count = 0;
  
  	if (dfd == NULL)
@@ -99,7 +99,7 @@ index a43a2f3..743cce5 100644
  	while((dp = readdir(dfd)) != NULL)
  		if ((dirwatch_opt == 2) || (dp->d_name[0] != '.'))
  			count++;
-@@ -456,7 +470,7 @@ run_utility(char *argv[]) {
+@@ -457,7 +471,7 @@ run_utility(char *argv[]) {
  
  	pid = fork();
  	if (pid == -1)
@@ -108,16 +108,16 @@ index a43a2f3..743cce5 100644
  
  	if (pid == 0) {
  		/* 2J - erase the entire display
-@@ -519,7 +533,7 @@ watch_file(int kq, WatchFile *file) {
- 		else break;
- 	}
- 	if (file->fd == -1) {
--		warn("cannot open '%s'", file->fn);
-+		warn("Cannot open '%s'", file->fn);
- 		terminate_utility();
- 		exit(1);
- 	}
-@@ -528,11 +542,9 @@ watch_file(int kq, WatchFile *file) {
+@@ -520,7 +534,7 @@ watch_file(int kq, WatchFile *file) {
+ 			if (i < 10)
+ 				nanosleep(&delay, NULL);
+ 			else {
+-				warn("cannot open '%s'", file->fn);
++				warn("Cannot open '%s'", file->fn);
+ 				terminate_utility();
+ 				exit(1);
+ 			}
+@@ -534,11 +548,9 @@ watch_file(int kq, WatchFile *file) {
  	    file);
  	if (kevent(kq, &evSet, 1, NULL, 0, NULL) == -1) {
  		if (errno == ENOSPC)
@@ -131,7 +131,7 @@ index a43a2f3..743cce5 100644
  	}
  }
  
-@@ -620,7 +632,7 @@ main:
+@@ -626,7 +638,7 @@ main:
  				EV_SET(&evSet, STDIN_FILENO, EVFILT_READ,
  				    EV_DELETE, NOTE_LOWAT, 0, NULL);
  				if (kevent(kq, &evSet, 1, NULL, 0, NULL) == -1)
@@ -140,7 +140,7 @@ index a43a2f3..743cce5 100644
  			}
  			else {
  				if (c == ' ')
-@@ -649,11 +661,11 @@ main:
+@@ -655,11 +667,11 @@ main:
  			EV_SET(&evSet, file->fd, EVFILT_VNODE, EV_DELETE,
  			    NOTE_ALL, 0, file);
  			if (kevent(kq, &evSet, 1, NULL, 0, NULL) == -1)
@@ -154,7 +154,7 @@ index a43a2f3..743cce5 100644
  #endif
  			watch_file(kq, file);
  			collate_only = 1;
-@@ -725,7 +737,7 @@ main:
+@@ -731,7 +743,7 @@ main:
  	}
  	if (dir_modified > 0) {
  		terminate_utility();

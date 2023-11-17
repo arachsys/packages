@@ -1,12 +1,12 @@
 check() {
   url https://github.com/eradman/entr/tags
-  match version 5.4 '([0-9.]+)\.tar'
+  match version 5.5 '([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/eradman/entr/archive/refs/tags/5.4.tar.gz
+  unpack https://github.com/eradman/entr/archive/refs/tags/5.5.tar.gz
   apply cosmetic.diff
-  tree f36f43e82d5100498cfc2641986489527754636b353fd58b66fd2b06ddff8fff
+  tree 11c09a8d269e5aca4646486869fa0959e04b86a3bd816f5ab880de6e4651a47c
 }
 
 build() {
