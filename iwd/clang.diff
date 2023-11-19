@@ -1,8 +1,29 @@
+diff --git a/ell/cert-crypto.c b/ell/cert-crypto.c
+index b19f85c..f2bf1dc 100644
+--- a/ell/cert-crypto.c
++++ b/ell/cert-crypto.c
+@@ -221,8 +221,6 @@ uint8_t *cert_pkcs12_pbkdf(const char *password,
+ 		ptr += s_len + salt_len - j;
+ 	}
+ 
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 	if (p_len) {
+ 		for (j = passwd_len; j < p_len;
+ 					j += passwd_len, ptr += passwd_len)
+@@ -233,7 +231,6 @@ _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 		explicit_bzero(bmpstring, passwd_len);
+ 		l_free(bmpstring);
+ 	}
+-_Pragma("GCC diagnostic pop")
+ 
+ 	key = l_malloc(key_len + hash->len);
+ 
 diff --git a/ell/dbus-filter.c b/ell/dbus-filter.c
-index fd61b7c..b9522b5 100644
+index 7853c2b..d93daf5 100644
 --- a/ell/dbus-filter.c
 +++ b/ell/dbus-filter.c
-@@ -309,8 +309,6 @@ unsigned int _dbus_filter_add_rule(struct _dbus_filter *filter,
+@@ -294,8 +294,6 @@ unsigned int _dbus_filter_add_rule(struct _dbus_filter *filter,
  
  		}
  
@@ -11,7 +32,7 @@ index fd61b7c..b9522b5 100644
  		/*
  		 * Mark the condition used.  We do this by setting
  		 * condition->type to an invalid value unless it is the
-@@ -332,7 +330,6 @@ _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+@@ -317,7 +315,6 @@ _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
  		 * have yet created an AddMatch rule on the server.
  		 */
  		remote_rule |= node->match.remote_rule;
@@ -19,7 +40,7 @@ index fd61b7c..b9522b5 100644
  	}
  
  	node = l_new(struct filter_node, 1);
-@@ -349,11 +346,8 @@ _Pragma("GCC diagnostic pop")
+@@ -334,11 +331,8 @@ _Pragma("GCC diagnostic pop")
  						rule, rule_len))
  			goto err;
  
@@ -32,10 +53,10 @@ index fd61b7c..b9522b5 100644
  
  	return node->id;
 diff --git a/ell/missing.h b/ell/missing.h
-index 11d6a8e..c9755c5 100644
+index b1ee0f1..93abb6f 100644
 --- a/ell/missing.h
 +++ b/ell/missing.h
-@@ -71,9 +71,6 @@ static inline void explicit_bzero(void *s, size_t n)
+@@ -56,9 +56,6 @@ static inline void explicit_bzero(void *s, size_t n)
  #ifndef HAVE_RAWMEMCHR
  static inline void *rawmemchr(const void *s, int c)
  {
@@ -45,36 +66,50 @@ index 11d6a8e..c9755c5 100644
 -_Pragma("GCC diagnostic pop")
  }
  #endif
-diff --git a/src/eap.c b/src/eap.c
-index 6f523f2..a56e497 100644
---- a/src/eap.c
-+++ b/src/eap.c
-@@ -413,11 +413,8 @@ static const char *eap_type_to_str(enum eap_type type, uint32_t vendor_id,
- 	return buf;
- }
- 
+diff --git a/src/band.c b/src/band.c
+index bf40f78..486df6e 100644
+--- a/src/band.c
++++ b/src/band.c
+@@ -1260,10 +1260,7 @@ int band_freq_to_ht_chandef(uint32_t freq, const struct band_freq_attrs *attr,
+ 	 * - 40mhz we can base the selection off the channel flags, either
+ 	 *   higher or lower.
+ 	 */
 -_Pragma("GCC diagnostic push")
 -_Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
- #define IS_EXPANDED_RESPONSE(id, t) \
- 	(type == EAP_TYPE_EXPANDED && vendor_id == (id) && vendor_type == (t))
+ 	switch (width) {
 -_Pragma("GCC diagnostic pop")
+ 	case BAND_CHANDEF_WIDTH_20:
+ 		return 0;
+ 	case BAND_CHANDEF_WIDTH_40:
+diff --git a/src/eap.c b/src/eap.c
+index 4d08f07..1ac119f 100644
+--- a/src/eap.c
++++ b/src/eap.c
+@@ -527,10 +527,7 @@ static void eap_handle_response(struct eap_state *eap, const uint8_t *pkt,
+ 	if (our_type != EAP_TYPE_EXPANDED) {
+ 		if (RESPONSE_IS(our_type))
+ 			goto handle_response;
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 	} else if (IS_EXPANDED_RESPONSE(our_vendor_id, our_vendor_type))
+-_Pragma("GCC diagnostic pop")
+ 		goto handle_response;
  
- #define RESPONSE_IS(t) \
- 	(type == (t) || IS_EXPANDED_RESPONSE(0, (t)))
+ error:
 diff --git a/src/eapol.c b/src/eapol.c
-index e8bd5cd..e155ab4 100644
+index 6fb2f30..fd78a7e 100644
 --- a/src/eapol.c
 +++ b/src/eapol.c
-@@ -1049,7 +1049,7 @@ static void eapol_set_key_timeout(struct eapol_sm *sm,
+@@ -1077,7 +1077,7 @@ static void eapol_set_key_timeout(struct eapol_sm *sm,
   * around this by dropping to O0 for this function when old GCC versions
   * are used
   */
 -#if __GNUC__ < 9
-+#if __GNUC__ < 9 && !defined(__clang__)
++#if __GNUC__ < 9 && !defined (__clang__)
  #pragma GCC optimize ("O0")
  #endif
  
-@@ -1096,7 +1096,7 @@ static void eapol_send_ptk_1_of_4(struct eapol_sm *sm)
+@@ -1133,7 +1133,7 @@ static void eapol_send_ptk_1_of_4(struct eapol_sm *sm)
  	eapol_sm_write(sm, (struct eapol_frame *) ek, false);
  }
  
@@ -83,6 +118,27 @@ index e8bd5cd..e155ab4 100644
  #pragma GCC reset_options
  #endif
  
+diff --git a/src/fils.c b/src/fils.c
+index c333735..d1d46d6 100644
+--- a/src/fils.c
++++ b/src/fils.c
+@@ -572,8 +572,6 @@ static int fils_rx_associate(struct auth_proto *driver, const uint8_t *frame,
+ 	handshake_state_set_pmk(fils->hs, fils->pmk, fils->pmk_len);
+ 	handshake_state_set_pmkid(fils->hs, fils->pmkid);
+ 
+-_Pragma("GCC diagnostic push")
+-_Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 	if (gtk)
+ 		handshake_state_install_gtk(fils->hs, gtk_key_index, gtk,
+ 						gtk_len, key_rsc, 6);
+@@ -581,7 +579,6 @@ _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+ 	if (igtk)
+ 		handshake_state_install_igtk(fils->hs, igtk_key_index,
+ 						igtk + 6, igtk_len - 6, igtk);
+-_Pragma("GCC diagnostic pop")
+ 
+ 	handshake_state_set_ptk(fils->hs, fils->kek_and_tk, fils->kek_len + 16);
+ 	handshake_state_install_ptk(fils->hs);
 diff --git a/src/missing.h b/src/missing.h
 index a5b9295..a65800f 100644
 --- a/src/missing.h
