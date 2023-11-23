@@ -1,0 +1,12 @@
+diff --git a/lib/device/device_id.c b/lib/device/device_id.c
+index 425c0d6..a47b7f1 100644
+--- a/lib/device/device_id.c
++++ b/lib/device/device_id.c
+@@ -28,6 +28,7 @@
+ 
+ #include <sys/stat.h>
+ #include <fcntl.h>
++#include <libgen.h>
+ #include <unistd.h>
+ #include <time.h>
+ #include <sys/types.h>

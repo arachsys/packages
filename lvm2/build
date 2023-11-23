@@ -2,20 +2,21 @@ require libaio
 
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match lvm2 2.03.22 'LVM2\.([0-9.]+)\.tgz'
+  match lvm2 2.03.23 'LVM2\.([0-9.]+)\.tgz'
 }
 
 prepare() {
-  unpack lvm2-2.03.22.tar.gz \
-    https://sourceware.org/ftp/lvm2/LVM2.2.03.22.tgz
+  unpack lvm2-2.03.23.tar.gz \
+    https://sourceware.org/ftp/lvm2/LVM2.2.03.23.tgz
   apply freopen.diff
+  apply musl.diff
   apply static.diff
   apply tidy.diff
-  tree 0bdfbaec4b787a0775df909f2d97122824b7989c27a7d990e9df24560df7112c
+  tree 4a90277cb3de3683aaa1dbcb1bd22c383c3a7211afc552a12170bf04225cccf7
 }
 
 build() {
-  auto-config --enable-dmfilemapd --without-{cache,thin,vdo} \
+  auto-config --enable-dmfilemapd --without-{cache,symvers,thin,vdo} \
     --with-libexecdir=/lib/lvm2 AIO_LIBS='-Wl,-Bstatic -laio -Wl,-Bdynamic'
   sed -i 's:/lib/lvm2/lvresize_fs_helper:/lib/lvm2/lvresize-fs-helper:' \
     include/configure.h
