@@ -1,18 +1,19 @@
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match lvm2 2.03.22 'LVM2\.([0-9.]+)\.tgz'
+  match lvm2 2.03.23 'LVM2\.([0-9.]+)\.tgz'
 }
 
 prepare() {
-  unpack lvm2-2.03.22.tar.gz \
-    https://sourceware.org/ftp/lvm2/LVM2.2.03.22.tgz
+  unpack lvm2-2.03.23.tar.gz \
+    https://sourceware.org/ftp/lvm2/LVM2.2.03.23.tgz
   apply static.diff
   apply tidy.diff
-  tree 202fc4bb44158726ef470149c7dc5029ab134391c43a543573e32f9efedb0f8f
+  tree 54fc6e0dae4d5378cae7572bd9b7489238beeaa2988d58718036c3166ffbd819
 }
 
 build() {
-  auto-config --enable-{static-link,dmfilemapd} --without-{cache,thin,vdo}
+  auto-config --enable-{static-link,dmfilemapd} \
+    --without-{cache,symvers,thin,vdo}
   make device-mapper
   make -C libdm/dm-tools dmsetup dmfilemapd
   install -t /dst/bin -D libdm/dm-tools/{dmsetup,dmfilemapd}
