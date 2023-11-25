@@ -1,16 +1,18 @@
 diff --git a/src/Makefile b/src/Makefile
-index 5661637..7b62a1e 100644
+index 801a2e24..6d5d0c6a 100644
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -86,7 +86,7 @@ CXXFLAGS += -pedantic -std=c++2a -g -Wall -Wextra -Wno-unused-parameter -Wno-sig
+@@ -86,8 +86,8 @@ CXXFLAGS += -pedantic -std=c++2a -g -Wall -Wextra -Wno-unused-parameter -Wno-sig
  compiler := $(shell $(CXX) --version)
  ifneq (,$(findstring clang,$(compiler)))
      CXXFLAGS += -frelaxed-template-template-args -Wno-ambiguous-reversed-operator
 -else ifneq (,$(findstring g++,$(compiler)))
+-    CXXFLAGS += -Wno-init-list-lifetime
 +else ifneq (,$(findstring GCC,$(compiler)))
-     CXXFLAGS += -Wno-init-list-lifetime
++    CXXFLAGS += -Wno-init-list-lifetime -Wno-stringop-overflow
  endif
  
+ all : kak
 diff --git a/src/display_buffer.hh b/src/display_buffer.hh
 index 0fef525..c13bd0b 100644
 --- a/src/display_buffer.hh

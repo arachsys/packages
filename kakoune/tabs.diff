@@ -1,8 +1,17 @@
 diff --git a/rc/filetype/c-family.kak b/rc/filetype/c-family.kak
-index b56cc07..e55f008 100644
+index 0677b11..6b2486a 100644
 --- a/rc/filetype/c-family.kak
 +++ b/rc/filetype/c-family.kak
-@@ -212,7 +212,7 @@ evaluate-commands %sh{
+@@ -204,7 +204,7 @@ evaluate-commands %sh{
+             maybe_at=''
+         fi
+ 
+-        cat <<-EOF
++        cat <<EOF
+             add-highlighter shared/$ft regions
+             add-highlighter shared/$ft/code default-region group
+             add-highlighter shared/$ft/string region %{$maybe_at(?<!')(?<!'\\\\)"} %{(?<!\\\\)(?:\\\\\\\\)*"} fill string
+@@ -218,7 +218,7 @@ evaluate-commands %sh{
              add-highlighter shared/$ft/macro/ regex ^\\h*(#\\h*\\S*) 1:meta
              add-highlighter shared/$ft/macro/ regex ^\\h*#\\h*include\\h+(<[^>]*>|"(?:[^"\\\\]|\\\\.)*") 1:module
              add-highlighter shared/$ft/macro/ regex /\\*.*?\\*/ 0:comment
@@ -12,15 +21,15 @@ index b56cc07..e55f008 100644
  }
  
 diff --git a/rc/tools/git.kak b/rc/tools/git.kak
-index d8e7ef8..585999f 100644
+index 6bf1e00..cca44ba 100644
 --- a/rc/tools/git.kak
 +++ b/rc/tools/git.kak
-@@ -286,16 +286,14 @@ define-command -params 1.. \
+@@ -303,16 +303,14 @@ define-command -params 1.. \
  
      commit() {
          # Handle case where message needs not to be edited
 -        if grep -E -q -e "-m|-F|-C|--message=.*|--file=.*|--reuse-message=.*|--no-edit|--fixup.*|--squash.*"; then
-+        if printf '%s\n' "$@" | grep -E -q -e "-m|-F|-C|--message=.*|--file=.*|--reuse-message=.*|--no-edit|--fixup.*|--squash.*"; then
++        if grep -E -q -e "-m|-F|-C|--message=.*|--file=.*|--reuse-message=.*|--no-edit|--fixup.*|--squash.*" <<< "$@"; then
              if git commit "$@" > /dev/null 2>&1; then
                  echo 'echo -markup "{Information}Commit succeeded"'
              else
@@ -34,3 +43,18 @@ index d8e7ef8..585999f 100644
  
          # fails, and generate COMMIT_EDITMSG
          GIT_EDITOR='' EDITOR='' git commit "$@" > /dev/null 2>&1
+diff --git a/rc/tools/patch.kak b/rc/tools/patch.kak
+index c04daaf..9da1bdc 100644
+--- a/rc/tools/patch.kak
++++ b/rc/tools/patch.kak
+@@ -43,9 +43,7 @@ define-command patch -params .. -docstring %{
+             set-register e nop
+             set-register | %{
+                 # The selected range to apply.
+-                IFS=' .,' read min_line _ max_line _ <<-EOF
+-                $kak_reg_s
+-		EOF
++                IFS=' .,' read min_line _ max_line _ <<< "$kak_reg_s"
+                 min_line=$((min_line - kak_cursor_line + 1))
+                 max_line=$((max_line - kak_cursor_line + 1))
+ 
