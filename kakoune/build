@@ -14,12 +14,13 @@ prepare() {
   apply news.diff
   apply palette.diff
   apply paths.diff
+  apply replace.diff
   apply sync.diff
   apply tabs.diff
   apply warnings.diff
   apply windowing.diff
   find -xtype l -delete
-  tree 4c52bc1853ea7825c0838c906845dff0b4dfc8b091b06218b807b0044306d583
+  tree e2073b5151543eb21cef29478b57900c9bde4b79af71f3d6ce35f84398adeff2
 }
 
 build() {
