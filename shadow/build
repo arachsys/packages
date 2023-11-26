@@ -8,10 +8,9 @@ check() {
 prepare() {
   unpack https://github.com/shadow-maint/shadow/releases/download/4.14.2/shadow-4.14.2.tar.xz
   apply bcrypt.diff
-  apply idmap.diff
   apply nss.diff
   apply paths.diff
-  tree f48f8110080b9ae066459a4b12b5eaf885f90fdf676d74d61a7b7111e45fcd28
+  tree f0ca13c09aef3cd6464d2d5274360923ea876b6bf241a59669ed8aa70eb5c57a
 }
 
 build() {
