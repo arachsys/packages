@@ -16,6 +16,6 @@ build() {
     mandir=/lib/man template_dir=/lib/git/templates \
     CURL_LDFLAGS=-lcurl NO_{EXPAT,GETTEXT,PERL,PYTHON,REGEX,TCLTK}=1
   grep -l -r -F -Z 'fatal: git was built without support for' /dst \
-    | xargs -0 rm --
-  find /dst/lib/git/templates -name '*.sample' -delete
+    | xargs -r -0 rm --
+  rm -r /dst/lib/git/templates
 }
