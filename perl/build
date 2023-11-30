@@ -1,11 +1,11 @@
 check() {
   url http://www.cpan.org/src/5.0/
-  match version 5.38.1 'perl-(5.[0-9]*[02468].[0-9.]+)\.tar'
+  match version 5.38.2 'perl-(5.[0-9]*[02468].[0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack http://www.cpan.org/src/5.0/perl-5.38.1.tar.xz
-  tree a0cff95fc8e059c1d1d61ff1997b694c8f3f700b2d7f7e1e273eb5d3e3070f87
+  unpack http://www.cpan.org/src/5.0/perl-5.38.2.tar.xz
+  tree 563dc34c69bd7e0268e7bc532788893bff0dbeac91e1517669c113841b2c1a89
 }
 
 build() {
