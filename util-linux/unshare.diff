@@ -1,5 +1,5 @@
 diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
-index 6222c1421..99f363faa 100644
+index 6222c1421..f92065ac6 100644
 --- a/sys-utils/unshare.c
 +++ b/sys-utils/unshare.c
 @@ -364,6 +364,7 @@ static gid_t get_group(const char *s, const char *err)
@@ -92,7 +92,7 @@ index 6222c1421..99f363faa 100644
  
  		fclose(idmap);
  		free(pw);
-@@ -472,128 +480,200 @@ static struct map_range *read_subid_range(char *filename, uid_t uid)
+@@ -472,128 +480,201 @@ static struct map_range *read_subid_range(char *filename, uid_t uid)
  }
  
  /**
@@ -163,13 +163,14 @@ index 6222c1421..99f363faa 100644
 +		unsigned int inner_offset, outer_offset;
 +
 +		/*
-+		 * Start inner IDs from zero for an auto mapping; otherwise, if the two
-+		 * fixed mappings overlap, remove an ID from map
++		 * Start inner IDs from zero for an auto mapping; otherwise, if
++		 * the single mapping exists and overlaps the range, remove an ID
 +		 */
 +		if (map->inner + 1 == 0)
 +			map->inner = 0;
-+		else if ((outer >= map->outer && outer <= map->outer + map->count) ||
-+			 (inner >= map->inner && inner <= map->inner + map->count))
++		else if (inner + 1 != 0 &&
++		         ((outer >= map->outer && outer <= map->outer + map->count) ||
++			  (inner >= map->inner && inner <= map->inner + map->count)))
 +			map->count--;
 +
 +		/* Determine where the splits between lo, mid, and hi will be */
@@ -399,23 +400,27 @@ index 6222c1421..99f363faa 100644
  /**
   * map_ids_from_child() - Set up a new uid/gid map
   * @fd: The eventfd to wait on
-@@ -619,6 +699,15 @@ static pid_t map_ids_from_child(int *fd, uid_t mapuser,
+@@ -619,6 +700,19 @@ static pid_t map_ids_from_child(int *fd, uid_t mapuser,
  	if (child)
  		return child;
  
-+	add_single_map_range(&usermap, geteuid(), mapuser);
-+	add_single_map_range(&groupmap, getegid(), mapgroup);
++	if (usermap)
++		add_single_map_range(&usermap, geteuid(), mapuser);
++	if (groupmap)
++		add_single_map_range(&groupmap, getegid(), mapgroup);
 +
 +	if (geteuid() == 0) {
-+		map_ids_internal("uid_map", ppid, usermap);
-+		map_ids_internal("gid_map", ppid, groupmap);
++		if (usermap)
++			map_ids_internal("uid_map", ppid, usermap);
++		if (groupmap)
++			map_ids_internal("gid_map", ppid, groupmap);
 +		exit(EXIT_SUCCESS);
 +	}
 +
  	/* Avoid forking more than we need to */
  	if (usermap && groupmap) {
  		pid = fork();
-@@ -629,9 +718,9 @@ static pid_t map_ids_from_child(int *fd, uid_t mapuser,
+@@ -629,9 +723,9 @@ static pid_t map_ids_from_child(int *fd, uid_t mapuser,
  	}
  
  	if (!pid && usermap)
@@ -427,7 +432,7 @@ index 6222c1421..99f363faa 100644
  	exit(EXIT_SUCCESS);
  }
  
-@@ -844,21 +933,27 @@ int main(int argc, char *argv[])
+@@ -844,21 +938,27 @@ int main(int argc, char *argv[])
  		case OPT_MAPUSERS:
  			unshare_flags |= CLONE_NEWUSER;
  			if (!strcmp(optarg, "auto"))
