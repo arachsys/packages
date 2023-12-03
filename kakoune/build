@@ -4,8 +4,8 @@ check() {
 }
 
 prepare() {
-   unpack kakoune-2023.11.23.tar.gz \
-     https://github.com/mawww/kakoune/archive/990e92a5.tar.gz
+   unpack kakoune-2023.12.02.tar.gz \
+     https://github.com/mawww/kakoune/archive/84ecd41d.tar.gz
   apply balance.diff
   apply gawk.diff
   apply hide.diff
@@ -14,13 +14,11 @@ prepare() {
   apply news.diff
   apply palette.diff
   apply paths.diff
-  apply replace.diff
-  apply sync.diff
   apply tabs.diff
   apply warnings.diff
   apply windowing.diff
   find -xtype l -delete
-  tree e2073b5151543eb21cef29478b57900c9bde4b79af71f3d6ce35f84398adeff2
+  tree daeaa207bdde4b555d9f76059d18248b7a86359e32d6e46a841ad81fa884b022
 }
 
 build() {
@@ -32,7 +30,7 @@ build() {
     fi
   fi
 
-  make install CXX=c++ DESTDIR=/dst PREFIX= version=2023.11.23 $LIBS
+  make install CXX=c++ DESTDIR=/dst PREFIX= version=2023.12.02 $LIBS
   find /dst/lib/kak/{colors,kakrc,rc} -type f | while read FILE; do
     sed -E -e 's/rgb:[[:xdigit:]]{2}{3,4}/\L&/g' -e '/^\s*#/d' \
         -e "s/^(([^'\"#]*|'[^']*'|\"([^\"\\]|\\\\.)*\")*)\\s+#\\s.*/\\1/" \
