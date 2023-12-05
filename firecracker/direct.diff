@@ -1,5 +1,5 @@
 diff --git a/src/vmm/src/devices/virtio/block/device.rs b/src/vmm/src/devices/virtio/block/device.rs
-index daf7ecf..5500673 100644
+index 43b7706..fc9e24e 100644
 --- a/src/vmm/src/devices/virtio/block/device.rs
 +++ b/src/vmm/src/devices/virtio/block/device.rs
 @@ -10,6 +10,7 @@ use std::convert::From;
@@ -18,7 +18,21 @@ index daf7ecf..5500673 100644
      file_path: String,
      file_engine: FileEngine<PendingRequest>,
      nsectors: u64,
-@@ -87,12 +89,15 @@ impl DiskProperties {
+@@ -85,10 +87,12 @@ pub(crate) struct DiskProperties {
+ 
+ impl DiskProperties {
+     // Helper function that opens the file with the proper access permissions
+-    fn open_file(disk_image_path: &str, is_disk_read_only: bool) -> Result<File, BlockError> {
++    fn open_file(disk_image_path: &str, is_disk_read_only: bool, is_disk_direct_io: bool) -> Result<File, BlockError> {
++        let custom_flags = if is_disk_direct_io { libc::O_DIRECT } else { 0 };
+         OpenOptions::new()
+             .read(true)
+             .write(!is_disk_read_only)
++            .custom_flags(custom_flags)
+             .open(PathBuf::from(&disk_image_path))
+             .map_err(|x| BlockError::BackingFile(x, disk_image_path.to_string()))
+     }
+@@ -116,14 +120,16 @@ impl DiskProperties {
      pub fn new(
          disk_image_path: String,
          is_disk_read_only: bool,
@@ -26,15 +40,9 @@ index daf7ecf..5500673 100644
          cache_type: CacheType,
          file_engine_type: FileEngineType,
      ) -> Result<Self, BlockError> {
-+        let custom_flags = if is_disk_direct_io { libc::O_DIRECT } else { 0 };
-         let mut disk_image = OpenOptions::new()
-             .read(true)
-             .write(!is_disk_read_only)
-+            .custom_flags(custom_flags)
-             .open(PathBuf::from(&disk_image_path))
-             .map_err(|x| BlockError::BackingFile(x, disk_image_path.clone()))?;
-         let disk_size = disk_image
-@@ -111,6 +116,7 @@ impl DiskProperties {
+-        let mut disk_image = Self::open_file(&disk_image_path, is_disk_read_only)?;
++        let mut disk_image = Self::open_file(&disk_image_path, is_disk_read_only, is_disk_direct_io)?;
+         let disk_size = Self::file_size(&disk_image_path, &mut disk_image)?;
  
          Ok(Self {
              cache_type,
@@ -42,7 +50,18 @@ index daf7ecf..5500673 100644
              nsectors: disk_size >> SECTOR_SHIFT,
              image_id: Self::build_disk_image_id(&disk_image),
              file_path: disk_image_path,
-@@ -241,12 +247,14 @@ impl Block {
+@@ -137,8 +143,9 @@ impl DiskProperties {
+         &mut self,
+         disk_image_path: String,
+         is_disk_read_only: bool,
++        is_disk_direct_io: bool,
+     ) -> Result<(), BlockError> {
+-        let mut disk_image = Self::open_file(&disk_image_path, is_disk_read_only)?;
++        let mut disk_image = Self::open_file(&disk_image_path, is_disk_read_only, is_disk_direct_io)?;
+         let disk_size = Self::file_size(&disk_image_path, &mut disk_image)?;
+ 
+         self.image_id = Self::build_disk_image_id(&disk_image);
+@@ -273,12 +280,14 @@ impl Block {
          disk_image_path: String,
          is_disk_read_only: bool,
          is_disk_root: bool,
@@ -57,15 +76,16 @@ index daf7ecf..5500673 100644
              cache_type,
              file_engine_type,
          )?;
-@@ -456,6 +464,7 @@ impl Block {
-         let disk_properties = DiskProperties::new(
-             disk_image_path,
-             self.is_read_only(),
-+            self.is_direct_io(),
-             self.cache_type(),
-             self.file_engine_type(),
-         )?;
-@@ -494,6 +503,11 @@ impl Block {
+@@ -485,7 +494,7 @@ impl Block {
+ 
+     /// Update the backing file and the config space of the block device.
+     pub fn update_disk_image(&mut self, disk_image_path: String) -> Result<(), BlockError> {
+-        self.disk.update(disk_image_path, self.is_read_only())?;
++        self.disk.update(disk_image_path, self.is_read_only(), self.is_direct_io())?;
+         self.config_space = self.disk.virtio_block_config_space();
+ 
+         // Kick the driver to pick up the changes.
+@@ -520,6 +529,11 @@ impl Block {
          self.avail_features & (1u64 << VIRTIO_BLK_F_RO) != 0
      }
  
@@ -78,7 +98,7 @@ index daf7ecf..5500673 100644
      pub fn is_root_device(&self) -> bool {
          self.root_device
 diff --git a/src/vmm/src/devices/virtio/block/persist.rs b/src/vmm/src/devices/virtio/block/persist.rs
-index b3f1b29..f9ee51a 100644
+index b3f1b29..e4208ca 100644
 --- a/src/vmm/src/devices/virtio/block/persist.rs
 +++ b/src/vmm/src/devices/virtio/block/persist.rs
 @@ -103,6 +103,8 @@ pub struct BlockState {
@@ -155,7 +175,7 @@ index c433dde..b345923 100644
          // v1.4 state change mappings.
          version_map.new_version().set_type_version(DeviceStates::type_id(), 4);
 diff --git a/src/vmm/src/vmm_config/drive.rs b/src/vmm/src/vmm_config/drive.rs
-index f3a9883..ad7a6b5 100644
+index f3a9883..16c6ae4 100644
 --- a/src/vmm/src/vmm_config/drive.rs
 +++ b/src/vmm/src/vmm_config/drive.rs
 @@ -60,6 +60,9 @@ pub struct BlockDeviceConfig {

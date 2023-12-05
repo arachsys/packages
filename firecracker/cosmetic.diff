@@ -24,19 +24,19 @@ index aba3984..442a149 100644
              }
          }
 diff --git a/src/firecracker/src/api_server_adapter.rs b/src/firecracker/src/api_server_adapter.rs
-index 7a53246..b9679cc 100644
+index f529bb6..c331837 100644
 --- a/src/firecracker/src/api_server_adapter.rs
 +++ b/src/firecracker/src/api_server_adapter.rs
-@@ -26,7 +26,7 @@ pub enum ApiServerError {
-     MicroVMStoppedWithoutError(FcExitCode),
-     /// MicroVMStopped with an error: {0:?}
+@@ -27,7 +27,7 @@ pub enum ApiServerError {
+     BuildMicroVmError(BuildMicrovmFromRequestsError),
+     /// MicroVM stopped with an error: {0:?}
      MicroVMStoppedWithError(FcExitCode),
 -    /// Failed to open the API socket at: {0}. Check that it is not already used.
 +    /// Failed to open the API socket '{0}'. Is it already in use?
      FailedToBindSocket(String),
      /// Failed to bind and run the HTTP server: {0}
      FailedToBindAndRunHttpServer(ServerError),
-@@ -144,7 +144,7 @@ pub(crate) fn run_with_api(
+@@ -149,7 +149,7 @@ pub(crate) fn run_with_api(
      // FD to notify of API events. This is a blocking eventfd by design.
      // It is used in the config/pre-boot loop which is a simple blocking loop
      // which only consumes API events.
@@ -46,7 +46,7 @@ index 7a53246..b9679cc 100644
      let api_kill_switch = EventFd::new(libc::EFD_NONBLOCK).expect("Cannot create API kill switch.");
  
 diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
-index cf95ff1..b195527 100644
+index efdc31d..72fb110 100644
 --- a/src/firecracker/src/main.rs
 +++ b/src/firecracker/src/main.rs
 @@ -46,23 +46,23 @@ enum MainError {
@@ -79,42 +79,7 @@ index cf95ff1..b195527 100644
      RunWithoutApiError(RunWithoutApiError),
  }
  
-@@ -76,26 +76,21 @@ enum ResizeFdTableError {
-     Close(io::Error),
- }
- 
--impl From<MainError> for ExitCode {
--    fn from(value: MainError) -> Self {
--        let exit_code = match value {
-+fn main() -> ExitCode {
-+    let result = main_exec();
-+    if let Err(err) = result {
-+        let exit_code = match err {
-             MainError::ParseArguments(_) => FcExitCode::ArgParsing,
-             MainError::InvalidLogLevel(_) => FcExitCode::BadConfiguration,
-             MainError::RunWithApi(ApiServerError::MicroVMStoppedWithoutError(code)) => code,
-             MainError::RunWithApi(ApiServerError::MicroVMStoppedWithError(code)) => code,
-+            MainError::RunWithoutApiError(RunWithoutApiError::Shutdown(code)) => code,
-             _ => FcExitCode::GenericError,
-         };
--
-+        if exit_code != FcExitCode::Ok {
-+            error!("{err}");
-+        }
-         ExitCode::from(exit_code as u8)
--    }
--}
--
--fn main() -> ExitCode {
--    let result = main_exec();
--    if let Err(err) = result {
--        error!("{err}");
--        eprintln!("Error: {err:?}");
--        ExitCode::from(err)
-     } else {
-         ExitCode::SUCCESS
-     }
-@@ -139,51 +134,45 @@ fn main_exec() -> Result<(), MainError> {
+@@ -140,51 +140,45 @@ fn main_exec() -> Result<(), MainError> {
                  Argument::new("api-sock")
                      .takes_value(true)
                      .default_value(DEFAULT_API_SOCK_PATH)
@@ -175,7 +140,7 @@ index cf95ff1..b195527 100644
                  ),
              )
              .arg(
-@@ -191,69 +180,67 @@ fn main_exec() -> Result<(), MainError> {
+@@ -192,69 +186,67 @@ fn main_exec() -> Result<(), MainError> {
                      .takes_value(false)
                      .requires("config-file")
                      .help(
@@ -259,7 +224,7 @@ index cf95ff1..b195527 100644
          print_supported_snapshot_versions();
          return Ok(());
      }
-@@ -515,9 +502,9 @@ fn print_supported_snapshot_versions() {
+@@ -516,9 +508,9 @@ fn print_supported_snapshot_versions() {
          .collect();
      versions.sort();
  
@@ -271,7 +236,7 @@ index cf95ff1..b195527 100644
      }
  }
  
-@@ -525,9 +512,9 @@ fn print_supported_snapshot_versions() {
+@@ -526,9 +518,9 @@ fn print_supported_snapshot_versions() {
  enum SnapshotVersionError {
      /// Unable to open snapshot state file: {0}
      OpenSnapshot(io::Error),
@@ -283,7 +248,7 @@ index cf95ff1..b195527 100644
      FirecrackerVersion(u16),
  }
  
-@@ -550,9 +537,9 @@ fn print_snapshot_data_format(snapshot_path: &str) -> Result<(), SnapshotVersion
+@@ -551,9 +543,9 @@ fn print_snapshot_data_format(snapshot_path: &str) -> Result<(), SnapshotVersion
  
  #[derive(Debug, thiserror::Error, displaydoc::Display)]
  pub enum BuildFromJsonError {
@@ -295,7 +260,7 @@ index cf95ff1..b195527 100644
      StartMicroVM(StartMicrovmError),
  }
  
-@@ -578,16 +565,16 @@ fn build_microvm_from_json(
+@@ -579,16 +571,16 @@ fn build_microvm_from_json(
      )
      .map_err(BuildFromJsonError::StartMicroVM)?;
  
@@ -492,26 +457,26 @@ index 127b44a..76a37a7 100644
                          }
                      }
 diff --git a/src/vmm/src/devices/virtio/block/io/async_io.rs b/src/vmm/src/devices/virtio/block/io/async_io.rs
-index 5e4caaf..4676575 100644
+index 5790ea6..32d3bb9 100644
 --- a/src/vmm/src/devices/virtio/block/io/async_io.rs
 +++ b/src/vmm/src/devices/virtio/block/io/async_io.rs
-@@ -14,7 +14,6 @@ use crate::devices::virtio::block::IO_URING_NUM_ENTRIES;
+@@ -15,7 +15,6 @@ use crate::devices::virtio::block::IO_URING_NUM_ENTRIES;
  use crate::io_uring::operation::{Cqe, OpCode, Operation};
  use crate::io_uring::restriction::Restriction;
- use crate::io_uring::{IoUring, IoUringError};
+ use crate::io_uring::{self, IoUring, IoUringError};
 -use crate::logger::log_dev_preview_warning;
  
  #[derive(Debug)]
  pub enum AsyncIoError {
-@@ -66,8 +65,6 @@ impl<T: Debug> WrappedUserData<T> {
+@@ -83,8 +82,6 @@ impl<T: Debug> AsyncFileEngine<T> {
+     }
  
- impl<T: Debug> AsyncFileEngine<T> {
      pub fn from_file(file: File) -> Result<AsyncFileEngine<T>, AsyncIoError> {
 -        log_dev_preview_warning("Async file IO", Option::None);
 -
          let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(AsyncIoError::EventFd)?;
-         let ring = IoUring::new(
-             u32::from(IO_URING_NUM_ENTRIES),
+         let ring =
+             Self::new_ring(&file, completion_evt.as_raw_fd()).map_err(AsyncIoError::IoUring)?;
 diff --git a/src/vmm/src/devices/virtio/net/tap.rs b/src/vmm/src/devices/virtio/net/tap.rs
 index 3d59c0f..70882b4 100644
 --- a/src/vmm/src/devices/virtio/net/tap.rs
@@ -526,7 +491,7 @@ index 3d59c0f..70882b4 100644
      /// Error while setting the offload flags: {0}
      SetOffloadFlags(IoError),
 diff --git a/src/vmm/src/lib.rs b/src/vmm/src/lib.rs
-index 3aec20f..d61913f 100644
+index e67b318..b35939a 100644
 --- a/src/vmm/src/lib.rs
 +++ b/src/vmm/src/lib.rs
 @@ -209,11 +209,11 @@ pub enum VmmError {
@@ -611,16 +576,9 @@ index 3aec20f..d61913f 100644
          }
      }
  }
-@@ -915,19 +915,19 @@ impl MutEventSubscriber for Vmm {
-                     Ok(_response) => {} // Don't care about these, we are exiting.
-                     Err(TryRecvError::Empty) => {} // Nothing pending in channel
-                     Err(err) => {
--                        panic!("Error while looking for VCPU exit status: {}", err);
-+                        panic!("Error while looking for vCPU exit status: {}", err);
-                     }
-                 }
-             }
-             self.stop(exit_code.unwrap_or(FcExitCode::Ok));
+@@ -925,13 +925,13 @@ impl MutEventSubscriber for Vmm {
+             };
+             self.stop(exit_code);
          } else {
 -            error!("Spurious EventManager event for handler: Vmm");
 +            error!("Spurious EventManager event for handler: VMM");
@@ -738,6 +696,19 @@ index 27230a3..54d6c93 100644
      StatsNotFound,
      /// Error creating the balloon device: {0:?}
      CreateFailure(crate::devices::virtio::balloon::BalloonError),
+diff --git a/src/vmm/src/vmm_config/net.rs b/src/vmm/src/vmm_config/net.rs
+index 00dcc53..5c2e387 100644
+--- a/src/vmm/src/vmm_config/net.rs
++++ b/src/vmm/src/vmm_config/net.rs
+@@ -84,7 +84,7 @@ impl NetBuilder {
+     /// Creates an empty list of Network Devices.
+     pub fn new() -> Self {
+         NetBuilder {
+-            /// List of built network devices.
++            // List of built network devices.
+             net_devices: Vec::new(),
+         }
+     }
 diff --git a/src/vmm/src/vstate/vcpu/aarch64.rs b/src/vmm/src/vstate/vcpu/aarch64.rs
 index 052371e..b01c448 100644
 --- a/src/vmm/src/vstate/vcpu/aarch64.rs

@@ -1,8 +1,8 @@
 diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
-index 0c7bc35..ae1b7fd 100644
+index 72fb110..28be78c 100644
 --- a/src/firecracker/src/main.rs
 +++ b/src/firecracker/src/main.rs
-@@ -195,6 +195,11 @@ fn main_exec() -> Result<(), MainError> {
+@@ -200,6 +200,11 @@ fn main_exec() -> Result<(), MainError> {
                      .default_value("Warning")
                      .help("Log level"),
              )
@@ -14,7 +14,7 @@ index 0c7bc35..ae1b7fd 100644
              .arg(
                  Argument::new("show-level")
                      .takes_value(false)
-@@ -203,6 +208,16 @@ fn main_exec() -> Result<(), MainError> {
+@@ -208,6 +213,16 @@ fn main_exec() -> Result<(), MainError> {
              .arg(Argument::new("show-log-origin").takes_value(false).help(
                  "Include file and line number in logs",
              ))
@@ -31,15 +31,7 @@ index 0c7bc35..ae1b7fd 100644
              .arg(
                  Argument::new("metrics-path")
                      .takes_value(true)
-@@ -287,7 +302,6 @@ fn main_exec() -> Result<(), MainError> {
- 
-     let id = arguments.single_value("id").map(|s| s.as_str()).unwrap();
-     vmm::logger::INSTANCE_ID.set(String::from(id)).unwrap();
--    info!("Running Firecracker v{FIRECRACKER_VERSION}");
- 
-     // Apply the logger configuration.
-     let log_path = arguments.single_value("log-path").map(PathBuf::from);
-@@ -296,16 +310,23 @@ fn main_exec() -> Result<(), MainError> {
+@@ -270,12 +285,18 @@ fn main_exec() -> Result<(), MainError> {
          .map(|s| vmm::logger::LevelFilter::from_str(s))
          .transpose()
          .map_err(MainError::InvalidLogLevel)?;
@@ -47,8 +39,7 @@ index 0c7bc35..ae1b7fd 100644
 +    let show_instance_id = arguments.flag_present("show-instance-id").then_some(true);
 +    let show_thread_name = arguments.flag_present("show-thread-name").then_some(true);
      let show_level = arguments.flag_present("show-level").then_some(true);
--    let show_log_origin = arguments.flag_present("show-level").then_some(true);
-+    let show_log_origin = arguments.flag_present("show-log-origin").then_some(true);
+     let show_log_origin = arguments.flag_present("show-log-origin").then_some(true);
      LOGGER
          .update(LoggerConfig {
              log_path,
@@ -59,13 +50,8 @@ index 0c7bc35..ae1b7fd 100644
              show_level,
              show_log_origin,
          })
-         .map_err(MainError::LoggerInitialization)?;
-+    info!("Running Firecracker v{FIRECRACKER_VERSION}");
- 
-     if let Some(metrics_path) = arguments.single_value("metrics-path") {
-         let metrics_config = MetricsConfig {
 diff --git a/src/vmm/src/logger/logging.rs b/src/vmm/src/logger/logging.rs
-index fb9a27e..58abf79 100644
+index 32e5fd7..cd13554 100644
 --- a/src/vmm/src/logger/logging.rs
 +++ b/src/vmm/src/logger/logging.rs
 @@ -17,7 +17,7 @@ use super::metrics::{IncMetric, METRICS};
@@ -77,7 +63,7 @@ index fb9a27e..58abf79 100644
  /// Default instance id.
  pub const DEFAULT_INSTANCE_ID: &str = "anonymous-instance";
  /// Instance id.
-@@ -31,6 +31,9 @@ const FIRECRACKER_VERSION: &str = env!("CARGO_PKG_VERSION");
+@@ -29,6 +29,9 @@ pub static INSTANCE_ID: OnceLock<String> = OnceLock::new();
  pub static LOGGER: Logger = Logger(Mutex::new(LoggerConfiguration {
      target: None,
      format: LogFormat {
@@ -87,8 +73,8 @@ index fb9a27e..58abf79 100644
          show_level: false,
          show_log_origin: false,
      },
-@@ -76,6 +79,18 @@ impl Logger {
-             false
+@@ -71,6 +74,18 @@ impl Logger {
+             guard.target = Some(file);
          };
  
 +        if let Some(show_timestamp) = config.show_timestamp {
@@ -106,7 +92,7 @@ index fb9a27e..58abf79 100644
          if let Some(show_level) = config.show_level {
              guard.format.show_level = show_level;
          }
-@@ -99,6 +114,9 @@ impl Logger {
+@@ -89,6 +104,9 @@ impl Logger {
  
  #[derive(Debug)]
  pub struct LogFormat {
@@ -116,7 +102,7 @@ index fb9a27e..58abf79 100644
      pub show_level: bool,
      pub show_log_origin: bool,
  }
-@@ -122,33 +140,50 @@ impl Log for Logger {
+@@ -112,33 +130,50 @@ impl Log for Logger {
  
          // Prints log message
          {
@@ -189,7 +175,7 @@ index fb9a27e..58abf79 100644
  
              let result = if let Some(file) = &mut guard.target {
                  file.write_all(message.as_bytes())
-@@ -178,6 +213,12 @@ pub struct LoggerConfig {
+@@ -168,6 +203,12 @@ pub struct LoggerConfig {
      pub log_path: Option<PathBuf>,
      /// The level of the Logger.
      pub level: Option<LevelFilter>,
