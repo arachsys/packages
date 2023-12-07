@@ -63,7 +63,11 @@ helper() {
   }
 
   url() {
-    exec < <(curl -f -m 30 -s -L -- "$1" || die "$PKGNAME: failed to get $1")
+    exec < <(
+      if ! curl -f -m 30 -s -L -- "$1"; then
+        die "$PKGNAME: failed to get $1"
+      fi
+    )
   }
 
   cd /pkg
