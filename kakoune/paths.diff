@@ -12,18 +12,18 @@ index 30cbdbd..d4c49ba 100644
      `%/` represents the current buffer directory
  
 diff --git a/rc/tools/man.kak b/rc/tools/man.kak
-index 2420735..4228309 100644
+index 949af56..9dd70de 100644
 --- a/rc/tools/man.kak
 +++ b/rc/tools/man.kak
 @@ -63,7 +63,7 @@ define-command -hidden -params ..3 man-impl %{ evaluate-commands %sh{
  
  define-command -params ..1 \
      -shell-script-candidates %{
--        find /usr/share/man/ $(printf %s "${MANPATH}" | sed 's/:/ /') -name '*.[1-8]*' | sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),'
-+        find /lib/man/ $(printf %s "${MANPATH}" | sed 's/:/ /') -name '*.[1-8]*' | sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),'
-     } \
-     -docstring %{
-         man [<page>]: manpage viewer wrapper
+-        find /usr/share/man/ $(printf %s "${MANPATH}" |
++        find /lib/man/ $(printf %s "${MANPATH}" |
+             sed 's/:/ /') -name '*.[1-8]*' |
+             sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),' |
+             sort
 diff --git a/share/kak/kakrc b/share/kak/kakrc
 index c421892..fbb4c8b 100644
 --- a/share/kak/kakrc
@@ -43,7 +43,7 @@ index c421892..fbb4c8b 100644
      fi
  }
 diff --git a/src/Makefile b/src/Makefile
-index 801a2e2..5661637 100644
+index bb0f32e..cb5437c 100644
 --- a/src/Makefile
 +++ b/src/Makefile
 @@ -52,10 +52,10 @@ PREFIX ?= /usr/local
@@ -62,10 +62,10 @@ index 801a2e2..5661637 100644
  os := $(shell uname)
  
 diff --git a/src/main.cc b/src/main.cc
-index 5cfbe3f..8e53120 100644
+index d8f75dc..acfed4b 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -192,12 +192,12 @@ String runtime_directory()
+@@ -196,12 +196,12 @@ String runtime_directory()
          return runtime_directory;
  
      char relpath[PATH_MAX+1];
@@ -80,7 +80,7 @@ index 5cfbe3f..8e53120 100644
  }
  
  String config_directory()
-@@ -553,7 +553,7 @@ void register_options()
+@@ -557,7 +557,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -89,7 +89,7 @@ index 5cfbe3f..8e53120 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1280,7 +1280,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
+@@ -1284,7 +1284,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"
@@ -99,10 +99,10 @@ index 5cfbe3f..8e53120 100644
  .ascii "import kakoune\n"
  .ascii "gdb.printing.register_pretty_printer(gdb.current_objfile(), kakoune.build_pretty_printer())\n\0"
 diff --git a/src/shell_manager.cc b/src/shell_manager.cc
-index 62a60dc..1031dae 100644
+index e505fde..e790312 100644
 --- a/src/shell_manager.cc
 +++ b/src/shell_manager.cc
-@@ -21,6 +21,7 @@
+@@ -22,6 +22,7 @@
  #include <fcntl.h>
  #include <cstdlib>
  #include <errno.h>
@@ -110,7 +110,7 @@ index 62a60dc..1031dae 100644
  
  #if defined(__CYGWIN__)
  #define vfork fork
-@@ -45,21 +46,39 @@ ShellManager::ShellManager(ConstArrayView<EnvVarDesc> builtin_env_vars)
+@@ -46,21 +47,39 @@ ShellManager::ShellManager(ConstArrayView<EnvVarDesc> builtin_env_vars)
          return S_ISREG(st.st_mode) and executable;
      };
  
@@ -158,7 +158,7 @@ index 62a60dc..1031dae 100644
          for (auto dir : StringView{path} | split<StringView>(':'))
          {
              auto candidate = format("{}/sh", dir);
-@@ -72,14 +91,6 @@ ShellManager::ShellManager(ConstArrayView<EnvVarDesc> builtin_env_vars)
+@@ -73,14 +92,6 @@ ShellManager::ShellManager(ConstArrayView<EnvVarDesc> builtin_env_vars)
          if (m_shell.empty())
              throw runtime_error{format("unable to find a posix shell in {}", path)};
      }

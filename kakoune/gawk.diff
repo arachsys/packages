@@ -198,7 +198,7 @@ index fe635ac..2b6560e 100644
 +                    }
 +                }
  
--                "${kak_reg_f%/*}/patch-range.pl" $min_line $max_line "$@" ||
+-                perl "${kak_reg_f%/*}/patch-range.pl" $min_line $max_line "$@" ||
 +                function compute(header, hunk) {
 +                    old = new = 0
 +                    split(hunk, lines, /\n/)
