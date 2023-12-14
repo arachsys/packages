@@ -5,14 +5,14 @@ check() {
   match llvm 17.0.6 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
-  match cmake 3.28.0 'tags/v([0-9.]+)\.tar'
+  match cmake 3.28.1 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-17.0.6.tar.gz \
     https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-17.0.6.tar.gz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.28.0/cmake-3.28.0.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz
   apply cmake.diff
   apply config.diff
   apply distro.diff
@@ -20,7 +20,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree d3c7d3b8ed8dc266cede4ee82c7be1bfbcb7605766f140669180170a79419207
+  tree ebe5dafcd3009e85b748fb0373c14c375b5cf0e1a576af914f4c653a7c6c5945
 }
 
 build() {
@@ -57,7 +57,7 @@ build() {
   mkdir -p /src/build
   cd /src/build
   /src/cmake/bin/cmake -W no-dev \
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$CHOST \
@@ -84,6 +84,7 @@ build() {
     -DLibEdit_LIBRARIES=/lib/shared/libedit.so \
     -DLIBLZMA_INCLUDE_DIR=/lib/include \
     -DLIBLZMA_LIBRARY=/lib/shared/liblzma.so \
+    -DRUNTIMES_CMAKE_ARGS=-DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DZLIB_INCLUDE_DIR=/lib/include \
     -DZLIB_LIBRARY=/lib/shared/libz.so \
     -Dzstd_INCLUDE_DIR=/lib/include \
@@ -110,7 +111,7 @@ build() {
       /src/cmake/bin/cmake -W no-dev \
         -DCMAKE_{ASM,C,CXX}_COMPILER=/src/build/bin/clang \
         -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET-wasi \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_C_COMPILER_WORKS=Yes \
         -DLLVM_CMAKE_DIR=../build \
         -DCOMPILER_RT_BAREMETAL_BUILD=Yes \
