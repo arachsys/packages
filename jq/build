@@ -1,11 +1,11 @@
 check() {
   url https://github.com/jqlang/jq/tags
-  match version 1.7 'tags/jq-([0-9.]+)\.tar'
+  match version 1.7.1 'tags/jq-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/jqlang/jq/releases/download/jq-1.7/jq-1.7.tar.gz
-  tree 276db571c7056d275241b7285cbfacf3b2bd8d4a30ebca9cb349f4755cedde97
+  unpack https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-1.7.1.tar.gz
+  tree 292a9b716d4c5b34a724f4da14e52cdad5b0b5ba30bf230e9c14e9c9a6b05a4e
 }
 
 build() {
