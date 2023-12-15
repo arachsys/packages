@@ -1,4 +1,6 @@
-enabled bootstrap || require gcc
+if ! enabled bootstrap; then
+  require gcc
+fi
 
 check() {
   url https://ftp.gnu.org/gnu/gcc/
@@ -70,7 +72,8 @@ build() {
       esac
     )
   sed -i 's/^\(tooldir *=\).*/\1/' Makefile
-  make && make -j1 install DESTDIR=/dst
+  make all
+  make -j1 install DESTDIR=/dst
 
   local TARGET=$(cd /dst/lib/gcc && echo *)
   local VERSION=$(cd /dst/lib/gcc/$TARGET && echo *)
@@ -79,7 +82,15 @@ build() {
   ln -s ../gcc/$TARGET/$VERSION/liblto_plugin.so /dst/lib/bfd-plugins/
   mv /dst/lib/**/*.spec /dst/lib/gcc/$TARGET/$VERSION/
   rm -f /dst/bin/{$TARGET-*,ld.bfd,gccbug} /dst/**/*.py
-  ln -s gcc /dst/bin/cc
+
+  for TOOL in addr2line ar as c++filt cpp elfedit ld lto-dump nm objcopy \
+              objdump ranlib readelf size strings strip; do
+    mv -f /dst/bin/$TOOL /dst/bin/gcc-$TOOL
+    ln -s gcc-$TOOL /dst/bin/$TOOL
+  done
+
+  ln -f -s gcc /dst/bin/cc
+  ln -f -s g++ /dst/bin/c++
 
   image gcc-shared contains /dst/lib/{,shared/}lib{atomic,gcc_s,stdc++}.so*
   image - requires gcc-shared
