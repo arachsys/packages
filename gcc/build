@@ -39,9 +39,8 @@ prepare() {
   apply poison.diff
   apply pure64.diff
   apply rpath.diff
-  apply ssp.diff
 
-  tree b9d9d26cfd0c8f59d81ae394ecc9a7224192a30832f0a49d0208cf5d9f668f24
+  tree 0fb8093971b9ccac26eedbc9787a78ff83346c2e39fb27ac8fabec6a18b4cf49
 }
 
 build() {
@@ -52,23 +51,22 @@ build() {
   # Work around unconditional symbol versioning in libctf:
   sed -i 's/ \?@VERSION_FLAGS\(_NOBFD\)\?@//' libctf/Makefile.in
 
-  auto-config --disable-bootstrap --disable-libsanitizer \
-    --disable-libstdc++-pch --disable-multilib --disable-symvers \
-    --disable-werror --enable-__cxa_atexit --enable-clocale=gnu \
-    --enable-default-{pie,ssp} --enable-deterministic-archives \
-    --enable-languages=c,c++,lto --enable-linker-build-id --enable-plugins \
-    --enable-shared --enable-threads=posix --without-local-prefix \
-    --with-gxx-include-dir='/lib/include/c++/${gcc_version}' --with-isl \
-    --with-lib-path=/lib:/lib/shared:/lib/static \
-    --with-linker-hash-style=gnu --with-native-system-header-dir=/lib/include \
-    --with-slibdir=/lib/shared --with-system-zlib libat_cv_have_ifunc=no $(
+  auto-config --disable-bootstrap --disable-libsanitizer --disable-libssp \
+    --disable-multilib --disable-nls --disable-symvers --disable-werror \
+    --enable-__cxa_atexit --enable-default-pie --enable-default-ssp \
+    --enable-deterministic-archives --enable-languages=c,c++,lto \
+    --enable-plugins --enable-threads=posix --without-local-prefix \
+    --with-gxx-include-dir=/lib/include/c++/gcc --with-isl \
+    --with-lib-path=/lib:/lib/shared:/lib/static --with-linker-hash-style=gnu \
+    --with-native-system-header-dir=/lib/include --with-slibdir=/lib/shared \
+    --with-system-zlib libat_cv_have_ifunc=no $(
       case "$CHOST" in
         aarch64-*)
-          echo --with-arch=armv8-a --with-abi=lp64
+          echo --with-abi=lp64 --with-arch=armv8-a
           ;;
         armv7-*)
           echo --with-abi=aapcs-linux --with-arch=armv7-a \
-            --with-fpu=vfpv3-d16 --with-float=hard --with-mode=thumb \
+            --with-float=hard --with-fpu=vfpv3-d16 --with-mode=thumb \
             --with-tune=generic-armv7-a
           ;;
       esac
@@ -80,10 +78,9 @@ build() {
   local TARGET=$(cd /dst/lib/gcc && echo *)
   local VERSION=$(cd /dst/lib/gcc/$TARGET && echo *)
   cp include/libiberty.h /dst/lib/include/
-  mkdir -p /dst/lib/bfd-plugins
   ln -s ../gcc/$TARGET/$VERSION/liblto_plugin.so /dst/lib/bfd-plugins/
   mv /dst/lib/**/*.spec /dst/lib/gcc/$TARGET/$VERSION/
-  rm -f /dst/bin/{$TARGET-*,ld.bfd,gccbug} /dst/**/*.py
+  rm -f /dst/bin/{$TARGET-*,ld.bfd,gccbug} /dst/**/{README,*.py}
 
   for TOOL in addr2line ar as c++filt cpp elfedit ld lto-dump nm objcopy \
               objdump ranlib readelf size strings strip; do
