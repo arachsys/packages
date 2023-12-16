@@ -36,11 +36,12 @@ prepare() {
   apply musl.diff
   apply no-toollib.diff
   apply paths.diff
+  apply poison.diff
   apply pure64.diff
   apply rpath.diff
   apply ssp.diff
 
-  tree c34b7a8f74f7e1d71a58fb94b95620aad6c03109ba09bd1292535f74143b21d7
+  tree b9d9d26cfd0c8f59d81ae394ecc9a7224192a30832f0a49d0208cf5d9f668f24
 }
 
 build() {
@@ -48,6 +49,8 @@ build() {
   sed -i 's/\(^INFO_DEPS *=\).*/\1/' {bfd,gas}/Makefile.in
   # Work around a missing dependency of libbfd on libsframe:
   sed -i '/^install-bfd:/s/$/ maybe-install-libsframe/' Makefile.in
+  # Work around unconditional symbol versioning in libctf:
+  sed -i 's/ \?@VERSION_FLAGS\(_NOBFD\)\?@//' libctf/Makefile.in
 
   auto-config --disable-bootstrap --disable-libsanitizer \
     --disable-libstdc++-pch --disable-multilib --disable-symvers \
@@ -59,7 +62,6 @@ build() {
     --with-lib-path=/lib:/lib/shared:/lib/static \
     --with-linker-hash-style=gnu --with-native-system-header-dir=/lib/include \
     --with-slibdir=/lib/shared --with-system-zlib libat_cv_have_ifunc=no $(
-      enabled bootstrap && echo --without-isl
       case "$CHOST" in
         aarch64-*)
           echo --with-arch=armv8-a --with-abi=lp64
