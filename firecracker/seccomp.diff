@@ -1,8 +1,8 @@
 diff --git a/resources/seccomp/aarch64-unknown-linux-musl.json b/resources/seccomp/aarch64-unknown-linux-musl.json
-index cfd9410..cdf5f27 100644
+index f7e5d1c..653b2cd 100644
 --- a/resources/seccomp/aarch64-unknown-linux-musl.json
 +++ b/resources/seccomp/aarch64-unknown-linux-musl.json
-@@ -838,6 +838,19 @@
+@@ -854,6 +854,19 @@
                      }
                  ]
              },
@@ -23,10 +23,10 @@ index cfd9410..cdf5f27 100644
                  "syscall": "rt_sigaction",
                  "comment": "rt_sigaction is used by libc::abort during a panic to install the default handler for SIGABRT",
 diff --git a/resources/seccomp/x86_64-unknown-linux-musl.json b/resources/seccomp/x86_64-unknown-linux-musl.json
-index 524a6e7..783ae1a 100644
+index 713e57a..8afbc49 100644
 --- a/resources/seccomp/x86_64-unknown-linux-musl.json
 +++ b/resources/seccomp/x86_64-unknown-linux-musl.json
-@@ -850,6 +850,19 @@
+@@ -866,6 +866,19 @@
                      }
                  ]
              },

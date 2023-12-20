@@ -1,8 +1,8 @@
 diff --git a/src/api_server/src/parsed_request.rs b/src/api_server/src/parsed_request.rs
-index aba3984..442a149 100644
+index eb0516d..930c874 100644
 --- a/src/api_server/src/parsed_request.rs
 +++ b/src/api_server/src/parsed_request.rs
-@@ -224,7 +224,7 @@ fn log_received_api_request(api_description: String) {
+@@ -217,7 +217,7 @@ impl ParsedRequest {
  /// * `body` - body of the API request
  fn describe(method: Method, path: &str, body: Option<&Body>) -> String {
      match (path, body) {
@@ -11,7 +11,7 @@ index aba3984..442a149 100644
          ("/cpu-config", Some(payload_value)) => {
              // If the log level is at Debug or higher, include the CPU template in
              // the log line.
-@@ -232,9 +232,8 @@ fn describe(method: Method, path: &str, body: Option<&Body>) -> String {
+@@ -225,9 +225,8 @@ fn describe(method: Method, path: &str, body: Option<&Body>) -> String {
                  describe_with_body(method, path, payload_value)
              } else {
                  format!(
@@ -46,7 +46,7 @@ index f529bb6..c331837 100644
      let api_kill_switch = EventFd::new(libc::EFD_NONBLOCK).expect("Cannot create API kill switch.");
  
 diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
-index efdc31d..72fb110 100644
+index f21f79c..2ce99e0 100644
 --- a/src/firecracker/src/main.rs
 +++ b/src/firecracker/src/main.rs
 @@ -46,23 +46,23 @@ enum MainError {
@@ -79,7 +79,22 @@ index efdc31d..72fb110 100644
      RunWithoutApiError(RunWithoutApiError),
  }
  
-@@ -140,51 +140,45 @@ fn main_exec() -> Result<(), MainError> {
+@@ -92,12 +92,11 @@ fn main() -> ExitCode {
+     let result = main_exec();
+     if let Err(err) = result {
+         error!("{err}");
+-        eprintln!("Error: {err:?}");
++        eprintln!("{err}");
+         let exit_code = FcExitCode::from(err) as u8;
+-        error!("Firecracker exiting with error. exit_code={exit_code}");
+         ExitCode::from(exit_code)
+     } else {
+-        info!("Firecracker exiting successfully. exit_code=0");
++        info!("Firecracker exited successfully");
+         ExitCode::SUCCESS
+     }
+ }
+@@ -140,51 +139,45 @@ fn main_exec() -> Result<(), MainError> {
                  Argument::new("api-sock")
                      .takes_value(true)
                      .default_value(DEFAULT_API_SOCK_PATH)
@@ -140,7 +155,7 @@ index efdc31d..72fb110 100644
                  ),
              )
              .arg(
-@@ -192,69 +186,67 @@ fn main_exec() -> Result<(), MainError> {
+@@ -192,74 +185,72 @@ fn main_exec() -> Result<(), MainError> {
                      .takes_value(false)
                      .requires("config-file")
                      .help(
@@ -161,6 +176,12 @@ index efdc31d..72fb110 100644
 -                    .help("Set the logger level."),
 +                    .default_value("Warning")
 +                    .help("Log level"),
+             )
+             .arg(
+                 Argument::new("module")
+                     .takes_value(true)
+-                    .help("Set the logger module filter."),
++                    .help("Filter logs by module"),
              )
              .arg(
                  Argument::new("show-level")
@@ -186,7 +207,7 @@ index efdc31d..72fb110 100644
              .arg(Argument::new("version").takes_value(false).help(
 -                "Print the binary version number and a list of supported snapshot data format \
 -                 versions.",
-+                "Show version and supported snapshot formats",
++                "Show version",
              ))
              .arg(
                  Argument::new("describe-snapshot")
@@ -221,22 +242,10 @@ index efdc31d..72fb110 100644
      if arguments.flag_present("version") {
 -        println!("Firecracker v{}\n", FIRECRACKER_VERSION);
 +        println!("Firecracker v{}", FIRECRACKER_VERSION);
-         print_supported_snapshot_versions();
          return Ok(());
      }
-@@ -516,9 +508,9 @@ fn print_supported_snapshot_versions() {
-         .collect();
-     versions.sort();
  
--    println!("Supported snapshot data format versions:");
-+    println!("Supported snapshot formats:");
-     for v in versions.iter() {
--        println!("{v}");
-+        println!("  {v}");
-     }
- }
- 
-@@ -526,9 +518,9 @@ fn print_supported_snapshot_versions() {
+@@ -518,9 +509,9 @@ fn warn_deprecated_parameters() {}
  enum SnapshotVersionError {
      /// Unable to open snapshot state file: {0}
      OpenSnapshot(io::Error),
@@ -248,7 +257,7 @@ index efdc31d..72fb110 100644
      FirecrackerVersion(u16),
  }
  
-@@ -551,9 +543,9 @@ fn print_snapshot_data_format(snapshot_path: &str) -> Result<(), SnapshotVersion
+@@ -543,9 +534,9 @@ fn print_snapshot_data_format(snapshot_path: &str) -> Result<(), SnapshotVersion
  
  #[derive(Debug, thiserror::Error, displaydoc::Display)]
  pub enum BuildFromJsonError {
@@ -260,7 +269,7 @@ index efdc31d..72fb110 100644
      StartMicroVM(StartMicrovmError),
  }
  
-@@ -579,16 +571,16 @@ fn build_microvm_from_json(
+@@ -571,16 +562,16 @@ fn build_microvm_from_json(
      )
      .map_err(BuildFromJsonError::StartMicroVM)?;
  
@@ -369,49 +378,59 @@ index a414c6d..c653232 100644
              self.insert_arg(help_arg);
              return Ok(());
 diff --git a/src/vmm/src/builder.rs b/src/vmm/src/builder.rs
-index 730bd16..56739b3 100644
+index d5248e8..0d26c6b 100644
 --- a/src/vmm/src/builder.rs
 +++ b/src/vmm/src/builder.rs
-@@ -109,10 +109,10 @@ pub enum StartMicrovmError {
-     #[error("Cannot load command line string: {}", format!("{}", .0).replace('\"', ""))]
+@@ -67,7 +67,7 @@ use crate::{device_manager, EventManager, RestoreVcpusError, Vmm, VmmError};
+ /// Errors associated with starting the instance.
+ #[derive(Debug, thiserror::Error, displaydoc::Display)]
+ pub enum StartMicrovmError {
+-    /// Unable to attach block device to Vmm: {0}
++    /// Unable to attach block device to VMM: {0}
+     AttachBlockDevice(io::Error),
+     /// System configuration error: {0}
+     ConfigureSystem(crate::arch::ConfigurationError),
+@@ -96,9 +96,9 @@ pub enum StartMicrovmError {
+     KernelLoader(linux_loader::loader::Error),
+     /// Cannot load command line string: {0}
      LoadCommandline(linux_loader::loader::Error),
-     /// Cannot start the VM because the kernel builder was not configured.
--    #[error("Cannot start microvm without kernel configuration.")]
-+    #[error("Cannot start microVM without kernel configuration.")]
+-    /// Cannot start microvm without kernel configuration.
++    /// Cannot start microVM without kernel configuration.
      MissingKernelConfig,
-     /// Cannot start the VM because the size of the guest memory  was not specified.
--    #[error("Cannot start microvm without guest mem_size config.")]
-+    #[error("Cannot start microVM without guest mem_size config.")]
+-    /// Cannot start microvm without guest mem_size config.
++    /// Cannot start microVM without guest mem_size config.
      MissingMemSizeConfig,
-     /// The seccomp filter map is missing a key.
-     #[error("No seccomp filter for thread category: {0}")]
-@@ -123,17 +123,17 @@ pub enum StartMicrovmError {
-     /// Cannot open the block device backing file.
-     #[error("Cannot open the block device backing file: {}", format!("{:?}", .0).replace('\"', ""))]
+     /// No seccomp filter for thread category: {0}
+     MissingSeccompFilters(String),
+@@ -106,11 +106,11 @@ pub enum StartMicrovmError {
+     NetDeviceNotConfigured,
+     /// Cannot open the block device backing file: {0}
      OpenBlockDevice(io::Error),
--    /// Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline.
-+    /// Cannot initialize an MMIO Device or add a device to the MMIO Bus or cmdline.
-     #[error(
--        "Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline: {}",
-+        "Cannot initialize an MMIO Device or add a device to the MMIO bus or cmdline: {}",
-         format!("{}", .0).replace('\"', "")
-     )]
+-    /// Cannot initialize a MMIO Device or add a device to the MMIO Bus or cmdline: {0}
++    /// Cannot initialize an MMIO device or add a device to the MMIO bus or cmdline: {0}
      RegisterMmioDevice(device_manager::mmio::MmioError),
-     /// Cannot restore microvm state.
--    #[error("Cannot restore microvm state: {0}")]
-+    #[error("Cannot restore microVM state: {0}")]
+-    /// Cannot restore microvm state: {0}
++    /// Cannot restore microVM state: {0}
      RestoreMicrovmState(MicrovmStateError),
-     /// Unable to set VmResources.
--    #[error("Cannot set vm resources: {0}")]
-+    #[error("Cannot set VM resources: {0}")]
+-    /// Cannot set vm resources: {0}
++    /// Cannot set VM resources: {0}
      SetVmResources(VmConfigError),
-     /// Failed to create an Entropy device
-     #[error("Cannot create the entropy device: {0}")]
+     /// Cannot create the entropy device: {0}
+     CreateEntropyDevice(crate::devices::virtio::rng::EntropyError),
+@@ -366,7 +366,7 @@ pub fn build_and_boot_microvm(
+ pub enum BuildMicrovmFromSnapshotError {
+     /// Failed to create microVM and vCPUs: {0}
+     CreateMicrovmAndVcpus(#[from] StartMicrovmError),
+-    /// Only 255 vCPU state are supported, but {0} states where given.
++    /// Only 255 vCPU state are supported but {0} states were given.
+     TooManyVCPUs(usize),
+     /// Could not access KVM: {0}
+     KvmAccess(#[from] utils::errno::Error),
 diff --git a/src/vmm/src/device_manager/mmio.rs b/src/vmm/src/device_manager/mmio.rs
-index 127b44a..76a37a7 100644
+index bc95bd8..fea74aa 100644
 --- a/src/vmm/src/device_manager/mmio.rs
 +++ b/src/vmm/src/device_manager/mmio.rs
-@@ -389,7 +389,7 @@ impl MMIODeviceManager {
+@@ -383,7 +383,7 @@ impl MMIODeviceManager {
  
      /// Artificially kick devices as if they had external events.
      pub fn kick_devices(&self) {
@@ -420,7 +439,7 @@ index 127b44a..76a37a7 100644
          // We only kick virtio devices for now.
          let _: Result<(), MmioError> =
              self.for_each_virtio_device(|virtio_type, id, _info, dev| {
-@@ -401,7 +401,7 @@ impl MMIODeviceManager {
+@@ -395,7 +395,7 @@ impl MMIODeviceManager {
                          // pending or in-flight epoll events we may have not captured in snapshot.
                          // Stats queue doesn't need kicking as it is notified via a `timer_fd`.
                          if balloon.is_activated() {
@@ -429,16 +448,16 @@ index 127b44a..76a37a7 100644
                              balloon.process_virtio_queues();
                          }
                      }
-@@ -412,7 +412,7 @@ impl MMIODeviceManager {
-                         // No need to kick Ratelimiters because they are restored 'unblocked' so
-                         // any inflight `timer_fd` events can be safely discarded.
-                         if block.is_activated() {
--                            info!("kick block {}.", id);
-+                            info!("Kicking block {}", id);
-                             block.process_virtio_queues();
+@@ -409,7 +409,7 @@ impl MMIODeviceManager {
+                             // because they are restored 'unblocked' so
+                             // any inflight `timer_fd` events can be safely discarded.
+                             if block.is_activated() {
+-                                info!("kick block {}.", id);
++                                info!("Kicking block {}.", id);
+                                 block.process_virtio_queues();
+                             }
                          }
-                     }
-@@ -423,7 +423,7 @@ impl MMIODeviceManager {
+@@ -421,7 +421,7 @@ impl MMIODeviceManager {
                          // No need to kick Ratelimiters because they are restored 'unblocked' so
                          // any inflight `timer_fd` events can be safely discarded.
                          if net.is_activated() {
@@ -447,7 +466,7 @@ index 127b44a..76a37a7 100644
                              net.process_virtio_queues();
                          }
                      }
-@@ -436,7 +436,7 @@ impl MMIODeviceManager {
+@@ -434,7 +434,7 @@ impl MMIODeviceManager {
                      TYPE_RNG => {
                          let entropy = virtio.as_mut_any().downcast_mut::<Entropy>().unwrap();
                          if entropy.is_activated() {
@@ -456,29 +475,8 @@ index 127b44a..76a37a7 100644
                              entropy.process_virtio_queues();
                          }
                      }
-diff --git a/src/vmm/src/devices/virtio/block/io/async_io.rs b/src/vmm/src/devices/virtio/block/io/async_io.rs
-index 5790ea6..32d3bb9 100644
---- a/src/vmm/src/devices/virtio/block/io/async_io.rs
-+++ b/src/vmm/src/devices/virtio/block/io/async_io.rs
-@@ -15,7 +15,6 @@ use crate::devices::virtio::block::IO_URING_NUM_ENTRIES;
- use crate::io_uring::operation::{Cqe, OpCode, Operation};
- use crate::io_uring::restriction::Restriction;
- use crate::io_uring::{self, IoUring, IoUringError};
--use crate::logger::log_dev_preview_warning;
- 
- #[derive(Debug)]
- pub enum AsyncIoError {
-@@ -83,8 +82,6 @@ impl<T: Debug> AsyncFileEngine<T> {
-     }
- 
-     pub fn from_file(file: File) -> Result<AsyncFileEngine<T>, AsyncIoError> {
--        log_dev_preview_warning("Async file IO", Option::None);
--
-         let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(AsyncIoError::EventFd)?;
-         let ring =
-             Self::new_ring(&file, completion_evt.as_raw_fd()).map_err(AsyncIoError::IoUring)?;
 diff --git a/src/vmm/src/devices/virtio/net/tap.rs b/src/vmm/src/devices/virtio/net/tap.rs
-index 3d59c0f..70882b4 100644
+index bd12bf8..918958a 100644
 --- a/src/vmm/src/devices/virtio/net/tap.rs
 +++ b/src/vmm/src/devices/virtio/net/tap.rs
 @@ -31,7 +31,7 @@ pub enum TapError {
@@ -490,11 +488,32 @@ index 3d59c0f..70882b4 100644
      IfreqExecuteError(IoError, String),
      /// Error while setting the offload flags: {0}
      SetOffloadFlags(IoError),
+diff --git a/src/vmm/src/devices/virtio/virtio_block/io/async_io.rs b/src/vmm/src/devices/virtio/virtio_block/io/async_io.rs
+index c8ad0b6..2371e7e 100644
+--- a/src/vmm/src/devices/virtio/virtio_block/io/async_io.rs
++++ b/src/vmm/src/devices/virtio/virtio_block/io/async_io.rs
+@@ -15,7 +15,6 @@ use crate::devices::virtio::virtio_block::IO_URING_NUM_ENTRIES;
+ use crate::io_uring::operation::{Cqe, OpCode, Operation};
+ use crate::io_uring::restriction::Restriction;
+ use crate::io_uring::{self, IoUring, IoUringError};
+-use crate::logger::log_dev_preview_warning;
+ use crate::vstate::memory::{GuestAddress, GuestMemory, GuestMemoryExtension, GuestMemoryMmap};
+ 
+ #[derive(Debug, thiserror::Error, displaydoc::Display)]
+@@ -90,8 +89,6 @@ impl<T: Debug> AsyncFileEngine<T> {
+     }
+ 
+     pub fn from_file(file: File) -> Result<AsyncFileEngine<T>, AsyncIoError> {
+-        log_dev_preview_warning("Async file IO", Option::None);
+-
+         let completion_evt = EventFd::new(libc::EFD_NONBLOCK).map_err(AsyncIoError::EventFd)?;
+         let ring =
+             Self::new_ring(&file, completion_evt.as_raw_fd()).map_err(AsyncIoError::IoUring)?;
 diff --git a/src/vmm/src/lib.rs b/src/vmm/src/lib.rs
-index e67b318..b35939a 100644
+index 0f6d0df..735d6c3 100644
 --- a/src/vmm/src/lib.rs
 +++ b/src/vmm/src/lib.rs
-@@ -209,11 +209,11 @@ pub enum VmmError {
+@@ -212,11 +212,11 @@ pub enum VmmError {
      /// Cannot access kernel file: {0}
      KernelFile(io::Error),
      #[cfg(target_arch = "x86_64")]
@@ -508,7 +527,7 @@ index e67b318..b35939a 100644
      RegisterMMIODevice(device_manager::mmio::MmioError),
      /// Cannot install seccomp filters: {0}
      SeccompFilters(seccompiler::InstallationError),
-@@ -221,16 +221,16 @@ pub enum VmmError {
+@@ -224,16 +224,16 @@ pub enum VmmError {
      Serial(io::Error),
      /// Error creating timer fd: {0}
      TimerFd(io::Error),
@@ -528,7 +547,7 @@ index e67b318..b35939a 100644
      VcpuInit(vstate::vcpu::KvmVcpuError),
      /// Failed to start vCPUs
      VcpuStart(StartVcpusError),
-@@ -242,13 +242,13 @@ pub enum VmmError {
+@@ -245,13 +245,13 @@ pub enum VmmError {
      VcpuResume,
      /// Failed to message the vCPUs.
      VcpuMessage,
@@ -546,7 +565,7 @@ index e67b318..b35939a 100644
      VmmObserverTeardown(utils::errno::Error),
  }
  
-@@ -290,9 +290,9 @@ pub enum RestoreVcpusError {
+@@ -293,9 +293,9 @@ pub enum RestoreVcpusError {
  /// Error type for [`Vmm::dump_cpu_config()`]
  #[derive(Debug, thiserror::Error, displaydoc::Display)]
  pub enum DumpCpuConfigError {
@@ -558,7 +577,7 @@ index e67b318..b35939a 100644
      UnexpectedResponse,
      /// Failed to dump CPU config: {0}
      DumpCpuConfig(#[from] vcpu::VcpuError),
-@@ -803,7 +803,7 @@ impl Vmm {
+@@ -815,7 +815,7 @@ impl Vmm {
          // Vmm initiated teardown starts from `pub fn Vmm::stop()` (step 4).
          // Once `vmm.shutdown_exit_code` becomes `Some(exit_code)`, it is the upper layer's
          // responsibility to break main event loop and propagate the exit code value.
@@ -567,7 +586,7 @@ index e67b318..b35939a 100644
  
          // We send a "Finish" event.  If a VCPU has already exited, this is the only
          // message it will accept... but running and paused will take it as well.
-@@ -888,7 +888,7 @@ impl Drop for Vmm {
+@@ -900,7 +900,7 @@ impl Drop for Vmm {
          }
  
          if !self.vcpus_handles.is_empty() {
@@ -576,7 +595,7 @@ index e67b318..b35939a 100644
          }
      }
  }
-@@ -925,13 +925,13 @@ impl MutEventSubscriber for Vmm {
+@@ -937,13 +937,13 @@ impl MutEventSubscriber for Vmm {
              };
              self.stop(exit_code);
          } else {
@@ -615,10 +634,10 @@ index 4f9e3f6..6eff9bb 100644
  
          assert_eq!(
 diff --git a/src/vmm/src/persist.rs b/src/vmm/src/persist.rs
-index ed0dfda..aff6d4a 100644
+index e895aa3..0834f48 100644
 --- a/src/vmm/src/persist.rs
 +++ b/src/vmm/src/persist.rs
-@@ -160,23 +160,23 @@ pub struct GuestRegionUffdMapping {
+@@ -132,23 +132,23 @@ pub struct GuestRegionUffdMapping {
  pub enum MicrovmStateError {
      /// Compatibility checks failed: {0}
      IncompatibleState(String),
@@ -649,7 +668,7 @@ index ed0dfda..aff6d4a 100644
      UnexpectedVcpuResponse,
  }
  
-@@ -186,7 +186,7 @@ pub enum CreateSnapshotError {
+@@ -158,7 +158,7 @@ pub enum CreateSnapshotError {
      /// Cannot get dirty bitmap: {0}
      DirtyBitmap(VmmError),
      #[rustfmt::skip]
@@ -658,10 +677,10 @@ index ed0dfda..aff6d4a 100644
      IncompatibleVirtioFeature(&'static str),
      /// Invalid microVM version format
      InvalidVersionFormat,
-@@ -575,13 +575,13 @@ fn guest_memory_from_file(
+@@ -519,13 +519,13 @@ fn guest_memory_from_file(
  pub enum GuestMemoryFromUffdError {
      /// Failed to restore guest memory: {0}
-     Restore(#[from] crate::memory_snapshot::SnapshotMemoryError),
+     Restore(#[from] MemoryError),
 -    /// Failed to UFFD object: {0}
 +    /// Failed to userfaultfd object: {0}
      Create(userfaultfd::Error),
@@ -675,8 +694,21 @@ index ed0dfda..aff6d4a 100644
      Send(#[from] utils::errno::Error),
  }
  
+diff --git a/src/vmm/src/rpc_interface.rs b/src/vmm/src/rpc_interface.rs
+index ec5d583..cd708a3 100644
+--- a/src/vmm/src/rpc_interface.rs
++++ b/src/vmm/src/rpc_interface.rs
+@@ -765,7 +765,7 @@ impl RuntimeApiController {
+             && !self.vm_resources.track_dirty_pages()
+         {
+             return Err(VmmActionError::NotSupported(
+-                "Diff snapshots are not allowed on uVMs with dirty page tracking disabled."
++                "Diff snapshots are not allowed on microVMs with dirty page tracking disabled."
+                     .to_string(),
+             ));
+         }
 diff --git a/src/vmm/src/vmm_config/balloon.rs b/src/vmm/src/vmm_config/balloon.rs
-index 27230a3..54d6c93 100644
+index f528f24..b79ce31 100644
 --- a/src/vmm/src/vmm_config/balloon.rs
 +++ b/src/vmm/src/vmm_config/balloon.rs
 @@ -16,13 +16,13 @@ type MutexBalloon = Arc<Mutex<Balloon>>;
@@ -696,24 +728,11 @@ index 27230a3..54d6c93 100644
      StatsNotFound,
      /// Error creating the balloon device: {0:?}
      CreateFailure(crate::devices::virtio::balloon::BalloonError),
-diff --git a/src/vmm/src/vmm_config/net.rs b/src/vmm/src/vmm_config/net.rs
-index 00dcc53..5c2e387 100644
---- a/src/vmm/src/vmm_config/net.rs
-+++ b/src/vmm/src/vmm_config/net.rs
-@@ -84,7 +84,7 @@ impl NetBuilder {
-     /// Creates an empty list of Network Devices.
-     pub fn new() -> Self {
-         NetBuilder {
--            /// List of built network devices.
-+            // List of built network devices.
-             net_devices: Vec::new(),
-         }
-     }
 diff --git a/src/vmm/src/vstate/vcpu/aarch64.rs b/src/vmm/src/vstate/vcpu/aarch64.rs
-index 052371e..b01c448 100644
+index a4ba61c..a1f0757 100644
 --- a/src/vmm/src/vstate/vcpu/aarch64.rs
 +++ b/src/vmm/src/vstate/vcpu/aarch64.rs
-@@ -29,21 +29,21 @@ use crate::vstate::vm::Vm;
+@@ -31,21 +31,21 @@ use crate::vstate::vm::Vm;
  /// Errors associated with the wrappers over KVM ioctls.
  #[derive(Debug, PartialEq, Eq, thiserror::Error, displaydoc::Display)]
  pub enum KvmVcpuError {
@@ -742,7 +761,7 @@ index 052371e..b01c448 100644
  }
  
 diff --git a/src/vmm/src/vstate/vcpu/mod.rs b/src/vmm/src/vstate/vcpu/mod.rs
-index 3a9a840..bf8b618 100644
+index f660f3c..153d050 100644
 --- a/src/vmm/src/vstate/vcpu/mod.rs
 +++ b/src/vmm/src/vstate/vcpu/mod.rs
 @@ -46,21 +46,21 @@ pub const VCPU_RTSIG_OFFSET: i32 = 0;
@@ -811,10 +830,10 @@ index 3a9a840..bf8b618 100644
                      }
                  }
 diff --git a/src/vmm/src/vstate/vcpu/x86_64.rs b/src/vmm/src/vstate/vcpu/x86_64.rs
-index fe0ba7c..43782db 100644
+index c4d7804..78a914b 100644
 --- a/src/vmm/src/vstate/vcpu/x86_64.rs
 +++ b/src/vmm/src/vstate/vcpu/x86_64.rs
-@@ -48,53 +48,53 @@ pub enum KvmVcpuError {
+@@ -50,53 +50,53 @@ pub enum KvmVcpuError {
      RegsConfiguration(crate::arch::x86_64::regs::RegsError),
      /// Error configuring the special registers: {0:?}
      SregsConfiguration(crate::arch::x86_64::regs::RegsError),
@@ -891,7 +910,7 @@ index fe0ba7c..43782db 100644
      VcpuSetXsave(kvm_ioctls::Error),
      /// Failed to set KVM TSC frequency: {0}
      VcpuSetTsc(kvm_ioctls::Error),
-@@ -529,7 +529,7 @@ impl KvmVcpu {
+@@ -531,7 +531,7 @@ impl KvmVcpu {
                  METRICS.vcpu.failures.inc();
                  // TODO: Are we sure we want to finish running a vcpu upon
                  // receiving a vm exit that is not necessarily an error?
@@ -900,37 +919,26 @@ index fe0ba7c..43782db 100644
                  Err(super::VcpuError::UnhandledKvmExit(format!(
                      "{:?}",
                      unexpected_exit
-@@ -620,7 +620,7 @@ impl VcpuState {
-                 }
-             }
-             _ => Err(VersionizeError::Serialize(
--                "Cannot serialize MSRs. The uVM state needs to save
-+                "Cannot serialize MSRs. The microVM state needs to save
-                  more MSRs than the target snapshot version supports."
-                     .to_string(),
-             )),
 diff --git a/src/vmm/src/vstate/vm.rs b/src/vmm/src/vstate/vm.rs
-index 544f2cc..ae3791e 100644
+index 2c6471b..7c1cb35 100644
 --- a/src/vmm/src/vstate/vm.rs
 +++ b/src/vmm/src/vstate/vm.rs
-@@ -39,8 +39,7 @@ pub enum VmError {
-     #[error("{}", ({
-         if .0.errno() == libc::EACCES {
-             format!(
--                "Error creating KVM object. [{}]\nMake sure the user \
--                launching the firecracker process is configured on the /dev/kvm file's ACL.",
-+                "Error creating KVM object. [{}]\nDoes firecracker have access to /dev/kvm?",
-                 .0
-             )
-         } else {
-@@ -89,8 +88,8 @@ pub enum VmError {
-     /// Failed to set KVM vm irqchip.
-     #[error("Failed to set KVM vm irqchip: {0}")]
+@@ -37,8 +37,7 @@ pub enum VmError {
+     ApiVersion(i32),
+     /// Missing KVM capabilities: {0:x?}
+     Capabilities(u32),
+-    /**  Error creating KVM object: {0} Make sure the user launching the firecracker process is \
+-    configured on the /dev/kvm file's ACL. */
++    ///  Error creating KVM object: {0}
+     Kvm(kvm_ioctls::Error),
+     #[cfg(target_arch = "x86_64")]
+     /// Failed to get MSR index list to save into snapshots: {0}
+@@ -70,7 +69,7 @@ pub enum VmError {
+     #[cfg(target_arch = "x86_64")]
+     /// Failed to set KVM vm irqchip: {0}
      VmSetIrqChip(kvm_ioctls::Error),
--    /// Cannot configure the microvm.
--    #[error("Cannot configure the microvm: {0}")]
-+    /// Cannot configure the microVM.
-+    #[error("Cannot configure the microVM: {0}")]
+-    /// Cannot configure the microvm: {0}
++    /// Cannot configure the microVM: {0}
      VmSetup(kvm_ioctls::Error),
      #[cfg(target_arch = "aarch64")]
-     /// Failed to save the VM's GIC state.
+     /// Failed to save the VM's GIC state: {0}

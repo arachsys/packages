@@ -1,8 +1,8 @@
 diff --git a/src/firecracker/src/main.rs b/src/firecracker/src/main.rs
-index 72fb110..28be78c 100644
+index ef029c1..9295218 100644
 --- a/src/firecracker/src/main.rs
 +++ b/src/firecracker/src/main.rs
-@@ -200,6 +200,11 @@ fn main_exec() -> Result<(), MainError> {
+@@ -198,6 +198,11 @@ fn main_exec() -> Result<(), MainError> {
                      .default_value("Warning")
                      .help("Log level"),
              )
@@ -12,9 +12,9 @@ index 72fb110..28be78c 100644
 +                    .help("Include microVM identifier in logs"),
 +            )
              .arg(
-                 Argument::new("show-level")
-                     .takes_value(false)
-@@ -208,6 +213,16 @@ fn main_exec() -> Result<(), MainError> {
+                 Argument::new("module")
+                     .takes_value(true)
+@@ -211,6 +216,16 @@ fn main_exec() -> Result<(), MainError> {
              .arg(Argument::new("show-log-origin").takes_value(false).help(
                  "Include file and line number in logs",
              ))
@@ -31,7 +31,7 @@ index 72fb110..28be78c 100644
              .arg(
                  Argument::new("metrics-path")
                      .takes_value(true)
-@@ -270,12 +285,18 @@ fn main_exec() -> Result<(), MainError> {
+@@ -272,6 +287,9 @@ fn main_exec() -> Result<(), MainError> {
          .map(|s| vmm::logger::LevelFilter::from_str(s))
          .transpose()
          .map_err(MainError::InvalidLogLevel)?;
@@ -40,7 +40,8 @@ index 72fb110..28be78c 100644
 +    let show_thread_name = arguments.flag_present("show-thread-name").then_some(true);
      let show_level = arguments.flag_present("show-level").then_some(true);
      let show_log_origin = arguments.flag_present("show-log-origin").then_some(true);
-     LOGGER
+     let module = arguments.single_value("module").cloned();
+@@ -279,6 +297,9 @@ fn main_exec() -> Result<(), MainError> {
          .update(LoggerConfig {
              log_path,
              level,
@@ -49,9 +50,9 @@ index 72fb110..28be78c 100644
 +            show_thread_name,
              show_level,
              show_log_origin,
-         })
+             module,
 diff --git a/src/vmm/src/logger/logging.rs b/src/vmm/src/logger/logging.rs
-index 32e5fd7..cd13554 100644
+index dcdb504..17544fa 100644
 --- a/src/vmm/src/logger/logging.rs
 +++ b/src/vmm/src/logger/logging.rs
 @@ -17,7 +17,7 @@ use super::metrics::{IncMetric, METRICS};
@@ -63,9 +64,9 @@ index 32e5fd7..cd13554 100644
  /// Default instance id.
  pub const DEFAULT_INSTANCE_ID: &str = "anonymous-instance";
  /// Instance id.
-@@ -29,6 +29,9 @@ pub static INSTANCE_ID: OnceLock<String> = OnceLock::new();
- pub static LOGGER: Logger = Logger(Mutex::new(LoggerConfiguration {
+@@ -30,6 +30,9 @@ pub static LOGGER: Logger = Logger(Mutex::new(LoggerConfiguration {
      target: None,
+     filter: LogFilter { module: None },
      format: LogFormat {
 +        show_timestamp: false,
 +        show_instance_id: false,
@@ -73,7 +74,7 @@ index 32e5fd7..cd13554 100644
          show_level: false,
          show_log_origin: false,
      },
-@@ -71,6 +74,18 @@ impl Logger {
+@@ -72,6 +75,18 @@ impl Logger {
              guard.target = Some(file);
          };
  
@@ -92,8 +93,8 @@ index 32e5fd7..cd13554 100644
          if let Some(show_level) = config.show_level {
              guard.format.show_level = show_level;
          }
-@@ -89,6 +104,9 @@ impl Logger {
- 
+@@ -98,6 +113,9 @@ pub struct LogFilter {
+ }
  #[derive(Debug)]
  pub struct LogFormat {
 +    pub show_timestamp: bool,
@@ -102,7 +103,7 @@ index 32e5fd7..cd13554 100644
      pub show_level: bool,
      pub show_log_origin: bool,
  }
-@@ -112,33 +130,50 @@ impl Log for Logger {
+@@ -135,33 +153,50 @@ impl Log for Logger {
  
          // Prints log message
          {
@@ -175,7 +176,7 @@ index 32e5fd7..cd13554 100644
  
              let result = if let Some(file) = &mut guard.target {
                  file.write_all(message.as_bytes())
-@@ -168,6 +203,12 @@ pub struct LoggerConfig {
+@@ -188,6 +223,12 @@ pub struct LoggerConfig {
      pub log_path: Option<PathBuf>,
      /// The level of the Logger.
      pub level: Option<LevelFilter>,

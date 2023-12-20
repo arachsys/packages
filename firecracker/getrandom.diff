@@ -1,8 +1,8 @@
 diff --git a/resources/seccomp/aarch64-unknown-linux-musl.json b/resources/seccomp/aarch64-unknown-linux-musl.json
-index a8bb544..c849376 100644
+index 4ac91e0..f7e5d1c 100644
 --- a/resources/seccomp/aarch64-unknown-linux-musl.json
 +++ b/resources/seccomp/aarch64-unknown-linux-musl.json
-@@ -104,7 +104,7 @@
+@@ -108,7 +108,7 @@
              },
              {
                "syscall": "getrandom",
@@ -11,7 +11,7 @@ index a8bb544..c849376 100644
              },
              {
                  "syscall": "accept4",
-@@ -206,7 +206,7 @@
+@@ -210,7 +210,7 @@
              },
              {
                  "syscall": "madvise",
@@ -21,10 +21,10 @@ index a8bb544..c849376 100644
              {
                  "syscall": "mmap",
 diff --git a/resources/seccomp/x86_64-unknown-linux-musl.json b/resources/seccomp/x86_64-unknown-linux-musl.json
-index bcdf00e..d64efc0 100644
+index cb3cdc9..713e57a 100644
 --- a/resources/seccomp/x86_64-unknown-linux-musl.json
 +++ b/resources/seccomp/x86_64-unknown-linux-musl.json
-@@ -104,7 +104,7 @@
+@@ -108,7 +108,7 @@
              },
              {
                "syscall": "getrandom",
@@ -33,7 +33,7 @@ index bcdf00e..d64efc0 100644
              },
              {
                  "syscall": "accept4",
-@@ -206,7 +206,7 @@
+@@ -210,7 +210,7 @@
              },
              {
                  "syscall": "madvise",
@@ -43,7 +43,7 @@ index bcdf00e..d64efc0 100644
              {
                  "syscall": "mmap",
 diff --git a/src/vmm/Cargo.toml b/src/vmm/Cargo.toml
-index 65b0f07..424de66 100644
+index 7fb149e..e2509ef 100644
 --- a/src/vmm/Cargo.toml
 +++ b/src/vmm/Cargo.toml
 @@ -9,10 +9,10 @@ license = "Apache-2.0"
@@ -54,24 +54,24 @@ index 65b0f07..424de66 100644
  bitflags = "2.0.2"
  derive_more = { version = "0.99.17", default-features = false, features = ["from", "display"] }
  event-manager = "0.3.0"
-+getrandom = { version = "0.2.10", features = ["std"] }
++getrandom = { version = "0.2.11", features = ["std"] }
  kvm-bindings = { version = "0.6.0", features = ["fam-wrappers"] }
  kvm-ioctls = "0.15.0"
  lazy_static = "1.4.0"
 diff --git a/src/vmm/src/devices/virtio/rng/device.rs b/src/vmm/src/devices/virtio/rng/device.rs
-index 6284efb..893f8a7 100644
+index 10fee1b..0cc8804 100644
 --- a/src/vmm/src/devices/virtio/rng/device.rs
 +++ b/src/vmm/src/devices/virtio/rng/device.rs
 @@ -5,7 +5,7 @@ use std::io;
- use std::sync::atomic::AtomicUsize;
+ use std::sync::atomic::AtomicU32;
  use std::sync::Arc;
  
 -use aws_lc_rs::rand;
 +use getrandom::getrandom;
  use utils::eventfd::EventFd;
- use utils::vm_memory::{GuestMemoryError, GuestMemoryMmap};
- use virtio_gen::virtio_rng::VIRTIO_F_VERSION_1;
-@@ -29,7 +29,7 @@ pub enum EntropyError {
+ use vm_memory::GuestMemoryError;
+ 
+@@ -30,7 +30,7 @@ pub enum EntropyError {
      /// Bad guest memory buffer: {0}
      GuestMemory(#[from] GuestMemoryError),
      /// Could not get random bytes: {0}
@@ -86,6 +86,6 @@ index 6284efb..893f8a7 100644
          let mut rand_bytes = vec![0; iovec.len()];
 -        rand::fill(&mut rand_bytes).map_err(|err| {
 +        getrandom(&mut rand_bytes).map_err(|err| {
-             METRICS.entropy.host_rng_fails.inc();
+             METRICS.host_rng_fails.inc();
              err
          })?;
