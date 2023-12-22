@@ -12,7 +12,7 @@ index e396269..c238f72 100644
  #endif
      /* This expands to $(CO) $(COFLAGS) $< $@ if $@ does not exist,
 diff --git a/src/read.c b/src/read.c
-index b0fc1e1..5587f2f 100644
+index b0fc1e1..9945a89 100644
 --- a/src/read.c
 +++ b/src/read.c
 @@ -109,11 +109,6 @@ static const char *default_include_directories[] =
@@ -27,6 +27,18 @@ index b0fc1e1..5587f2f 100644
  #endif
      0
    };
+@@ -1906,9 +1901,9 @@ check_specials (struct nameseq *files, int set_default)
+           /* These default values are based on IEEE Std 1003.1-2008.
+              It requires '-O 1' for [CF]FLAGS, but GCC doesn't allow
+              space between -O and the number so omit it here.  */
+-          define_variable_cname ("CC", "c99", o_default, 0);
++          define_variable_cname ("CC", "cc", o_default, 0);
+           define_variable_cname ("CFLAGS", "-O1", o_default, 0);
+-          define_variable_cname ("FC", "fort77", o_default, 0);
++          define_variable_cname ("FC", "f77", o_default, 0);
+           define_variable_cname ("FFLAGS", "-O1", o_default, 0);
+           define_variable_cname ("SCCSGETFLAGS", "-s", o_default, 0);
+           define_variable_cname ("ARFLAGS", "-rv", o_default, 0);
 diff --git a/src/remake.c b/src/remake.c
 index fe67ab2..a6984b9 100644
 --- a/src/remake.c

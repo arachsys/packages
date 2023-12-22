@@ -6,7 +6,7 @@ check() {
 prepare() {
   unpack https://ftp.gnu.org/gnu/make/make-4.4.1.tar.gz
   apply paths.diff
-  tree 93e44f9f48fabe7d722b4e2f01cf133c61c0c8fe2c5a067e48967d7b589590ad
+  tree 3a25b31af4220a14f260a812ab504d549b931d61f2b3136b92d7f35d01cbb3b9
 }
 
 build() {
