@@ -5,7 +5,7 @@ check() {
   match version 6.8p1 'openntpd-([0-9.]+p[0-9]+)\.tar'
 
   url https://ftp.gnu.org/gnu/autoconf/
-  match autoconf 2.71 'autoconf-([0-9.]+)\.tar'
+  match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/automake/
   match automake 1.16.5 'automake-([0-9.]+)\.tar'
@@ -21,14 +21,14 @@ prepare() {
     https://github.com/openntpd-portable/openntpd-openbsd/archive/23fa0681.tar.gz
 
   unpack -d tools/autoconf \
-    https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.xz
+    https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
   unpack -d tools/automake \
     https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz
   unpack -d tools/libtool \
     https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz
 
   apply update.diff
-  tree 176acd92a763fa3fade1cc0567e72b1dd389277141d062dcf62956d0d14116df
+  tree b7d23408ece805522dccda49120e7ba9cd498e4f0ba804aa13784d8aa3272b90
 }
 
 build() {
