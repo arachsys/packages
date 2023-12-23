@@ -1,8 +1,8 @@
 diff --git a/ping/ping_common.c b/ping/ping_common.c
-index 73aa808..9372875 100644
+index 73da26c..ab16896 100644
 --- a/ping/ping_common.c
 +++ b/ping/ping_common.c
-@@ -46,50 +46,50 @@ static uid_t euid;
+@@ -46,55 +46,54 @@ static uid_t euid;
  void usage(void)
  {
  	fprintf(stderr, _(
@@ -10,7 +10,7 @@ index 73aa808..9372875 100644
 +		"\nUsage:\n"
  		"  ping [options] <destination>\n"
  		"\nOptions:\n"
--		"  <destination>      dns name or ip address\n"
+-		"  <destination>      DNS name or IP address\n"
 +		"  <destination>      hostname or address\n"
  		"  -a                 use audible ping\n"
  		"  -A                 use adaptive ping\n"
@@ -22,23 +22,28 @@ index 73aa808..9372875 100644
 -		"  -d                 use SO_DEBUG socket option\n"
 +		"  -d                 set SO_DEBUG socket option\n"
  		"  -e <identifier>    define identifier for ping session, default is random for\n"
- 		"                     SOCK_RAW and kernel defined for SOCK_DGRAM\n"
+-		"                     SOCK_RAW and kernel defined for SOCK_DGRAM\n"
 -		"                     Imply using SOCK_RAW (for IPv4 only for identifier 0)\n"
++		"                     SOCK_RAW and kernel-defined for SOCK_DGRAM\n"
 +		"                     (identifier 0 implies SOCK_RAW)\n"
  		"  -f                 flood ping\n"
  		"  -h                 print help and exit\n"
+-		"  -H                 force reverse DNS name resolution (useful for numeric\n"
+-		"                     destinations or for -f), override -n\n"
 -		"  -I <interface>     either interface name or address\n"
++		"  -H                 force reverse name lookup (useful for numeric\n"
++		"                     destinations or with -f; overrides -n)\n"
 +		"  -I <interface>     specify interface name or address\n"
  		"  -i <interval>      seconds between sending each packet\n"
  		"  -L                 suppress loopback of multicast packets\n"
 -		"  -l <preload>       send <preload> number of packages while waiting replies\n"
 -		"  -m <mark>          tag the packets going out\n"
--		"  -M <pmtud opt>     define mtu discovery, can be one of <do|dont|want|probe>\n"
--		"  -n                 no dns name resolution\n"
+-		"  -M <pmtud opt>     define path MTU discovery, can be one of <do|dont|want|probe>\n"
+-		"  -n                 no reverse DNS name resolution, override -H\n"
 +		"  -l <preload>       send up to <preload> packets while awaiting replies\n"
 +		"  -m <mark>          tag the outbound packets\n"
 +		"  -M <pmtud opt>     configure mtu discovery: one of <do|dont|want|probe>\n"
-+		"  -n                 disable name resolution\n"
++		"  -n                 disable name resolution (overrides -H)\n"
  		"  -O                 report outstanding replies\n"
 -		"  -p <pattern>       contents of padding byte\n"
 +		"  -p <pattern>       set the padding byte\n"
@@ -68,9 +73,13 @@ index 73aa808..9372875 100644
  		"\nIPv6 options:\n"
  		"  -6                 use IPv6\n"
 -		"  -F <flowlabel>     define flow label, default is random\n"
--		"  -N <nodeinfo opt>  use icmp6 node info query, try <help> as argument\n"
+-		"  -N <nodeinfo opt>  use IPv6 node info query, try <help> as argument\n"
+-		"\nFor more details see ping(8).\n"
 +		"  -F <flowlabel>     set flow label, default is random\n"
-+		"  -N <nodeinfo opt>  send ICMPv6 node info queries: use <help> to list options\n"
- 		"\nFor more details see ping(8).\n"
++		"  -N <nodeinfo opt>  send IPv6 node info query: use <help> to list options\n"
  	));
- 	exit(2);
+-	exit(2);
++	exit(64);
+ }
+ 
+ void limit_capabilities(struct ping_rts *rts)
