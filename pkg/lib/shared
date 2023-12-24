@@ -3,8 +3,11 @@ declare -A REQUIREMENTS=()
 
 apply() {
   local DIR OPTARG OPTIND OPTION STRIP=1
-  while getopts :d:p: OPTION; do
+  while getopts :c:d:p: OPTION; do
     case $OPTION in
+      c)
+        local CACHEDIR=$OPTARG
+        ;;
       d)
         if ! mkdir -p -- "$OPTARG" 2>/dev/null; then
           die "Failed to create directory $OPTARG"
@@ -204,8 +207,11 @@ setup() {
 
 unpack() {
   local DIR OPTARG OPTIND OPTION STRIP=1
-  while getopts :d:p: OPTION; do
+  while getopts :c:d:p: OPTION; do
     case $OPTION in
+      c)
+        local CACHEDIR=$OPTARG
+        ;;
       d)
         if ! mkdir -p -- "$OPTARG" 2>/dev/null; then
           die "Failed to create directory $OPTARG"

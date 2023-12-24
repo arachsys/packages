@@ -1,6 +1,6 @@
 Usage: pkg ACTION [ARG]...
 
-pkg apply [-d DIR] [-p STRIP] PATCH
+pkg apply [-c CACHEDIR] [-d DIR] [-p STRIP] PATCH
   Apply a patch from a remote URL or local file.
 
 pkg build [-f] [-o OUTDIR] [-s SRC] PKG [FEATURE]...
@@ -54,7 +54,7 @@ pkg system DIR [PKG]...
   none are listed, the standard build requirements are used. DIR must not
   already exist.
 
-pkg unpack [-d DIR] [-p STRIP] TARFILE
+pkg unpack [-c CACHEDIR] [-d DIR] [-p STRIP] TARFILE
   Unpack a source tree tar file from a remote URL or local file.
 
 Set the package source tree location with environment variable PKGDIR, the
