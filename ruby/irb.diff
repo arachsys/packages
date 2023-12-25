@@ -1,30 +1,8 @@
-diff --git a/lib/irb/ext/save-history.rb b/lib/irb/ext/save-history.rb
-index 7acaebe..ac03d87 100644
---- a/lib/irb/ext/save-history.rb
-+++ b/lib/irb/ext/save-history.rb
-@@ -68,7 +68,7 @@ module IRB
-       if history_file = IRB.conf[:HISTORY_FILE]
-         history_file = File.expand_path(history_file)
-       end
--      history_file = IRB.rc_file("_history") unless history_file
-+      history_file ||= File.join(ENV["HOME"] || Dir.pwd, ".irb_history")
-       if File.exist?(history_file)
-         open(history_file, "r:#{IRB.conf[:LC_MESSAGES].encoding}") do |f|
-           f.each { |l|
-@@ -93,7 +93,7 @@ module IRB
-         if history_file = IRB.conf[:HISTORY_FILE]
-           history_file = File.expand_path(history_file)
-         end
--        history_file = IRB.rc_file("_history") unless history_file
-+        history_file ||= File.join(ENV["HOME"] || Dir.pwd, ".irb_history")
- 
-         # Change the permission of a file that already exists[BUG #7694]
-         begin
 diff --git a/lib/irb/init.rb b/lib/irb/init.rb
-index d2baee2..ace5863 100644
+index 66e7b61..1758c6f 100644
 --- a/lib/irb/init.rb
 +++ b/lib/irb/init.rb
-@@ -57,7 +57,7 @@ module IRB # :nodoc:
+@@ -89,7 +89,7 @@ module IRB # :nodoc:
      @CONF[:VERBOSE] = nil
  
      @CONF[:EVAL_HISTORY] = nil
@@ -33,13 +11,13 @@ index d2baee2..ace5863 100644
  
      @CONF[:BACK_TRACE_LIMIT] = 16
  
-@@ -378,7 +378,8 @@ module IRB # :nodoc:
-       yield proc{|rc| irb_home + "/irb#{rc}"}
+@@ -434,8 +434,8 @@ module IRB # :nodoc:
+       end
      end
      if home = ENV["HOME"]
 -      yield proc{|rc| home+"/.irb#{rc}"}
-+      yield proc{|rc| home + "/.config/irb/irb#{rc}"}
-+      yield proc{|rc| home + "/.irb#{rc}"}
+       yield proc{|rc| home+"/.config/irb/irb#{rc}"}
++      yield proc{|rc| home+"/.irb#{rc}"}
      end
      current_dir = Dir.pwd
-     yield proc{|rc| current_dir+"/.config/irb/irb#{rc}"}
+     yield proc{|rc| current_dir+"/.irb#{rc}"}
