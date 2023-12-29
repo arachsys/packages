@@ -1,8 +1,8 @@
-diff --git a/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/targets/aarch64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/targets/aarch64_arachsys_linux_musl.rs
 new file mode 100644
 index 000000000..5681188f8
 --- /dev/null
-+++ b/compiler/rustc_target/src/spec/aarch64_arachsys_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/targets/aarch64_arachsys_linux_musl.rs
 @@ -0,0 +1,10 @@
 +use crate::spec::Target;
 +
@@ -28,11 +28,11 @@ index 8909cf33a..a20ff3b28 100644
      ("x86_64-unknown-linux-gnu", x86_64_unknown_linux_gnu),
      ("x86_64-unknown-linux-gnux32", x86_64_unknown_linux_gnux32),
      ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
-diff --git a/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
+diff --git a/compiler/rustc_target/src/spec/targets/x86_64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/targets/x86_64_arachsys_linux_musl.rs
 new file mode 100644
 index 000000000..5ead73673
 --- /dev/null
-+++ b/compiler/rustc_target/src/spec/x86_64_arachsys_linux_musl.rs
++++ b/compiler/rustc_target/src/spec/targets/x86_64_arachsys_linux_musl.rs
 @@ -0,0 +1,10 @@
 +use crate::spec::Target;
 +

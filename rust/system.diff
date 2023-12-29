@@ -49,11 +49,33 @@ index 3988416d0..3d33a9e60 100644
          let dir = dll.parent().and_then(|p| p.parent()).ok_or(format!(
              "Could not move 2 levels upper using `parent()` on {}",
              dll.display()
+diff --git a/compiler/rustc_target/src/spec/base/linux_musl.rs b/compiler/rustc_target/src/spec/base/linux_musl.rs
+index 5117cadbe..cd3cfd1e1 100644
+--- a/compiler/rustc_target/src/spec/base/linux_musl.rs
++++ b/compiler/rustc_target/src/spec/base/linux_musl.rs
+@@ -1,16 +1,7 @@
+-use crate::spec::crt_objects;
+-use crate::spec::{base, LinkSelfContainedDefault, TargetOptions};
++use crate::spec::{base, TargetOptions};
+ 
+ pub fn opts() -> TargetOptions {
+     let mut base = base::linux::opts();
+-
+     base.env = "musl".into();
+-    base.pre_link_objects_self_contained = crt_objects::pre_musl_self_contained();
+-    base.post_link_objects_self_contained = crt_objects::post_musl_self_contained();
+-    base.link_self_contained = LinkSelfContainedDefault::InferredForMusl;
+-
+-    // These targets statically link libc by default
+-    base.crt_static_default = true;
+-
+     base
+ }
 diff --git a/compiler/rustc_target/src/spec/crt_objects.rs b/compiler/rustc_target/src/spec/crt_objects.rs
-index c126390f5..f7f6c261b 100644
+index 53f710b8f..4724d2626 100644
 --- a/compiler/rustc_target/src/spec/crt_objects.rs
 +++ b/compiler/rustc_target/src/spec/crt_objects.rs
-@@ -63,6 +63,7 @@ pub(super) fn all(obj: &'static str) -> CrtObjects {
+@@ -61,6 +61,7 @@ pub(super) fn all(obj: &'static str) -> CrtObjects {
      ])
  }
  
@@ -61,7 +83,7 @@ index c126390f5..f7f6c261b 100644
  pub(super) fn pre_musl_self_contained() -> CrtObjects {
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crt1.o", "crti.o", "crtbegin.o"]),
-@@ -74,6 +75,7 @@ pub(super) fn pre_musl_self_contained() -> CrtObjects {
+@@ -72,6 +73,7 @@ pub(super) fn pre_musl_self_contained() -> CrtObjects {
      ])
  }
  
@@ -69,32 +91,11 @@ index c126390f5..f7f6c261b 100644
  pub(super) fn post_musl_self_contained() -> CrtObjects {
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
-diff --git a/compiler/rustc_target/src/spec/linux_musl_base.rs b/compiler/rustc_target/src/spec/linux_musl_base.rs
-index 61553e71b..0108e8dcb 100644
---- a/compiler/rustc_target/src/spec/linux_musl_base.rs
-+++ b/compiler/rustc_target/src/spec/linux_musl_base.rs
-@@ -1,16 +1,7 @@
--use crate::spec::crt_objects::{self, LinkSelfContainedDefault};
- use crate::spec::TargetOptions;
- 
- pub fn opts() -> TargetOptions {
-     let mut base = super::linux_base::opts();
--
-     base.env = "musl".into();
--    base.pre_link_objects_self_contained = crt_objects::pre_musl_self_contained();
--    base.post_link_objects_self_contained = crt_objects::post_musl_self_contained();
--    base.link_self_contained = LinkSelfContainedDefault::Musl;
--
--    // These targets statically link libc by default
--    base.crt_static_default = true;
--
-     base
- }
-diff --git a/src/bootstrap/compile.rs b/src/bootstrap/compile.rs
-index 292ccc578..8cfc5927b 100644
---- a/src/bootstrap/compile.rs
-+++ b/src/bootstrap/compile.rs
-@@ -255,40 +255,7 @@ fn copy_self_contained_objects(
+diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
+index 7021a9543..abc2667a4 100644
+--- a/src/bootstrap/src/core/build_steps/compile.rs
++++ b/src/bootstrap/src/core/build_steps/compile.rs
+@@ -306,40 +306,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -136,22 +137,10 @@ index 292ccc578..8cfc5927b 100644
          let srcdir = builder
              .wasi_root(target)
              .unwrap_or_else(|| {
-diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index 8b8d4b237..e2563f776 100644
---- a/src/bootstrap/lib.rs
-+++ b/src/bootstrap/lib.rs
-@@ -252,6 +252,7 @@ pub struct Build {
-     metrics: metrics::BuildMetrics,
- }
- 
-+#[allow(dead_code)]
- #[derive(Debug, Clone)]
- struct Crate {
-     name: Interned<String>,
-diff --git a/src/bootstrap/sanity.rs b/src/bootstrap/sanity.rs
-index 0febdf250..c84f31d52 100644
---- a/src/bootstrap/sanity.rs
-+++ b/src/bootstrap/sanity.rs
+diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
+index eec3be66a..a2d1cb5df 100644
+--- a/src/bootstrap/src/core/sanity.rs
++++ b/src/bootstrap/src/core/sanity.rs
 @@ -11,7 +11,6 @@
  use std::collections::HashMap;
  use std::env;
@@ -189,3 +178,15 @@ index 0febdf250..c84f31d52 100644
          if need_cmake && target.contains("msvc") {
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
+diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
+index 33b8f1a7c..babf01c08 100644
+--- a/src/bootstrap/src/lib.rs
++++ b/src/bootstrap/src/lib.rs
+@@ -209,6 +209,7 @@ pub struct Build {
+     metrics: crate::utils::metrics::BuildMetrics,
+ }
+ 
++#[allow(dead_code)]
+ #[derive(Debug, Clone)]
+ struct Crate {
+     name: Interned<String>,
