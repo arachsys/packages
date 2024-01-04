@@ -5,7 +5,8 @@ check() {
 
 prepare() {
   unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.8.2.tar.gz
-  tree 95e5520e6301f1c5730ec14cf08672c8ef2fe35ba619340a0d247593f0c6b11e
+  apply dynamic.diff
+  tree e4039c4940ce2b4a1fa1b454c5c845572ab9d385fb85112081891299f1b3fa31
 }
 
 build() {

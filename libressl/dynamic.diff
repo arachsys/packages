@@ -1,0 +1,103 @@
+diff --git a/apps/nc/Makefile.am b/apps/nc/Makefile.am
+index aba306e..28ef3ec 100644
+--- a/apps/nc/Makefile.am
++++ b/apps/nc/Makefile.am
+@@ -16,12 +16,9 @@ endif
+ EXTRA_DIST = nc.1
+ EXTRA_DIST += CMakeLists.txt
+ 
+-nc_LDADD = $(libcrypto_la_objects)
++nc_LDADD = $(abs_top_builddir)/tls/libtls.la
+ nc_LDADD += $(libcompat_la_objects)
+ nc_LDADD += $(libcompatnoopt_la_objects)
+-nc_LDADD += $(libssl_la_objects)
+-nc_LDADD += $(libtls_la_objects)
+-
+ nc_LDADD += $(PLATFORM_LDADD) $(PROG_LDADD)
+ 
+ AM_CPPFLAGS += -I$(top_srcdir)/apps/nc/compat
+diff --git a/apps/nc/Makefile.in b/apps/nc/Makefile.in
+index 92644e3..5c871a1 100644
+--- a/apps/nc/Makefile.in
++++ b/apps/nc/Makefile.in
+@@ -364,10 +364,9 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(abs_top_builddir)/include \
+ 	-D__BEGIN_HIDDEN_DECLS= -D__END_HIDDEN_DECLS= $(am__append_1)
+ @BUILD_NC_TRUE@@ENABLE_NC_TRUE@dist_man_MANS = nc.1
+ @BUILD_NC_TRUE@EXTRA_DIST = nc.1 CMakeLists.txt
+-@BUILD_NC_TRUE@nc_LDADD = $(libcrypto_la_objects) \
++@BUILD_NC_TRUE@nc_LDADD = $(abs_top_builddir)/tls/libtls.la \
+ @BUILD_NC_TRUE@	$(libcompat_la_objects) \
+ @BUILD_NC_TRUE@	$(libcompatnoopt_la_objects) \
+-@BUILD_NC_TRUE@	$(libssl_la_objects) $(libtls_la_objects) \
+ @BUILD_NC_TRUE@	$(PLATFORM_LDADD) $(PROG_LDADD)
+ @BUILD_NC_TRUE@nc_SOURCES = atomicio.c netcat.c socks.c \
+ @BUILD_NC_TRUE@	compat/socket.c $(am__append_2) $(am__append_3) \
+diff --git a/apps/ocspcheck/Makefile.am b/apps/ocspcheck/Makefile.am
+index e6f3c54..2d1aa5d 100644
+--- a/apps/ocspcheck/Makefile.am
++++ b/apps/ocspcheck/Makefile.am
+@@ -14,11 +14,10 @@ endif
+ EXTRA_DIST = ocspcheck.8
+ EXTRA_DIST += CMakeLists.txt
+ 
+-ocspcheck_LDADD = $(libcrypto_la_objects)
++ocspcheck_LDADD = $(abs_top_builddir)/ssl/libssl.la
++ocspcheck_LDADD += $(abs_top_builddir)/tls/libtls.la
+ ocspcheck_LDADD += $(libcompat_la_objects)
+ ocspcheck_LDADD += $(libcompatnoopt_la_objects)
+-ocspcheck_LDADD += $(libssl_la_objects)
+-ocspcheck_LDADD += $(libtls_la_objects)
+ ocspcheck_LDADD += $(PLATFORM_LDADD) $(PROG_LDADD)
+ 
+ ocspcheck_SOURCES = http.c
+diff --git a/apps/ocspcheck/Makefile.in b/apps/ocspcheck/Makefile.in
+index bca9cee..c807342 100644
+--- a/apps/ocspcheck/Makefile.in
++++ b/apps/ocspcheck/Makefile.in
+@@ -350,9 +350,11 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(abs_top_builddir)/include \
+ 	-D__BEGIN_HIDDEN_DECLS= -D__END_HIDDEN_DECLS=
+ @ENABLE_LIBTLS_ONLY_FALSE@dist_man_MANS = ocspcheck.8
+ EXTRA_DIST = ocspcheck.8 CMakeLists.txt
+-ocspcheck_LDADD = $(libcrypto_la_objects) $(libcompat_la_objects) \
+-	$(libcompatnoopt_la_objects) $(libssl_la_objects) \
+-	$(libtls_la_objects) $(PLATFORM_LDADD) $(PROG_LDADD)
++ocspcheck_LDADD = $(abs_top_builddir)/ssl/libssl.la \
++	$(abs_top_builddir)/tls/libtls.la \
++	$(libcompat_la_objects) \
++	$(libcompatnoopt_la_objects) \
++	$(PLATFORM_LDADD) $(PROG_LDADD)
+ ocspcheck_SOURCES = http.c ocspcheck.c $(am__append_1)
+ noinst_HEADERS = http.h
+ all: all-am
+diff --git a/apps/openssl/Makefile.am b/apps/openssl/Makefile.am
+index 2567ef0..95ed845 100644
+--- a/apps/openssl/Makefile.am
++++ b/apps/openssl/Makefile.am
+@@ -10,10 +10,9 @@ else
+ noinst_PROGRAMS = openssl
+ endif
+ 
+-openssl_LDADD = $(libcrypto_la_objects)
++openssl_LDADD = $(abs_top_builddir)/ssl/libssl.la
+ openssl_LDADD += $(libcompat_la_objects)
+ openssl_LDADD += $(libcompatnoopt_la_objects)
+-openssl_LDADD += $(libssl_la_objects)
+ openssl_LDADD += $(PLATFORM_LDADD) $(PROG_LDADD)
+ 
+ openssl_SOURCES = apps.c
+diff --git a/apps/openssl/Makefile.in b/apps/openssl/Makefile.in
+index d0fda43..f500bbc 100644
+--- a/apps/openssl/Makefile.in
++++ b/apps/openssl/Makefile.in
+@@ -405,8 +405,9 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(abs_top_builddir)/include \
+ 	-I$(top_srcdir)/include/compat -DLIBRESSL_INTERNAL \
+ 	-D__BEGIN_HIDDEN_DECLS= -D__END_HIDDEN_DECLS=
+ @ENABLE_LIBTLS_ONLY_FALSE@dist_man_MANS = openssl.1
+-openssl_LDADD = $(libcrypto_la_objects) $(libcompat_la_objects) \
+-	$(libcompatnoopt_la_objects) $(libssl_la_objects) \
++openssl_LDADD = $(abs_top_builddir)/ssl/libssl.la \
++	$(libcompat_la_objects) \
++	$(libcompatnoopt_la_objects) \
+ 	$(PLATFORM_LDADD) $(PROG_LDADD)
+ openssl_SOURCES = apps.c asn1pars.c ca.c ciphers.c crl.c crl2p7.c \
+ 	cms.c dgst.c dh.c dhparam.c dsa.c dsaparam.c ec.c ecparam.c \
