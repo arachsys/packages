@@ -16,8 +16,9 @@ prepare() {
 
 build() {
   make -C xxhash libxxhash.a
-  auto-config --disable-lz4 --enable-xxhash --with-included-popt \
-    --without-included-zlib CPPFLAGS=-I/src/xxhash LDFLAGS=-L/src/xxhash
+  auto-config --disable-lz4 --enable-ipv6 --enable-xxhash \
+    --with-included-popt --without-included-zlib \
+    CPPFLAGS=-I/src/xxhash LDFLAGS=-L/src/xxhash
   make install DESTDIR=/dst
   rm -f /dst/{bin/rsync-ssl,lib/man/man1/rsync-ssl.1}
 }
