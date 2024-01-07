@@ -33,4 +33,5 @@ build() {
     python x.py install
   rm -f /dst/bin/{rust-*db*,rust-analyzer-proc-macro-srv,*.old}
   rm -f -r /dst/{etc,lib/rustlib/!($CHOST),share,src/etc}
+  image - requires build
 }

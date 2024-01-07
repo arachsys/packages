@@ -1,7 +1,6 @@
 bash
 bzip2
 coreutils
-curl
 diffutils
 findutils
 gawk

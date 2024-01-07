@@ -1,4 +1,5 @@
 base
+curl
 linux-headers
 llvm
 make
