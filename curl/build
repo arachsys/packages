@@ -22,7 +22,7 @@ build() {
   cd /src
   unexpand curl-config.in >curl-config.in.tmp
   mv -f curl-config.in{.tmp,}
-  PATH_SEPARATOR=: auto-config \
+  PATH_SEPARATOR=: auto-config --enable-ipv6 \
     --with-ca-bundle=/etc/ssl/cert.pem --with-openssl \
     CPPFLAGS="-DUSE_NGHTTP2=1 -I/src/nghttp2/lib/includes" \
     LDFLAGS=-L/src/nghttp2/lib/.libs LIBS=-lnghttp2
