@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 54539ce..5c359ab 100644
+index 8024d45..e6ac257 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -14,22 +14,22 @@ ifeq ($(VERBOSE),0)
@@ -8,17 +8,17 @@ index 54539ce..5c359ab 100644
  
 -PREFIX?=/usr
 -SBINDIR?=/sbin
+-NETNS_RUN_DIR?=/var/run/netns
 +PREFIX?=
 +SBINDIR?=/bin
- CONF_ETC_DIR?=/etc/iproute2
- CONF_USR_DIR?=$(LIBDIR)/iproute2
--NETNS_RUN_DIR?=/var/run/netns
 +NETNS_RUN_DIR?=/run/netns
  NETNS_ETC_DIR?=/etc/netns
 -DATADIR?=$(PREFIX)/share
 -HDRDIR?=$(PREFIX)/include/iproute2
 +DATADIR?=$(PREFIX)/lib
 +HDRDIR?=$(PREFIX)/lib/include
+ CONF_ETC_DIR?=/etc/iproute2
+ CONF_USR_DIR?=$(DATADIR)/iproute2
  DOCDIR?=$(DATADIR)/doc/iproute2
  MANDIR?=$(DATADIR)/man
  ARPDDIR?=/var/lib/arpd
@@ -33,10 +33,10 @@ index 54539ce..5c359ab 100644
  SHARED_LIBS = y
  
 diff --git a/configure b/configure
-index 18be5a0..5d1f3e5 100755
+index 158e76e..859e163 100755
 --- a/configure
 +++ b/configure
-@@ -572,7 +572,6 @@ if [ "${LIBBPF_FORCE-unused}" != "unused" ]; then
+@@ -586,7 +586,6 @@ if [ "${LIBBPF_FORCE-unused}" != "unused" ]; then
  		usage 1
  	fi
  fi
