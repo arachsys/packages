@@ -1,5 +1,5 @@
 diff --git a/ui/curses.c b/ui/curses.c
-index 34bf30d..2b4fa63 100644
+index d01e178..233b75d 100644
 --- a/ui/curses.c
 +++ b/ui/curses.c
 @@ -693,8 +693,7 @@ void mtr_curses_redraw(
@@ -12,7 +12,7 @@ index 34bf30d..2b4fa63 100644
      pwcenter(buf);
      attroff(A_BOLD);
  
-@@ -721,7 +720,7 @@ void mtr_curses_redraw(
+@@ -723,7 +722,7 @@ void mtr_curses_redraw(
      attroff(A_BOLD);
      printw("rder of fields   ");
      attron(A_BOLD);
@@ -21,8 +21,21 @@ index 34bf30d..2b4fa63 100644
      attroff(A_BOLD);
      printw("uit\n");
  
+diff --git a/ui/mtr.c b/ui/mtr.c
+index 2c6fc68..e3cc182 100644
+--- a/ui/mtr.c
++++ b/ui/mtr.c
+@@ -67,7 +67,7 @@ char *myname;
+ const struct fields data_fields[MAXFLD] = {
+     /* key, Remark, Header, Format, Width, CallBackFunc */
+     {' ', "<sp>: Space between fields", " ", " ", 1, &net_drop},
+-    {'L', "L: Loss Ratio", "Loss%", " %4.1f%%", 6, &net_loss},
++    {'L', "L: Loss Ratio", "Loss%", " %5.1f%%", 7, &net_loss},
+     {'D', "D: Dropped Packets", "Drop", " %4d", 5, &net_drop},
+     {'R', "R: Received Packets", "Rcv", " %5d", 6, &net_returned},
+     {'S', "S: Sent Packets", "Snt", " %5d", 6, &net_xmit},
 diff --git a/ui/report.c b/ui/report.c
-index b79f593..e936501 100644
+index a63ed55..38d6a41 100644
 --- a/ui/report.c
 +++ b/ui/report.c
 @@ -127,10 +127,12 @@ void report_close(
