@@ -1,0 +1,15 @@
+check() {
+  url https://github.com/nixos/patchelf/tags
+  match version 0.18.0 'tags/([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0.tar.bz2
+  apply usage.diff
+  tree aff61b6b45131f78ce7c03d897627bf440541fa19d036b0aa04479223ddd7859
+}
+
+build() {
+  auto-config
+  make install DESTDIR=/dst
+}

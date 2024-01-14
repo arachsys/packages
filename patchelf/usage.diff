@@ -1,0 +1,82 @@
+diff --git a/src/patchelf.cc b/src/patchelf.cc
+index 82b4b46..4f6ad11 100644
+--- a/src/patchelf.cc
++++ b/src/patchelf.cc
+@@ -2478,37 +2478,46 @@ static void patchElf()
+ 
+ static void showHelp(const std::string & progName)
+ {
+-        fprintf(stderr, "syntax: %s\n\
+-  [--set-interpreter FILENAME]\n\
+-  [--page-size SIZE]\n\
+-  [--print-interpreter]\n\
+-  [--print-os-abi]\t\tPrints 'EI_OSABI' field of ELF header\n\
+-  [--set-os-abi ABI]\t\tSets 'EI_OSABI' field of ELF header to ABI.\n\
+-  [--print-soname]\t\tPrints 'DT_SONAME' entry of .dynamic section. Raises an error if DT_SONAME doesn't exist\n\
+-  [--set-soname SONAME]\t\tSets 'DT_SONAME' entry to SONAME.\n\
+-  [--set-rpath RPATH]\n\
+-  [--add-rpath RPATH]\n\
+-  [--remove-rpath]\n\
+-  [--shrink-rpath]\n\
+-  [--allowed-rpath-prefixes PREFIXES]\t\tWith '--shrink-rpath', reject rpath entries not starting with the allowed prefix\n\
+-  [--print-rpath]\n\
+-  [--force-rpath]\n\
+-  [--add-needed LIBRARY]\n\
+-  [--remove-needed LIBRARY]\n\
+-  [--replace-needed LIBRARY NEW_LIBRARY]\n\
+-  [--print-needed]\n\
+-  [--no-default-lib]\n\
+-  [--no-sort]\t\tDo not sort program+section headers; useful for debugging patchelf.\n\
+-  [--clear-symbol-version SYMBOL]\n\
+-  [--add-debug-tag]\n\
+-  [--print-execstack]\t\tPrints whether the object requests an executable stack\n\
+-  [--clear-execstack]\n\
+-  [--set-execstack]\n\
+-  [--rename-dynamic-symbols NAME_MAP_FILE]\tRenames dynamic symbols. The map file should contain two symbols (old_name new_name) per line\n\
+-  [--output FILE]\n\
+-  [--debug]\n\
+-  [--version]\n\
+-  FILENAME...\n", progName.c_str());
++        fprintf(stderr, "\
++Usage: %s [OPTIONS] FILE...\n\
++Options:\n\
++  --page-size SIZE              set a non-default page size\n\
++  --print-interpreter           show the ELF interpreter\n\
++  --set-interpreter PATH        set the ELF interpreter\n\
++  --print-os-abi                show EI_OSABI field of ELF header\n\
++  --set-os-abi ABI              set EI_OSABI field of ELF header to ABI\n\
++  --print-soname                show DT_SONAME entry of .dynamic section;\n\
++                                returns an error if DT_SONAME doesn't exist\n\
++  --set-soname SONAME           set DT_SONAME entry to SONAME\n\
++  --print-rpath                 show DT_RUNPATH or DT_RPATH\n\
++  --set-rpath RPATH             set DT_RUNPATH\n\
++  --add-rpath RPATH             add to existing DT_RUNPATH\n\
++  --remove-rpath                remove DT_RUNPATH or DT_RPATH\n\
++  --shrink-rpath                prune rpath entries unneeded by dependencies\n\
++  --allowed-rpath-prefixes PREFIX[:PREFIX]...\n\
++                                with '--shrink-rpath', prune rpath entries\n\
++                                not starting with an allowed prefix\n\
++  --force-rpath                 force use of DT_RPATH rather than DT_RUNPATH\n\
++  --print-needed                show all DT_NEEDED entries\n\
++  --add-needed LIBRARY          add a declared DT_NEEDED dependency\n\
++  --remove-needed LIBRARY       remove a declared DT_NEEDED dependency\n\
++  --replace-needed OLD-LIBRARY NEW-LIBRARY\n\
++                                replace a declared DT_NEEDED dependency\n\
++  --no-default-lib              disable default library search paths\n\
++  --no-sort                     do not sort program + section headers\n\
++  --clear-symbol-version SYMBOL\n\
++                                clear version specifier from a symbol\n\
++  --add-debug-tag               add DT_DEBUG tag if not already present\n\
++  --print-execstack             show if an executable stack is requested\n\
++  --clear-execstack             clear the executable flag of GNU_STACK\n\
++  --set-execstack               set the executable flag of GNU_STACK\n\
++  --rename-dynamic-symbols NAME-MAP-FILE\n\
++                                rename dynamic symbols; each line of the map\n\
++                                must be space-separated old and new symbols\n\
++  --output FILE                 output to FILE instead of modifying in-place\n\
++  --debug                       show details of changes made to input files\n\
++  --version                     show the program version\n\
++", progName.c_str());
+ }
+ 
+ 
