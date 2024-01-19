@@ -1,8 +1,8 @@
 diff --git a/rc/tools/git.kak b/rc/tools/git.kak
-index c6fd7ff..b5c73b8 100644
+index 798fd97..b9c7334 100644
 --- a/rc/tools/git.kak
 +++ b/rc/tools/git.kak
-@@ -138,36 +138,42 @@ define-command -params 1.. \
+@@ -160,36 +160,42 @@ define-command -params 1.. \
                        try %{ add-highlighter window/git-blame flag-lines Information git_blame_flags }
                        set-option buffer=$kak_bufname git_blame_flags '$kak_timestamp'
                    }" | kak -p ${kak_session}
@@ -11,7 +11,7 @@ index c6fd7ff..b5c73b8 100644
 -                  sub send_flags {
 -                      my $flush = shift;
 -                      if (not defined $line) { return; }
--                      my $text = substr($sha,1,8) . " " . $dates{$sha} . " " . $authors{$sha};
+-                      my $text = substr($sha,0,7) . " " . $dates{$sha} . " " . $authors{$sha};
 -                      $text =~ s/~/~~/g;
 -                      for ( my $i = 0; $i < $count; $i++ ) {
 -                          $flags .= " %~" . ($line+$i) . "|$text~";
@@ -175,7 +175,7 @@ index 10cc74f..0000000
 -}
 -print $chaff;
 diff --git a/rc/tools/patch.kak b/rc/tools/patch.kak
-index fe635ac..2b6560e 100644
+index a6bae1f..2b6560e 100644
 --- a/rc/tools/patch.kak
 +++ b/rc/tools/patch.kak
 @@ -49,13 +49,82 @@ define-command patch -params .. -docstring %{
