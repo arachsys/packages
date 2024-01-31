@@ -13,7 +13,7 @@ prepare() {
 build() {
   make install DESTDIR=/dst prefix= gitexecdir=/lib/git \
     gitwebdir=/lib/gitweb htmldir=/lib/doc/git infodir=/lib/info \
-    mandir=/lib/man template_dir=/lib/git/templates \
+    mandir=/lib/man template_dir=/lib/git/templates USE_LIBPCRE=1 \
     CURL_LDFLAGS=-lcurl NO_{EXPAT,GETTEXT,PERL,PYTHON,REGEX,TCLTK}=1
   grep -l -r -F -Z 'fatal: git was built without support for' /dst \
     | xargs -r -0 rm --
