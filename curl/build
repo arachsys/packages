@@ -1,17 +1,18 @@
 check() {
   url https://curl.haxx.se/download/
-  match curl 8.5.0 'curl-([0-9.]+)\.tar'
+  match curl 8.6.0 'curl-([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
   match nghttp2 1.59.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://curl.haxx.se/download/curl-8.5.0.tar.xz
+  unpack https://curl.haxx.se/download/curl-8.6.0.tar.xz
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.59.0/nghttp2-1.59.0.tar.xz
+  apply docs.diff
   apply paths.diff
-  tree b3a5fbb723761af2ff6e928c21db10bef4b49c80687f5c98cf723de0d7fa7fd2
+  tree e51a8f1f68c2688658c6c5f60a7c8a9218e2fd450dcd74abf05f3c185bfbf240
 }
 
 build() {
@@ -22,7 +23,7 @@ build() {
   cd /src
   unexpand curl-config.in >curl-config.in.tmp
   mv -f curl-config.in{.tmp,}
-  PATH_SEPARATOR=: auto-config --enable-ipv6 \
+  PATH_SEPARATOR=: auto-config --enable-ipv6 --without-libpsl \
     --with-ca-bundle=/etc/ssl/cert.pem --with-openssl \
     CPPFLAGS="-DUSE_NGHTTP2=1 -I/src/nghttp2/lib/includes" \
     LDFLAGS=-L/src/nghttp2/lib/.libs LIBS=-lnghttp2
