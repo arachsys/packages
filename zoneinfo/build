@@ -1,11 +1,11 @@
 check() {
   url https://data.iana.org/time-zones/releases/
-  match version 2023d 'tzdb-([0-9]+[a-z]+)\.tar'
+  match version 2024a 'tzdb-([0-9]+[a-z]+)\.tar'
 }
 
 prepare() {
-  unpack https://data.iana.org/time-zones/releases/tzdb-2023d.tar.lz
-  tree 7c8875520f151699c718259013cc222c777acef865eee1f7b7c42cf9f960d78a
+  unpack https://data.iana.org/time-zones/releases/tzdb-2024a.tar.lz
+  tree f8ad8befa42153307a5e077d5d967c12d676f076e7784744952a0e950e8a938b
 }
 
 build() {
