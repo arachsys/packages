@@ -18,5 +18,4 @@ build() {
   sed -i 's/-lexpat/-Wl,-Bstatic,\0,-Bdynamic/' Makefile
   make install DESTDIR=/dst
   rm -f -r /dst/bin/unbound-control-setup /dst/include /dst/lib
-  ln -s unbound-host /dst/bin/host
 }
