@@ -1,13 +1,13 @@
 check() {
   url https://api.github.com/repos/arachsys/tinydns/branches/master
-  match snapshot 20240202 \
+  match snapshot 20240205 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack tinydns-20240202-e3b587a7.tar.gz \
-    https://github.com/arachsys/tinydns/archive/e3b587a7.tar.gz
-  tree 0da9be7b6f41cd901021f12dcabc2dd438b76c1592a2a8b6266ddb90337d0dba
+  unpack tinydns-20240205-17c3f460.tar.gz \
+    https://github.com/arachsys/tinydns/archive/17c3f460.tar.gz
+  tree eb3c7340aa55e8e9cd906893b8f4f4fcf71411f1ec74d9957e0cf5f103252a26
 }
 
 build() {
