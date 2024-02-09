@@ -1,20 +1,21 @@
 check() {
   url https://www.kernel.org/pub/software/scm/git/
-  match version 2.43.0 'git-([0-9.]+)\.tar'
+  match version 2.43.1 'git-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/software/scm/git/git-2.43.0.tar.xz
+  unpack https://www.kernel.org/pub/software/scm/git/git-2.43.1.tar.xz
   apply filter-branch.diff
   apply usage.diff
-  tree dfc2a47de327f6d3494900c27dfebc7bbeee7d6a74e81ddc5eff9a947d98521a
+  tree c615beeb70bb2a69afb7ff07e46bf299d5b434d2c3b36142b248f0e0c3969201
 }
 
 build() {
   make install DESTDIR=/dst prefix= gitexecdir=/lib/git \
     gitwebdir=/lib/gitweb htmldir=/lib/doc/git infodir=/lib/info \
-    mandir=/lib/man template_dir=/lib/git/templates USE_LIBPCRE=1 \
-    CURL_LDFLAGS=-lcurl NO_{EXPAT,GETTEXT,PERL,PYTHON,REGEX,TCLTK}=1
+    mandir=/lib/man template_dir=/lib/git/templates \
+    CURL_LDFLAGS=-lcurl NO_{EXPAT,GETTEXT,PERL,PYTHON,REGEX,TCLTK}=1 \
+    USE_CURL_FOR_IMAP_SEND=1 USE_LIBPCRE=1
   grep -l -r -F -Z 'fatal: git was built without support for' /dst \
     | xargs -r -0 rm --
   rm -r /dst/lib/git/templates
