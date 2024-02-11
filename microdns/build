@@ -1,16 +1,15 @@
 check() {
   url https://api.github.com/repos/arachsys/microdns/branches/master
-  match snapshot 20240207 \
+  match snapshot 20240211 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack microdns-20240207-ec2d3dec.tar.gz \
-    https://github.com/arachsys/microdns/archive/ec2d3dec.tar.gz
-  tree b17553aa05c91f308b908558a2d0762455d96fcec5e9bdf2eb28149328dae933
+  unpack microdns-20240211-4eafaf5c.tar.gz \
+    https://github.com/arachsys/microdns/archive/4eafaf5c.tar.gz
+  tree 1e2b6258065493f8b1858c229575b982d87392ae9163d20184ccfdcadbd42f46
 }
 
 build() {
-  make dnsdata tcpdns udpdns $(enabled static && echo LDFLAGS+=-static)
-  install -t /dst/bin -D dnsdata tcpdns udpdns
+  make install DESTDIR=/dst $(enabled static && echo LDFLAGS+=-static)
 }
