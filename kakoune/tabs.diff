@@ -21,10 +21,10 @@ index 0677b11..6b2486a 100644
  }
  
 diff --git a/rc/tools/git.kak b/rc/tools/git.kak
-index 6bf1e00..cca44ba 100644
+index bbe8d65..af661c5 100644
 --- a/rc/tools/git.kak
 +++ b/rc/tools/git.kak
-@@ -303,16 +303,14 @@ define-command -params 1.. \
+@@ -464,16 +464,14 @@ define-command -params 1.. \
  
      commit() {
          # Handle case where message needs not to be edited
@@ -44,17 +44,17 @@ index 6bf1e00..cca44ba 100644
          # fails, and generate COMMIT_EDITMSG
          GIT_EDITOR='' EDITOR='' git commit "$@" > /dev/null 2>&1
 diff --git a/rc/tools/patch.kak b/rc/tools/patch.kak
-index c04daaf..9da1bdc 100644
+index a481ff4..208a1e6 100644
 --- a/rc/tools/patch.kak
 +++ b/rc/tools/patch.kak
-@@ -43,9 +43,7 @@ define-command patch -params .. -docstring %{
-             set-register e nop
-             set-register | %{
-                 # The selected range to apply.
--                IFS=' .,' read min_line _ max_line _ <<-EOF
--                $kak_reg_s
--		EOF
-+                IFS=' .,' read min_line _ max_line _ <<< "$kak_reg_s"
-                 min_line=$((min_line - kak_cursor_line + 1))
-                 max_line=$((max_line - kak_cursor_line + 1))
+@@ -41,9 +41,7 @@ define-command patch -params .. -docstring %{
+         set-register e nop
+         set-register | %{
+             # The selected range to apply.
+-            IFS=' .,' read min_line _ max_line _ <<-EOF
+-            $kak_reg_s
+-	EOF
++            IFS=' .,' read min_line _ max_line _ <<< "$kak_reg_s"
+             min_line=$((min_line - kak_cursor_line + 1))
+             max_line=$((max_line - kak_cursor_line + 1))
  

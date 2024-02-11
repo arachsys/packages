@@ -1,13 +1,33 @@
 diff --git a/src/main.cc b/src/main.cc
-index 08c2bc5..ae62129 100644
+index e721699..fbd7687 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -147,6 +147,8 @@ void show_startup_info(Client* local_client, int last_version)
-     DisplayLineList info;
-     for (auto [version, notes] : version_notes)
-     {
-+        if (last_version < 0)
-+            continue;
-         if (version and version <= last_version)
-             continue;
+@@ -41,6 +41,8 @@ namespace Kakoune
  
+ extern const char* version;
+ 
++#ifdef SHOW_STARTUP_INFO
++
+ struct {
+     unsigned int version;
+     StringView notes;
+@@ -187,6 +189,8 @@ void show_startup_info(Client* local_client, int last_version)
+     }
+ }
+ 
++#endif
++
+ inline void write_stdout(StringView str) { try { write(STDOUT_FILENO, str); } catch (runtime_error&) {} }
+ inline void write_stderr(StringView str) { try { write(STDERR_FILENO, str); } catch (runtime_error&) {} }
+ 
+@@ -877,8 +881,10 @@ int run_server(StringView session, StringView server_init,
+                     local_client->context().faces()["Error"]
+                 });
+ 
++#ifdef SHOW_STARTUP_INFO
+             if (flags & ServerFlags::StartupInfo and local_client)
+                 show_startup_info(local_client, global_scope.options()["startup_info_version"].get<int>());
++#endif
+         }
+ 
+         while (not terminate and
