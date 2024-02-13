@@ -1,13 +1,13 @@
-require libevent
+require bison libevent
 
 check() {
   url https://github.com/tmux/tmux/tags
-  match version 3.3a 'tags/([0-9.]+[a-z]?)\.tar'
+  match version 3.4 'tags/([0-9.]+[a-z]?)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/tmux/tmux/releases/download/3.3a/tmux-3.3a.tar.gz
-  tree 63928cdad8b981bb47a0a33c9102ef78d1269ff91e8ba521abd203ca9287f68f
+  unpack https://github.com/tmux/tmux/releases/download/3.4/tmux-3.4.tar.gz
+  tree 243bbd12cacdaed326c7f726803ecd451980438cf82e10e01746a5d293bd8ad9
 }
 
 build() {
