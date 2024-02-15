@@ -1,0 +1,84 @@
+diff --git a/src/cli.c b/src/cli.c
+index 448c25c..9871d20 100644
+--- a/src/cli.c
++++ b/src/cli.c
+@@ -45,19 +45,6 @@ static void __cli_exit(int rc)
+ 	cli_rc = rc;
+ }
+ 
+-static char histfile[PATH_MAX];
+-
+-static void
+-init_histfile(void)
+-{
+-	const char *home;
+-
+-	home = getenv("HOME");
+-	if (home == NULL)
+-		home = "";
+-	snprintf(histfile, sizeof(histfile), "%s/%s", home, CMDLINE_HISTFILE);
+-}
+-
+ #if defined(HAVE_LIBREADLINE)
+ static void nft_rl_prompt_save(void)
+ {
+@@ -176,11 +163,6 @@ int cli_init(struct nft_ctx *nft)
+ 	rl_callback_handler_install(CMDLINE_PROMPT, cli_complete);
+ 	rl_attempted_completion_function = cli_completion;
+ 
+-	init_histfile();
+-
+-	read_history(histfile);
+-	history_set_pos(history_length);
+-
+ 	while (!cli_quit)
+ 		rl_callback_read_char();
+ 
+@@ -191,8 +173,6 @@ void cli_exit(int rc)
+ {
+ 	rl_callback_handler_remove();
+ 	rl_deprep_terminal();
+-	write_history(histfile);
+-
+ 	__cli_exit(rc);
+ }
+ 
+@@ -207,11 +187,6 @@ int cli_init(struct nft_ctx *nft)
+ 	rl_instream  = stdin;
+ 	rl_outstream = stdout;
+ 
+-	init_histfile();
+-
+-	read_history(histfile);
+-	history_set_pos(history_length);
+-
+ 	rl_set_prompt(CMDLINE_PROMPT);
+ 	while (!cli_quit) {
+ 		line = readline(rl_prompt);
+@@ -232,8 +207,6 @@ int cli_init(struct nft_ctx *nft)
+ void cli_exit(int rc)
+ {
+ 	rl_deprep_terminal();
+-	write_history(histfile);
+-
+ 	__cli_exit(rc);
+ }
+ 
+@@ -243,8 +216,6 @@ int cli_init(struct nft_ctx *nft)
+ {
+ 	char *line;
+ 
+-	init_histfile();
+-	linenoiseHistoryLoad(histfile);
+ 	linenoiseSetMultiLine(1);
+ 
+ 	while (!cli_quit) {
+@@ -267,8 +238,6 @@ int cli_init(struct nft_ctx *nft)
+ 
+ void cli_exit(int rc)
+ {
+-	linenoiseHistorySave(histfile);
+-
+ 	__cli_exit(rc);
+ }
+ 

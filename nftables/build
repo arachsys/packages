@@ -16,7 +16,8 @@ prepare() {
   unpack $NFP/nftables/files/nftables-1.0.9.tar.xz
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.5.tar.bz2
   unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.6.tar.xz
-  tree ddc621ce18d7a2c318bf7b51d8d4588ccd8edb46aa5e0212f4fe7e15a020305d
+  apply histfile.diff
+  tree 1af6523d32be18a33ef34ff24008b4bcce1befe56f0c1acaeee42cc47bcaad6b
 }
 
 build() {
