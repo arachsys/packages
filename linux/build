@@ -5,6 +5,7 @@ check() {
 
 prepare() {
   unpack https://www.kernel.org/pub/linux/kernel/v6.x/linux-6.7.4.tar.xz
+  apply ifb.diff
   apply llvm.diff
   apply ncurses.diff
   apply ping.diff
@@ -16,7 +17,7 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree 79d9c16d6152f6e5d45b10ba9a68a3f201bb604aca86e3e053e98dc8dbd0aa71
+  tree 50f52fa04ab3f7c10554e1072e3b87ecfc110e44e7e38cce6cb35fad5e835ab5
 }
 
 build() {

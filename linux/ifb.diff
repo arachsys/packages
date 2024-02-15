@@ -1,0 +1,13 @@
+diff --git a/drivers/net/ifb.c b/drivers/net/ifb.c
+index 2c1b5def4..9f992480e 100644
+--- a/drivers/net/ifb.c
++++ b/drivers/net/ifb.c
+@@ -395,7 +395,7 @@ static struct rtnl_link_ops ifb_link_ops __read_mostly = {
+  * Note that these legacy devices have one queue.
+  * Prefer something like : ip link add ifb10 numtxqueues 8 type ifb
+  */
+-static int numifbs = 2;
++static int numifbs = 0;
+ module_param(numifbs, int, 0);
+ MODULE_PARM_DESC(numifbs, "Number of ifb devices");
+ 
