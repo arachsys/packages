@@ -1,0 +1,23 @@
+require rust
+
+check() {
+  url https://github.com/cloud-hypervisor/cloud-hypervisor/tags
+  match version 38.0 'tags/v([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack cloud-hypervisor-38.0.tar.xz \
+    https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v38.0/cloud-hypervisor-v38.0.tar.xz
+  apply cosmetic.diff
+  apply hotplug.diff
+  apply kernel.diff
+  apply tapip.diff
+  apply zombies.diff
+  tree 85d6c85e929481f94d34ad325601ca01426231215027d56b314449fb094b969a
+}
+
+build() {
+  cargo build --release
+  install -s -D target/release/cloud-hypervisor /dst/bin/hyper
+  install -s -D target/release/ch-remote /dst/bin/hyper-remote
+}

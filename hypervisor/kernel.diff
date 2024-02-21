@@ -1,0 +1,383 @@
+diff --git a/arch/src/lib.rs b/arch/src/lib.rs
+index 33430cfa6a..d08b7aa675 100644
+--- a/arch/src/lib.rs
++++ b/arch/src/lib.rs
+@@ -48,6 +48,10 @@ pub enum Error {
+     ModlistSetup(#[source] vm_memory::GuestMemoryError),
+     #[error("RSDP extends past the end of guest memory")]
+     RsdpPastRamEnd,
++    #[error("Failed to setup Zero Page for bzImage")]
++    ZeroPageSetup(#[source] vm_memory::GuestMemoryError),
++    #[error("Zero Page for bzImage past RAM end")]
++    ZeroPagePastRamEnd,
+ }
+ 
+ /// Type for returning public functions outcome.
+diff --git a/arch/src/x86_64/mod.rs b/arch/src/x86_64/mod.rs
+index 30637894ce..896a74d238 100644
+--- a/arch/src/x86_64/mod.rs
++++ b/arch/src/x86_64/mod.rs
+@@ -17,6 +17,7 @@ use crate::InitramfsConfig;
+ use crate::RegionType;
+ use hypervisor::arch::x86::{CpuIdEntry, CPUID_FLAG_VALID_INDEX};
+ use hypervisor::{CpuVendor, HypervisorCpuError, HypervisorError};
++use linux_loader::loader::bootparam::{boot_params, setup_header};
+ use linux_loader::loader::elf::start_info::{
+     hvm_memmap_table_entry, hvm_modlist_entry, hvm_start_info,
+ };
+@@ -63,6 +64,8 @@ pub const _NSIG: i32 = 65;
+ pub struct EntryPoint {
+     /// Address in guest memory where the guest must start execution
+     pub entry_addr: GuestAddress,
++    /// This field is used for bzImage to fill the zero page
++    pub setup_header: Option<setup_header>,
+ }
+ 
+ const E820_RAM: u32 = 1;
+@@ -180,6 +183,9 @@ pub enum Error {
+     /// Error retrieving TDX capabilities through the hypervisor (kvm/mshv) API
+     #[cfg(feature = "tdx")]
+     TdxCapabilities(HypervisorError),
++
++    /// Failed to configure E820 map for bzImage
++    E820Configuration,
+ }
+ 
+ impl From<Error> for super::Error {
+@@ -842,8 +848,7 @@ pub fn configure_vcpu(
+ 
+     regs::setup_msrs(vcpu).map_err(Error::MsrsConfiguration)?;
+     if let Some((kernel_entry_point, guest_memory)) = boot_setup {
+-        regs::setup_regs(vcpu, kernel_entry_point.entry_addr.raw_value())
+-            .map_err(Error::RegsConfiguration)?;
++        regs::setup_regs(vcpu, kernel_entry_point).map_err(Error::RegsConfiguration)?;
+         regs::setup_fpu(vcpu).map_err(Error::FpuConfiguration)?;
+         regs::setup_sregs(&guest_memory.memory(), vcpu).map_err(Error::SregsConfiguration)?;
+     }
+@@ -892,8 +897,10 @@ pub fn arch_memory_regions() -> Vec<(GuestAddress, usize, RegionType)> {
+ pub fn configure_system(
+     guest_mem: &GuestMemoryMmap,
+     cmdline_addr: GuestAddress,
++    cmdline_size: usize,
+     initramfs: &Option<InitramfsConfig>,
+     _num_cpus: u8,
++    setup_header: Option<setup_header>,
+     rsdp_addr: Option<GuestAddress>,
+     sgx_epc_region: Option<SgxEpcRegion>,
+     serial_number: Option<&str>,
+@@ -921,13 +928,24 @@ pub fn configure_system(
+         }
+     }
+ 
+-    configure_pvh(
+-        guest_mem,
+-        cmdline_addr,
+-        initramfs,
+-        rsdp_addr,
+-        sgx_epc_region,
+-    )
++    match setup_header {
++        Some(hdr) => configure_32bit_entry(
++            guest_mem,
++            cmdline_addr,
++            cmdline_size,
++            initramfs,
++            hdr,
++            rsdp_addr,
++            sgx_epc_region,
++        ),
++        None => configure_pvh(
++            guest_mem,
++            cmdline_addr,
++            initramfs,
++            rsdp_addr,
++            sgx_epc_region,
++        ),
++    }
+ }
+ 
+ type RamRange = (u64, u64);
+@@ -1132,6 +1150,113 @@ fn configure_pvh(
+     Ok(())
+ }
+ 
++fn configure_32bit_entry(
++    guest_mem: &GuestMemoryMmap,
++    cmdline_addr: GuestAddress,
++    cmdline_size: usize,
++    initramfs: &Option<InitramfsConfig>,
++    setup_hdr: setup_header,
++    rsdp_addr: Option<GuestAddress>,
++    sgx_epc_region: Option<SgxEpcRegion>,
++) -> super::Result<()> {
++    const KERNEL_LOADER_OTHER: u8 = 0xff;
++
++    // Use the provided setup header
++    let mut params = boot_params {
++        hdr: setup_hdr,
++        ..Default::default()
++    };
++
++    // Common bootparams settings
++    if params.hdr.type_of_loader == 0 {
++        params.hdr.type_of_loader = KERNEL_LOADER_OTHER;
++    }
++    params.hdr.cmd_line_ptr = cmdline_addr.raw_value() as u32;
++    params.hdr.cmdline_size = cmdline_size as u32;
++
++    if let Some(initramfs_config) = initramfs {
++        params.hdr.ramdisk_image = initramfs_config.address.raw_value() as u32;
++        params.hdr.ramdisk_size = initramfs_config.size as u32;
++    }
++
++    add_e820_entry(&mut params, 0, layout::EBDA_START.raw_value(), E820_RAM)?;
++
++    let mem_end = guest_mem.last_addr();
++    if mem_end < layout::MEM_32BIT_RESERVED_START {
++        add_e820_entry(
++            &mut params,
++            layout::HIGH_RAM_START.raw_value(),
++            mem_end.unchecked_offset_from(layout::HIGH_RAM_START) + 1,
++            E820_RAM,
++        )?;
++    } else {
++        add_e820_entry(
++            &mut params,
++            layout::HIGH_RAM_START.raw_value(),
++            layout::MEM_32BIT_RESERVED_START.unchecked_offset_from(layout::HIGH_RAM_START),
++            E820_RAM,
++        )?;
++        if mem_end > layout::RAM_64BIT_START {
++            add_e820_entry(
++                &mut params,
++                layout::RAM_64BIT_START.raw_value(),
++                mem_end.unchecked_offset_from(layout::RAM_64BIT_START) + 1,
++                E820_RAM,
++            )?;
++        }
++    }
++
++    add_e820_entry(
++        &mut params,
++        layout::PCI_MMCONFIG_START.0,
++        layout::PCI_MMCONFIG_SIZE,
++        E820_RESERVED,
++    )?;
++
++    if let Some(sgx_epc_region) = sgx_epc_region {
++        add_e820_entry(
++            &mut params,
++            sgx_epc_region.start().raw_value(),
++            sgx_epc_region.size(),
++            E820_RESERVED,
++        )?;
++    }
++
++    if let Some(rsdp_addr) = rsdp_addr {
++        params.acpi_rsdp_addr = rsdp_addr.0;
++    }
++
++    let zero_page_addr = layout::ZERO_PAGE_START;
++    guest_mem
++        .checked_offset(zero_page_addr, mem::size_of::<boot_params>())
++        .ok_or(super::Error::ZeroPagePastRamEnd)?;
++    guest_mem
++        .write_obj(params, zero_page_addr)
++        .map_err(super::Error::ZeroPageSetup)?;
++
++    Ok(())
++}
++
++/// Add an e820 region to the e820 map.
++/// Returns Ok(()) if successful, or an error if there is no space left in the map.
++fn add_e820_entry(
++    params: &mut boot_params,
++    addr: u64,
++    size: u64,
++    mem_type: u32,
++) -> Result<(), Error> {
++    if params.e820_entries >= params.e820_table.len() as u8 {
++        return Err(Error::E820Configuration);
++    }
++
++    params.e820_table[params.e820_entries as usize].addr = addr;
++    params.e820_table[params.e820_entries as usize].size = size;
++    params.e820_table[params.e820_entries as usize].type_ = mem_type;
++    params.e820_entries += 1;
++
++    Ok(())
++}
++
+ fn add_memmap_entry(memmap: &mut Vec<hvm_memmap_table_entry>, addr: u64, size: u64, mem_type: u32) {
+     // Add the table entry to the vector
+     memmap.push(hvm_memmap_table_entry {
+diff --git a/arch/src/x86_64/regs.rs b/arch/src/x86_64/regs.rs
+index 762777515d..b9a360dc20 100644
+--- a/arch/src/x86_64/regs.rs
++++ b/arch/src/x86_64/regs.rs
+@@ -6,8 +6,10 @@
+ // Portions Copyright 2017 The Chromium OS Authors. All rights reserved.
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE-BSD-3-Clause file.
+-use crate::layout::{BOOT_GDT_START, BOOT_IDT_START, PVH_INFO_START};
+-use crate::GuestMemoryMmap;
++use crate::layout::{
++    BOOT_GDT_START, BOOT_IDT_START, BOOT_STACK_POINTER, PVH_INFO_START, ZERO_PAGE_START,
++};
++use crate::{EntryPoint, GuestMemoryMmap};
+ use hypervisor::arch::x86::gdt::{gdt_entry, segment_from_gdt};
+ use hypervisor::arch::x86::regs::CR0_PE;
+ use hypervisor::arch::x86::{FpuState, SpecialRegisters, StandardRegisters};
+@@ -77,13 +79,22 @@ pub fn setup_msrs(vcpu: &Arc<dyn hypervisor::Vcpu>) -> Result<()> {
+ /// # Arguments
+ ///
+ /// * `vcpu` - Structure for the VCPU that holds the VCPU's fd.
+-/// * `boot_ip` - Starting instruction pointer.
+-pub fn setup_regs(vcpu: &Arc<dyn hypervisor::Vcpu>, boot_ip: u64) -> Result<()> {
+-    let regs = StandardRegisters {
+-        rflags: 0x0000000000000002u64,
+-        rbx: PVH_INFO_START.raw_value(),
+-        rip: boot_ip,
+-        ..Default::default()
++/// * `entry_point` - Description of the boot entry to set up.
++pub fn setup_regs(vcpu: &Arc<dyn hypervisor::Vcpu>, entry_point: EntryPoint) -> Result<()> {
++    let regs = match entry_point.setup_header {
++        None => StandardRegisters {
++            rflags: 0x0000000000000002u64,
++            rip: entry_point.entry_addr.raw_value(),
++            rbx: PVH_INFO_START.raw_value(),
++            ..Default::default()
++        },
++        Some(_) => StandardRegisters {
++            rflags: 0x0000000000000002u64,
++            rip: entry_point.entry_addr.raw_value(),
++            rsp: BOOT_STACK_POINTER.raw_value(),
++            rsi: ZERO_PAGE_START.raw_value(),
++            ..Default::default()
++        },
+     };
+     vcpu.set_regs(&regs).map_err(Error::SetBaseRegisters)
+ }
+diff --git a/vmm/src/vm.rs b/vmm/src/vm.rs
+index 43a04bfec3..30971d63d3 100644
+--- a/vmm/src/vm.rs
++++ b/vmm/src/vm.rs
+@@ -62,6 +62,8 @@ use linux_loader::cmdline::Cmdline;
+ #[cfg(all(target_arch = "x86_64", feature = "guest_debug"))]
+ use linux_loader::elf;
+ #[cfg(target_arch = "x86_64")]
++use linux_loader::loader::bzimage::BzImage;
++#[cfg(target_arch = "x86_64")]
+ use linux_loader::loader::elf::PvhBootCapability::PvhEntryPresent;
+ #[cfg(target_arch = "aarch64")]
+ use linux_loader::loader::pe::Error::InvalidImageMagicNumber;
+@@ -1012,12 +1014,12 @@ impl Vm {
+         cfg_if::cfg_if! {
+             if #[cfg(feature = "sev_snp")] {
+                 let entry_point = if cpu_manager.lock().unwrap().sev_snp_enabled() {
+-                    EntryPoint { entry_addr: vm_memory::GuestAddress(res.vmsa_gpa) }
++                    EntryPoint { entry_addr: vm_memory::GuestAddress(res.vmsa_gpa), setup_header: None }
+                 } else {
+-                    EntryPoint {entry_addr: vm_memory::GuestAddress(res.vmsa.rip) }
++                    EntryPoint {entry_addr: vm_memory::GuestAddress(res.vmsa.rip), setup_header: None }
+                 };
+             } else {
+-               let entry_point = EntryPoint { entry_addr: vm_memory::GuestAddress(res.vmsa.rip) };
++               let entry_point = EntryPoint { entry_addr: vm_memory::GuestAddress(res.vmsa.rip), setup_header: None };
+             }
+         };
+         Ok(entry_point)
+@@ -1035,12 +1037,23 @@ impl Vm {
+             let guest_memory = memory_manager.lock().as_ref().unwrap().guest_memory();
+             guest_memory.memory()
+         };
++
++        // Try ELF binary with PVH boot.
+         let entry_addr = linux_loader::loader::elf::Elf::load(
+             mem.deref(),
+             None,
+             &mut kernel,
+             Some(arch::layout::HIGH_RAM_START),
+         )
++        // Try loading kernel as bzImage.
++        .or_else(|_| {
++            BzImage::load(
++                mem.deref(),
++                None,
++                &mut kernel,
++                Some(arch::layout::HIGH_RAM_START),
++            )
++        })
+         .map_err(Error::KernelLoad)?;
+ 
+         if let Some(cmdline) = cmdline {
+@@ -1050,8 +1063,21 @@ impl Vm {
+ 
+         if let PvhEntryPresent(entry_addr) = entry_addr.pvh_boot_cap {
+             // Use the PVH kernel entry point to boot the guest
+-            info!("Kernel loaded: entry_addr = 0x{:x}", entry_addr.0);
+-            Ok(EntryPoint { entry_addr })
++            info!("PVH kernel loaded: entry_addr = 0x{:x}", entry_addr.0);
++            Ok(EntryPoint {
++                entry_addr,
++                setup_header: None,
++            })
++        } else if entry_addr.setup_header.is_some() {
++            // Use the bzImage 32bit entry point to boot the guest
++            info!(
++                "bzImage kernel loaded: entry_addr = 0x{:x}",
++                entry_addr.kernel_load.0
++            );
++            Ok(EntryPoint {
++                entry_addr: entry_addr.kernel_load,
++                setup_header: entry_addr.setup_header,
++            })
+         } else {
+             Err(Error::KernelMissingPvhHeader)
+         }
+@@ -1144,7 +1170,7 @@ impl Vm {
+     }
+ 
+     #[cfg(target_arch = "x86_64")]
+-    fn configure_system(&mut self, rsdp_addr: GuestAddress) -> Result<()> {
++    fn configure_system(&mut self, rsdp_addr: GuestAddress, entry_addr: EntryPoint) -> Result<()> {
+         trace_scoped!("configure_system");
+         info!("Configuring system");
+         let mem = self.memory_manager.lock().unwrap().boot_guest_memory();
+@@ -1197,8 +1223,10 @@ impl Vm {
+         arch::configure_system(
+             &mem,
+             arch::layout::CMDLINE_START,
++            arch::layout::CMDLINE_MAX_SIZE,
+             &initramfs_config,
+             boot_vcpus,
++            entry_addr.setup_header,
+             rsdp_addr,
+             sgx_epc_region,
+             serial_number.as_deref(),
+@@ -1211,7 +1239,11 @@ impl Vm {
+     }
+ 
+     #[cfg(target_arch = "aarch64")]
+-    fn configure_system(&mut self, _rsdp_addr: GuestAddress) -> Result<()> {
++    fn configure_system(
++        &mut self,
++        _rsdp_addr: GuestAddress,
++        _entry_addr: EntryPoint,
++    ) -> Result<()> {
+         let cmdline = Self::generate_cmdline(
+             self.config.lock().unwrap().payload.as_ref().unwrap(),
+             &self.device_manager,
+@@ -2082,10 +2114,10 @@ impl Vm {
+ 
+         // Configure shared state based on loaded kernel
+         entry_point
+-            .map(|_| {
++            .map(|entry_point| {
+                 // Safe to unwrap rsdp_addr as we know it can't be None when
+                 // the entry_point is Some.
+-                self.configure_system(rsdp_addr.unwrap())
++                self.configure_system(rsdp_addr.unwrap(), entry_point)
+             })
+             .transpose()?;
+ 
