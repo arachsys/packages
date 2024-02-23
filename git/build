@@ -1,13 +1,13 @@
 check() {
   url https://www.kernel.org/pub/software/scm/git/
-  match version 2.43.2 'git-([0-9.]+)\.tar'
+  match version 2.44.0 'git-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/software/scm/git/git-2.43.2.tar.xz
+  unpack https://www.kernel.org/pub/software/scm/git/git-2.44.0.tar.xz
   apply filter-branch.diff
   apply usage.diff
-  tree ea8e735c262faf4b401ef303868c606d8f9a5a7a003cb57e291eeff4e2a9cf78
+  tree e586d2447c0ec82c0a641c6d15aee37ed87e3299555d6fa271151da98e161009
 }
 
 build() {
