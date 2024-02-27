@@ -1,8 +1,8 @@
 diff --git a/ell/log.c b/ell/log.c
-index 05af3e5..3c621e5 100644
+index a8c2617..8834d68 100644
 --- a/ell/log.c
 +++ b/ell/log.c
-@@ -31,6 +31,7 @@
+@@ -16,6 +16,7 @@
  #include <stdarg.h>
  #include <string.h>
  #include <fnmatch.h>
@@ -10,7 +10,7 @@ index 05af3e5..3c621e5 100644
  #include <sys/socket.h>
  #include <sys/un.h>
  
-@@ -171,6 +172,9 @@ static void log_syslog(int priority, const char *file, const char *line,
+@@ -156,6 +157,9 @@ static void log_syslog(int priority, const char *file, const char *line,
  	if (str_len < 0)
  		return;
  
@@ -21,24 +21,34 @@ index 05af3e5..3c621e5 100644
  					log_ident, (unsigned long) log_pid);
  
 diff --git a/src/main.c b/src/main.c
-index 8e530a1..6ad2cac 100644
+index 8eb55d7..9cd4c09 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -463,7 +463,8 @@ int main(int argc, char *argv[])
+@@ -524,12 +524,14 @@ int main(int argc, char *argv[])
  		return EXIT_FAILURE;
  	}
  
--	l_log_set_stderr();
-+	l_log_set_ident("iwd");
-+	l_log_set_syslog();
+-	if (logger && !strcmp(logger, "syslog"))
+-		l_log_set_syslog();
+-	else if (logger && !strcmp(logger, "journal"))
+-		l_log_set_journal();
+-	else
++	if (logger && !strcmp(logger, "stderr")) {
+ 		l_log_set_stderr();
++	} else if (logger && !strcmp(logger, "journal")) {
++		l_log_set_journal();
++	} else {
++		l_log_set_ident("iwd");
++		l_log_set_syslog();
++	}
  
  	if (check_crypto() < 0)
  		return EXIT_FAILURE;
 diff --git a/src/wiphy.c b/src/wiphy.c
-index 1051457..c9d5da3 100644
+index 9621710..19545c1 100644
 --- a/src/wiphy.c
 +++ b/src/wiphy.c
-@@ -1178,9 +1178,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
+@@ -1299,9 +1299,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
  			if (!str)
  				continue;
  
