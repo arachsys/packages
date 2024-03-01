@@ -1,3 +1,31 @@
+diff --git a/Makefile b/Makefile
+index 1643b6d..caee618 100644
+--- a/Makefile
++++ b/Makefile
+@@ -36,10 +36,10 @@ PREFIX = /usr/local
+ DESTDIR = # root dir
+ 
+ bindir = $(DESTDIR)$(PREFIX)/bin
+-libexecdir = $(DESTDIR)$(PREFIX)/libexec/kak
+-sharedir = $(DESTDIR)$(PREFIX)/share/kak
+-docdir = $(DESTDIR)$(PREFIX)/share/doc/kak
+-mandir = $(DESTDIR)$(PREFIX)/share/man/man1
++libexecdir = $(DESTDIR)$(PREFIX)/lib/kak
++sharedir = $(DESTDIR)$(PREFIX)/lib/kak
++docdir = $(DESTDIR)$(PREFIX)/lib/doc/kak
++mandir = $(DESTDIR)$(PREFIX)/lib/man/man1
+ 
+ # Both Cygwin and MSYS2 have "_NT" in their uname.
+ os != uname | sed 's/.*_NT.*/Windows/'
+@@ -178,7 +178,7 @@ install: src/kak installdirs install-debug-$(debug) install-gzip-man-$(gzip_man)
+ 
+ 	ln -sf ../../bin/kak $(libexecdir)/kak
+ 
+-	cp src/kak/kakrc $(sharedir)
++	cp share/kak/kakrc $(sharedir)
+ 	chmod 0644 $(sharedir)/kakrc
+ 
+ 	cp -r rc/* $(sharedir)/rc
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
 index 30cbdbd..d4c49ba 100644
 --- a/doc/pages/options.asciidoc
@@ -12,7 +40,7 @@ index 30cbdbd..d4c49ba 100644
      `%/` represents the current buffer directory
  
 diff --git a/rc/tools/man.kak b/rc/tools/man.kak
-index 949af56..9dd70de 100644
+index 2fcc981..9d807ab 100644
 --- a/rc/tools/man.kak
 +++ b/rc/tools/man.kak
 @@ -63,7 +63,7 @@ define-command -hidden -params ..3 man-impl %{ evaluate-commands %sh{
@@ -22,8 +50,8 @@ index 949af56..9dd70de 100644
 -        find /usr/share/man/ $(printf %s "${MANPATH}" |
 +        find /lib/man/ $(printf %s "${MANPATH}" |
              sed 's/:/ /') -name '*.[1-8]*' |
-             sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),' |
-             sort
+             sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),'
+     } \
 diff --git a/share/kak/kakrc b/share/kak/kakrc
 index c421892..fbb4c8b 100644
 --- a/share/kak/kakrc
@@ -42,30 +70,11 @@ index c421892..fbb4c8b 100644
 +        echo "source '/etc/kakrc'"
      fi
  }
-diff --git a/src/Makefile b/src/Makefile
-index bb0f32e..cb5437c 100644
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -52,10 +52,10 @@ PREFIX ?= /usr/local
- DESTDIR ?= # root dir
- 
- bindir := $(DESTDIR)$(PREFIX)/bin
--libexecdir := $(DESTDIR)$(PREFIX)/libexec/kak
--sharedir := $(DESTDIR)$(PREFIX)/share/kak
--docdir := $(DESTDIR)$(PREFIX)/share/doc/kak
--mandir := $(DESTDIR)$(PREFIX)/share/man/man1
-+libexecdir := $(DESTDIR)$(PREFIX)/lib/kak
-+sharedir := $(DESTDIR)$(PREFIX)/lib/kak
-+docdir := $(DESTDIR)$(PREFIX)/lib/doc/kak
-+mandir := $(DESTDIR)$(PREFIX)/lib/man/man1
- 
- os := $(shell uname)
- 
 diff --git a/src/main.cc b/src/main.cc
-index d8f75dc..acfed4b 100644
+index e3a590b..54bf165 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -196,12 +196,12 @@ String runtime_directory()
+@@ -202,12 +202,12 @@ String runtime_directory()
          return runtime_directory;
  
      char relpath[PATH_MAX+1];
@@ -80,7 +89,7 @@ index d8f75dc..acfed4b 100644
  }
  
  String config_directory()
-@@ -557,7 +557,7 @@ void register_options()
+@@ -563,7 +563,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -89,7 +98,7 @@ index d8f75dc..acfed4b 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1284,7 +1284,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
+@@ -1292,7 +1292,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"

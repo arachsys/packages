@@ -4,8 +4,8 @@ check() {
 }
 
 prepare() {
-   unpack kakoune-2024.02.10.tar.gz \
-     https://github.com/mawww/kakoune/archive/8d60e194.tar.gz
+   unpack kakoune-2024.03.01.tar.gz \
+     https://github.com/mawww/kakoune/archive/e38becb5.tar.gz
   apply init.diff
   apply news.diff
   apply palette.diff
@@ -14,23 +14,19 @@ prepare() {
   apply tabs.diff
   apply windowing.diff
   find -xtype l -delete
-  tree e91187d72fef69a9df14b1673afb9a357908a3bfa5336eb2491061b869680223
+  tree 03a52b24fd600e1bb5e573a4b9569c22d7c3aadd29d292fae0490b8f76cd51c0
 }
 
 build() {
-  if [[ $(c++ --version) == *clang* ]]; then
-    COMPILER=clang++
-    if enabled static; then
+  if enabled static; then
+    if [[ $(c++ --version) == *clang* ]]; then
       LIBS='LDFLAGS+=-static LIBS+=-lunwind LIBS+=-lc++abi'
-    fi
-  else
-    COMPILER=g++
-    if enabled static; then
+    else
       LIBS='LDFLAGS+=-static'
     fi
   fi
 
-  make install CXX=$COMPILER DESTDIR=/dst PREFIX= version=2024.02.10 $LIBS
+  make install DESTDIR=/dst PREFIX= version=2024.03.01 $LIBS
   find /dst/lib/kak/{colors,kakrc,rc} -type f | while read FILE; do
     sed -E -e 's/rgb:[[:xdigit:]]{2}{3,4}/\L&/g' -e '/^\s*#/d' \
         -e "s/^(([^'\"#]*|'[^']*'|\"([^\"\\]|\\\\.)*\")*)\\s+#\\s.*/\\1/" \
