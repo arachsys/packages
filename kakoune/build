@@ -14,7 +14,7 @@ prepare() {
   apply tabs.diff
   apply windowing.diff
   find -xtype l -delete
-  tree 03a52b24fd600e1bb5e573a4b9569c22d7c3aadd29d292fae0490b8f76cd51c0
+  tree 60fc7104405b122ea0a823a517d7bdb00e2a1af65384fe5fcdeaa5f08758b77a
 }
 
 build() {

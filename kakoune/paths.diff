@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 1643b6d..caee618 100644
+index 1643b6d..d587f00 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -36,10 +36,10 @@ PREFIX = /usr/local
@@ -26,6 +26,17 @@ index 1643b6d..caee618 100644
  	chmod 0644 $(sharedir)/kakrc
  
  	cp -r rc/* $(sharedir)/rc
+@@ -188,8 +188,8 @@ install: src/kak installdirs install-debug-$(debug) install-gzip-man-$(gzip_man)
+ 	cp colors/* $(sharedir)/colors
+ 	chmod 0644 $(sharedir)/colors/*
+ 
+-	cp doc/pages/*.asciidoc README.asciidoc $(docdir)
+-	chmod 0644 $(docdir)/*.asciidoc
++	cp doc/pages/*.asciidoc $(sharedir)/doc
++	chmod 0644 $(sharedir)/doc/*.asciidoc
+ 
+ install-gzip-man-yes: gzip-man-yes
+ 	cp -f doc/kak.1.gz $(mandir)
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
 index 30cbdbd..d4c49ba 100644
 --- a/doc/pages/options.asciidoc
