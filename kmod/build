@@ -1,19 +1,18 @@
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/
-  match version 31 'kmod-([0-9.]+)\.tar'
+  match version 32 'kmod-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-31.tar.xz
-  tree b12e075f306b456aa49c37684c8a8687fb102b76ab2afbaa1607ae2ef8e92c4a
+  unpack https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-32.tar.xz
+  apply musl.diff
+  tree 6f04bafc73e6f56aa033a576c54ad04dd0bf1154e59557a65e59a50152bdc2af
 }
 
 build() {
   auto-config --with-{xz,zlib} liblzma_CFLAGS=-I/lib/include \
     liblzma_LIBS=-llzma zlib_CFLAGS=-I/lib/include zlib_LIBS=-lz
   make install DESTDIR=/dst
-  for NAME in depmod insmod lsmod modinfo modprobe rmmod; do
-    ln /dst/bin/kmod /dst/bin/$NAME
-  done
+  find /dst/bin -lname kmod -exec ln -f /dst/bin/kmod {} \;
   rm -f -r /dst/lib/{bash-completion,include,libkmod.*}
 }

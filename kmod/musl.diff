@@ -1,0 +1,25 @@
+diff --git a/shared/util.h b/shared/util.h
+index c4a3916..fc73cd7 100644
+--- a/shared/util.h
++++ b/shared/util.h
+@@ -5,6 +5,7 @@
+ #include <stdbool.h>
+ #include <stdlib.h>
+ #include <stdio.h>
++#include <string.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <time.h>
+@@ -76,6 +77,12 @@ do {						\
+ 	__p->__v = (val);			\
+ } while(0)
+ 
++static _always_inline_ const char *basename(const char *s)
++{
++  const char *p = strrchr(s, '/');
++  return p ? p + 1 : s;
++}
++
+ static _always_inline_ unsigned int ALIGN_POWER2(unsigned int u)
+ {
+ 	return 1 << ((sizeof(u) * 8) - __builtin_clz(u - 1));
