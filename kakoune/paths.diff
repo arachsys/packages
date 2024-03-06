@@ -17,15 +17,6 @@ index 1643b6d..d587f00 100644
  
  # Both Cygwin and MSYS2 have "_NT" in their uname.
  os != uname | sed 's/.*_NT.*/Windows/'
-@@ -178,7 +178,7 @@ install: src/kak installdirs install-debug-$(debug) install-gzip-man-$(gzip_man)
- 
- 	ln -sf ../../bin/kak $(libexecdir)/kak
- 
--	cp src/kak/kakrc $(sharedir)
-+	cp share/kak/kakrc $(sharedir)
- 	chmod 0644 $(sharedir)/kakrc
- 
- 	cp -r rc/* $(sharedir)/rc
 @@ -188,8 +188,8 @@ install: src/kak installdirs install-debug-$(debug) install-gzip-man-$(gzip_man)
  	cp colors/* $(sharedir)/colors
  	chmod 0644 $(sharedir)/colors/*
