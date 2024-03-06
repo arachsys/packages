@@ -1,5 +1,5 @@
 diff --git a/clang/tools/CMakeLists.txt b/clang/tools/CMakeLists.txt
-index f60db6ef0..bfd23bf33 100644
+index f60db6ef0..65218e27a 100644
 --- a/clang/tools/CMakeLists.txt
 +++ b/clang/tools/CMakeLists.txt
 @@ -34,9 +34,6 @@ endif()
@@ -13,18 +13,18 @@ index f60db6ef0..bfd23bf33 100644
  
  # We support checking out the clang-tools-extra repository into the 'extra'
 diff --git a/llvm/cmake/modules/AddLLVM.cmake b/llvm/cmake/modules/AddLLVM.cmake
-index 93e6d6755..40ed98e97 100644
+index 3bc78b0dc..703b9dc77 100644
 --- a/llvm/cmake/modules/AddLLVM.cmake
 +++ b/llvm/cmake/modules/AddLLVM.cmake
-@@ -1284,6 +1284,7 @@ endfunction()
+@@ -1311,6 +1311,7 @@ endfunction()
  if(NOT LLVM_TOOLCHAIN_TOOLS)
    set (LLVM_TOOLCHAIN_TOOLS
      llvm-ar
 +    llvm-config
      llvm-cov
      llvm-cxxfilt
-     llvm-dwp
-@@ -1295,6 +1296,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
+     llvm-dlltool
+@@ -1324,6 +1325,7 @@ if(NOT LLVM_TOOLCHAIN_TOOLS)
      llvm-objdump
      llvm-pdbutil
      llvm-rc

@@ -2,15 +2,15 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/tags
-  match llvm 17.0.6 'llvmorg-([0-9.]+)\.tar'
+  match llvm 18.1.0 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
   match cmake 3.28.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-17.0.6.tar.gz \
-    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-17.0.6.tar.gz
+  unpack llvm-18.1.0.tar.gz \
+    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-18.1.0.tar.gz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3.tar.gz
   apply cmake.diff
@@ -20,7 +20,7 @@ prepare() {
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 7a0d0cd4fe55de1047c22792e386143d9212bca29f9d0e2e97e9cb87a2b01d19
+  tree 2d8948f9f0998e4f235f2a0b07b2109eea0eb818a92e4913d468299b6ca75063
 }
 
 build() {
@@ -66,6 +66,7 @@ build() {
     -DLLVM_HOST_TRIPLE=$CHOST \
     -DLLVM_INSTALL_BINUTILS_SYMLINKS=Yes \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=Yes \
+    -DLLVM_VERSION_SUFFIX= \
     -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
     -DCLANG_DEFAULT_PIE_ON_LINUX=Yes \
     -DCLANG_DEFAULT_RTLIB=compiler-rt \

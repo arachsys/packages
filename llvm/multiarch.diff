@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 1ba222bf8..00bf213c3 100644
+index 4300a2bdf..5199e0efd 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
 @@ -43,7 +43,8 @@ std::string Linux::getMultiarchTriple(const Driver &D,
@@ -12,20 +12,24 @@ index 1ba222bf8..00bf213c3 100644
    bool IsMipsR6 = TargetTriple.getSubArch() == llvm::Triple::MipsSubArch_r6;
    bool IsMipsN32Abi = TargetTriple.getEnvironment() == llvm::Triple::GNUABIN32;
  
-@@ -59,32 +60,24 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -59,36 +60,28 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    // regardless of what the actual target triple is.
    case llvm::Triple::arm:
    case llvm::Triple::thumb:
 -    if (IsAndroid)
 -      return "arm-linux-androideabi";
-     if (TargetEnvironment == llvm::Triple::GNUEABIHF)
+     if (TargetEnvironment == llvm::Triple::GNUEABIHF ||
+         TargetEnvironment == llvm::Triple::MuslEABIHF ||
+         TargetEnvironment == llvm::Triple::EABIHF)
 -      return "arm-linux-gnueabihf";
 -    return "arm-linux-gnueabi";
 +      return "arm-linux-" + EnvName + "eabihf";
 +    return "arm-linux-" + EnvName + "eabi";
    case llvm::Triple::armeb:
    case llvm::Triple::thumbeb:
-     if (TargetEnvironment == llvm::Triple::GNUEABIHF)
+     if (TargetEnvironment == llvm::Triple::GNUEABIHF ||
+         TargetEnvironment == llvm::Triple::MuslEABIHF ||
+         TargetEnvironment == llvm::Triple::EABIHF)
 -      return "armeb-linux-gnueabihf";
 -    return "armeb-linux-gnueabi";
 +      return "armeb-linux-" + EnvName + "eabihf";
@@ -54,7 +58,7 @@ index 1ba222bf8..00bf213c3 100644
  
    case llvm::Triple::loongarch64: {
      const char *Libc;
-@@ -120,50 +113,48 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -124,50 +117,48 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    }
  
    case llvm::Triple::m68k:

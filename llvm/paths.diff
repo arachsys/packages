@@ -1,8 +1,8 @@
 diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
-index bdbdad936..c35b20545 100644
+index 93cddf742..b0aaab588 100644
 --- a/clang/lib/Driver/Driver.cpp
 +++ b/clang/lib/Driver/Driver.cpp
-@@ -177,6 +177,7 @@ std::string Driver::GetResourcesPath(StringRef BinaryPath,
+@@ -173,6 +173,7 @@ std::string Driver::GetResourcesPath(StringRef BinaryPath,
    SmallString<128> P(Dir);
    if (CustomResourceDir != "") {
      llvm::sys::path::append(P, CustomResourceDir);
@@ -11,10 +11,10 @@ index bdbdad936..c35b20545 100644
      // On Windows, libclang.dll is in bin/.
      // On non-Windows, libclang.so/.dylib is in lib/.
 diff --git a/clang/lib/Driver/ToolChains/Cuda.cpp b/clang/lib/Driver/ToolChains/Cuda.cpp
-index 3a577650e..e8fc63126 100644
+index 1462576ca..6a3765643 100644
 --- a/clang/lib/Driver/ToolChains/Cuda.cpp
 +++ b/clang/lib/Driver/ToolChains/Cuda.cpp
-@@ -172,15 +172,7 @@ CudaInstallationDetector::CudaInstallationDetector(
+@@ -176,15 +176,7 @@ CudaInstallationDetector::CudaInstallationDetector(
        }
      }
  
@@ -32,10 +32,10 @@ index 3a577650e..e8fc63126 100644
  
    bool NoCudaLib = Args.hasArg(options::OPT_nogpulib);
 diff --git a/clang/lib/Driver/ToolChains/Gnu.cpp b/clang/lib/Driver/ToolChains/Gnu.cpp
-index 40038dce4..c6ea4ea2e 100644
+index e5e1b1d77..8e05bbd10 100644
 --- a/clang/lib/Driver/ToolChains/Gnu.cpp
 +++ b/clang/lib/Driver/ToolChains/Gnu.cpp
-@@ -2255,29 +2255,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
+@@ -2409,29 +2409,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
      return;
    }
  
@@ -66,24 +66,32 @@ index 40038dce4..c6ea4ea2e 100644
  }
  
  /*static*/ void Generic_GCC::GCCInstallationDetector::CollectLibDirsAndTriples(
-@@ -3122,14 +3100,12 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
-   // Android never uses the libc++ headers installed alongside the toolchain,
-   // which are generally incompatible with the NDK libraries anyway.
-   if (!getTriple().isAndroid())
--    if (AddIncludePath(getDriver().Dir + "/../include"))
-+    if (AddIncludePath(getDriver().Dir + "/include"))
-       return;
+@@ -3305,20 +3283,16 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
+   // they contain an Android-specific target include path, otherwise they're
+   // incompatible with the NDK libraries.
+   SmallString<128> DriverIncludeDir(getDriver().Dir);
+-  llvm::sys::path::append(DriverIncludeDir, "..", "include");
++  llvm::sys::path::append(DriverIncludeDir, "include");
+   if (AddIncludePath(DriverIncludeDir,
+                      /*TargetDirRequired=*/getTriple().isAndroid()))
+     return;
    // If this is a development, non-installed, clang, libcxx will
    // not be found at ../include/c++ but it likely to be found at
    // one of the following two locations:
--  if (AddIncludePath(concat(SysRoot, "/usr/local/include")))
+-  SmallString<128> UsrLocalIncludeDir(SysRoot);
+-  llvm::sys::path::append(UsrLocalIncludeDir, "usr", "local", "include");
+-  if (AddIncludePath(UsrLocalIncludeDir))
 -    return;
--  if (AddIncludePath(concat(SysRoot, "/usr/include")))
-+  if (AddIncludePath(concat(SysRoot, "/lib/include")))
+-  SmallString<128> UsrIncludeDir(SysRoot);
+-  llvm::sys::path::append(UsrIncludeDir, "usr", "include");
+-  if (AddIncludePath(UsrIncludeDir))
++  SmallString<128> LibIncludeDir(SysRoot);
++  llvm::sys::path::append(LibIncludeDir, "lib", "include");
++  if (AddIncludePath(LibIncludeDir))
      return;
  }
  
-@@ -3203,7 +3179,7 @@ bool Generic_GCC::addGCCLibStdCxxIncludePaths(
+@@ -3392,7 +3366,7 @@ bool Generic_GCC::addGCCLibStdCxxIncludePaths(
      return true;
  
    // Try /../include/c++/$version (gcc --print-multiarch is empty).
@@ -93,10 +101,10 @@ index 40038dce4..c6ea4ea2e 100644
                                 CC1Args))
      return true;
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 00bf213c3..0a01e8282 100644
+index 5199e0efd..2f27a142a 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
-@@ -159,7 +159,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -163,7 +163,11 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    return TargetTriple.str();
  }
  
@@ -109,7 +117,7 @@ index 00bf213c3..0a01e8282 100644
    if (Triple.isMIPS()) {
      if (Triple.isAndroid()) {
        StringRef CPUName;
-@@ -213,13 +217,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -217,13 +221,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
  
    Distro Distro(D.getVFS(), Triple);
  
@@ -125,7 +133,7 @@ index 00bf213c3..0a01e8282 100644
      ExtraOpts.push_back("-z");
      ExtraOpts.push_back("relro");
    }
-@@ -280,20 +284,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -284,20 +288,13 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
    // to the link paths.
    path_list &Paths = getFilePaths();
  
@@ -149,7 +157,7 @@ index 00bf213c3..0a01e8282 100644
  
    if (IsAndroid) {
      // Android sysroots contain a library directory for each supported OS
-@@ -306,25 +303,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
+@@ -310,25 +307,7 @@ Linux::Linux(const Driver &D, const llvm::Triple &Triple, const ArgList &Args)
          Paths);
    }
  
@@ -175,7 +183,7 @@ index 00bf213c3..0a01e8282 100644
  }
  
  ToolChain::RuntimeLibType Linux::GetDefaultRuntimeLibType() const {
-@@ -417,6 +396,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
+@@ -421,6 +400,9 @@ std::string Linux::getDynamicLinker(const ArgList &Args) const {
  
    const Distro Distro(getDriver().getVFS(), Triple);
  
@@ -185,7 +193,7 @@ index 00bf213c3..0a01e8282 100644
    if (Triple.isAndroid()) {
      if (getSanitizerArgs(Args).needsHwasanRt() &&
          !Triple.isAndroidVersionLT(34) && Triple.isArch64Bit()) {
-@@ -620,8 +602,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -624,8 +606,6 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (DriverArgs.hasArg(options::OPT_nostdlibinc))
      return;
  
@@ -194,7 +202,7 @@ index 00bf213c3..0a01e8282 100644
    // TOOL_INCLUDE_DIR
    AddMultilibIncludeArgs(DriverArgs, CC1Args);
  
-@@ -642,10 +622,10 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -646,10 +626,10 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // /usr/include.
    std::string MultiarchIncludeDir = getMultiarchTriple(D, getTriple(), SysRoot);
    if (!MultiarchIncludeDir.empty() &&
@@ -207,7 +215,7 @@ index 00bf213c3..0a01e8282 100644
  
    if (getTriple().getOS() == llvm::Triple::RTEMS)
      return;
-@@ -653,9 +633,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -657,9 +637,7 @@ void Linux::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    // Add an include of '/include' directly. This isn't provided by default by
    // system GCCs, but is often used with cross-compiling GCCs, and harmless to
    // add even when Clang is acting as-if it were a system compiler.
@@ -219,10 +227,10 @@ index 00bf213c3..0a01e8282 100644
    if (!DriverArgs.hasArg(options::OPT_nobuiltininc) && getTriple().isMusl())
      addSystemInclude(DriverArgs, CC1Args, ResourceDirInclude);
 diff --git a/clang/lib/Driver/ToolChains/WebAssembly.cpp b/clang/lib/Driver/ToolChains/WebAssembly.cpp
-index 36bed3166..5151780d6 100644
+index 57f460072..3c1fff3cc 100644
 --- a/clang/lib/Driver/ToolChains/WebAssembly.cpp
 +++ b/clang/lib/Driver/ToolChains/WebAssembly.cpp
-@@ -417,9 +417,9 @@ void WebAssembly::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
+@@ -440,9 +440,9 @@ void WebAssembly::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
    if (getTriple().getOS() != llvm::Triple::UnknownOS) {
      const std::string MultiarchTriple =
          getMultiarchTriple(D, getTriple(), D.SysRoot);
@@ -234,7 +242,7 @@ index 36bed3166..5151780d6 100644
  }
  
  void WebAssembly::AddClangCXXStdlibIncludeArgs(const ArgList &DriverArgs,
-@@ -475,7 +475,7 @@ void WebAssembly::addLibCxxIncludePaths(
+@@ -498,7 +498,7 @@ void WebAssembly::addLibCxxIncludePaths(
      llvm::opt::ArgStringList &CC1Args) const {
    const Driver &D = getDriver();
    std::string SysRoot = computeSysRoot();
@@ -243,7 +251,7 @@ index 36bed3166..5151780d6 100644
    const std::string MultiarchTriple =
        getMultiarchTriple(D, getTriple(), SysRoot);
    bool IsKnownOs = (getTriple().getOS() != llvm::Triple::UnknownOS);
-@@ -503,7 +503,7 @@ void WebAssembly::addLibStdCXXIncludePaths(
+@@ -526,7 +526,7 @@ void WebAssembly::addLibStdCXXIncludePaths(
    // to how we do it for libc++.
    const Driver &D = getDriver();
    std::string SysRoot = computeSysRoot();
@@ -253,7 +261,7 @@ index 36bed3166..5151780d6 100644
        getMultiarchTriple(D, getTriple(), SysRoot);
    bool IsKnownOs = (getTriple().getOS() != llvm::Triple::UnknownOS);
 diff --git a/clang/tools/driver/CMakeLists.txt b/clang/tools/driver/CMakeLists.txt
-index 2182486f9..24a156972 100644
+index d70b92b09..5b69f96ca 100644
 --- a/clang/tools/driver/CMakeLists.txt
 +++ b/clang/tools/driver/CMakeLists.txt
 @@ -48,7 +48,7 @@ clang_target_link_libraries(clang
@@ -279,25 +287,28 @@ index def5bd604..1e6ec7e7c 100644
      if (NOT CLANG_VERSION_MAJOR)
        string(REGEX MATCH "^[0-9]+" CLANG_VERSION_MAJOR ${PACKAGE_VERSION})
 diff --git a/lldb/source/Core/CoreProperties.td b/lldb/source/Core/CoreProperties.td
-index 4287cb1ff..fc2ec1d85 100644
+index 8d81967bd..294a9c52c 100644
 --- a/lldb/source/Core/CoreProperties.td
 +++ b/lldb/source/Core/CoreProperties.td
 @@ -4,7 +4,7 @@ let Definition = "modulelist" in {
    def EnableExternalLookup: Property<"enable-external-lookup", "Boolean">,
      Global,
      DefaultTrue,
--    Desc<"Control the use of external tools and repositories to locate symbol files. Directories listed in target.debug-file-search-paths and directory of the executable are always checked first for separate debug info files. Then depending on this setting: On macOS, Spotlight would be also used to locate a matching .dSYM bundle based on the UUID of the executable. On NetBSD, directory /usr/libdata/debug would be also searched. On platforms other than NetBSD directory /usr/lib/debug would be also searched.">;
-+    Desc<"Control the use of external tools and repositories to locate symbol files. Directories listed in target.debug-file-search-paths and directory of the executable are always checked first for separate debug info files. Then depending on this setting: On macOS, Spotlight would be also used to locate a matching .dSYM bundle based on the UUID of the executable. On NetBSD, directory /usr/libdata/debug would be also searched. On platforms other than NetBSD directory /lib/debug would be also searched.">;
+-    Desc<"Control the use of external tools and repositories to locate symbol files. Directories listed in target.debug-file-search-paths and directory of the executable are always checked first for separate debug info files. Then depending on this setting: On macOS, Spotlight would be also used to locate a matching .dSYM bundle based on the UUID of the executable. On NetBSD, directory /usr/libdata/debug would be also searched. On platforms other than NetBSD directory /usr/lib/debug would be also searched. If all other methods fail there may be symbol-locator plugins that, if configured properly, will also attempt to acquire symbols. The debuginfod plugin defaults to the DEGUFINFOD_URLS environment variable which is configurable through the 'plugin.symbol-locator.debuginfod.server_urls' setting.">;
++    Desc<"Control the use of external tools and repositories to locate symbol files. Directories listed in target.debug-file-search-paths and directory of the executable are always checked first for separate debug info files. Then depending on this setting: On macOS, Spotlight would be also used to locate a matching .dSYM bundle based on the UUID of the executable. On NetBSD, directory /usr/libdata/debug would be also searched. On platforms other than NetBSD directory /lib/debug would be also searched. If all other methods fail there may be symbol-locator plugins that, if configured properly, will also attempt to acquire symbols. The debuginfod plugin defaults to the DEGUFINFOD_URLS environment variable which is configurable through the 'plugin.symbol-locator.debuginfod.server_urls' setting.">;
    def EnableBackgroundLookup: Property<"enable-background-lookup", "Boolean">,
      Global,
      DefaultFalse,
-diff --git a/lldb/source/Symbol/LocateSymbolFile.cpp b/lldb/source/Symbol/LocateSymbolFile.cpp
-index 66ee7589a..1f4503816 100644
---- a/lldb/source/Symbol/LocateSymbolFile.cpp
-+++ b/lldb/source/Symbol/LocateSymbolFile.cpp
-@@ -306,7 +306,7 @@ Symbols::LocateExecutableSymbolFile(const ModuleSpec &module_spec,
+diff --git a/lldb/source/Plugins/SymbolLocator/Default/SymbolLocatorDefault.cpp b/lldb/source/Plugins/SymbolLocator/Default/SymbolLocatorDefault.cpp
+index 6f0126b16..64eb3fb21 100644
+--- a/lldb/source/Plugins/SymbolLocator/Default/SymbolLocatorDefault.cpp
++++ b/lldb/source/Plugins/SymbolLocator/Default/SymbolLocatorDefault.cpp
+@@ -135,9 +135,9 @@ std::optional<FileSpec> SymbolLocatorDefault::LocateExecutableSymbolFile(
+       debug_file_search_paths.AppendIfUnique(file_spec);
+     }
  #else
-     // Add /usr/lib/debug directory.
+-    // Add /usr/lib/debug directory.
++    // Add /lib/debug directory.
      {
 -      FileSpec file_spec("/usr/lib/debug");
 +      FileSpec file_spec("/lib/debug");
@@ -305,10 +316,10 @@ index 66ee7589a..1f4503816 100644
        debug_file_search_paths.AppendIfUnique(file_spec);
      }
 diff --git a/llvm/lib/DebugInfo/Symbolize/Symbolize.cpp b/llvm/lib/DebugInfo/Symbolize/Symbolize.cpp
-index 517f1e7dc..0fc295d2d 100644
+index 5f29226c1..dcb32fe85 100644
 --- a/llvm/lib/DebugInfo/Symbolize/Symbolize.cpp
 +++ b/llvm/lib/DebugInfo/Symbolize/Symbolize.cpp
-@@ -409,7 +409,7 @@ bool LLVMSymbolizer::findDebugBinary(const std::string &OrigPath,
+@@ -457,7 +457,7 @@ bool LLVMSymbolizer::findDebugBinary(const std::string &OrigPath,
      DebugPath = "/usr/libdata/debug";
  #else
      // Try /usr/lib/debug/absolute/path/to/original_binary/debuglink_name

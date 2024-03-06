@@ -1,8 +1,8 @@
 diff --git a/clang/lib/Driver/ToolChains/CommonArgs.cpp b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-index 0883631df..8b4a769f1 100644
+index 2b916f000..4cc5676ce 100644
 --- a/clang/lib/Driver/ToolChains/CommonArgs.cpp
 +++ b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-@@ -994,6 +994,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
+@@ -1393,6 +1393,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
    if (TC.getTriple().isOSLinux() && !TC.getTriple().isAndroid() &&
        !TC.getTriple().isMusl())
      CmdArgs.push_back("-lresolv");
@@ -12,10 +12,10 @@ index 0883631df..8b4a769f1 100644
  
  static void
 diff --git a/compiler-rt/cmake/Modules/AddCompilerRT.cmake b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-index 2771a4063..dc0b89c0a 100644
+index e0400a8ea..1e8ecda3f 100644
 --- a/compiler-rt/cmake/Modules/AddCompilerRT.cmake
 +++ b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-@@ -556,7 +556,7 @@ endfunction()
+@@ -549,7 +549,7 @@ endfunction()
  
  macro(add_compiler_rt_resource_file target_name file_name component)
    set(src_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_name}")
@@ -25,10 +25,10 @@ index 2771a4063..dc0b89c0a 100644
      DEPENDS ${src_file}
      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_file} ${dst_file}
 diff --git a/compiler-rt/cmake/config-ix.cmake b/compiler-rt/cmake/config-ix.cmake
-index 5f51befc1..1d5f13b92 100644
+index 2ca18ebb4..caf4e17a7 100644
 --- a/compiler-rt/cmake/config-ix.cmake
 +++ b/compiler-rt/cmake/config-ix.cmake
-@@ -872,7 +872,7 @@ if (GWP_ASAN_SUPPORTED_ARCH AND
+@@ -893,7 +893,7 @@ if (GWP_ASAN_SUPPORTED_ARCH AND
      COMPILER_RT_BUILD_GWP_ASAN AND
      COMPILER_RT_BUILD_SANITIZERS AND
      "gwp_asan" IN_LIST COMPILER_RT_SANITIZERS_TO_BUILD AND
@@ -38,10 +38,10 @@ index 5f51befc1..1d5f13b92 100644
  else()
    set(COMPILER_RT_HAS_GWP_ASAN FALSE)
 diff --git a/compiler-rt/lib/dfsan/CMakeLists.txt b/compiler-rt/lib/dfsan/CMakeLists.txt
-index c5190584a..ec1d85966 100644
+index f6479e9da..410a24cdc 100644
 --- a/compiler-rt/lib/dfsan/CMakeLists.txt
 +++ b/compiler-rt/lib/dfsan/CMakeLists.txt
-@@ -53,7 +53,7 @@ foreach(arch ${DFSAN_SUPPORTED_ARCH})
+@@ -54,7 +54,7 @@ foreach(arch ${DFSAN_SUPPORTED_ARCH})
      clang_rt.dfsan-${arch}-symbols)
  endforeach()
  
@@ -50,19 +50,3 @@ index c5190584a..ec1d85966 100644
  set(dfsan_abilist_filename ${dfsan_abilist_dir}/dfsan_abilist.txt)
  add_custom_target(dfsan_abilist ALL
    DEPENDS ${dfsan_abilist_filename})
-diff --git a/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp b/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
-index 24c6acaa9..75b2d474c 100644
---- a/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
-+++ b/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
-@@ -50,6 +50,10 @@
- #undef stat
- #endif
- 
-+#if SANITIZER_LINUX && !SANITIZER_ANDROID && !SANITIZER_GLIBC
-+#define stat64 stat
-+#endif
-+
- #include <dlfcn.h>
- #include <errno.h>
- #include <fcntl.h>
-
