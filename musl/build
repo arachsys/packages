@@ -1,5 +1,5 @@
 check() {
-  url https://musl.libc.org/releases/
+  url https://musl.libc.org/releases.html
   match version 1.2.5 'musl-([0-9.]+)\.tar'
 }
 
