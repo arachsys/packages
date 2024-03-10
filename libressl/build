@@ -1,12 +1,12 @@
 check() {
-  url https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/
-  match version 3.8.2 'libressl-([0-9.]+)\.tar'
+  url https://www.libressl.org/
+  match version 3.8.3 'LibreSSL ([0-9.]+)'
 }
 
 prepare() {
-  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.8.2.tar.gz
+  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.8.3.tar.gz
   apply dynamic.diff
-  tree e4039c4940ce2b4a1fa1b454c5c845572ab9d385fb85112081891299f1b3fa31
+  tree 86a3241cd5c3b9d9690615d9d1801e271e856345dc6e4244edfd4bbbaba5398e
 }
 
 build() {
