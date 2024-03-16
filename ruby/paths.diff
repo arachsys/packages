@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 6daf2f2..4727637 100755
+index ede8816..4886d66 100755
 --- a/configure
 +++ b/configure
-@@ -33312,10 +33312,10 @@ case "$target_os" in #(
+@@ -33825,10 +33825,10 @@ case "$target_os" in #(
       ;;
  esac
  
@@ -17,10 +17,10 @@ index 6daf2f2..4727637 100755
  # Check whether --with-rubyarchprefix was given.
  if test ${with_rubyarchprefix+y}
 diff --git a/configure.ac b/configure.ac
-index fcae66f..a9f62bc 100644
+index 9286946..2f35f33 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3983,10 +3983,10 @@ AS_CASE(["$target_os"],
+@@ -4259,10 +4259,10 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -34,16 +34,106 @@ index fcae66f..a9f62bc 100644
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
  			   [prefix for architecture dependent ruby libraries [[RUBYLIBPREFIX/ARCH]]]),
+diff --git a/lib/rdoc.rb b/lib/rdoc.rb
+index cf52ce8..7723013 100644
+--- a/lib/rdoc.rb
++++ b/lib/rdoc.rb
+@@ -143,7 +143,7 @@ module RDoc
+       require 'fileutils'
+       begin
+         # XDG
+-        xdg_data_home = ENV["XDG_DATA_HOME"] || File.join(File.expand_path("~"), '.local', 'share')
++        xdg_data_home = ENV["XDG_DATA_HOME"] || File.join(File.expand_path("~"), '.local', 'lib')
+         unless File.exist?(xdg_data_home)
+           FileUtils.mkdir_p xdg_data_home
+         end
 diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
-index d5caea7..a3356c2 100644
+index 00dc570..c2887f2 100644
 --- a/lib/rubygems/defaults.rb
 +++ b/lib/rubygems/defaults.rb
-@@ -34,7 +34,7 @@ module Gem
+@@ -21,13 +21,7 @@ module Gem
+   # specified in the environment
+ 
+   def self.default_spec_cache_dir
+-    default_spec_cache_dir = File.join Gem.user_home, ".gem", "specs"
+-
+-    unless File.exist?(default_spec_cache_dir)
+-      default_spec_cache_dir = File.join Gem.data_home, "gem", "specs"
+-    end
+-
+-    default_spec_cache_dir
++    File.join Gem.data_home, "gem", "specs"
+   end
+ 
+   ##
+@@ -35,7 +29,7 @@ module Gem
    # specified in the environment
  
    def self.default_dir
 -    @default_dir ||= File.join(RbConfig::CONFIG["rubylibprefix"], "gems", RbConfig::CONFIG["ruby_version"])
 +    @default_dir ||= File.join(RbConfig::CONFIG["rubylibprefix"], "gems")
+   end
+ 
+   ##
+@@ -101,8 +95,7 @@ module Gem
+   # Path for gems in the user's home directory
+ 
+   def self.user_dir
+-    gem_dir = File.join(Gem.user_home, ".gem")
+-    gem_dir = File.join(Gem.data_home, "gem") unless File.exist?(gem_dir)
++    gem_dir = File.join(Gem.data_home, "gem")
+     parts = [gem_dir, ruby_engine]
+     parts << RbConfig::CONFIG["ruby_version"] unless RbConfig::CONFIG["ruby_version"].empty?
+     File.join parts
+@@ -119,12 +112,7 @@ module Gem
+   # Finds the user's config file
+ 
+   def self.find_config_file
+-    gemrc = File.join Gem.user_home, ".gemrc"
+-    if File.exist? gemrc
+-      gemrc
+-    else
+-      File.join Gem.config_home, "gem", "gemrc"
+-    end
++    File.join Gem.config_home, "gem", "gemrc"
+   end
+ 
+   ##
+@@ -152,7 +140,7 @@ module Gem
+   # The path to standard location of the user's data directory.
+ 
+   def self.data_home
+-    @data_home ||= (ENV["XDG_DATA_HOME"] || File.join(Gem.user_home, ".local", "share"))
++    @data_home ||= (ENV["XDG_DATA_HOME"] || File.join(Gem.user_home, ".local", "lib"))
+   end
+ 
+   ##
+@@ -213,26 +201,14 @@ module Gem
+   # The default signing key path
+ 
+   def self.default_key_path
+-    default_key_path = File.join Gem.user_home, ".gem", "gem-private_key.pem"
+-
+-    unless File.exist?(default_key_path)
+-      default_key_path = File.join Gem.data_home, "gem", "gem-private_key.pem"
+-    end
+-
+-    default_key_path
++    File.join Gem.data_home, "gem", "gem-private_key.pem"
+   end
+ 
+   ##
+   # The default signing certificate chain path
+ 
+   def self.default_cert_path
+-    default_cert_path = File.join Gem.user_home, ".gem", "gem-public_cert.pem"
+-
+-    unless File.exist?(default_cert_path)
+-      default_cert_path = File.join Gem.data_home, "gem", "gem-public_cert.pem"
+-    end
+-
+-    default_cert_path
++    File.join Gem.data_home, "gem", "gem-public_cert.pem"
    end
  
    ##
