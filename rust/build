@@ -2,11 +2,11 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/tags
-  match version 1.76.0 'tags/([0-9.]+)\.tar'
+  match version 1.77.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.76.0-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.77.0-src.tar.gz
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
     vendor/*/.cargo-checksum.json
   apply curl.diff
@@ -15,7 +15,7 @@ prepare() {
   apply system.diff
   apply target.diff
   apply version.diff
-  tree de663f88c37506f19ff76b04415f8ee66ee46922aac87b4bbad62cc5e273eb8d
+  tree d665f5212f5c374ad0d9949a590418c2a102b7a1068bed5103f4cfa42fd4841d
 }
 
 build() {
