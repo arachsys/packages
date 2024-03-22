@@ -12,7 +12,7 @@ prepare() {
   apply dnssegv.diff
   apply home.diff
   apply sftp.diff
-  tree 93ca83b41cca567026509fcaae9b0903edadd7433bcb524b3e942bf5498da6c8
+  tree 942b64169f3b6fc0feec0c060f71905146d5f6474fb26eb4b400985c952b4aeb
 }
 
 build() {

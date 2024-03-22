@@ -1,3 +1,30 @@
+diff --git a/auth-rhosts.c b/auth-rhosts.c
+index 5672467..633b07e 100644
+--- a/auth-rhosts.c
++++ b/auth-rhosts.c
+@@ -194,7 +194,11 @@ auth_rhosts2(struct passwd *pw, const char *client_user, const char *hostname,
+ {
+ 	char *path = NULL;
+ 	struct stat st;
+-	static const char * const rhosts_files[] = {".shosts", ".rhosts", NULL};
++	static const char * const rhosts_files[] = {
++		_PATH_SSH_USER_DIR "/shosts",
++		_PATH_SSH_USER_DIR "/rhosts",
++		NULL
++	};
+ 	u_int rhosts_file_index;
+ 	int r;
+ 
+@@ -310,7 +314,8 @@ auth_rhosts2(struct passwd *pw, const char *client_user, const char *hostname,
+ 		 */
+ 		if (options.ignore_rhosts == IGNORE_RHOSTS_YES ||
+ 		    (options.ignore_rhosts == IGNORE_RHOSTS_SHOSTS &&
+-		    strcmp(rhosts_files[rhosts_file_index], ".shosts") != 0)) {
++		    strcmp(rhosts_files[rhosts_file_index],
++				_PATH_SSH_USER_DIR "/shosts") != 0)) {
+ 			auth_debug_add("Server has been configured to "
+ 			    "ignore %.100s.", rhosts_files[rhosts_file_index]);
+ 			free(path);
 diff --git a/hostfile.c b/hostfile.c
 index c5669c7..7f6b5ea 100644
 --- a/hostfile.c
