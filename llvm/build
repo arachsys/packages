@@ -16,11 +16,12 @@ prepare() {
   apply cmake.diff
   apply config.diff
   apply distro.diff
+  apply init.diff
   apply multiarch.diff
   apply paths.diff
   apply sanitizer.diff
   apply tools.diff
-  tree 7a28da47ea38160bc61aaba421e1aa24805827790c89b4a5fe22f5a7dcd63bc5
+  tree ba9f72fd9924f5f8e519963492e28f1e21acfff28f420ed08d5e7054dbffd7d6
 }
 
 build() {
