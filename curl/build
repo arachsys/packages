@@ -1,20 +1,32 @@
+require python
+
 check() {
   url https://curl.haxx.se/download/
-  match curl 8.6.0 'curl-([0-9.]+)\.tar'
+  match curl 8.7.1 'curl-([0-9.]+)\.tar'
+
+  url https://github.com/rockdaboot/libpsl/tags
+  match libpsl 0.21.5 'tags/([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
   match nghttp2 1.60.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://curl.haxx.se/download/curl-8.6.0.tar.xz
+  unpack https://curl.haxx.se/download/curl-8.7.1.tar.xz
+  unpack -d libpsl \
+    https://github.com/rockdaboot/libpsl/releases/download/0.21.5/libpsl-0.21.5.tar.gz
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.60.0/nghttp2-1.60.0.tar.xz
+  apply docs.diff
   apply paths.diff
-  tree 2f742c65e0a80fa5b4fdcefe131c50d04b5c2c35007bfee683b2e3754750e436
+  tree 1c565c99d66b1265ec2b71da288de5b2638e59712ac7ead7dd19d7eb438b32f0
 }
 
 build() {
+  cd /src/libpsl
+  auto-config --disable-shared --enable-builtin
+  make
+
   cd /src/nghttp2
   auto-config --disable-shared --enable-lib-only --with-pic
   make
@@ -22,12 +34,10 @@ build() {
   cd /src
   unexpand curl-config.in >curl-config.in.tmp
   mv -f curl-config.in{.tmp,}
-  PATH_SEPARATOR=: auto-config --enable-ipv6 --without-libpsl \
-    --with-ca-bundle=/etc/ssl/cert.pem --with-openssl \
-    CPPFLAGS="-DUSE_NGHTTP2=1 -I/src/nghttp2/lib/includes" \
-    LDFLAGS=-L/src/nghttp2/lib/.libs LIBS=-lnghttp2
-  echo install: >docs/Makefile
-  echo install: >docs/libcurl/Makefile
+  PATH_SEPARATOR=: auto-config --disable-docs --disable-manual --enable-ipv6 \
+    --with-nghttp2 --with-openssl --with-ca-bundle=/etc/ssl/cert.pem \
+    CPPFLAGS="-I/src/nghttp2/lib/includes -I/src/libpsl/include" \
+    LDFLAGS="-L/src/nghttp2/lib/.libs -L/src/libpsl/src/.libs"
   make install DESTDIR=/dst
   rm -f /dst/bin/curl-config /dst/lib/aclocal/libcurl.m4
 }
