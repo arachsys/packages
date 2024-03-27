@@ -2,25 +2,23 @@ enable setuid setgid
 
 check() {
   url https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/refs/
-  match version 2.39.3 'util-linux-([0-9.]+)\.tar'
+  match version 2.40 'util-linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.39/util-linux-2.39.3.tar.xz
-  apply idmap.diff
+  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.tar.xz
   apply logger.diff
   apply paths.diff
   apply sulogin.diff
-  apply unshare.diff
-  tree 26287d2540554bb2000db503279dcee34d7b425f7dfcc8195de02a3fd5eeb0b2
+  tree b825239439222376839966b00e190903033feff6816a9b0c1523c66bf5431b44
 }
 
 build() {
-  auto-config --disable-{bfs,chfn-chsh,cramfs,last,login,lslogins,mesg} \
-    --disable-{minix,more,newgrp,nologin,pivot_root,switch_root,su,ul} \
-    --disable-{use-tty-group,utmpdump,vipw,wall,whereis} \
-    --enable-{fs-paths-default=/bin,shared,sulogin-emergency-mount} \
-    ADJTIME_PATH=/var/lib/adjtime
+  auto-config --disable-{bfs,chfn-chsh,cramfs,last,liblastlog2,login} \
+    --disable-{lslogins,mesg,minix,more,newgrp,nologin,pivot_root,su} \
+    --disable-{switch_root,symvers,ul,use-tty-group,utmpdump,vipw,wall} \
+    --disable-whereis --enable-fs-paths-default=/bin --enable-shared \
+    --enable-sulogin-emergency-mount ADJTIME_PATH=/var/lib/adjtime
   find . -type f -name Makefile | while read FILE; do
     sed -i 's:^\(usrsbin_execdir *=\).*:\1 /bin:' $FILE
     sed -i 's:^\(usrlib_execdir *=\).*:\1 /lib:' $FILE

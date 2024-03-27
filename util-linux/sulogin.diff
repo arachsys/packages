@@ -1,5 +1,5 @@
 diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 45a558d..3ac3daa 100644
+index 2682c30..8b71be7 100644
 --- a/login-utils/sulogin.c
 +++ b/login-utils/sulogin.c
 @@ -68,6 +68,8 @@
@@ -20,7 +20,7 @@ index 45a558d..3ac3daa 100644
  static volatile sig_atomic_t sigchild;
  
  #define SULOGIN_PASSWORD_BUFSIZ	128
-@@ -342,7 +344,7 @@ static void tcfinal(struct console *con)
+@@ -419,7 +421,7 @@ static void tcfinal(struct console *con)
  static void alrm_handler(int sig __attribute__((unused)))
  {
  	/* Timeout expired */
@@ -29,7 +29,7 @@ index 45a558d..3ac3daa 100644
  }
  
  static void chld_handler(int sig __attribute__((unused)))
-@@ -585,18 +587,10 @@ static void doprompt(const char *crypted, struct console *con, int deny)
+@@ -662,18 +664,10 @@ static void doprompt(const char *crypted, struct console *con, int deny)
  				     "See sulogin(8) man page for more details.\n\n"
  				     "Press Enter to continue.\n"));
  	else {
@@ -50,7 +50,7 @@ index 45a558d..3ac3daa 100644
  	}
  	fflush(con->file);
  err:
-@@ -704,7 +698,7 @@ static char *getpasswd(struct console *con)
+@@ -781,7 +775,7 @@ static char *getpasswd(struct console *con)
  
  		if (read(fd, &c, 1) < 1) {
  			if (errno == EINTR || errno == EAGAIN) {
@@ -59,7 +59,7 @@ index 45a558d..3ac3daa 100644
  					ret = NULL;
  					goto quit;
  				}
-@@ -897,11 +891,11 @@ int main(int argc, char **argv)
+@@ -997,11 +991,11 @@ int main(int argc, char **argv)
  	struct console *con;
  	char *tty = NULL;
  	struct passwd *pwd;
@@ -72,7 +72,7 @@ index 45a558d..3ac3daa 100644
  	int wait = 0;
  	pid_t pid;
  
-@@ -1100,14 +1094,13 @@ int main(int argc, char **argv)
+@@ -1213,14 +1207,13 @@ int main(int argc, char **argv)
  				}
  				fprintf(stderr, _("Login incorrect\n\n"));
  			}
@@ -89,7 +89,7 @@ index 45a558d..3ac3daa 100644
  		case -1:
  			warn(_("fork failed"));
  			/* fallthrough */
-@@ -1145,9 +1138,11 @@ int main(int argc, char **argv)
+@@ -1258,9 +1251,11 @@ int main(int argc, char **argv)
  			continue;
  		if (con->pid < 0)
  			continue;
@@ -103,7 +103,7 @@ index 45a558d..3ac3daa 100644
  			kill(con->pid, SIGTERM);
  			wait++;
  		}
-@@ -1157,22 +1152,18 @@ int main(int argc, char **argv)
+@@ -1270,22 +1265,18 @@ int main(int argc, char **argv)
  	sigaddset(&set, SIGCHLD);
  
  	do {
@@ -129,7 +129,7 @@ index 45a558d..3ac3daa 100644
  			list_for_each(ptr, &consoles) {
  				con = list_entry(ptr, struct console, entry);
  
-@@ -1181,19 +1172,16 @@ int main(int argc, char **argv)
+@@ -1294,17 +1285,14 @@ int main(int argc, char **argv)
  				if (con->pid < 0)
  					continue;
  				if (con->pid == status.si_pid) {
@@ -150,6 +150,10 @@ index 45a558d..3ac3daa 100644
  	} while (1);
  
  	mask_signal(SIGCHLD, SIG_DFL, NULL);
+@@ -1313,5 +1301,5 @@ int main(int argc, char **argv)
+ 	tcreset_selinux(&consoles);
+ #endif
+ 
 -	return EXIT_SUCCESS;
 +	return result;
  }

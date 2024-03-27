@@ -38,10 +38,10 @@ index 449cbe0..c885601 100644
  			done
  			COMPREPLY=( $(compgen -W "$TERM_LIST" -- $cur) )
 diff --git a/disk-utils/fsck.c b/disk-utils/fsck.c
-index 94e2d7c..290e1fe 100644
+index c63ce1c..84f59bd 100644
 --- a/disk-utils/fsck.c
 +++ b/disk-utils/fsck.c
-@@ -154,7 +154,7 @@ static int kill_sent;
+@@ -158,7 +158,7 @@ static int kill_sent;
  static char *fstype;
  static struct fsck_instance *instance_list;
  
@@ -64,7 +64,7 @@ index 377c5a1..16dc63d 100644
  
  #ifdef HAVE_LOCALE_H
 diff --git a/include/pathnames.h b/include/pathnames.h
-index 56f64c3..848b82f 100644
+index 81fa405..adf52fe 100644
 --- a/include/pathnames.h
 +++ b/include/pathnames.h
 @@ -16,21 +16,12 @@
@@ -137,7 +137,7 @@ index 56f64c3..848b82f 100644
  
  /* mount paths */
  #define _PATH_FILESYSTEMS	"/etc/filesystems"
-@@ -129,7 +120,7 @@
+@@ -130,7 +121,7 @@
  # ifdef MOUNTED					/* deprecated */
  #  define _PATH_MOUNTED		MOUNTED
  # else
@@ -146,7 +146,7 @@ index 56f64c3..848b82f 100644
  # endif
  #endif
  
-@@ -167,7 +158,7 @@
+@@ -168,7 +159,7 @@
  #ifdef CONFIG_ADJTIME_PATH
  # define _PATH_ADJTIME		CONFIG_ADJTIME_PATH
  #else
@@ -199,7 +199,7 @@ index af1a612..418d06a 100644
  	int lvpipe[] = { -1, -1 }, stripes = 0, stripesize = 0;
  	FILE *stream = NULL;
 diff --git a/libmount/python/context.c b/libmount/python/context.c
-index 353a893..8aae7ac 100644
+index 36cf488..df9ab30 100644
 --- a/libmount/python/context.c
 +++ b/libmount/python/context.c
 @@ -332,7 +332,7 @@ static PyObject *Context_disable_canonicalize(ContextObjext *self, PyObject *arg
@@ -239,10 +239,10 @@ index 353a893..8aae7ac 100644
  	"This is similar to:\n" \
  	"\n" \
 diff --git a/libmount/src/context_mount.c b/libmount/src/context_mount.c
-index 7bda266..70c5043 100644
+index 478a9fd..fb29d6b 100644
 --- a/libmount/src/context_mount.c
 +++ b/libmount/src/context_mount.c
-@@ -1631,7 +1631,7 @@ int mnt_context_get_mount_excode(
+@@ -1655,7 +1655,7 @@ int mnt_context_get_mount_excode(
  		else if (mnt_fs_is_netfs(mnt_context_get_fs(cxt)))
  			snprintf(buf, bufsz,
  				_("bad option; for several filesystems (e.g. nfs, cifs) "
@@ -265,7 +265,7 @@ index f76acc8..de4de92 100644
  #define UUIDD_OP_GETPID			0
  #define UUIDD_OP_GET_MAXOP		1
 diff --git a/misc-utils/uuidd.rc.in b/misc-utils/uuidd.rc.in
-index 7943945..a84a8d6 100644
+index 4919049..ce04db6 100644
 --- a/misc-utils/uuidd.rc.in
 +++ b/misc-utils/uuidd.rc.in
 @@ -13,8 +13,8 @@
@@ -278,9 +278,9 @@ index 7943945..a84a8d6 100644
 +DAEMON=/bin/uuidd
  UUIDD_USER=uuidd
  UUIDD_GROUP=uuidd
- UUIDD_DIR=@runstatedir@/uuidd
+ UUIDD_RUNSTATEDIR=@runstatedir@/uuidd
 diff --git a/misc-utils/whereis.c b/misc-utils/whereis.c
-index d21b434..69d2034 100644
+index c11efa5..69398f1 100644
 --- a/misc-utils/whereis.c
 +++ b/misc-utils/whereis.c
 @@ -101,84 +101,20 @@ struct wh_dirlist {
