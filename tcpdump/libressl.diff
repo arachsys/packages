@@ -1,0 +1,12 @@
+diff --git a/print-esp.c b/print-esp.c
+index 2cee088..aaf4c41 100644
+--- a/print-esp.c
++++ b/print-esp.c
+@@ -683,7 +683,6 @@ static void esp_init(netdissect_options *ndo _U_)
+ #if !defined(OPENSSL_API_COMPAT) || OPENSSL_API_COMPAT < 0x10100000L
+ 	OpenSSL_add_all_algorithms();
+ #endif
+-	EVP_add_cipher_alias(SN_des_ede3_cbc, "3des");
+ }
+ DIAG_ON_DEPRECATION
+ 

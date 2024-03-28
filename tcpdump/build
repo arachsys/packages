@@ -7,7 +7,8 @@ check() {
 
 prepare() {
   unpack https://www.tcpdump.org/release/tcpdump-4.99.4.tar.gz
-  tree 5c93bc33e122be58ec4493b35b848cd4f03cbca63ed75b852df7ec9a4aa800e8
+  apply libressl.diff
+  tree c94c3d6cbc7a314b527fa7936751d1acf3c57136f7886792cde4e5313c6ec435
 }
 
 build() {
