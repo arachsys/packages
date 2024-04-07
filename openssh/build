@@ -8,11 +8,12 @@ check() {
 
 prepare() {
   unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.7p1.tar.gz
+  apply chroot.diff
   apply config.diff
   apply dnssegv.diff
   apply home.diff
   apply sftp.diff
-  tree 942b64169f3b6fc0feec0c060f71905146d5f6474fb26eb4b400985c952b4aeb
+  tree 68d84ffc4a57a8218a6594ad0ad6e1d1bbe69ae6b5083b24912b9edbd6a5c10b
 }
 
 build() {

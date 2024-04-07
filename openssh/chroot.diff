@@ -1,0 +1,67 @@
+diff --git a/session.c b/session.c
+index c821dcd..92bea16 100644
+--- a/session.c
++++ b/session.c
+@@ -42,6 +42,7 @@
+ #include <sys/socket.h>
+ #include <sys/un.h>
+ #include <sys/wait.h>
++#include <sys/prctl.h>
+ 
+ #include <arpa/inet.h>
+ 
+@@ -1301,10 +1302,11 @@ do_nologin(struct passwd *pw)
+ 
+ /*
+  * Chroot into a directory after checking it for safety: all path components
+- * must be root-owned directories with strict permissions.
++ * must be root-owned directories with strict permissions, or safe must be
++ * set to enable prctl PR_SET_NO_NEW_PRIVS.
+  */
+ static void
+-safely_chroot(const char *path, uid_t uid)
++safely_chroot(const char *path, uid_t uid, int safe)
+ {
+ 	const char *cp;
+ 	char component[PATH_MAX];
+@@ -1317,9 +1319,12 @@ safely_chroot(const char *path, uid_t uid)
+ 
+ 	/*
+ 	 * Descend the path, checking that each component is a
+-	 * root-owned directory with strict permissions.
++	 * root-owned directory with strict permissions. If safe
++	 * is set, enable prctl PR_SET_NO_NEW_PRIVS instead.
+ 	 */
+-	for (cp = path; cp != NULL;) {
++	if (safe && prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0)
++		fatal("prctl PR_SET_NO_NEW_PRIVS: %s", strerror(errno));
++	for (cp = path; safe == 0 && cp != NULL;) {
+ 		if ((cp = strchr(cp, '/')) == NULL)
+ 			strlcpy(component, path, sizeof(component));
+ 		else {
+@@ -1358,6 +1363,7 @@ void
+ do_setusercontext(struct passwd *pw)
+ {
+ 	char uidstr[32], *chroot_path, *tmp;
++	int safe;
+ 
+ 	platform_setusercontext(pw);
+ 
+@@ -1387,13 +1393,15 @@ do_setusercontext(struct passwd *pw)
+ 
+ 		if (!in_chroot && options.chroot_directory != NULL &&
+ 		    strcasecmp(options.chroot_directory, "none") != 0) {
+-			tmp = tilde_expand_filename(options.chroot_directory,
++			safe = !strncmp("safe:", options.chroot_directory, 5);
++			tmp = tilde_expand_filename(
++			    options.chroot_directory + (safe ? 5 : 0),
+ 			    pw->pw_uid);
+ 			snprintf(uidstr, sizeof(uidstr), "%llu",
+ 			    (unsigned long long)pw->pw_uid);
+ 			chroot_path = percent_expand(tmp, "h", pw->pw_dir,
+ 			    "u", pw->pw_name, "U", uidstr, (char *)NULL);
+-			safely_chroot(chroot_path, pw->pw_uid);
++			safely_chroot(chroot_path, pw->pw_uid, safe);
+ 			free(tmp);
+ 			free(chroot_path);
+ 			/* Make sure we don't attempt to chroot again */
