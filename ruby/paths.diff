@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index ede8816..4886d66 100755
+index 6536ba13..dcf69e57 100755
 --- a/configure
 +++ b/configure
-@@ -33825,10 +33825,10 @@ case "$target_os" in #(
+@@ -33836,10 +33836,10 @@ case "$target_os" in #(
       ;;
  esac
  
@@ -17,10 +17,10 @@ index ede8816..4886d66 100755
  # Check whether --with-rubyarchprefix was given.
  if test ${with_rubyarchprefix+y}
 diff --git a/configure.ac b/configure.ac
-index 9286946..2f35f33 100644
+index 18b42479..9b3e1d5c 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4259,10 +4259,10 @@ AS_CASE(["$target_os"],
+@@ -4262,10 +4262,10 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -35,7 +35,7 @@ index 9286946..2f35f33 100644
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
  			   [prefix for architecture dependent ruby libraries [[RUBYLIBPREFIX/ARCH]]]),
 diff --git a/lib/rdoc.rb b/lib/rdoc.rb
-index cf52ce8..7723013 100644
+index cf52ce87..77230135 100644
 --- a/lib/rdoc.rb
 +++ b/lib/rdoc.rb
 @@ -143,7 +143,7 @@ module RDoc
@@ -48,25 +48,19 @@ index cf52ce8..7723013 100644
            FileUtils.mkdir_p xdg_data_home
          end
 diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
-index 00dc570..c2887f2 100644
+index ca161a4d..833f7f6c 100644
 --- a/lib/rubygems/defaults.rb
 +++ b/lib/rubygems/defaults.rb
-@@ -21,13 +21,7 @@ module Gem
+@@ -21,7 +21,7 @@ module Gem
    # specified in the environment
  
    def self.default_spec_cache_dir
 -    default_spec_cache_dir = File.join Gem.user_home, ".gem", "specs"
--
--    unless File.exist?(default_spec_cache_dir)
--      default_spec_cache_dir = File.join Gem.data_home, "gem", "specs"
--    end
--
--    default_spec_cache_dir
-+    File.join Gem.data_home, "gem", "specs"
-   end
++    default_spec_cache_dir = File.join Gem.data_home, "gem", "specs"
  
-   ##
-@@ -35,7 +29,7 @@ module Gem
+     unless File.exist?(default_spec_cache_dir)
+       default_spec_cache_dir = File.join Gem.cache_home, "gem", "specs"
+@@ -35,7 +35,7 @@ module Gem
    # specified in the environment
  
    def self.default_dir
@@ -75,7 +69,7 @@ index 00dc570..c2887f2 100644
    end
  
    ##
-@@ -101,8 +95,7 @@ module Gem
+@@ -101,8 +101,7 @@ module Gem
    # Path for gems in the user's home directory
  
    def self.user_dir
@@ -85,7 +79,7 @@ index 00dc570..c2887f2 100644
      parts = [gem_dir, ruby_engine]
      parts << RbConfig::CONFIG["ruby_version"] unless RbConfig::CONFIG["ruby_version"].empty?
      File.join parts
-@@ -119,12 +112,7 @@ module Gem
+@@ -119,12 +118,7 @@ module Gem
    # Finds the user's config file
  
    def self.find_config_file
@@ -99,16 +93,16 @@ index 00dc570..c2887f2 100644
    end
  
    ##
-@@ -152,7 +140,7 @@ module Gem
+@@ -152,7 +146,7 @@ module Gem
    # The path to standard location of the user's data directory.
  
    def self.data_home
--    @data_home ||= (ENV["XDG_DATA_HOME"] || File.join(Gem.user_home, ".local", "share"))
-+    @data_home ||= (ENV["XDG_DATA_HOME"] || File.join(Gem.user_home, ".local", "lib"))
+-    @data_home ||= ENV["XDG_DATA_HOME"] || File.join(Gem.user_home, ".local", "share")
++    @data_home ||= ENV["XDG_DATA_HOME"] || File.join(Gem.user_home, ".local", "lib")
    end
  
    ##
-@@ -213,26 +201,14 @@ module Gem
+@@ -213,26 +207,14 @@ module Gem
    # The default signing key path
  
    def self.default_key_path
