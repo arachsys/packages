@@ -1,3 +1,16 @@
+diff --git a/include/sched.h b/include/sched.h
+index 204c34f5..9acb8d6a 100644
+--- a/include/sched.h
++++ b/include/sched.h
+@@ -90,7 +90,7 @@ int sched_getcpu(void);
+ int sched_getaffinity(pid_t, size_t, cpu_set_t *);
+ int sched_setaffinity(pid_t, size_t, const cpu_set_t *);
+ 
+-#define __CPU_op_S(i, size, set, op) ( (i)/8U >= (size) ? 0 : \
++#define __CPU_op_S(i, size, set, op) ( (i)/8UL >= (size) ? 0 : \
+ 	(((unsigned long *)(set))[(i)/8/sizeof(long)] op (1UL<<((i)%(8*sizeof(long))))) )
+ 
+ #define CPU_SET_S(i, size, set) __CPU_op_S(i, size, set, |=)
 diff --git a/include/sys/socket.h b/include/sys/socket.h
 index 6dc1e40a..a6117321 100644
 --- a/include/sys/socket.h
