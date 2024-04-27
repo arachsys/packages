@@ -19,8 +19,9 @@ prepare() {
   apply multiarch.diff
   apply paths.diff
   apply sanitizer.diff
+  apply ssp.diff
   apply tools.diff
-  tree ed9623e8e217fc4ff57e48423c4d914e915b37f27747c06c8f272bd811732c16
+  tree 69fbc8315a71deb4e2febf9e062d5e0034095b75a8d74796b468a812fea4a03c
 }
 
 build() {

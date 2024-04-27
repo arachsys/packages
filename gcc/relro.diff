@@ -1,0 +1,12 @@
+diff --git a/gcc/gcc.cc b/gcc/gcc.cc
+index ec59e80e..4eecda12 100644
+--- a/gcc/gcc.cc
++++ b/gcc/gcc.cc
+@@ -1144,6 +1144,7 @@ proper position among the other output files.  */
+    "%{flto|flto=*:%<fcompare-debug*} \
+     %{flto} %{fno-lto} %{flto=*} %l " LINK_PIE_SPEC \
+    "%{fuse-ld=*:-fuse-ld=%*} " LINK_COMPRESS_DEBUG_SPEC \
++   "-z relro -z now" \
+    "%X %{o*} %{e*} %{N} %{n} %{r}\
+     %{s} %{t} %{u*} %{z} %{Z} %{!nostdlib:%{!r:%{!nostartfiles:%S}}} \
+     %{static|no-pie|static-pie:} %@{L*} %(mfwrap) %(link_libgcc) " \
