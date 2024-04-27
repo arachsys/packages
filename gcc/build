@@ -38,9 +38,10 @@ prepare() {
   apply paths.diff
   apply poison.diff
   apply pure64.diff
+  apply relro.diff
   apply rpath.diff
 
-  tree 0fb8093971b9ccac26eedbc9787a78ff83346c2e39fb27ac8fabec6a18b4cf49
+  tree 3b0da8696ef7fad0fcaa7999042185da4e313f9edbed03fb2e0f54ff220d2d81
 }
 
 build() {
