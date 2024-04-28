@@ -142,7 +142,7 @@ build() {
   strip --strip-unneeded /dst/lib/llvm/lib/lib*.a
 
   image lldb contains /dst/bin/lldb* /dst/lib/liblldb*.{a,so,so.*}
-  image lldb requires llvm-shared
+  image lldb requires llvm
 
   image llvm-shared contains /dst/lib/lib{c++,c++abi,unwind}.{so,so.*}
   image - requires llvm-shared
