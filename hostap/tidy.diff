@@ -1,8 +1,8 @@
 diff --git a/hostapd/main.c b/hostapd/main.c
-index c9ec38d..8384c25 100644
+index 58cc86a0..47a338f1 100644
 --- a/hostapd/main.c
 +++ b/hostapd/main.c
-@@ -452,9 +452,7 @@ static void show_version(void)
+@@ -553,9 +553,7 @@ static void show_version(void)
  {
  	fprintf(stderr,
  		"hostapd v%s\n"
@@ -13,12 +13,12 @@ index c9ec38d..8384c25 100644
  		"and contributors\n",
  		VERSION_STR);
  }
-@@ -465,35 +463,34 @@ static void usage(void)
+@@ -566,36 +564,35 @@ static void usage(void)
  	show_version();
  	fprintf(stderr,
  		"\n"
--		"usage: hostapd [-hdBKtv] [-P <PID file>] [-e <entropy file>] "
-+		"Usage: hostapd [-hdBKtv] [-P <pid-file>] [-e <entropy-file>] "
+-		"usage: hostapd [-hdBKtvq] [-P <PID file>] [-e <entropy file>] "
++		"Usage: hostapd [-hdBKtvq] [-P <PID file>] [-e <entropy file>] "
  		"\\\n"
 -		"         [-g <global ctrl_iface>] [-G <group>]\\\n"
 -		"         [-i <comma-separated list of interface names>]\\\n"
@@ -62,15 +62,17 @@ index c9ec38d..8384c25 100644
  #endif /* CONFIG_DEBUG_SYSLOG */
 -		"   -S   start all the interfaces synchronously\n"
 -		"   -t   include timestamps in some debug messages\n"
--		"   -v   show hostapd version\n");
+-		"   -v   show hostapd version\n"
+-		"   -q   show less debug messages (-qq for even less)\n");
 +		"  -S   start all the interfaces synchronously\n"
 +		"  -t   include timestamps in some debug messages\n"
-+		"  -v   show version\n");
++		"  -v   show version\n"
++		"  -q   show fewer debug messages (-qq for even fewer)\n");
  
  	exit(1);
  }
 diff --git a/src/utils/wpa_debug.c b/src/utils/wpa_debug.c
-index a338a20..33eb411 100644
+index 7f3dd185..d6d68693 100644
 --- a/src/utils/wpa_debug.c
 +++ b/src/utils/wpa_debug.c
 @@ -93,7 +93,7 @@ void wpa_debug_print_timestamp(void)
@@ -83,10 +85,10 @@ index a338a20..33eb411 100644
  }
  
 diff --git a/wpa_supplicant/main.c b/wpa_supplicant/main.c
-index 51a8a02..5534418 100644
+index 9229eb51..6e2ef26f 100644
 --- a/wpa_supplicant/main.c
 +++ b/wpa_supplicant/main.c
-@@ -21,9 +21,8 @@
+@@ -22,9 +22,8 @@
  static void usage(void)
  {
  	int i;
@@ -98,7 +100,7 @@ index 51a8a02..5534418 100644
  #ifdef CONFIG_DEBUG_SYSLOG
  	       "s"
  #endif /* CONFIG_DEBUG_SYSLOG */
-@@ -31,27 +30,26 @@ static void usage(void)
+@@ -32,27 +31,26 @@ static void usage(void)
  #ifdef CONFIG_CTRL_IFACE_DBUS_NEW
  	       "u"
  #endif /* CONFIG_CTRL_IFACE_DBUS_NEW */
@@ -122,7 +124,7 @@ index 51a8a02..5534418 100644
 -	       "        [-N -i<ifname> -c<conf> [-C<ctrl>] "
 -	       "[-D<driver>] \\\n"
 +	       "         [-o <override-driver>] [-O <override-ctrl>] \\\n"
-+	       "         [-N -i <interface> -c <config-file> [-C <ctrl-param>] \\\n"
++	       "         [ -N -i <interface> -c <config-file> [-C <ctrl-param>] \\\n"
 +	       "           [-D <driver>]"
  #ifdef CONFIG_P2P
 -	       "        [-m<P2P Device config file>] \\\n"
@@ -131,7 +133,7 @@ index 51a8a02..5534418 100644
 -	       "        [-p<driver_param>] [-b<br_ifname>] [-I<config file>] "
 -	       "...]\n"
 +	       " [-p <driver-param>] \\\n"
-+	       "           [-b <bridge>] [-I <config-file>]]...\n"
++	       "           [-b <bridge>] [-I <config-file>] ]...\n"
  	       "\n"
 -	       "drivers:\n",
 -	       wpa_supplicant_version, wpa_supplicant_license);
@@ -140,7 +142,7 @@ index 51a8a02..5534418 100644
  
  	for (i = 0; wpa_drivers[i]; i++) {
  		printf("  %s = %s\n",
-@@ -60,71 +58,55 @@ static void usage(void)
+@@ -61,71 +59,55 @@ static void usage(void)
  	}
  
  #ifndef CONFIG_NO_STDOUT_DEBUG
@@ -243,7 +245,7 @@ index 51a8a02..5534418 100644
  static void wpa_supplicant_fd_workaround(int start)
  {
  #ifdef __linux__
-@@ -257,10 +239,6 @@ int main(int argc, char *argv[])
+@@ -258,10 +240,6 @@ int main(int argc, char *argv[])
  		case 'K':
  			params.wpa_debug_show_keys++;
  			break;
@@ -254,7 +256,7 @@ index 51a8a02..5534418 100644
  #ifdef CONFIG_P2P
  		case 'm':
  			params.conf_p2p_dev = optarg;
-@@ -341,12 +319,9 @@ int main(int argc, char *argv[])
+@@ -342,12 +320,9 @@ int main(int argc, char *argv[])
  	exitcode = 0;
  	global = wpa_supplicant_init(&params);
  	if (global == NULL) {
@@ -269,10 +271,10 @@ index 51a8a02..5534418 100644
  
  	if (fst_global_init()) {
 diff --git a/wpa_supplicant/wpa_supplicant.c b/wpa_supplicant/wpa_supplicant.c
-index d37a994..795bdad 100644
+index eeb66751..be835033 100644
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -70,8 +70,8 @@
+@@ -72,8 +72,8 @@
  #endif /* CONFIG_MESH */
  
  const char *const wpa_supplicant_version =
@@ -283,7 +285,7 @@ index d37a994..795bdad 100644
  
  const char *const wpa_supplicant_license =
  "This software may be distributed under the terms of the BSD license.\n"
-@@ -4934,8 +4934,7 @@ static int wpa_supplicant_set_driver(struct wpa_supplicant *wpa_s,
+@@ -5410,8 +5410,7 @@ static int wpa_supplicant_set_driver(struct wpa_supplicant *wpa_s,
  		return -1;
  
  	if (wpa_drivers[0] == NULL) {
@@ -293,7 +295,7 @@ index d37a994..795bdad 100644
  		return -1;
  	}
  
-@@ -6815,12 +6814,12 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
+@@ -7363,12 +7362,12 @@ static int wpa_supplicant_init_iface(struct wpa_supplicant *wpa_s,
  	if (wpa_s->ctrl_iface == NULL) {
  		wpa_printf(MSG_ERROR,
  			   "Failed to initialize control interface '%s'.\n"
@@ -309,7 +311,7 @@ index d37a994..795bdad 100644
  			   wpa_s->conf->ctrl_interface);
  		return -1;
  	}
-@@ -7392,7 +7391,7 @@ struct wpa_global * wpa_supplicant_init(struct wpa_params *params)
+@@ -7985,7 +7984,7 @@ struct wpa_global * wpa_supplicant_init(struct wpa_params *params)
  	wpa_debug_timestamp = global->params.wpa_debug_timestamp =
  		params->wpa_debug_timestamp;
  

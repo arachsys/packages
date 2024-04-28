@@ -6,11 +6,11 @@ check() {
 }
 
 prepare() {
-  unpack hostap-2.10.tar.gz \
-    https://w1.fi/cgit/hostap/snapshot/hostap_2_10.tar.gz
+  unpack hostap-20240424.tar.gz \
+    https://w1.fi/cgit/hostap/snapshot/hostap-1dda619e.tar.gz
   apply libnl.diff
   apply tidy.diff
-  tree c766f46c558578ef7cb3ae497432c6883776d59de90f2a2dadfeb77abc076dc0
+  tree a94eaf6632b9b69a4e96f3e8f354f70b6bd40dca724ec03ebb072fa160fad9fa
 }
 
 build() {
