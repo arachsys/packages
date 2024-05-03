@@ -1,6 +1,20 @@
+diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
+index 941d767b..70b3d785 100644
+--- a/compiler/rustc_target/src/spec/mod.rs
++++ b/compiler/rustc_target/src/spec/mod.rs
+@@ -1414,6 +1414,9 @@ macro_rules! supported_targets {
+ }
+ 
+ supported_targets! {
++    ("x86_64-arachsys-linux-musl", x86_64_arachsys_linux_musl),
++    ("aarch64-arachsys-linux-musl", aarch64_arachsys_linux_musl),
++
+     ("x86_64-unknown-linux-gnu", x86_64_unknown_linux_gnu),
+     ("x86_64-unknown-linux-gnux32", x86_64_unknown_linux_gnux32),
+     ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
 diff --git a/compiler/rustc_target/src/spec/targets/aarch64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/targets/aarch64_arachsys_linux_musl.rs
 new file mode 100644
-index 000000000..5681188f8
+index 00000000..5681188f
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/targets/aarch64_arachsys_linux_musl.rs
 @@ -0,0 +1,10 @@
@@ -14,23 +28,9 @@ index 000000000..5681188f8
 +    base.options.static_position_independent_executables = true;
 +    base
 +}
-diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
-index 8909cf33a..a20ff3b28 100644
---- a/compiler/rustc_target/src/spec/mod.rs
-+++ b/compiler/rustc_target/src/spec/mod.rs
-@@ -1011,6 +1011,9 @@ macro_rules! supported_targets {
- }
- 
- supported_targets! {
-+    ("x86_64-arachsys-linux-musl", x86_64_arachsys_linux_musl),
-+    ("aarch64-arachsys-linux-musl", aarch64_arachsys_linux_musl),
-+
-     ("x86_64-unknown-linux-gnu", x86_64_unknown_linux_gnu),
-     ("x86_64-unknown-linux-gnux32", x86_64_unknown_linux_gnux32),
-     ("i686-unknown-linux-gnu", i686_unknown_linux_gnu),
 diff --git a/compiler/rustc_target/src/spec/targets/x86_64_arachsys_linux_musl.rs b/compiler/rustc_target/src/spec/targets/x86_64_arachsys_linux_musl.rs
 new file mode 100644
-index 000000000..5ead73673
+index 00000000..5ead7367
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/targets/x86_64_arachsys_linux_musl.rs
 @@ -0,0 +1,10 @@
