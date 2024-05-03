@@ -20,14 +20,14 @@ prepare() {
 
 build() {
   /src/configure --prefix= --disable-codegen-tests --disable-dist-src \
-     --disable-docs --disable-manage-submodules --disable-ninja \
-     --disable-rpath --enable-extended --enable-local-rust \
-     --enable-locked-deps --enable-use-libcxx --enable-vendor \
-     --build=$(/lib/llvm/bin/llvm-config --host-target) \
-     --dist-compression-formats=gz --llvm-libunwind=system \
-     --llvm-config=/lib/llvm/bin/llvm-config --local-rust-root= \
-     --release-channel=stable --set=llvm.static-libstdcpp=false \
-     --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
+    --disable-docs --disable-manage-submodules --disable-ninja \
+    --disable-rpath --enable-extended --enable-local-rust \
+    --enable-locked-deps --enable-use-libcxx --enable-vendor \
+    --build=$(/lib/llvm/bin/llvm-config --host-target) \
+    --llvm-libunwind=system --llvm-config=/lib/llvm/bin/llvm-config \
+    --local-rust-root= --release-channel=stable --set=change-id=99999999 \
+    --set=llvm.static-libstdcpp=false \
+    --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
     python x.py install
