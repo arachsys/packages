@@ -17,5 +17,7 @@ prepare() {
 build() {
   CC=cc PKG_CONFIG=/bin/false /src/configure --prefix= --color=auto
   make install CC=cc DESTDIR=/dst
+  sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/^ //' -e 's/ $//' \
+      -e '/^$/d' -i /dst/lib/{iproute2,tc}/*
   rm -f -r /dst/bin/{ifcfg,routef,routel,rtpr} /dst/lib/bash-completion
 }
