@@ -1,6 +1,6 @@
 check() {
   url https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/refs
-  match version 1.6.3 'keyutils-([0-9.]+)\.tar'
+  match version 1.6.3 '>v([0-9.]+)<'
 }
 
 prepare() {

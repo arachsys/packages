@@ -2,7 +2,7 @@ enable setuid setgid
 
 check() {
   url https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/refs/
-  match version 2.40 'util-linux-([0-9.]+)\.tar'
+  match version 2.40 '>v([0-9.]+)<'
 }
 
 prepare() {
