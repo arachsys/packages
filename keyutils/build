@@ -9,8 +9,9 @@ prepare() {
 }
 
 build() {
-  make install CFLAGS=-O2 DESTDIR=/dst INCLUDEDIR=/lib/include \
-    {,USR}LIBDIR=/lib MANDIR=/lib/man SBINDIR=/bin SHAREDIR=/lib/keyutils
+  make install CFLAGS=-O2 LIBVERS='-shared -Wl,-soname,$(SONAME)' \
+    DESTDIR=/dst INCLUDEDIR=/lib/include {,USR}LIBDIR=/lib MANDIR=/lib/man \
+    SBINDIR=/bin SHAREDIR=/lib/keyutils
   ln -f -s libkeyutils.so.1 /dst/lib/libkeyutils.so
   rm -f /dst/bin/key.dns_resolver /dst/lib/keyutils/*.sh
 }
