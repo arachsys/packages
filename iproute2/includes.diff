@@ -10,18 +10,6 @@ index 0b1d84f..403de29 100644
  #include "json_writer.h"
  #include "color.h"
  
-diff --git a/lib/bpf_legacy.c b/lib/bpf_legacy.c
-index 844974e..741eec8 100644
---- a/lib/bpf_legacy.c
-+++ b/lib/bpf_legacy.c
-@@ -18,6 +18,7 @@
- #include <stdarg.h>
- #include <limits.h>
- #include <assert.h>
-+#include <libgen.h>
- 
- #ifdef HAVE_ELF
- #include <libelf.h>
 diff --git a/misc/arpd.c b/misc/arpd.c
 index 1ef837c..cf36809 100644
 --- a/misc/arpd.c
