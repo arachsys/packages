@@ -1,8 +1,8 @@
 diff --git a/libdm/dm-tools/dmfilemapd.c b/libdm/dm-tools/dmfilemapd.c
-index 832722a..56774d2 100644
+index 6ee67321..77bb1924 100644
 --- a/libdm/dm-tools/dmfilemapd.c
 +++ b/libdm/dm-tools/dmfilemapd.c
-@@ -262,7 +262,7 @@ static int _parse_args(int argc, char **argv, struct filemap_monitor *fm)
+@@ -260,7 +260,7 @@ static int _parse_args(int argc, char **argv, struct filemap_monitor *fm)
  
  	if (argc < 5) {
  		_early_log("Wrong number of arguments.");
@@ -12,7 +12,7 @@ index 832722a..56774d2 100644
  	}
  
 diff --git a/libdm/dm-tools/dmsetup.c b/libdm/dm-tools/dmsetup.c
-index a9c01f8..b5f5015 100644
+index cbb27c6e..ab5f1021 100644
 --- a/libdm/dm-tools/dmsetup.c
 +++ b/libdm/dm-tools/dmsetup.c
 @@ -131,7 +131,7 @@ typedef enum {
@@ -24,7 +24,7 @@ index a9c01f8..b5f5015 100644
  
  static const struct {
  	cmd_name_t command;
-@@ -6289,12 +6289,14 @@ static struct command _dmsetup_commands[] = {
+@@ -6294,12 +6294,14 @@ static const struct command _dmsetup_commands[] = {
  	{"wait", "<device> [<event_nr>] [--noflush]", 0, 2, 0, 0, _wait},
  	{"mknodes", "[<device>...]", 0, -1, 1, 0, _mknodes},
  	{"mangle", "[<device>...]", 0, -1, 1, 0, _mangle},
@@ -39,83 +39,43 @@ index a9c01f8..b5f5015 100644
  	{"target-version", "[<target>...]", 1, -1, 1, 0, _target_version},
  	{"targets", "", 0, 0, 0, 0, _targets},
  	{"version", "", 0, 0, 0, 0, _version},
-@@ -6316,17 +6318,16 @@ static void _stats_usage(FILE *out)
+@@ -6320,8 +6322,7 @@ static void _stats_usage(FILE *out)
  {
- 	int i;
+ 	unsigned i;
  
 -	fprintf(out, "Usage:\n\n"
--		"%s\n"
--		"        [-h|--help]\n"
--		"        [-v|--verbose [-v|--verbose ...]]\n"
--		"        [--areas <nr_areas>] [--areasize <size>]\n"
--		"        [--userdata <data>] [--clear]\n"
--		"        [--count <count>] [--interval <seconds>]\n"
--		"        [-o <fields>] [-O|--sort <sort_fields>]\n"
--		"	      [--programid <id>]\n"
--		"        [--start <start>] [--length <length>]\n"
--		"        [--segments] [--units <units>]\n\n",
-+	fprintf(out, "Usage: %s\n"
-+		"\t[-h|--help]\n"
-+		"\t[-v|--verbose [-v|--verbose ...]]\n"
-+		"\t[--areas <nr_areas>] [--areasize <size>]\n"
-+		"\t[--userdata <data>] [--clear]\n"
-+		"\t[--count <count>] [--interval <seconds>]\n"
-+		"\t[-o <fields>] [-O|--sort <sort_fields>]\n"
-+		"\t    [--programid <id>]\n"
-+		"\t[--start <start>] [--length <length>]\n"
-+		"\t[--segments] [--units <units>]\n\n",
- 		_base_commands[_base_command].name);
- 
- 	for (i = 0; _stats_subcommands[i].name; i++)
-@@ -6340,18 +6341,17 @@ static void _dmsetup_usage(FILE *out)
+-		"%s\n\t"
++	fprintf(out, "Usage: %s\n\t"
+ 		"[-h|--help]\n\t"
+ 		"[-v|--verbose [-v|--verbose ...]]\n\t"
+ 		"[--areas <nr_areas>] [--areasize <size>]\n\t"
+@@ -6344,13 +6345,14 @@ static void _dmsetup_usage(FILE *out)
  {
- 	int i;
+ 	unsigned i;
  
 -	fprintf(out, "Usage:\n\n"
--		"%s\n"
--		"        [--version] [-h|--help [-c|-C|--columns]]\n"
--		"        [-v|--verbose [-v|--verbose ...]] [-f|--force]\n"
--		"        [--checks] [--manglename {none|hex|auto}]\n"
--		"        [-r|--readonly] [--noopencount] [--noflush] [--nolockfs] [--inactive]\n"
--		"        [--udevcookie <cookie>] [--noudevrules] [--noudevsync] [--verifyudev]\n"
--		"        [-y|--yes] [--readahead {[+]<sectors>|auto|none}] [--retry]\n"
--		"        [-c|-C|--columns] [-o <fields>] [-O|--sort <sort_fields>]\n"
--		"        [-S|--select <selection>] [--nameprefixes]\n"
--		"        [--noheadings|--headings none|abbrev|full|0|1|2]\n"
--		"        [--separator <separator>]\n\n",
-+	fprintf(out, "Usage: %s\n"
-+		"\t[--version] [-h|--help [-c|-C|--columns]]\n"
-+		"\t[-v|--verbose [-v|--verbose ...]] [-f|--force]\n"
-+		"\t[--checks] [--manglename {none|hex|auto}]\n"
-+		"\t[-r|--readonly] [--noopencount] [--noflush] [--nolockfs] [--inactive]\n"
-+		"\t[--udevcookie <cookie>] [--noudevrules] [--noudevsync] [--verifyudev]\n"
-+		"\t[-y|--yes] [--readahead {[+]<sectors>|auto|none}] [--retry]\n"
-+		"\t[-c|-C|--columns] [-o <fields>] [-O|--sort <sort_fields>]\n"
-+		"\t[-S|--select <selection>] [--nameprefixes]\n"
-+		"\t[--noheadings|--headings none|abbrev|full|0|1|2]\n"
-+		"\t[--separator <separator>]\n\n",
- 		_base_commands[_base_command].name);
- 
- 	for (i = 0; _dmsetup_commands[i].name; i++)
-@@ -6361,21 +6361,21 @@ static void _dmsetup_usage(FILE *out)
- 		"-j <major> -m <minor>\n"
- 		"<mangling_mode> is one of 'none', 'auto' and 'hex'.\n"
- 		"<fields> are comma-separated.  Use 'help -c' for list.\n"
--		"<concise_device_specification> has single-device entries separated by semi-colons:\n"
-+		"<concise_device_spec_list> has single-device entries separated by semi-colons:\n"
- 		"    <name>,<uuid>,<minor>,<flags>,<table>\n"
- 		"        where <flags> is 'ro' or 'rw' (the default) and any of <uuid>, <minor>\n"
+-		"%s\n\t"
++	fprintf(out, "Usage: %s\n\t"
+ 		"[--version] [-h|--help [-c|-C|--columns]]\n\t"
+ 		"[-v|--verbose [-v|--verbose ...]] [-f|--force]\n\t"
+ 		"[--checks] [--manglename {none|hex|auto}]\n\t"
+ 		"[-r|--readonly] [--noopencount] [--noflush] [--nolockfs] [--inactive]\n\t"
++#ifdef UDEV_SYNC_SUPPORT
+ 		"[--udevcookie <cookie>] [--noudevrules] [--noudevsync] [--verifyudev]\n\t"
++#endif
+ 		"[-y|--yes] [--readahead {[+]<sectors>|auto|none}] [--retry]\n\t"
+ 		"[-c|-C|--columns] [-o <fields>] [-O|--sort <sort_fields>]\n\t"
+ 		"[-S|--select <selection>] [--nameprefixes]\n\t"
+@@ -6371,7 +6373,7 @@ static void _dmsetup_usage(FILE *out)
  		"        and <flags> may be empty. Separate extra table lines with commas.\n"
  		"    E.g.: dev1,,,,0 100 linear 253:1 0,100 100 error;dev2,,,ro,0 1 error\n"
  		"Table_file contents may be supplied on stdin.\n"
 -		"Options are: devno, devname, blkdevname.\n"
--		"Tree specific options are: ascii, utf, vt100; compact, inverted, notrunc;\n"
--		"                           blkdevname, [no]device, active, open, rw and uuid.\n\n");
 +		"Options are: devno, devname and blkdevname.\n"
-+		"Tree-specific options are: ascii, utf, vt100; compact, inverted, notrunc,\n"
-+		"[no]device, active, open, rw and uuid.\n\n");
+ 		"Tree specific options are: ascii, utf, vt100; compact, inverted, notrunc;\n"
+ 		"                           blkdevname, [no]device, active, open, rw and uuid.\n\n");
  }
- 
+@@ -6379,7 +6381,7 @@ static void _dmsetup_usage(FILE *out)
  static void _losetup_usage(FILE *out)
  {
  	fprintf(out,
@@ -124,3 +84,34 @@ index a9c01f8..b5f5015 100644
  		"%s [-d|-a] [-e encryption] "
  		"[-o offset] [-f|loop_device] [file]\n\n",
  		_base_commands[_base_command].name);
+@@ -6907,8 +6909,10 @@ static int _process_switches(int *argcp, char ***argvp, const char *dev_dir)
+ 		{"nosuffix",		no_argument, 0, NOSUFFIX_ARG},
+ 		{"notable",		no_argument, 0, NOTABLE_ARG},
+ 		{"notimesuffix",	no_argument, 0, NOTIMESUFFIX_ARG},
++#ifdef UDEV_SYNC_SUPPORT
+ 		{"noudevrules",		no_argument, 0, NOUDEVRULES_ARG},
+ 		{"noudevsync",		no_argument, 0, NOUDEVSYNC_ARG},
++#endif
+ 		{"options",	  required_argument, 0, OPTIONS_ARG},
+ 		{"precise",		no_argument, 0, PRECISE_ARG},
+ 		{"programid",	  required_argument, 0, PROGRAM_ID_ARG},
+@@ -6931,7 +6935,9 @@ static int _process_switches(int *argcp, char ***argvp, const char *dev_dir)
+ 		{"table",	  required_argument, 0, TABLE_ARG},
+ 		{"target",	  required_argument, 0, TARGET_ARG},
+ 		{"tree",		no_argument, 0, TREE_ARG},
++#ifdef UDEV_SYNC_SUPPORT
+ 		{"udevcookie",	  required_argument, 0, UDEVCOOKIE_ARG},
++#endif
+ 		{"uid",		  required_argument, 0, UID_ARG},
+ 		{"unbuffered",		no_argument, 0, UNBUFFERED_ARG},
+ 		{"units",	  required_argument, 0, UNITS_ARG},
+@@ -6939,7 +6945,9 @@ static int _process_switches(int *argcp, char ***argvp, const char *dev_dir)
+ 		{"userdata",	  required_argument, 0, USER_DATA_ARG},
+ 		{"uuid",	  required_argument, 0, UUID_ARG},
+ 		{"verbose",	  required_argument, 0, VERBOSE_ARG},
++#ifdef UDEV_SYNC_SUPPORT
+ 		{"verifyudev",		no_argument, 0, VERIFYUDEV_ARG},
++#endif
+ 		{"version",		no_argument, 0, VERSION_ARG},
+ 		{"yes",			no_argument, 0, YES_ARG},
+ 		{0, 0, 0, 0}
