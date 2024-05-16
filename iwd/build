@@ -9,8 +9,9 @@ prepare() {
   apply defaults.diff
   apply dbus.diff
   apply paths.diff
+  apply slaac.diff
   apply syslog.diff
-  tree 8738dc9f3f13ea697afb36cd2ed28724475cbbb6e1936fa7fb06fd50d66d8f8c
+  tree 67722b4e0df4ab0234b1ba75c9a31907d253c4824945b5d56e4eb7429bcfeacd
 }
 
 build() {

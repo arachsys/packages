@@ -1,0 +1,16 @@
+diff --git a/ell/netconfig.c b/ell/netconfig.c
+index 06a717f4..cd930cdb 100644
+--- a/ell/netconfig.c
++++ b/ell/netconfig.c
+@@ -634,8 +634,10 @@ static void netconfig_dhcp6_event_handler(struct l_dhcp6_client *client,
+ 
+ 	switch (event) {
+ 	case L_DHCP6_CLIENT_EVENT_LEASE_OBTAINED:
+-		if (L_WARN_ON(nc->v6_configured))
++		if (nc->v6_configured) {
++			L_WARN_ON(nc->v6_auto_method == NETCONFIG_V6_METHOD_DHCP);
+ 			break;
++		}
+ 
+ 		if (nc->v6_auto_method == NETCONFIG_V6_METHOD_DHCP) {
+ 			netconfig_add_dhcp6_address(nc);
