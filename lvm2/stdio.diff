@@ -1,30 +1,32 @@
 diff --git a/lib/commands/toolcontext.c b/lib/commands/toolcontext.c
-index 3015964..1919e9c 100644
+index 2ad04d7e..04446bda 100644
 --- a/lib/commands/toolcontext.c
 +++ b/lib/commands/toolcontext.c
-@@ -1673,7 +1673,7 @@ struct cmd_context *create_toolcontext(unsigned is_clvmd,
+@@ -1660,6 +1660,7 @@ struct cmd_context *create_toolcontext(unsigned is_clvmd,
  	/* FIXME Make this configurable? */
  	reset_lvm_errno(1);
  
--#ifndef VALGRIND_POOL
-+#if !defined(VALGRIND_POOL) && defined(__GLIBC__)
++#ifdef __GLIBC__
  	/* Set in/out stream buffering before glibc */
  	if (set_buffering
- #ifdef SYS_gettid
-@@ -2053,7 +2053,7 @@ void destroy_toolcontext(struct cmd_context *cmd)
- 		dm_hash_destroy(cmd->cft_def_hash);
+ 	    && !cmd->running_on_valgrind /* Skipping within valgrind execution. */
+@@ -1701,7 +1702,10 @@ struct cmd_context *create_toolcontext(unsigned is_clvmd,
+ 			}
+ 		}
+ 		/* Buffers are used for lines without '\n' */
+-	} else if (!set_buffering)
++	}
++#endif
++
++	if (!set_buffering)
+ 		/* Without buffering, must not use stdin/stdout */
+ 		init_silent(1);
  
- 	dm_device_list_destroy(&cmd->cache_dm_devs);
--#ifndef VALGRIND_POOL
-+#if !defined(VALGRIND_POOL) && defined(__GLIBC__)
- 	if (cmd->linebuffer) {
- 		/* Reset stream buffering to defaults */
- 		if (is_valid_fd(STDIN_FILENO) &&
 diff --git a/tools/lvmcmdline.c b/tools/lvmcmdline.c
-index 241c6df..552de9c 100644
+index 3fd23a52..c2ee3990 100644
 --- a/tools/lvmcmdline.c
 +++ b/tools/lvmcmdline.c
-@@ -3401,7 +3401,7 @@ static int _check_standard_fds(void)
+@@ -3380,7 +3380,7 @@ static int _check_standard_fds(void)
  	int err = is_valid_fd(STDERR_FILENO);
  
  	if (!is_valid_fd(STDIN_FILENO) &&
@@ -33,7 +35,7 @@ index 241c6df..552de9c 100644
  		if (err)
  			perror("stdin stream open");
  		else
-@@ -3411,7 +3411,7 @@ static int _check_standard_fds(void)
+@@ -3390,7 +3390,7 @@ static int _check_standard_fds(void)
  	}
  
  	if (!is_valid_fd(STDOUT_FILENO) &&
@@ -42,7 +44,7 @@ index 241c6df..552de9c 100644
  		if (err)
  			perror("stdout stream open");
  		/* else no stdout */
-@@ -3419,7 +3419,7 @@ static int _check_standard_fds(void)
+@@ -3398,7 +3398,7 @@ static int _check_standard_fds(void)
  	}
  
  	if (!is_valid_fd(STDERR_FILENO) &&

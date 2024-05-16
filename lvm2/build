@@ -2,17 +2,17 @@ require libaio
 
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match lvm2 2.03.23 'LVM2\.([0-9.]+)\.tgz'
+  match lvm2 2.03.24 'LVM2\.([0-9.]+)\.tgz'
 }
 
 prepare() {
-  unpack lvm2-2.03.23.tar.gz \
-    https://sourceware.org/ftp/lvm2/LVM2.2.03.23.tgz
-  apply freopen.diff
-  apply musl.diff
+  unpack lvm2-2.03.24.tar.gz \
+    https://sourceware.org/ftp/lvm2/LVM2.2.03.24.tgz
+  apply basename.diff
   apply static.diff
+  apply stdio.diff
   apply tidy.diff
-  tree 4a90277cb3de3683aaa1dbcb1bd22c383c3a7211afc552a12170bf04225cccf7
+  tree 82584e47928a2a0834821679c469e5ad6c20af32a71c6508da2f86304d6d7f2e
 }
 
 build() {
