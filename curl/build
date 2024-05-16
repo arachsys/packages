@@ -8,7 +8,7 @@ check() {
   match libpsl 0.21.5 'tags/([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
-  match nghttp2 1.61.0 'tags/v([0-9.]+)\.tar'
+  match nghttp2 1.62.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -16,10 +16,10 @@ prepare() {
   unpack -d libpsl \
     https://github.com/rockdaboot/libpsl/releases/download/0.21.5/libpsl-0.21.5.tar.gz
   unpack -d nghttp2 \
-    https://github.com/nghttp2/nghttp2/releases/download/v1.61.0/nghttp2-1.61.0.tar.xz
+    https://github.com/nghttp2/nghttp2/releases/download/v1.62.0/nghttp2-1.62.0.tar.xz
   apply docs.diff
   apply paths.diff
-  tree 15b6f28b9b49b69f932c1a964ed82f09c205cb668ed3a657f8f10cb015ac1305
+  tree db1d31396393266e25d8e87e39191377d6e6131bf86253128e723539297f8fda
 }
 
 build() {
