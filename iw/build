@@ -2,13 +2,13 @@ require bison flex libnl-tiny
 
 check() {
   url https://mirrors.edge.kernel.org/pub/software/network/iw/
-  match iw 6.7 'iw-([0-9.]+)\.tar'
+  match iw 6.9 'iw-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-6.7.tar.xz
+  unpack https://mirrors.edge.kernel.org/pub/software/network/iw/iw-6.9.tar.xz
   apply paths.diff
-  tree 6ac05de602a247ba70d0a734d0d35dd30ab30af21e0e8116b12afa603ec76bc6
+  tree f70f2804810df013216d29b134e733275071bcccc1c41ba71eaa5f4f5f832f56
 }
 
 build() {
