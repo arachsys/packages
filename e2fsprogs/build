@@ -1,20 +1,19 @@
 check() {
   url https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/refs/
-  match version 1.47.0 '>v([0-9.]+)<'
+  match version 1.47.1 '>v([0-9.]+)<'
 }
 
 prepare() {
-  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.0/e2fsprogs-1.47.0.tar.xz
-  apply llseek.diff
+  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.1/e2fsprogs-1.47.1.tar.xz
   apply paths.diff
-  tree f1258b218bf02f08592ca62ac4052d4de8e62a8db191aca33bef48e4e81790c5
+  tree 3778a9e0ab67cb1f64d83eff69b0956fe4012ca2a95fce937884eb40f5a071ca
 }
 
 build() {
   auto-config --libexecdir='${prefix}/bin' --disable-elf-shlibs \
-    --disable-fsck --disable-libblkid --disable-libuuid --disable-uuidd \
-    $(enabled shared && echo --enable-elf-shlibs) PKG_CONFIG=/bin/true \
-    LDFLAGS="-lblkid -luuid"
+    --disable-fsck --disable-fuse2fs --disable-libblkid --disable-libuuid \
+    --disable-uuidd $(enabled shared && echo --enable-elf-shlibs) \
+    LDFLAGS="-lblkid -luuid" PKG_CONFIG=/bin/true
   sed -i '/^E2SCRUB_DIR *=/s/^/#/' Makefile
   make install DESTDIR=/dst
   make install-libs DESTDIR=/dst
