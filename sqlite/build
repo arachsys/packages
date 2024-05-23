@@ -1,12 +1,12 @@
 check() {
   url https://www.sqlite.org/index.html
-  match version 3.45.3 'Version ([0-9.]*[0-9])'
+  match version 3.46.0 'Version ([0-9.]*[0-9])'
 }
 
 prepare() {
-  unpack sqlite-3.45.3.tar.gz \
-    https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz
-  tree 610130d7580a698207ea6ec027072c971d4cf3614d7fbb65363724231e7b7ec5
+  unpack sqlite-3.46.0.tar.gz \
+    https://www.sqlite.org/2024/sqlite-autoconf-3460000.tar.gz
+  tree b2d6b32ebcab1491525d75698e302703e70e7540a5f22d3ef047a2c6fe204488
 }
 
 build() {
