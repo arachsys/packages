@@ -2,17 +2,17 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/tags
-  match llvm 18.1.6 'llvmorg-([0-9.]+)\.tar'
+  match llvm 18.1.7 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
-  match cmake 3.29.4 'tags/v([0-9.]+)\.tar'
+  match cmake 3.29.5 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-18.1.6.tar.gz \
-    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-18.1.6.tar.gz
+  unpack llvm-18.1.7.tar.gz \
+    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-18.1.7.tar.gz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.29.4/cmake-3.29.4.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.29.5/cmake-3.29.5.tar.gz
   apply cmake.diff
   apply config.diff
   apply distro.diff
@@ -21,7 +21,7 @@ prepare() {
   apply sanitizer.diff
   apply ssp.diff
   apply tools.diff
-  tree cb4629726d450c22e703f5d627220f4cc157ae6769d45e88b3d4644b61a03493
+  tree 796978cead61626540a05b0866aab3108989b512535bd541d9763ed42f5c8b19
 }
 
 build() {
@@ -104,6 +104,7 @@ build() {
   cp $(bin/llvm-config --libfiles --link-static) /dst/lib/llvm/lib/
   cp -R include/llvm ../llvm/include/{llvm,llvm-c} /dst/lib/llvm/include/
   cp -R ../clang/include/{clang,clang-c} /dst/lib/clang/include/
+  ln -s lld /dst/bin/llvm-ld
 
   for TARGET in wasm32 wasm64; do
     if /src/build/bin/clang -print-targets | grep -q -F $TARGET; then
