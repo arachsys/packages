@@ -18,5 +18,4 @@ build() {
   cc -Os -Wall -DHAVE___FPENDING -DHAVE_GETRANDOM -I. -include config.h \
     iputils_common.c md5.c ping/*.c -lm -lresolv -o ping/ping
   install -s -t /dst/bin -D ping/ping
-  install -t /dst/bin -D /pkg/await-net
 }

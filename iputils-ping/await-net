@@ -1,9 +1,0 @@
-#!/bin/bash
-
-until ping -c 1 -w 1 dns.google; do
-  [[ $? -eq 2 ]] && wait && read -t 1
-done <><(:) >/dev/null 2>&1
-
-if [[ $# -gt 0 ]]; then
-  exec "$@"
-fi
