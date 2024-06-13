@@ -1,8 +1,8 @@
 diff --git a/compiler/rustc_session/src/filesearch.rs b/compiler/rustc_session/src/filesearch.rs
-index 4f0e3354..894b9b3f 100644
+index aecf5954..a745184a 100644
 --- a/compiler/rustc_session/src/filesearch.rs
 +++ b/compiler/rustc_session/src/filesearch.rs
-@@ -165,9 +165,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
+@@ -160,9 +160,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
          smallvec![get_or_default_sysroot().expect("Failed finding sysroot")];
      let path = current_dll_path().and_then(|s| try_canonicalize(s).map_err(|e| e.to_string()));
      if let Ok(dll) = path {
@@ -20,7 +20,7 @@ index 4f0e3354..894b9b3f 100644
              // The original `path` pointed at the `rustc_driver` crate's dll.
              // Now that dll should only be in one of two locations. The first is
              // in the compiler's libdir, for example `$sysroot/lib/*.dll`. The
-@@ -214,12 +221,27 @@ pub fn get_or_default_sysroot() -> Result<PathBuf, String> {
+@@ -209,12 +216,27 @@ pub fn get_or_default_sysroot() -> Result<PathBuf, String> {
      fn default_from_rustc_driver_dll() -> Result<PathBuf, String> {
          let dll = current_dll_path().map(|s| canonicalize(s))?;
  
@@ -92,7 +92,7 @@ index 53f710b8..4724d262 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
-index e927b491..46aaab3b 100644
+index 1d46a158..bfb25ffe 100644
 --- a/src/bootstrap/src/core/build_steps/compile.rs
 +++ b/src/bootstrap/src/core/build_steps/compile.rs
 @@ -360,40 +360,7 @@ fn copy_self_contained_objects(
@@ -134,9 +134,9 @@ index e927b491..46aaab3b 100644
 -        }
 -    } else if target.contains("-wasi") {
 +    if target.contains("-wasi") {
-         let srcdir = builder
-             .wasi_root(target)
-             .unwrap_or_else(|| {
+         let srcdir = builder.wasi_libdir(target).unwrap_or_else(|| {
+             panic!(
+                 "Target {:?} does not have a \"wasi-root\" key in Config.toml \
 diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
 index e03b1e17..e61335d9 100644
 --- a/src/bootstrap/src/core/sanity.rs
@@ -179,10 +179,10 @@ index e03b1e17..e61335d9 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 5ed6b357..26a8cc5e 100644
+index 663a2d8e..1fa180b7 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
-@@ -204,6 +204,7 @@ pub struct Build {
+@@ -208,6 +208,7 @@ pub struct Build {
      metrics: crate::utils::metrics::BuildMetrics,
  }
  

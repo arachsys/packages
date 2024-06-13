@@ -1,5 +1,5 @@
 diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
-index 6e49bcc9..125c25c3 100644
+index e464e444..4601f554 100644
 --- a/src/bootstrap/bootstrap.py
 +++ b/src/bootstrap/bootstrap.py
 @@ -609,7 +609,7 @@ class RustBuild(object):
@@ -10,9 +10,9 @@ index 6e49bcc9..125c25c3 100644
 +                self.fix_bin_or_dylib("{}/bin/rust-analyzer-proc-macro-srv".format(bin_root))
                  lib_dir = "{}/lib".format(bin_root)
                  for lib in os.listdir(lib_dir):
-                     if lib.endswith(".so"):
+                     # .so is not necessarily the suffix, there can be version numbers afterwards.
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 012d64e5..4f143085 100644
+index 770a5cdb..1758e2e8 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
 @@ -424,7 +424,7 @@ impl Step for Rustc {
@@ -25,10 +25,10 @@ index 012d64e5..4f143085 100644
  
              let libdir_relative = builder.libdir_relative(compiler);
 diff --git a/src/bootstrap/src/core/build_steps/tool.rs b/src/bootstrap/src/core/build_steps/tool.rs
-index 3c200112..57417969 100644
+index 994f0bef..2948f0c1 100644
 --- a/src/bootstrap/src/core/build_steps/tool.rs
 +++ b/src/bootstrap/src/core/build_steps/tool.rs
-@@ -684,7 +684,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -681,7 +681,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -38,7 +38,7 @@ index 3c200112..57417969 100644
          builder.copy_link(&path, &libexec_path.join("rust-analyzer-proc-macro-srv"));
  
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index 25113838..23c8d9c0 100644
+index 75e0f646..6d542e8b 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
 @@ -540,7 +540,7 @@ impl Config {
@@ -51,7 +51,7 @@ index 25113838..23c8d9c0 100644
                  let lib_dir = bin_root.join("lib");
                  for lib in t!(fs::read_dir(&lib_dir), lib_dir.display().to_string()) {
 diff --git a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs b/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
-index 3127bae8..77af6cf2 100644
+index 1142d624..eac4f081 100644
 --- a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
 +++ b/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
 @@ -216,7 +216,7 @@ impl Sysroot {
