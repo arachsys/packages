@@ -1,12 +1,12 @@
 check() {
   url https://github.com/gavinhoward/bc/tags
-  match version 6.7.5 'tags/([0-9.]+)\.tar'
+  match version 6.7.6 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/gavinhoward/bc/releases/download/6.7.5/bc-6.7.5.tar.xz
+  unpack https://github.com/gavinhoward/bc/releases/download/6.7.6/bc-6.7.6.tar.xz
   apply editrc.diff
-  tree 64907dc62b3ea204ce959d77c8bb6d7a1dd69e9b7b483b9033e77ae62b9ec3e8
+  tree d4ca3f9a5ae2a4b9c71141d78f85f3b7f6c5a6d5bd881579328a071b400a3dc6
 }
 
 build() {
