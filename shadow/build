@@ -2,19 +2,20 @@ enable setuid setgid
 
 check() {
   url https://github.com/shadow-maint/shadow/tags
-  match version 4.15.1 'tags/([0-9.]+)\.tar'
+  match version 4.16.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/4.15.1/shadow-4.15.1.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/4.16.0/shadow-4.16.0.tar.xz
   apply bcrypt.diff
   apply nss.diff
   apply paths.diff
-  tree b87ee4f29ad4fa6a240ac0cf08b7d4431df2c025ac4352211ca366c33b8ad1be
+  tree ad9f16df5100e817514a352c5801055d399c94179de50666d70eedd4038c6c3f
 }
 
 build() {
-  auto-config --disable-shared --without-{audit,libbsd,libpam} --with-bcrypt
+  auto-config --disable-shared --without-{audit,btrfs,libbsd,libpam,sssd} \
+    --with-bcrypt
   sed -e 's:^\(#define FAILLOG_FILE\).*:\1 "/dev/null":' \
       -e 's:^\(#define LASTLOG_FILE\).*:\1 "/dev/null":' \
       -e 's:^\(#define _UTMP_FILE\).*:\1 "/dev/null":' \
