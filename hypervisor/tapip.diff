@@ -52,7 +52,7 @@ index 4276012d..1c16e599 100644
                  tap.set_mac_addr(*mac).map_err(Error::TapSetMac)?
              } else {
 diff --git a/vhost_user_net/src/lib.rs b/vhost_user_net/src/lib.rs
-index b9b9d9c4..57d46d09 100644
+index 26e8bce2..363a4322 100644
 --- a/vhost_user_net/src/lib.rs
 +++ b/vhost_user_net/src/lib.rs
 @@ -15,7 +15,6 @@ use option_parser::Toggle;
@@ -63,7 +63,7 @@ index b9b9d9c4..57d46d09 100644
  use std::ops::Deref;
  use std::os::unix::io::{AsRawFd, RawFd};
  use std::process;
-@@ -57,7 +56,7 @@ pub enum Error {
+@@ -58,7 +57,7 @@ pub enum Error {
  }
  
  pub const SYNTAX: &str = "vhost-user-net backend parameters \
@@ -72,7 +72,7 @@ index b9b9d9c4..57d46d09 100644
  num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,tap=<if_name>\"";
  
  impl fmt::Display for Error {
-@@ -119,9 +118,7 @@ pub struct VhostUserNetBackend {
+@@ -120,9 +119,7 @@ pub struct VhostUserNetBackend {
  impl VhostUserNetBackend {
      #[allow(clippy::too_many_arguments)]
      fn new(
@@ -82,7 +82,7 @@ index b9b9d9c4..57d46d09 100644
          mtu: Option<u16>,
          num_queues: usize,
          queue_size: u16,
-@@ -130,8 +127,6 @@ impl VhostUserNetBackend {
+@@ -131,8 +128,6 @@ impl VhostUserNetBackend {
      ) -> Result<Self> {
          let mut taps = open_tap(
              ifname,
@@ -91,7 +91,7 @@ index b9b9d9c4..57d46d09 100644
              &mut Some(host_mac),
              mtu,
              num_queues / 2,
-@@ -289,9 +284,7 @@ impl VhostUserNetBackendConfig {
+@@ -290,9 +285,7 @@ impl VhostUserNetBackendConfig {
  
          parser
              .add("tap")
@@ -101,7 +101,7 @@ index b9b9d9c4..57d46d09 100644
              .add("mtu")
              .add("queue_size")
              .add("num_queues")
-@@ -301,18 +294,10 @@ impl VhostUserNetBackendConfig {
+@@ -302,18 +295,10 @@ impl VhostUserNetBackendConfig {
          parser.parse(backend).map_err(Error::FailedConfigParse)?;
  
          let tap = parser.get("tap");
@@ -120,7 +120,7 @@ index b9b9d9c4..57d46d09 100644
          let mtu = parser.convert("mtu").map_err(Error::FailedConfigParse)?;
          let queue_size = parser
              .convert("queue_size")
-@@ -330,9 +315,7 @@ impl VhostUserNetBackendConfig {
+@@ -331,9 +316,7 @@ impl VhostUserNetBackendConfig {
              .0;
  
          Ok(VhostUserNetBackendConfig {
@@ -130,7 +130,7 @@ index b9b9d9c4..57d46d09 100644
              mtu,
              socket,
              num_queues,
-@@ -358,9 +341,7 @@ pub fn start_net_backend(backend_command: &str) {
+@@ -359,9 +342,7 @@ pub fn start_net_backend(backend_command: &str) {
  
      let net_backend = Arc::new(RwLock::new(
          VhostUserNetBackend::new(
@@ -171,10 +171,10 @@ index ce46b938..dbd46c3e 100644
              mtu,
              num_queues / 2,
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 765baf89..31444859 100644
+index ff547d65..47a747a0 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -1296,7 +1296,7 @@ impl FromStr for VhostMode {
+@@ -1309,7 +1309,7 @@ impl FromStr for VhostMode {
  
  impl NetConfig {
      pub const SYNTAX: &'static str = "Network parameters: \
@@ -183,7 +183,7 @@ index 765baf89..31444859 100644
      num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,id=<device_id>,\
      vhost_user=<vhost_user_enable>,socket=<vhost_user_socket_path>,vhost_mode=client|server,\
      bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1308,8 +1308,6 @@ impl NetConfig {
+@@ -1321,8 +1321,6 @@ impl NetConfig {
  
          parser
              .add("tap")
@@ -192,7 +192,7 @@ index 765baf89..31444859 100644
              .add("mac")
              .add("host_mac")
              .add("offload_tso")
-@@ -1334,14 +1332,6 @@ impl NetConfig {
+@@ -1347,14 +1345,6 @@ impl NetConfig {
          parser.parse(net).map_err(Error::ParseNetwork)?;
  
          let tap = parser.get("tap");
@@ -207,7 +207,7 @@ index 765baf89..31444859 100644
          let mac = parser
              .convert("mac")
              .map_err(Error::ParseNetwork)?
-@@ -1448,8 +1438,6 @@ impl NetConfig {
+@@ -1461,8 +1451,6 @@ impl NetConfig {
  
          let config = NetConfig {
              tap,
@@ -217,10 +217,10 @@ index 765baf89..31444859 100644
              host_mac,
              mtu,
 diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index 80eac72c..7cef6a42 100644
+index d6fc1b94..e057b9fa 100644
 --- a/vmm/src/device_manager.rs
 +++ b/vmm/src/device_manager.rs
-@@ -2679,8 +2679,6 @@ impl DeviceManager {
+@@ -2513,8 +2513,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          Some(tap_if_name),
@@ -229,7 +229,7 @@ index 80eac72c..7cef6a42 100644
                          Some(net_cfg.mac),
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
-@@ -2730,8 +2728,6 @@ impl DeviceManager {
+@@ -2564,8 +2562,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          None,

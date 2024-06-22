@@ -1,8 +1,17 @@
 diff --git a/src/bin/ch-remote.rs b/src/bin/ch-remote.rs
-index 1d4e2a4d..9fcfc412 100644
+index 05ad2464..c1384567 100644
 --- a/src/bin/ch-remote.rs
 +++ b/src/bin/ch-remote.rs
-@@ -895,21 +895,23 @@ fn create_data(path: &str) -> Result<String, Error> {
+@@ -7,7 +7,7 @@ use api_client::simple_api_command;
+ use api_client::simple_api_command_with_fds;
+ use api_client::simple_api_full_command;
+ use api_client::Error as ApiClientError;
+-use clap::{Arg, ArgAction, ArgMatches, Command};
++use clap::{Arg, ArgAction, ArgMatches, ColorChoice, Command};
+ use option_parser::{ByteSized, ByteSizedParseError};
+ use std::fmt;
+ use std::io::Read;
+@@ -904,21 +904,23 @@ fn create_data(path: &str) -> Result<String, Error> {
  }
  
  fn main() {
@@ -12,7 +21,7 @@ index 1d4e2a4d..9fcfc412 100644
          .version(env!("BUILD_VERSION"))
 -        .about("Remotely control a cloud-hypervisor VMM.")
 +        .about("Control a cloud-hypervisor VMM")
-+        .disable_colored_help(true)
++        .color(ColorChoice::Never)
          .arg_required_else_help(true)
          .subcommand_required(true)
          .args([
@@ -30,7 +39,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .num_args(1),
              #[cfg(feature = "dbus_api")]
              Arg::new("dbus-object-path")
-@@ -924,14 +926,14 @@ fn main() {
+@@ -933,14 +935,14 @@ fn main() {
                  .help("Use the system bus instead of a session bus"),
          ])
          .subcommand(
@@ -47,7 +56,7 @@ index 1d4e2a4d..9fcfc412 100644
                  Arg::new("disk_config")
                      .index(1)
                      .help(vmm::config::DiskConfig::SYNTAX),
-@@ -939,7 +941,7 @@ fn main() {
+@@ -948,7 +950,7 @@ fn main() {
          )
          .subcommand(
              Command::new("add-fs")
@@ -56,7 +65,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .arg(
                      Arg::new("fs_config")
                          .index(1)
-@@ -948,7 +950,7 @@ fn main() {
+@@ -957,7 +959,7 @@ fn main() {
          )
          .subcommand(
              Command::new("add-pmem")
@@ -65,7 +74,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .arg(
                      Arg::new("pmem_config")
                          .index(1)
-@@ -956,7 +958,7 @@ fn main() {
+@@ -965,7 +967,7 @@ fn main() {
                  ),
          )
          .subcommand(
@@ -74,7 +83,7 @@ index 1d4e2a4d..9fcfc412 100644
                  Arg::new("net_config")
                      .index(1)
                      .help(vmm::config::NetConfig::SYNTAX),
-@@ -964,7 +966,7 @@ fn main() {
+@@ -973,7 +975,7 @@ fn main() {
          )
          .subcommand(
              Command::new("add-user-device")
@@ -83,7 +92,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .arg(
                      Arg::new("device_config")
                          .index(1)
-@@ -972,14 +974,14 @@ fn main() {
+@@ -981,14 +983,14 @@ fn main() {
                  ),
          )
          .subcommand(
@@ -100,16 +109,24 @@ index 1d4e2a4d..9fcfc412 100644
                  Arg::new("vsock_config")
                      .index(1)
                      .help(vmm::config::VsockConfig::SYNTAX),
-@@ -987,7 +989,7 @@ fn main() {
+@@ -996,14 +998,14 @@ fn main() {
          )
          .subcommand(
              Command::new("remove-device")
--                .about("Remove VFIO device")
-+                .about("Remove a VFIO device")
+-                .about("Remove VFIO and PCI device")
++                .about("Remove a VFIO or PCI device")
                  .arg(Arg::new("id").index(1).help("<device_id>")),
          )
          .subcommand(Command::new("info").about("Info on the VM"))
-@@ -1034,12 +1036,12 @@ fn main() {
+         .subcommand(Command::new("counters").about("Counters from the VM"))
+         .subcommand(Command::new("pause").about("Pause the VM"))
+         .subcommand(Command::new("reboot").about("Reboot the VM"))
+-        .subcommand(Command::new("power-button").about("Trigger a power button in the VM"))
++        .subcommand(Command::new("power-button").about("Trigger the power button in the VM"))
+         .subcommand(
+             Command::new("resize")
+                 .about("Resize the VM")
+@@ -1043,12 +1045,12 @@ fn main() {
                  ),
          )
          .subcommand(Command::new("resume").about("Resume the VM"))
@@ -125,7 +142,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .arg(
                      Arg::new("snapshot_config")
                          .index(1)
-@@ -1048,7 +1050,7 @@ fn main() {
+@@ -1057,7 +1059,7 @@ fn main() {
          )
          .subcommand(
              Command::new("restore")
@@ -134,7 +151,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .arg(
                      Arg::new("restore_config")
                          .index(1)
-@@ -1057,7 +1059,7 @@ fn main() {
+@@ -1066,7 +1068,7 @@ fn main() {
          )
          .subcommand(
              Command::new("coredump")
@@ -143,7 +160,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .arg(Arg::new("coredump_config").index(1).help("<file_path>")),
          )
          .subcommand(
-@@ -1086,7 +1088,7 @@ fn main() {
+@@ -1095,7 +1097,7 @@ fn main() {
          )
          .subcommand(
              Command::new("create")
@@ -152,7 +169,7 @@ index 1d4e2a4d..9fcfc412 100644
                  .arg(Arg::new("path").index(1).default_value("-")),
          )
          .subcommand(Command::new("ping").about("Ping the VMM to check for API server availability"))
-@@ -1139,7 +1141,7 @@ fn main() {
+@@ -1148,7 +1150,7 @@ fn main() {
              process::exit(1);
          }
          _ => {
@@ -162,9 +179,18 @@ index 1d4e2a4d..9fcfc412 100644
          }
      };
 diff --git a/src/main.rs b/src/main.rs
-index 13f288d0..247ae67b 100644
+index 68f951e9..512080f7 100644
 --- a/src/main.rs
 +++ b/src/main.rs
+@@ -6,7 +6,7 @@
+ #[macro_use]
+ extern crate event_monitor;
+ 
+-use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
++use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ColorChoice};
+ use libc::EFD_NONBLOCK;
+ use log::{warn, LevelFilter};
+ use option_parser::OptionParser;
 @@ -39,7 +39,7 @@ enum Error {
      CreateDebugEventFd(#[source] std::io::Error),
      #[error("Failed to create exit EventFd: {0}")]
@@ -174,17 +200,17 @@ index 13f288d0..247ae67b 100644
      CreateHypervisor(#[source] hypervisor::HypervisorError),
      #[error("Failed to start the VMM thread: {0}")]
      StartVmmThread(#[source] vmm::Error),
-@@ -158,7 +158,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -170,7 +170,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          // 'BUILD_VERSION' is set by the build script 'build.rs' at
          // compile time
          .author(env!("CARGO_PKG_AUTHORS"))
 -        .about("Launch a cloud-hypervisor VMM.")
 +        .about("Launch a cloud-hypervisor VMM")
-+        .disable_colored_help(true)
++        .color(ColorChoice::Never)
          .arg_required_else_help(true)
          .group(ArgGroup::new("vm-config").multiple(true))
          .group(ArgGroup::new("vmm-config").multiple(true))
-@@ -167,7 +168,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -179,7 +180,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("cpus")
                  .long("cpus")
                  .help(
@@ -193,7 +219,7 @@ index 13f288d0..247ae67b 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -179,7 +180,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -191,7 +192,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("platform")
                  .long("platform")
@@ -202,7 +228,7 @@ index 13f288d0..247ae67b 100644
                  .num_args(1)
                  .group("vm-config"),
          )
-@@ -187,13 +188,12 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -199,13 +200,12 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("memory")
                  .long("memory")
                  .help(
@@ -218,7 +244,7 @@ index 13f288d0..247ae67b 100644
                  )
                  .default_value(default_memory)
                  .group("vm-config"),
-@@ -202,14 +202,13 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -214,14 +214,13 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("memory-zone")
                  .long("memory-zone")
                  .help(
@@ -235,7 +261,7 @@ index 13f288d0..247ae67b 100644
                  )
                  .num_args(1..)
                  .group("vm-config"),
-@@ -217,17 +216,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -229,17 +228,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("firmware")
                  .long("firmware")
@@ -255,7 +281,7 @@ index 13f288d0..247ae67b 100644
                  .num_args(1)
                  .group("vm-config"),
          )
-@@ -270,7 +266,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -282,7 +278,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("rng")
                  .long("rng")
                  .help(
@@ -264,7 +290,7 @@ index 13f288d0..247ae67b 100644
                  )
                  .default_value(default_rng)
                  .group("vm-config"),
-@@ -299,7 +295,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -311,7 +307,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("serial")
                  .long("serial")
@@ -273,7 +299,7 @@ index 13f288d0..247ae67b 100644
                  .default_value("null")
                  .group("vm-config"),
          )
-@@ -307,7 +303,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -319,7 +315,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("console")
                  .long("console")
                  .help(
@@ -282,7 +308,7 @@ index 13f288d0..247ae67b 100644
                  )
                  .default_value("tty")
                  .group("vm-config"),
-@@ -373,6 +369,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -385,6 +381,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("v")
                  .short('v')
@@ -290,7 +316,7 @@ index 13f288d0..247ae67b 100644
                  .action(ArgAction::Count)
                  .help("Sets the level of debugging output")
                  .group("logging"),
-@@ -380,21 +377,21 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -392,21 +389,21 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("log-file")
                  .long("log-file")
@@ -315,7 +341,7 @@ index 13f288d0..247ae67b 100644
                  .num_args(1)
                  .group("vmm-config"),
          )
-@@ -433,7 +430,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -445,7 +442,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("debug-console")
              .long("debug-console")
@@ -324,7 +350,7 @@ index 13f288d0..247ae67b 100644
              .default_value("off,iobase=0xe9")
              .group("vm-config"),
      );
-@@ -442,7 +439,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -454,7 +451,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("gdb")
              .long("gdb")
@@ -333,7 +359,7 @@ index 13f288d0..247ae67b 100644
              .num_args(1)
              .group("vmm-config"),
      );
-@@ -452,7 +449,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -464,7 +461,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("dbus-service-name")
                  .long("dbus-service-name")
@@ -342,7 +368,7 @@ index 13f288d0..247ae67b 100644
                  .num_args(1)
                  .group("vmm-config"),
          )
-@@ -475,7 +472,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -487,7 +484,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("igvm")
              .long("igvm")
@@ -351,7 +377,7 @@ index 13f288d0..247ae67b 100644
              .num_args(1)
              .group("vm-config"),
      );
-@@ -568,11 +565,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
+@@ -580,11 +577,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
          // handler safe functions (writing to stderr) and manipulating signals.
          unsafe {
              signal_hook::low_level::register(signal_hook::consts::SIGSYS, || {
@@ -365,10 +391,21 @@ index 13f288d0..247ae67b 100644
              })
          }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index f47fabc2..765baf89 100644
+index 24d2e3e8..ff547d65 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -997,10 +997,10 @@ impl MemoryConfig {
+@@ -705,8 +705,8 @@ impl CpusConfig {
+ }
+ 
+ impl PciSegmentConfig {
+-    pub const SYNTAX: &'static str = "PCI Segment parameters \
+-         \"pci_segment=<segment_id>,mmio32_aperture_weight=<scale>,mmio64_aperture_weight=<scale>\"";
++    pub const SYNTAX: &'static str = "PCI segment parameters: \
++         pci_segment=<segment_id>,mmio32_aperture_weight=<scale>,mmio64_aperture_weight=<scale>";
+ 
+     pub fn parse(disk: &str) -> Result<Self> {
+         let mut parser = OptionParser::new();
+@@ -1010,10 +1010,10 @@ impl MemoryConfig {
  }
  
  impl RateLimiterGroupConfig {
@@ -382,7 +419,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1084,8 +1084,8 @@ impl RateLimiterGroupConfig {
+@@ -1097,8 +1097,8 @@ impl RateLimiterGroupConfig {
  }
  
  impl DiskConfig {
@@ -393,7 +430,7 @@ index f47fabc2..765baf89 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1295,13 +1295,13 @@ impl FromStr for VhostMode {
+@@ -1308,13 +1308,13 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
@@ -410,7 +447,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1544,8 +1544,8 @@ impl RngConfig {
+@@ -1557,8 +1557,8 @@ impl RngConfig {
  
  impl BalloonConfig {
      pub const SYNTAX: &'static str =
@@ -421,7 +458,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1581,9 +1581,9 @@ impl BalloonConfig {
+@@ -1594,9 +1594,9 @@ impl BalloonConfig {
  }
  
  impl FsConfig {
@@ -434,7 +471,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1652,9 +1652,9 @@ impl FsConfig {
+@@ -1665,9 +1665,9 @@ impl FsConfig {
  }
  
  impl PmemConfig {
@@ -447,7 +484,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1823,7 +1823,7 @@ impl DebugConsoleConfig {
+@@ -1836,7 +1836,7 @@ impl DebugConsoleConfig {
  
  impl DeviceConfig {
      pub const SYNTAX: &'static str =
@@ -456,7 +493,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1880,7 +1880,7 @@ impl DeviceConfig {
+@@ -1893,7 +1893,7 @@ impl DeviceConfig {
  
  impl UserDeviceConfig {
      pub const SYNTAX: &'static str =
@@ -465,7 +502,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1924,9 +1924,9 @@ impl UserDeviceConfig {
+@@ -1937,9 +1937,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -478,7 +515,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1984,8 +1984,8 @@ impl VdpaConfig {
+@@ -1997,8 +1997,8 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -489,7 +526,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2044,8 +2044,8 @@ impl VsockConfig {
+@@ -2057,8 +2057,8 @@ impl VsockConfig {
  
  #[cfg(target_arch = "x86_64")]
  impl SgxEpcConfig {
@@ -500,7 +537,7 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(sgx_epc: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2069,10 +2069,10 @@ impl SgxEpcConfig {
+@@ -2082,10 +2082,10 @@ impl SgxEpcConfig {
  }
  
  impl NumaConfig {
@@ -514,19 +551,24 @@ index f47fabc2..765baf89 100644
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2138,10 +2138,7 @@ pub struct RestoreConfig {
+@@ -2197,13 +2197,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
 -    pub const SYNTAX: &'static str = "Restore from a VM snapshot. \
--        \nRestore parameters \"source_url=<source_url>,prefault=on|off\" \
+-        \nRestore parameters \"source_url=<source_url>,prefault=on|off,\
+-        net_fds=<list_of_net_ids_with_their_associated_fds>\" \
 -        \n`source_url` should be a valid URL (e.g file:///foo/bar or tcp://192.168.1.10/foo) \
--        \n`prefault` brings memory pages in when enabled (disabled by default)";
-+    pub const SYNTAX: &'static str = "Restore from snapshot: source_url=<url>,prefault=on|off";
+-        \n`prefault` brings memory pages in when enabled (disabled by default) \
+-        \n`net_fds` is a list of net ids with new file descriptors. \
+-        Only net devices backed by FDs directly are needed as input.";
++    pub const SYNTAX: &'static str = "Restore from snapshot: \
++        source_url=<source_url>,prefault=on|off,\
++        net_fds=<list_of_net_ids_with_their_associated_fds>";
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2166,8 +2163,8 @@ impl RestoreConfig {
+@@ -2286,8 +2282,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {

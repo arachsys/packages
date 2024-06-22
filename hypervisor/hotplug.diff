@@ -1,8 +1,8 @@
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index 51e7847e..90ad8a2d 100644
+index 1f323df0..bf257770 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
-@@ -118,8 +118,8 @@ pub struct MemoryZoneConfig {
+@@ -134,8 +134,8 @@ pub struct MemoryZoneConfig {
  
  #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize, Default)]
  pub enum HotplugMethod {
@@ -12,7 +12,7 @@ index 51e7847e..90ad8a2d 100644
      VirtioMem,
  }
  
-@@ -159,7 +159,7 @@ impl Default for MemoryConfig {
+@@ -175,7 +175,7 @@ impl Default for MemoryConfig {
          MemoryConfig {
              size: DEFAULT_MEMORY_MB << 20,
              mergeable: false,
