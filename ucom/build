@@ -1,0 +1,13 @@
+check() {
+  url https://github.com/arachsys/ucom/tags
+  match version 1.0 'ucom-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://github.com/arachsys/ucom/archive/ucom-1.0.tar.gz
+  tree 50070b78e9ee243ca964de73f810725a7d113d1978939a5f7eb6bcbcc1c841df
+}
+
+build() {
+  make install DESTDIR=/dst PREFIX=
+}
