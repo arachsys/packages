@@ -119,7 +119,7 @@ hashtree() {
       -or -not -type l -printf "$PWD/%P is a special file\\n" \
       -or -lname '/*' -printf "$PWD/%P -> %l is an absolute symlink\\n" \
       -or -xtype l -printf "$PWD/%P -> %l is a dangling symlink\\n"
-  } | [[ -z $(tee /dev/stderr) ]]
+  } | [[ -z $(tee -a /dev/stderr) ]]
 
   { find "$@" -type d -printf "%P\0" | LC_ALL=C sort -z
     printf '\0'

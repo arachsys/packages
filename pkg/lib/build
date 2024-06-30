@@ -152,7 +152,7 @@ tidy() {
         echo "$FILE is not executable"
       fi
     done
-  ) | [[ -z $(tee /dev/stderr) ]]
+  ) | [[ -z $(tee -a /dev/stderr) ]]
 
   hardlink -q -t /img
 }
