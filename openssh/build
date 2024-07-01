@@ -3,17 +3,15 @@ require libedit
 
 check() {
   url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
-  match version 9.7p1 'openssh-([0-9.]+p[0-9]+)\.tar'
+  match version 9.8p1 'openssh-([0-9.]+p[0-9]+)\.tar'
 }
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.7p1.tar.gz
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.8p1.tar.gz
   apply chroot.diff
   apply config.diff
-  apply dnssegv.diff
   apply home.diff
-  apply sftp.diff
-  tree 68d84ffc4a57a8218a6594ad0ad6e1d1bbe69ae6b5083b24912b9edbd6a5c10b
+  tree 3718c72b518f8eebdc3c077f3279363cf755a0dff224679266da79f5a15dc6a3
 }
 
 build() {
