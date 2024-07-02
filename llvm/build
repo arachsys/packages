@@ -5,14 +5,14 @@ check() {
   match llvm 18.1.8 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
-  match cmake 3.29.6 'tags/v([0-9.]+)\.tar'
+  match cmake 3.30.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-18.1.8.tar.gz \
     https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-18.1.8.tar.gz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v3.29.6/cmake-3.29.6.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.30.0/cmake-3.30.0.tar.gz
   apply cmake.diff
   apply config.diff
   apply distro.diff
@@ -21,7 +21,7 @@ prepare() {
   apply sanitizer.diff
   apply ssp.diff
   apply tools.diff
-  tree 90fec1eca62f5b1ff5b62e019a7d1d6791163ec91a47288afed08d921980cf94
+  tree c7b5ec90ae92bdc2fa6421889d16c923ee230b1d0987f4b3d9a211e20f494aec
 }
 
 build() {
