@@ -1,6 +1,6 @@
 check() {
   url http://www.cpan.org/src/5.0/
-  match version 5.40.0 'perl-(5.[0-9]*[02468].[0-9.]+)\.tar'
+  match version 5.40.0 'perl-(5\.[0-9]*[02468]\.[0-9.]+)\.tar'
 }
 
 prepare() {
