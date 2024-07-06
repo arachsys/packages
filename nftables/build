@@ -1,13 +1,13 @@
 require bison flex
 
 check() {
-  url https://www.netfilter.org/projects/nftables/files/
+  url https://www.netfilter.org/projects/nftables/downloads.html
   match nftables 1.0.9 'nftables-([0-9.]+)\.tar'
 
-  url https://www.netfilter.org/projects/libmnl/files/
+  url https://www.netfilter.org/projects/libmnl/downloads.html
   match libmnl 1.0.5 'libmnl-([0-9.]+)\.tar'
 
-  url https://www.netfilter.org/projects/libnftnl/files/
+  url https://www.netfilter.org/projects/libnftnl/downloads.html
   match libnftnl 1.2.6 'libnftnl-([0-9.]+)\.tar'
 }
 
