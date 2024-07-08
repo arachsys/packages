@@ -5,13 +5,14 @@ check() {
 
 prepare() {
   unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.18.tar.xz
+  apply bridge.diff
   apply clang.diff
   apply defaults.diff
   apply dbus.diff
   apply paths.diff
   apply slaac.diff
   apply syslog.diff
-  tree 4045167e09692fbb707786b99b458c5f17bd456c211716ce9fd8ef2b249a5b9d
+  tree d9ec7159c21d305c54f1b4a74b9173bedc2eb77d5a7ff9597513fea46f86d935
 }
 
 build() {
