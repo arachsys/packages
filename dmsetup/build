@@ -1,14 +1,14 @@
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match lvm2 2.03.24 'LVM2\.([0-9.]+)\.tgz'
+  match lvm2 2.03.25 'LVM2\.([0-9.]+)\.tgz'
 }
 
 prepare() {
-  unpack lvm2-2.03.24.tar.gz \
-    https://sourceware.org/ftp/lvm2/LVM2.2.03.24.tgz
+  unpack lvm2-2.03.25.tar.gz \
+    https://sourceware.org/ftp/lvm2/LVM2.2.03.25.tgz
   apply static.diff
   apply tidy.diff
-  tree 443a40ad2c0ef3bff045a25a9b9c8f2d18b79963c6716146a4362605b4cbe64c
+  tree 3bd1b8adfec79db424f8d20641a46bef3d2a46ff9d9e4458ab44becb340881e8
 }
 
 build() {
