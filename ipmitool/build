@@ -8,7 +8,7 @@ check() {
   match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/automake/
-  match automake 1.16.5 'automake-([0-9.]+)\.tar'
+  match automake 1.17 'automake-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/libtool/
   match libtool 2.4.7 'libtool-([0-9.]+)\.tar'
@@ -18,8 +18,8 @@ check() {
 }
 
 prepare() {
-  unpack ipmitool-20230614.tar.gz \
-    https://codeberg.org/ipmitool/ipmitool/archive/81b82427.tar.gz
+  unpack ipmitool-20240628.tar.gz \
+    https://codeberg.org/ipmitool/ipmitool/archive/eb1df8d6.tar.gz
   curl -o enterprise-numbers.gz -L \
     https://ftp.openbsd.org/pub/OpenBSD/distfiles/enterprise-numbers.20220204.gz
   gunzip enterprise-numbers.gz
@@ -27,7 +27,7 @@ prepare() {
   unpack -d tools/autoconf \
     https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
   unpack -d tools/automake \
-    https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.xz
+    https://ftp.gnu.org/gnu/automake/automake-1.17.tar.xz
   unpack -d tools/libtool \
     https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz
   unpack -d tools/pkgconf \
@@ -35,7 +35,7 @@ prepare() {
 
   apply console.diff
   apply lanplus.diff
-  tree 65fb14887fb5c9496ab1e840d5af9392052a59c93ee6e6f57a37d9b663c9dec6
+  tree 6e2f495bb7befae224bb31d2b621285528db41743881c868ad8e94b9d5c3615e
 }
 
 build() {
