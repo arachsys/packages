@@ -12,3 +12,42 @@ index fdf1f9a..3e8f006 100644
  	if (id || od)  {
  		int idx;
  
+diff --git a/ip/iprule.c b/ip/iprule.c
+index e503e5c6..862ec739 100644
+--- a/ip/iprule.c
++++ b/ip/iprule.c
+@@ -551,8 +551,10 @@ static int iprule_list_flush_or_save(int argc, char **argv, int action)
+ 	rtnl_filter_t filter_fn;
+ 	int af = preferred_family;
+ 
+-	if (af == AF_UNSPEC)
+-		af = AF_INET;
++	if (af == AF_UNSPEC) {
++		fprintf(stderr, "Please specify address family with -4 or -6.\n");
++		return -1;
++	}
+ 
+ 	if (action == IPRULE_SAVE && argc > 0) {
+ 		fprintf(stderr, "\"ip rule save\" does not take any arguments.\n");
+@@ -1007,8 +1009,10 @@ static int iprule_modify(int cmd, int argc, char **argv)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (req.frh.family == AF_UNSPEC)
+-		req.frh.family = AF_INET;
++	if (req.frh.family == AF_UNSPEC) {
++		fprintf(stderr, "Please specify address family with -4 or -6.\n");
++		return -EINVAL;
++	}
+ 
+ 	if (!table_ok && cmd == RTM_NEWRULE)
+ 		req.frh.table = RT_TABLE_MAIN;
+@@ -1054,6 +1058,8 @@ int do_multirule(int argc, char **argv)
+ {
+ 	switch (preferred_family) {
+ 	case AF_UNSPEC:
++		fprintf(stderr, "Please specify address family with -4 or -6.\n");
++		exit(-1);
+ 	case AF_INET:
+ 		preferred_family = RTNL_FAMILY_IPMR;
+ 		break;
