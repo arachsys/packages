@@ -21,7 +21,7 @@ prepare() {
   apply sanitizer.diff
   apply ssp.diff
   apply tools.diff
-  tree c7b5ec90ae92bdc2fa6421889d16c923ee230b1d0987f4b3d9a211e20f494aec
+  tree 1fabad92ff9aa76811523a0a4230fe7f63e8a9e20fb6cb4943286b130082258b
 }
 
 build() {
@@ -65,12 +65,15 @@ build() {
     -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld;lldb" \
     -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi" \
     -DLLVM_HOST_TRIPLE=$CHOST \
+    -DLLVM_INCLUDE_TESTS=No \
     -DLLVM_INSTALL_BINUTILS_SYMLINKS=Yes \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=Yes \
+    -DLLVM_TOOL_OPT_VIEWER_BUILD=No \
     -DCLANG_DEFAULT_CXX_STDLIB=libc++ \
     -DCLANG_DEFAULT_PIE_ON_LINUX=Yes \
     -DCLANG_DEFAULT_RTLIB=compiler-rt \
-    -DCLANG_LINKS_TO_CREATE="as;c++;cc;clang++;clang-cl;clang-cpp;cpp" \
+    -DCLANG_INCLUDE_TESTS=No \
+    -DCLANG_LINKS_TO_CREATE="as;c++;cc;clang++;clang-cpp;cpp" \
     -DCLANG_RESOURCE_DIR=../lib/clang \
     -DCOMPILER_RT_DEFAULT_TARGET_ONLY=Yes \
     -DLIBCXX_CXX_ABI=libcxxabi \
@@ -128,12 +131,8 @@ build() {
   find /dst/lib/llvm/include -type d -or -name '*.def' -or -name '*.h' \
     -or -name '*.inc' -or -name '*.td' -or -delete
   rm -f -r /dst/lib/llvm/include/**/{CMakeFiles,config.h}
-
-  rm -f -r /dst/bin/{amdgpu,nvptx}-arch
-  rm -f -r /dst/bin/{git-clang-format,hmaptool,lldb-vscode,llvm-pdbutil}
-  rm -f -r /dst/lib/include/{clang-c,llvm-c}
   rm -f -r /dst/lib/{cmake,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
-  rm -f -r /dst/lib/opt-viewer /dst/lib/**/*.{applescript,css,el,py}
+  rm -f -r /dst/lib/include/{clang-c,llvm-c}
 
   RUNTIME=$(/src/build/bin/clang -print-libgcc-file-name)
   UNWIND=$(readlink /dst/lib/libunwind.so)
