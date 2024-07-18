@@ -35,7 +35,7 @@ apply() {
 }
 
 curl() {
-  command curl -A pkg/1.0 --compressed "$@"
+  COLUMNS=64 command curl -A pkg/1.0 -# --compressed "$@"
 }
 
 die() {
@@ -86,7 +86,9 @@ feature() {
 }
 
 fetch() {
-  if [[ $# -lt 2 ]]; then
+  if [[ $# -lt 1 ]]; then
+    return 1
+  elif [[ $# -lt 2 ]]; then
     set -- "${1##*/}" "$1"
   fi
 
@@ -103,8 +105,11 @@ fetch() {
       mv "$CACHEDIR/$1.part" "$CACHEDIR/$1"
     fi
     cat "$CACHEDIR/$1"
-  elif ! curl -f -L "$2"; then
-    die "Failed to fetch $2"
+  else
+    echo "Downloading from $2:" >&2
+    if ! curl -f -L "$2"; then
+      die "Failed to fetch $2"
+    fi
   fi
 }
 
