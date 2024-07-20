@@ -1,16 +1,15 @@
 require libnl-tiny
 
 check() {
-  url https://w1.fi/cgit/hostap/refs/
-  match version 2.10 'hostap_([0-9]+)_([0-9]+)\.tar' '\1.\2'
+  url https://w1.fi/releases/
+  match version 2.11 'hostapd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack hostap-20240713.tar.gz \
-    https://w1.fi/cgit/hostap/snapshot/hostap-e7172e26.tar.gz
+  unpack https://w1.fi/releases/hostapd-2.11.tar.gz
   apply libnl.diff
   apply tidy.diff
-  tree 71558e8566f6e2b5d0c1984d16b0a194a703daf18504cf34c9b7687d5e1d65ec
+  tree bcf56400c3ca7bc73f6798f04576a92db7af146fca33baa655a7608b981ef991
 }
 
 build() {
