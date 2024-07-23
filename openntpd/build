@@ -1,63 +1,15 @@
-require bison m4 perl
+require bison
 
 check() {
-  url https://cdn.openbsd.org/pub/OpenBSD/OpenNTPD/
-  match version 6.8p1 'openntpd-([0-9.]+p[0-9]+)\.tar'
-
-  url https://ftp.gnu.org/gnu/autoconf/
-  match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org/gnu/automake/
-  match automake 1.17 'automake-([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org/gnu/libtool/
-  match libtool 2.4.7 'libtool-([0-9.]+)\.tar'
+  url https://github.com/arachsys/openntpd/tags
+  match version 7.5.0 'openntpd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack openntpd-portable-20221018-cf202d14.tar.gz \
-    https://github.com/openntpd-portable/openntpd-portable/archive/cf202d14.tar.gz
-  unpack -d openbsd openntpd-openbsd-20221014-23fa0681.tar.gz \
-    https://github.com/openntpd-portable/openntpd-openbsd/archive/23fa0681.tar.gz
-
-  unpack -d tools/autoconf \
-    https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
-  unpack -d tools/automake \
-    https://ftp.gnu.org/gnu/automake/automake-1.17.tar.xz
-  unpack -d tools/libtool \
-    https://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.xz
-
-  apply update.diff
-  tree 70563202fa69f6dd41d02174251ddd84665f16cf072a342f5d93066a15e63b6e
+  unpack https://github.com/arachsys/openntpd/archive/openntpd-7.5.0.tar.gz
+  tree 4e15e061014a67eaf5ad103bcd4a23327471125a958761dd99f5cb68714bbde5
 }
 
 build() {
-  export PATH=$PATH:/src/tools/bin
-
-  cd /src/tools/autoconf
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools/automake
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools/libtool
-  auto-config --prefix=/src/tools
-  make install
-
-  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' /src/tools/bin/*
-
-  cd /src
-  bash update.sh
-  apply adjtimex.diff
-  apply cosmetic.diff
-  apply daemon.diff
-  apply monotime.diff
-  apply paths.diff
-  apply settime.diff
-  autoreconf -i
-
-  auto-config --enable-https-constraint --with-privsep-user=ntp
   make install DESTDIR=/dst
 }
