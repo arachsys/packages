@@ -4,7 +4,7 @@ fi
 
 check() {
   url https://ftp.gnu.org/gnu/gcc/
-  match gcc 14.1.0 'gcc-([0-9.]+)/'
+  match gcc 14.2.0 'gcc-([0-9.]+)/'
 
   url https://ftp.gnu.org/gnu/binutils/
   match binutils 2.42 'binutils-([0-9.]+)\.tar'
@@ -23,7 +23,7 @@ check() {
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/gcc/gcc-14.1.0/gcc-14.1.0.tar.xz
+  unpack https://ftp.gnu.org/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.xz
   unpack -d bu https://ftp.gnu.org/gnu/binutils/binutils-2.42.tar.xz
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
   unpack -d isl https://libisl.sourceforge.io/isl-0.26.tar.xz
@@ -40,7 +40,7 @@ prepare() {
   apply relro.diff
   apply rpath.diff
 
-  tree 6e01511216af5a2009620ee3a080a73b512086ef2164640b5a40188a1a0a73ab
+  tree 5426436ce7efd923f74c6a524fbb8e9734180289698cc7fce91565e78a866397
 }
 
 build() {
