@@ -1,13 +1,13 @@
 check() {
   url https://ftp.gnu.org/gnu/readline/
-  match version 8.2 'readline-([0-9.]+)\.tar\.gz'
+  match version 8.2.13 'readline-([0-9.]+)\.tar\.gz'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz
+  unpack https://ftp.gnu.org/gnu/readline/readline-8.2.13.tar.gz
   apply config.diff
   apply rpath.diff
-  tree c10c354bec88f05907832bf467e661e94f2dfee5edb421de66700a09bbf21cc2
+  tree b92eee31e39208d2dec19d425e924bd887243cf847f2f20972acddaba5fa6c89
 }
 
 build() {
