@@ -2,12 +2,12 @@ require bison
 
 check() {
   url https://github.com/arachsys/openntpd/tags
-  match version 7.5.2 'openntpd-([0-9.]+)\.tar'
+  match version 7.5.3 'openntpd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/arachsys/openntpd/archive/openntpd-7.5.2.tar.gz
-  tree d524ebff23bdae9721ab8e75b05978c54f5a503394398e0eb264d031b63d237a
+  unpack https://github.com/arachsys/openntpd/archive/openntpd-7.5.3.tar.gz
+  tree f641ea14a4d99c959948f7c9e7223b804487b539bef3312d2c17eb739a10765d
 }
 
 build() {
