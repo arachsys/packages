@@ -9,7 +9,9 @@ prepare() {
 }
 
 build() {
-  make lib-mt install DESTDIR=/dst PREFIX= INCLUDEDIR=/lib/include \
+  make -C lib lib-mt
+  make -C programs zstd-dll LIB_BINDIR=../lib
+  make install DESTDIR=/dst PREFIX= INCLUDEDIR=/lib/include \
     LIBDIR=/lib MAN1DIR=/lib/man/man1
   rm -f /dst/bin/zstd{grep,less} /dst/lib/man/man1/zstd{grep,less}.1
 }
