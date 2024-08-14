@@ -1,8 +1,8 @@
 diff --git a/ui/curses.c b/ui/curses.c
-index d01e178..233b75d 100644
+index 1c41c467..b659ae1b 100644
 --- a/ui/curses.c
 +++ b/ui/curses.c
-@@ -693,8 +693,7 @@ void mtr_curses_redraw(
+@@ -696,8 +696,7 @@ void mtr_curses_redraw(
  
      move(0, 0);
      attron(A_BOLD);
@@ -12,17 +12,27 @@ index d01e178..233b75d 100644
      pwcenter(buf);
      attroff(A_BOLD);
  
-@@ -723,7 +722,7 @@ void mtr_curses_redraw(
-     attroff(A_BOLD);
-     printw("rder of fields   ");
-     attron(A_BOLD);
--    printw("q");
-+    printw("Q");
-     attroff(A_BOLD);
-     printw("uit\n");
- 
+@@ -727,7 +726,7 @@ void mtr_curses_redraw(
+         attroff(A_BOLD);
+         printw("rder of fields   ");
+         attron(A_BOLD);
+-        printw("q");
++        printw("Q");
+         attroff(A_BOLD);
+         printw("uit\n");
+     }
+@@ -746,7 +745,8 @@ void mtr_curses_redraw(
+             hd_len += data_fields[j].length;
+         }
+         attron(A_BOLD);
+-        mvprintw(rowstat - 1, 0, " Host");
++        if (!ctl->CompactLayout)
++            mvprintw(rowstat - 1, 0, " Host");
+         mvprintw(rowstat - 1, maxx - hd_len - 1, "%s", buf);
+         mvprintw(rowstat - 2, maxx - hd_len - 1,
+                  "   Packets               Pings");
 diff --git a/ui/mtr.c b/ui/mtr.c
-index 2c6fc68..e3cc182 100644
+index 49e9f9f1..ac11fb13 100644
 --- a/ui/mtr.c
 +++ b/ui/mtr.c
 @@ -67,7 +67,7 @@ char *myname;
@@ -35,15 +45,12 @@ index 2c6fc68..e3cc182 100644
      {'R', "R: Received Packets", "Rcv", " %5d", 6, &net_returned},
      {'S', "S: Sent Packets", "Snt", " %5d", 6, &net_xmit},
 diff --git a/ui/report.c b/ui/report.c
-index a63ed55..38d6a41 100644
+index 61f2c74b..f2494ed2 100644
 --- a/ui/report.c
 +++ b/ui/report.c
-@@ -127,10 +127,12 @@ void report_close(
-             if (!ctl->ipinfo_no)
+@@ -128,9 +128,9 @@ void report_close(
                  len_tmp += 2;   /* align header: AS */
          }
-+    } else if (ctl->reportwide) {
-+        len_tmp += 2;
      }
 -    snprintf(fmt, sizeof(fmt), "HOST: %%-%ds", len_tmp);
 +    snprintf(fmt, sizeof(fmt), "Host: %%-%ds", len_tmp);

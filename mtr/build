@@ -16,8 +16,8 @@ check() {
 }
 
 prepare() {
-  unpack mtr-0.95.tar.gz \
-    https://github.com/traviscross/mtr/archive/v0.95.tar.gz
+  unpack mtr-20240803.tar.gz \
+    https://github.com/traviscross/mtr/archive/e14581c5.tar.gz
 
   unpack -d tools/autoconf \
     https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
@@ -28,7 +28,7 @@ prepare() {
 
   apply cosmetic.diff
   apply prune.diff
-  tree b4edf8f202b3c1ec173917cf5679732e25d7b387e01707bcabfab84d2d39a3d2
+  tree 582202652d011d1009ee451c5971fd962d908471d716500ed26f85a2c386df9f
 }
 
 build() {
