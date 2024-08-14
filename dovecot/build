@@ -5,16 +5,16 @@ check() {
   match version 2.3.21 'dovecot-([0-9.]+)\.tar'
 
   url https://pigeonhole.dovecot.org/download.html
-  match pigeonhole 0.5.21 'dovecot-[0-9.]+-pigeonhole-([0-9.]+)\.tar'
+  match pigeonhole 0.5.21.1 'dovecot-[0-9.]+-pigeonhole-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack https://dovecot.org/releases/2.3/dovecot-2.3.21.tar.gz
   unpack -d pigeonhole \
-    https://pigeonhole.dovecot.org/releases/2.3/dovecot-2.3-pigeonhole-0.5.21.tar.gz
+    https://pigeonhole.dovecot.org/releases/2.3/dovecot-2.3-pigeonhole-0.5.21.1.tar.gz
   apply paths.diff
   apply users.diff
-  tree 6180c1a9a8f1157aaaf664923f789b002bd940e8a353f008fdba38d5b1ce3300
+  tree 2258647e8ec65079740d1d8cb79dd0980881bb6f4d9eae6274065bfffef7639e
 }
 
 build() {
