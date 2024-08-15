@@ -1,0 +1,14 @@
+check() {
+  url https://fping.org/dist/
+  match version 5.2 'fping-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://fping.org/dist/fping-5.2.tar.gz
+  tree 69fbc3e907f65560e880315c9b01b5161aef519cd61b8ed16f8e54dc4b6bfc23
+}
+
+build() {
+  auto-config
+  make install DESTDIR=/dst
+}
