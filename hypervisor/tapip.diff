@@ -171,10 +171,10 @@ index ce46b938..dbd46c3e 100644
              mtu,
              num_queues / 2,
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index ff547d65..47a747a0 100644
+index 8ef7cfb1..2105a6cb 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -1309,7 +1309,7 @@ impl FromStr for VhostMode {
+@@ -1348,7 +1348,7 @@ impl FromStr for VhostMode {
  
  impl NetConfig {
      pub const SYNTAX: &'static str = "Network parameters: \
@@ -183,7 +183,7 @@ index ff547d65..47a747a0 100644
      num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,id=<device_id>,\
      vhost_user=<vhost_user_enable>,socket=<vhost_user_socket_path>,vhost_mode=client|server,\
      bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1321,8 +1321,6 @@ impl NetConfig {
+@@ -1360,8 +1360,6 @@ impl NetConfig {
  
          parser
              .add("tap")
@@ -192,7 +192,7 @@ index ff547d65..47a747a0 100644
              .add("mac")
              .add("host_mac")
              .add("offload_tso")
-@@ -1347,14 +1345,6 @@ impl NetConfig {
+@@ -1386,14 +1384,6 @@ impl NetConfig {
          parser.parse(net).map_err(Error::ParseNetwork)?;
  
          let tap = parser.get("tap");
@@ -207,7 +207,7 @@ index ff547d65..47a747a0 100644
          let mac = parser
              .convert("mac")
              .map_err(Error::ParseNetwork)?
-@@ -1461,8 +1451,6 @@ impl NetConfig {
+@@ -1500,8 +1490,6 @@ impl NetConfig {
  
          let config = NetConfig {
              tap,
@@ -217,10 +217,10 @@ index ff547d65..47a747a0 100644
              host_mac,
              mtu,
 diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index d6fc1b94..e057b9fa 100644
+index 99ad5208..ea3dbeb8 100644
 --- a/vmm/src/device_manager.rs
 +++ b/vmm/src/device_manager.rs
-@@ -2513,8 +2513,6 @@ impl DeviceManager {
+@@ -2573,8 +2573,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          Some(tap_if_name),
@@ -229,7 +229,7 @@ index d6fc1b94..e057b9fa 100644
                          Some(net_cfg.mac),
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
-@@ -2564,8 +2562,6 @@ impl DeviceManager {
+@@ -2624,8 +2622,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          None,
@@ -239,19 +239,19 @@ index d6fc1b94..e057b9fa 100644
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index bf257770..80c500df 100644
+index 9e2ff20d..bfc7c962 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
-@@ -4,7 +4,7 @@
- //
+@@ -5,7 +5,7 @@
+ use crate::{landlock::LandlockError, Landlock};
  use net_util::MacAddr;
  use serde::{Deserialize, Serialize};
--use std::{net::Ipv4Addr, path::PathBuf};
-+use std::path::PathBuf;
+-use std::{fs, net::Ipv4Addr, path::PathBuf, result};
++use std::{fs, path::PathBuf, result};
  use virtio_devices::RateLimiterConfig;
  
- #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
-@@ -261,10 +261,6 @@ pub fn default_diskconfig_queue_size() -> u16 {
+ pub type LandlockResult<T> = result::Result<T, LandlockError>;
+@@ -288,10 +288,6 @@ pub fn default_diskconfig_queue_size() -> u16 {
  pub struct NetConfig {
      #[serde(default = "default_netconfig_tap")]
      pub tap: Option<String>,
@@ -262,7 +262,7 @@ index bf257770..80c500df 100644
      #[serde(default = "default_netconfig_mac")]
      pub mac: MacAddr,
      #[serde(default)]
-@@ -310,14 +306,6 @@ pub fn default_netconfig_tap() -> Option<String> {
+@@ -337,14 +333,6 @@ pub fn default_netconfig_tap() -> Option<String> {
      None
  }
  
