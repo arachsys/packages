@@ -7,7 +7,7 @@ check() {
   match gcc 14.2.0 'gcc-([0-9.]+)/'
 
   url https://ftp.gnu.org/gnu/binutils/
-  match binutils 2.43 'binutils-([0-9.]+)\.tar'
+  match binutils 2.43.1 'binutils-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/gmp/
   match gmp 6.3.0 'gmp-([0-9.]+)\.tar'
@@ -24,7 +24,7 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/gcc/gcc-14.2.0/gcc-14.2.0.tar.xz
-  unpack -d bu https://ftp.gnu.org/gnu/binutils/binutils-2.43.tar.xz
+  unpack -d bu https://ftp.gnu.org/gnu/binutils/binutils-2.43.1.tar.xz
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
   unpack -d isl https://libisl.sourceforge.io/isl-0.26.tar.xz
   unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz
@@ -40,7 +40,7 @@ prepare() {
   apply relro.diff
   apply rpath.diff
 
-  tree 8b4eda0665e2af1da2ffa30aa2be374ab45dd7aea0ec8e85cebf11647807452a
+  tree fa728242be3ab50307898653e2d1e984b828faec2bdf6936a5456ed0309bca84
 }
 
 build() {
