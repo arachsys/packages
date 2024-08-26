@@ -11,4 +11,5 @@ prepare() {
 build() {
   auto-config
   make install DESTDIR=/dst
+  install $PKG/ping /dst/bin
 }
