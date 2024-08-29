@@ -1,8 +1,8 @@
 diff --git a/ell/dbus-service.c b/ell/dbus-service.c
-index 587ddd9..8e7018e 100644
+index 0300bfe3..50ef3c04 100644
 --- a/ell/dbus-service.c
 +++ b/ell/dbus-service.c
-@@ -1113,7 +1113,7 @@ void _dbus_object_tree_signals_flush(struct l_dbus *dbus, const char *path)
+@@ -1098,7 +1098,7 @@ void _dbus_object_tree_signals_flush(struct l_dbus *dbus, const char *path)
  	struct emit_signals_data data;
  	bool all_done = true;
  
@@ -11,7 +11,7 @@ index 587ddd9..8e7018e 100644
  		return;
  
  	tree->flushing = true;
-@@ -1163,7 +1163,7 @@ static void schedule_emit_signals(struct l_dbus *dbus)
+@@ -1148,7 +1148,7 @@ static void schedule_emit_signals(struct l_dbus *dbus)
  {
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  
@@ -20,7 +20,7 @@ index 587ddd9..8e7018e 100644
  		return;
  
  	tree->emit_signals_work = l_idle_create(emit_signals, dbus, NULL);
-@@ -1192,6 +1192,9 @@ bool _dbus_object_tree_property_changed(struct l_dbus *dbus,
+@@ -1177,6 +1177,9 @@ bool _dbus_object_tree_property_changed(struct l_dbus *dbus,
  	struct _dbus_property *property;
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  
@@ -30,7 +30,7 @@ index 587ddd9..8e7018e 100644
  	object = l_hashmap_lookup(tree->objects, path);
  	if (!object)
  		return false;
-@@ -1295,6 +1298,9 @@ static struct l_dbus_message *old_set_property(struct l_dbus *dbus,
+@@ -1280,6 +1283,9 @@ static struct l_dbus_message *old_set_property(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	l_dbus_property_complete_cb_t complete_cb;
  
@@ -40,7 +40,7 @@ index 587ddd9..8e7018e 100644
  	interface = l_hashmap_lookup(tree->interfaces,
  					l_dbus_message_get_interface(message));
  	/* If we got here the interface must exist */
-@@ -1344,6 +1350,9 @@ static struct l_dbus_message *old_get_properties(struct l_dbus *dbus,
+@@ -1329,6 +1335,9 @@ static struct l_dbus_message *old_get_properties(struct l_dbus *dbus,
  	struct l_dbus_message_builder *builder;
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  
@@ -50,7 +50,7 @@ index 587ddd9..8e7018e 100644
  	interface = l_hashmap_lookup(tree->interfaces,
  					l_dbus_message_get_interface(message));
  	/* If we got here the interface must exist */
-@@ -1839,6 +1848,9 @@ static struct l_dbus_message *properties_get(struct l_dbus *dbus,
+@@ -1849,6 +1858,9 @@ static struct l_dbus_message *properties_get(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	struct l_dbus_message_builder *builder;
  
@@ -60,7 +60,7 @@ index 587ddd9..8e7018e 100644
  	if (!l_dbus_message_get_arguments(message, "ss", &interface_name,
  						&property_name))
  		return l_dbus_message_new_error(message,
-@@ -1909,6 +1921,9 @@ static struct l_dbus_message *properties_set(struct l_dbus *dbus,
+@@ -1919,6 +1931,9 @@ static struct l_dbus_message *properties_set(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	l_dbus_property_complete_cb_t complete_cb;
  
@@ -70,7 +70,7 @@ index 587ddd9..8e7018e 100644
  	if (!l_dbus_message_get_arguments(message, "ssv", &interface_name,
  						&property_name, &variant))
  		return l_dbus_message_new_error(message,
-@@ -1977,6 +1992,9 @@ static struct l_dbus_message *properties_get_all(struct l_dbus *dbus,
+@@ -1987,6 +2002,9 @@ static struct l_dbus_message *properties_get_all(struct l_dbus *dbus,
  	struct l_dbus_message *reply;
  	struct l_dbus_message_builder *builder;
  
@@ -80,7 +80,7 @@ index 587ddd9..8e7018e 100644
  	if (!l_dbus_message_get_arguments(message, "s", &interface_name))
  		return l_dbus_message_new_error(message,
  						"org.freedesktop.DBus.Error."
-@@ -2133,7 +2151,7 @@ static struct l_dbus_message *get_managed_objects(struct l_dbus *dbus,
+@@ -2143,7 +2161,7 @@ static struct l_dbus_message *get_managed_objects(struct l_dbus *dbus,
  	struct _dbus_object_tree *tree = _dbus_get_tree(dbus);
  	const char *path = l_dbus_message_get_path(message);
  
@@ -90,10 +90,10 @@ index 587ddd9..8e7018e 100644
  
  static void object_manager_setup_func(struct l_dbus_interface *interface)
 diff --git a/ell/dbus.c b/ell/dbus.c
-index 0b02605..e015d93 100644
+index bd6e1b8c..67b3fece 100644
 --- a/ell/dbus.c
 +++ b/ell/dbus.c
-@@ -1420,7 +1420,7 @@ int _dbus_get_fd(struct l_dbus *dbus)
+@@ -1528,7 +1528,7 @@ int _dbus_get_fd(struct l_dbus *dbus)
  
  struct _dbus_object_tree *_dbus_get_tree(struct l_dbus *dbus)
  {
@@ -102,7 +102,7 @@ index 0b02605..e015d93 100644
  }
  
  /**
-@@ -1447,7 +1447,7 @@ LIB_EXPORT bool l_dbus_register_interface(struct l_dbus *dbus,
+@@ -1555,7 +1555,7 @@ LIB_EXPORT bool l_dbus_register_interface(struct l_dbus *dbus,
  				bool handle_old_style_properties)
  {
  	if (unlikely(!dbus))
@@ -111,7 +111,7 @@ index 0b02605..e015d93 100644
  
  	if (unlikely(!dbus->tree))
  		return false;
-@@ -1461,7 +1461,7 @@ LIB_EXPORT bool l_dbus_unregister_interface(struct l_dbus *dbus,
+@@ -1569,7 +1569,7 @@ LIB_EXPORT bool l_dbus_unregister_interface(struct l_dbus *dbus,
  						const char *interface)
  {
  	if (unlikely(!dbus))
@@ -120,7 +120,7 @@ index 0b02605..e015d93 100644
  
  	if (unlikely(!dbus->tree))
  		return false;
-@@ -1499,7 +1499,7 @@ LIB_EXPORT bool l_dbus_register_object(struct l_dbus *dbus, const char *path,
+@@ -1607,7 +1607,7 @@ LIB_EXPORT bool l_dbus_register_object(struct l_dbus *dbus, const char *path,
  	bool r = true;
  
  	if (unlikely(!dbus))
@@ -129,7 +129,7 @@ index 0b02605..e015d93 100644
  
  	if (unlikely(!dbus->tree))
  		return false;
-@@ -1529,7 +1529,7 @@ LIB_EXPORT bool l_dbus_unregister_object(struct l_dbus *dbus,
+@@ -1637,7 +1637,7 @@ LIB_EXPORT bool l_dbus_unregister_object(struct l_dbus *dbus,
  						const char *object)
  {
  	if (unlikely(!dbus))
@@ -138,7 +138,7 @@ index 0b02605..e015d93 100644
  
  	if (unlikely(!dbus->tree))
  		return false;
-@@ -1562,7 +1562,7 @@ LIB_EXPORT bool l_dbus_object_add_interface(struct l_dbus *dbus,
+@@ -1670,7 +1670,7 @@ LIB_EXPORT bool l_dbus_object_add_interface(struct l_dbus *dbus,
  						void *user_data)
  {
  	if (unlikely(!dbus))
@@ -147,7 +147,7 @@ index 0b02605..e015d93 100644
  
  	if (unlikely(!dbus->tree))
  		return false;
-@@ -1576,7 +1576,7 @@ LIB_EXPORT bool l_dbus_object_remove_interface(struct l_dbus *dbus,
+@@ -1684,7 +1684,7 @@ LIB_EXPORT bool l_dbus_object_remove_interface(struct l_dbus *dbus,
  						const char *interface)
  {
  	if (unlikely(!dbus))
@@ -156,7 +156,7 @@ index 0b02605..e015d93 100644
  
  	if (unlikely(!dbus->tree))
  		return false;
-@@ -1602,7 +1602,7 @@ LIB_EXPORT bool l_dbus_object_manager_enable(struct l_dbus *dbus,
+@@ -1723,7 +1723,7 @@ LIB_EXPORT bool l_dbus_object_manager_enable(struct l_dbus *dbus,
  						const char *root)
  {
  	if (unlikely(!dbus))
@@ -165,7 +165,7 @@ index 0b02605..e015d93 100644
  
  	if (unlikely(!dbus->tree))
  		return false;
-@@ -1629,7 +1629,7 @@ LIB_EXPORT unsigned int l_dbus_add_service_watch(struct l_dbus *dbus,
+@@ -1750,7 +1750,7 @@ LIB_EXPORT unsigned int l_dbus_add_service_watch(struct l_dbus *dbus,
  					void *user_data,
  					l_dbus_destroy_func_t destroy)
  {
@@ -174,7 +174,7 @@ index 0b02605..e015d93 100644
  		return 0;
  
  	if (!dbus->name_cache)
-@@ -1643,7 +1643,7 @@ LIB_EXPORT unsigned int l_dbus_add_service_watch(struct l_dbus *dbus,
+@@ -1764,7 +1764,7 @@ LIB_EXPORT unsigned int l_dbus_add_service_watch(struct l_dbus *dbus,
  
  LIB_EXPORT bool l_dbus_remove_watch(struct l_dbus *dbus, unsigned int id)
  {
@@ -183,7 +183,7 @@ index 0b02605..e015d93 100644
  		return false;
  
  	return _dbus_name_cache_remove_watch(dbus->name_cache, id);
-@@ -1701,6 +1701,9 @@ LIB_EXPORT unsigned int l_dbus_add_signal_watch(struct l_dbus *dbus,
+@@ -1822,6 +1822,9 @@ LIB_EXPORT unsigned int l_dbus_add_signal_watch(struct l_dbus *dbus,
  	void *user_data;
  	unsigned int id;
  
@@ -193,7 +193,7 @@ index 0b02605..e015d93 100644
  	va_start(args, member);
  
  	rule_len = 0;
-@@ -1775,7 +1778,7 @@ LIB_EXPORT unsigned int l_dbus_add_signal_watch(struct l_dbus *dbus,
+@@ -1895,7 +1898,7 @@ LIB_EXPORT unsigned int l_dbus_add_signal_watch(struct l_dbus *dbus,
  
  LIB_EXPORT bool l_dbus_remove_signal_watch(struct l_dbus *dbus, unsigned int id)
  {
@@ -202,7 +202,7 @@ index 0b02605..e015d93 100644
  		return false;
  
  	return _dbus_filter_remove_rule(dbus->filter, id);
-@@ -1806,6 +1809,9 @@ LIB_EXPORT uint32_t l_dbus_name_acquire(struct l_dbus *dbus, const char *name,
+@@ -1926,6 +1929,9 @@ LIB_EXPORT uint32_t l_dbus_name_acquire(struct l_dbus *dbus, const char *name,
  				bool queue, l_dbus_name_acquire_func_t callback,
  				void *user_data)
  {
@@ -213,10 +213,10 @@ index 0b02605..e015d93 100644
  						replace_existing, queue,
  						callback, user_data);
 diff --git a/src/main.c b/src/main.c
-index a3d8553..add3029 100644
+index beaf228f..fbb4033a 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -585,14 +585,16 @@ int main(int argc, char *argv[])
+@@ -599,14 +599,16 @@ int main(int argc, char *argv[])
  		l_netlink_set_debug(rtnl, do_debug, "[RTNL] ", NULL);
  
  	dbus = l_dbus_new_default(L_DBUS_SYSTEM_BUS);
@@ -240,7 +240,7 @@ index a3d8553..add3029 100644
  
  	if (!setup_system_key())
  		goto failed_storage;
-@@ -606,7 +608,6 @@ failed_storage:
+@@ -620,7 +622,6 @@ failed_storage:
  	dbus_exit();
  	l_dbus_destroy(dbus);
  

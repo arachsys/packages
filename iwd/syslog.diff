@@ -1,5 +1,5 @@
 diff --git a/ell/log.c b/ell/log.c
-index a8c2617..8834d68 100644
+index a8c26176..8834d68d 100644
 --- a/ell/log.c
 +++ b/ell/log.c
 @@ -16,6 +16,7 @@
@@ -21,10 +21,10 @@ index a8c2617..8834d68 100644
  					log_ident, (unsigned long) log_pid);
  
 diff --git a/src/main.c b/src/main.c
-index 8eb55d7..9cd4c09 100644
+index d03c181e..780711eb 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -524,12 +524,14 @@ int main(int argc, char *argv[])
+@@ -525,12 +525,13 @@ int main(int argc, char *argv[])
  		return EXIT_FAILURE;
  	}
  
@@ -38,17 +38,16 @@ index 8eb55d7..9cd4c09 100644
 +	} else if (logger && !strcmp(logger, "journal")) {
 +		l_log_set_journal();
 +	} else {
-+		l_log_set_ident("iwd");
 +		l_log_set_syslog();
 +	}
  
- 	if (check_crypto() < 0)
- 		return EXIT_FAILURE;
+ 	l_log_set_ident("iwd");
+ 
 diff --git a/src/wiphy.c b/src/wiphy.c
-index 9621710..19545c1 100644
+index 13d498a5..eaac6cb1 100644
 --- a/src/wiphy.c
 +++ b/src/wiphy.c
-@@ -1299,9 +1299,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
+@@ -1316,9 +1316,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
  			if (!str)
  				continue;
  

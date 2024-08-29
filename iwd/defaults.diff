@@ -1,8 +1,8 @@
 diff --git a/src/netconfig.c b/src/netconfig.c
-index 5230702..4f9d9e1 100644
+index b31209cf..0671d411 100644
 --- a/src/netconfig.c
 +++ b/src/netconfig.c
-@@ -752,11 +752,12 @@ void netconfig_destroy(struct netconfig *netconfig)
+@@ -757,11 +757,12 @@ void netconfig_destroy(struct netconfig *netconfig)
  
  bool netconfig_enabled(void)
  {
@@ -20,7 +20,7 @@ index 5230702..4f9d9e1 100644
  
  static int netconfig_init(void)
 diff --git a/src/resolve.c b/src/resolve.c
-index d674409..df6cb63 100644
+index 6ce3fa7d..4506d4b5 100644
 --- a/src/resolve.c
 +++ b/src/resolve.c
 @@ -621,7 +621,7 @@ static int resolve_init(void)
