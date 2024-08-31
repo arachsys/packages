@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 768242f..73651fd 100755
+index 61fcd037..667f35d6 100755
 --- a/configure
 +++ b/configure
-@@ -8010,7 +8010,7 @@ fi
+@@ -7576,7 +7576,7 @@ fi
  			case "$with_libnl" in
  
  			yes|if_available)
@@ -11,44 +11,46 @@ index 768242f..73651fd 100755
  				libnldir=
  				;;
  
-@@ -8022,13 +8022,13 @@ fi
+@@ -7588,14 +7588,14 @@ fi
  				;;
  			esac
  
--			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for nl_socket_alloc in -lnl-3" >&5
--$as_echo_n "checking for nl_socket_alloc in -lnl-3... " >&6; }
--if ${ac_cv_lib_nl_3_nl_socket_alloc+:} false; then :
-+			{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for nl_socket_alloc in -lnl-tiny" >&5
-+$as_echo_n "checking for nl_socket_alloc in -lnl-tiny... " >&6; }
-+if ${ac_cv_lib_nl_tiny_nl_socket_alloc+:} false; then :
-   $as_echo_n "(cached) " >&6
- else
+-			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for nl_socket_alloc in -lnl-3" >&5
+-printf %s "checking for nl_socket_alloc in -lnl-3... " >&6; }
+-if test ${ac_cv_lib_nl_3_nl_socket_alloc+y}
++			{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for nl_socket_alloc in -lnl-tiny" >&5
++printf %s "checking for nl_socket_alloc in -lnl-tiny... " >&6; }
++if test ${ac_cv_lib_nl_tiny_nl_socket_alloc+y}
+ then :
+   printf %s "(cached) " >&6
+ else $as_nop
    ac_check_lib_save_LIBS=$LIBS
 -LIBS="-lnl-3 ${incdir} ${libnldir} -lnl-genl-3 -lnl-3  $LIBS"
-+LIBS="-lnl-tiny ${incdir} ${libnldir} -lnl-tiny $LIBS"
++LIBS="-lnl-tiny ${incdir} ${libnldir} $LIBS"
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
  
-@@ -8048,24 +8048,24 @@ return nl_socket_alloc ();
- }
+@@ -7613,25 +7613,25 @@ return nl_socket_alloc ();
  _ACEOF
- if ac_fn_c_try_link "$LINENO"; then :
+ if ac_fn_c_try_link "$LINENO"
+ then :
 -  ac_cv_lib_nl_3_nl_socket_alloc=yes
 +  ac_cv_lib_nl_tiny_nl_socket_alloc=yes
- else
+ else $as_nop
 -  ac_cv_lib_nl_3_nl_socket_alloc=no
 +  ac_cv_lib_nl_tiny_nl_socket_alloc=no
  fi
- rm -f core conftest.err conftest.$ac_objext \
+ rm -f core conftest.err conftest.$ac_objext conftest.beam \
      conftest$ac_exeext conftest.$ac_ext
  LIBS=$ac_check_lib_save_LIBS
  fi
--{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nl_3_nl_socket_alloc" >&5
--$as_echo "$ac_cv_lib_nl_3_nl_socket_alloc" >&6; }
--if test "x$ac_cv_lib_nl_3_nl_socket_alloc" = xyes; then :
-+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nl_tiny_nl_socket_alloc" >&5
-+$as_echo "$ac_cv_lib_nl_tiny_nl_socket_alloc" >&6; }
-+if test "x$ac_cv_lib_nl_tiny_nl_socket_alloc" = xyes; then :
+-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nl_3_nl_socket_alloc" >&5
+-printf "%s\n" "$ac_cv_lib_nl_3_nl_socket_alloc" >&6; }
+-if test "x$ac_cv_lib_nl_3_nl_socket_alloc" = xyes
++{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nl_tiny_nl_socket_alloc" >&5
++printf "%s\n" "$ac_cv_lib_nl_tiny_nl_socket_alloc" >&6; }
++if test "x$ac_cv_lib_nl_tiny_nl_socket_alloc" = xyes
+ then :
  
  				#
 -				# Yes, we have libnl 3.x.
@@ -61,10 +63,10 @@ index 768242f..73651fd 100755
 +				ADDITIONAL_LIBS_STATIC="${libnldir} -lnl-tiny $ADDITIONAL_LIBS_STATIC"
 +				LIBS_PRIVATE="${libnldir} -lnl-tiny $LIBS_PRIVATE"
  
- $as_echo "#define HAVE_LIBNL 1" >>confdefs.h
+ printf "%s\n" "#define HAVE_LIBNL 1" >>confdefs.h
  
 diff --git a/configure.ac b/configure.ac
-index ff7e490..76e6265 100644
+index accb2589..5e9156f9 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1048,7 +1048,7 @@ linux)
