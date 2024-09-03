@@ -3,20 +3,20 @@ require libffi
 
 check() {
   url https://www.ruby-lang.org/en/downloads/
-  match version 3.3.4 'ruby-([0-9.]+)\.tar'
+  match version 3.3.5 'ruby-([0-9.]+)\.tar'
 
   url https://github.com/yaml/libyaml/tags
   match version 0.2.5 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.4.tar.gz
+  unpack https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.5.tar.gz
   unpack -d libyaml \
     https://github.com/yaml/libyaml/releases/download/0.2.5/yaml-0.2.5.tar.gz
   apply irb.diff
   apply paths.diff
   apply plain.diff
-  tree 0ffe52faf96ba8b78cbc3761196767acf520e08f15b9c1fb83d333d051b9e76b
+  tree eee7cc5abca4be1ef11c2115ae7e3217ea01b5176b8f9c636c6e194549bb1574
 }
 
 build() {
@@ -27,6 +27,6 @@ build() {
     --with-{site,vendor}{archdir,archhdrdir,dir,hdrdir}=no \
     $([[ $CHOST == @(aarch64|amd64|x86_64)* ]] && echo LIBS=-lunwind)
   make install DESTDIR=/dst
-  rm -f /dst/lib/include/rb_mjit_min_header-*.h
+  rm -f /dst/bin/*.lock /dst/lib/include/rb_mjit_min_header-*.h
   image - requires libffi
 }
