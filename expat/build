@@ -1,11 +1,11 @@
 check() {
   url https://github.com/libexpat/libexpat/tags
-  match version 2.6.2 'tags/R_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
+  match version 2.6.3 'tags/R_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
 }
 
 prepare() {
-  unpack https://github.com/libexpat/libexpat/releases/download/R_2_6_2/expat-2.6.2.tar.xz
-  tree f2ce5c4f0e218ca647aa1bfdeaabbacabc0f4c8848d8191bc3bf44d77d1e9987
+  unpack https://github.com/libexpat/libexpat/releases/download/R_2_6_3/expat-2.6.3.tar.xz
+  tree e0575326691adcf516bd1665aa30e61e224435869d789e21490448e67b14b04d
 }
 
 build() {
