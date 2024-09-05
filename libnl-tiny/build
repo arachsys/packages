@@ -1,11 +1,11 @@
 check() {
-  url https://git.openwrt.org/project/libnl-tiny.git
-  match version 2023-12-05 '([0-9]{4}-[0-9]{2}-[0-9]{2})'
+  url https://api.github.com/repos/openwrt/libnl-tiny/branches/master
+  match version 2023-12-05 '"date": *"([0-9]{4}-[0-9]{2}-[0-9]{2})'
 }
 
 prepare() {
   unpack libnl-tiny-2023-12-05.tar.gz \
-    'https://git.openwrt.org/?p=project/libnl-tiny.git;a=snapshot;h=965c4bf4;sf=tgz'
+    https://github.com/openwrt/libnl-tiny/archive/965c4bf4.tar.gz
   tree bbf2ea02ec29dd1721c543c6dacb9dd21c400671201ce81bce23cb796b5d0a67
 }
 
