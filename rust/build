@@ -2,11 +2,11 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/tags
-  match version 1.80.1 'tags/([0-9.]+)\.tar'
+  match version 1.81.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.80.1-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.81.0-src.tar.gz
   sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
     vendor/*/.cargo-checksum.json
   apply curl.diff
@@ -15,13 +15,13 @@ prepare() {
   apply system.diff
   apply target.diff
   apply version.diff
-  tree b1296a97903a309f2fcaa60467824e08e3f894c679c6f6383abd620fe8a78471
+  tree cd8c873858b19e4981735e42cbd05f750f3467c662a8f45c75f9fc24584ccccc
 }
 
 build() {
   /src/configure --prefix= --disable-codegen-tests --disable-dist-src \
-    --disable-docs --disable-manage-submodules --disable-ninja \
-    --disable-rpath --enable-extended --enable-local-rust \
+    --disable-docs --disable-lld --disable-manage-submodules \
+    --disable-ninja --disable-rpath --enable-extended --enable-local-rust \
     --enable-locked-deps --enable-use-libcxx --enable-vendor \
     --build=$(/lib/llvm/bin/llvm-config --host-target) \
     --llvm-libunwind=system --llvm-config=/lib/llvm/bin/llvm-config \
