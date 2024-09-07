@@ -14,7 +14,7 @@ build() {
   auto-config --docdir=/lib/doc/mutt --disable-{pgp,smime} \
     --enable-{hcache,imap,pop,sidebar,smtp} --with-{lmdb,ssl} \
     --with-homespool=Maildir SENDMAIL=/bin/sendmail
-  sed -i '/MUTTLIBS =/s/-llmdb/-Wl,-Bstatic \0 -Wl,-Bdynamic/' Makefile
+  sed -i '/MUTTLIBS =/s/-llmdb/-l:liblmdb.a/' Makefile
   make install DESTDIR=/dst
   rm -f /dst/bin/flea /dst/bin/muttbug
 }

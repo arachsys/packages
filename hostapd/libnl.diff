@@ -7,7 +7,7 @@ index a03d4a0..c8c7693 100644
  else
    ifdef CONFIG_LIBNL_TINY
 -    DRV_LIBS += -lnl-tiny
-+    DRV_LIBS += -Wl,-Bstatic -lnl-tiny -Wl,-Bdynamic
++    DRV_LIBS += -l:libnl-tiny.a
    else
      ifndef CONFIG_OSX
        DRV_LIBS += -lnl

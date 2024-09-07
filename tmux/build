@@ -12,6 +12,6 @@ prepare() {
 
 build() {
   auto-config
-  sed -i 's:-l\(event[^ ]*\):/lib/static/lib\1.a:g' Makefile
+  sed -i 's/-l\(event[^ ]*\)/-l:lib\1.a/g' Makefile
   make install DESTDIR=/dst
 }

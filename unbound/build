@@ -15,7 +15,7 @@ build() {
     --with-conf-file=/etc/unbound.conf --with-{libexpat,ssl}=/lib \
     --with-pidfile=/run/unbound.pid --with-run-dir=/var/lib/unbound \
     --with-username=dns
-  sed -i 's/-lexpat/-Wl,-Bstatic,\0,-Bdynamic/' Makefile
+  sed -i 's/-lexpat/-l:libexpat.a/' Makefile
   make install DESTDIR=/dst
   rm -f -r /dst/bin/unbound-control-setup /dst/include /dst/lib
 }

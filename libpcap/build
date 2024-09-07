@@ -13,7 +13,7 @@ prepare() {
 
 build() {
   auto-config --with-libnl --with-pcap=linux
-  sed -i 's/-lnl-tiny/-Wl,-Bstatic \0 -Wl,-Bdynamic/g' **/Makefile
+  sed -i 's/-lnl-tiny/-l:libnl-tiny.a/g' **/Makefile
   make install DESTDIR=/dst
   rm -f /dst/bin/pcap-config
 }

@@ -16,7 +16,7 @@ build() {
   auto-config --enable-lzma --enable-zstd CONFDIR=/etc \
     CPPFLAGS=-DDISABLE_ENGINES {LZMA,ZSTD}_CFLAGS=-I/lib/include \
     LZMA_LIBS=-llzma ZSTD_LIBS=-lzstd
-  sed -i 's:-levent:/lib/static/libevent.a:g' Makefile
+  sed -i 's/-levent/-l:libevent.a/g' Makefile
   make install DESTDIR=/dst
   rm -f /dst/bin/torify
 }

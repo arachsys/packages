@@ -17,7 +17,7 @@ prepare() {
 
 build() {
   auto-config --enable-dmfilemapd --without-{cache,symvers,thin,vdo} \
-    --with-libexecdir=/lib/lvm2 AIO_LIBS='-Wl,-Bstatic -laio -Wl,-Bdynamic'
+    --with-libexecdir=/lib/lvm2 AIO_LIBS=-l:libaio.a
   sed -i 's:/lib/lvm2/lvresize_fs_helper:/lib/lvm2/lvresize-fs-helper:' \
     include/configure.h
   make install DESTDIR=/dst

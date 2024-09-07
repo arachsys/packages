@@ -14,5 +14,5 @@ prepare() {
 build() {
   make DESTDIR=/dst PREFIX= SBINDIR=/bin MANDIR=/lib/man NO_PKG_CONFIG=1 \
     CFLAGS="-Os ${CFLAGS} -D_GNU_SOURCE -DCONFIG_LIBNL30" \
-    LIBS="-Wl,-Bstatic -lnl-tiny -Wl,-Bdynamic" install
+    LIBS="-l:libnl-tiny.a" install
 }

@@ -9,7 +9,7 @@ prepare() {
   unpack https://w1.fi/releases/hostapd-2.11.tar.gz
   apply libnl.diff
   apply tidy.diff
-  tree bcf56400c3ca7bc73f6798f04576a92db7af146fca33baa655a7608b981ef991
+  tree 2e0a5c43787df4e5f771054f3c2e2722d334096c7438a3ee483a8812cb081ed4
 }
 
 build() {
