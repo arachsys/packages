@@ -97,7 +97,11 @@ tidy() {
   find /img -type f -not -perm /ug+s -exec chown -f 0:0 {} + \
     -exec chmod -f u=rwX,go=rX {} +
   find /img -type f -perm /ug+s -exec chmod -f u+rw,go+r {} +
-  rm -f -r /img/*/{etc,lib/{doc,info,man,pkgconfig,**/*.la},run,tmp,var}
+  rm -f -r /img/*/lib/{doc,info,man,pkgconfig,**/*.la}
+
+  if ! enabled extended; then
+    rm -f -r /img/*/{etc,run,tmp,var}
+  fi
 
   for LIB in /img/*/lib; do
     mkdir -p "$LIB"/{shared,static}
@@ -137,9 +141,11 @@ tidy() {
       fi
     done
 
-    for FILE in /img/*/!(bin|info|lib)/**; do
-      echo "$FILE is in neither /bin nor /lib"
-    done
+    if ! enabled extended; then
+      for FILE in /img/*/!(bin|info|lib)/**; do
+        echo "$FILE is in neither /bin nor /lib"
+      done
+    fi
 
     find /img -lname '/*' -printf '%p is an absolute symlink\n' \
       -or -xtype l -printf '%p is a dangling symlink\n' \
