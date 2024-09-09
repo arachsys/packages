@@ -21,7 +21,7 @@ index a8c26176..8834d68d 100644
  					log_ident, (unsigned long) log_pid);
  
 diff --git a/src/main.c b/src/main.c
-index d03c181e..780711eb 100644
+index d03c181e..b36d5e5e 100644
 --- a/src/main.c
 +++ b/src/main.c
 @@ -525,12 +525,13 @@ int main(int argc, char *argv[])
@@ -44,10 +44,10 @@ index d03c181e..780711eb 100644
  	l_log_set_ident("iwd");
  
 diff --git a/src/wiphy.c b/src/wiphy.c
-index 13d498a5..eaac6cb1 100644
+index cdaa89ad..5f267b4e 100644
 --- a/src/wiphy.c
 +++ b/src/wiphy.c
-@@ -1316,9 +1316,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
+@@ -1322,9 +1322,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
  			if (!str)
  				continue;
  

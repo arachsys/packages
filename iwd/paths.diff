@@ -1,5 +1,5 @@
 diff --git a/configure b/configure
-index e12215fa..0d7ef40e 100755
+index e90cf099..1bf00544 100755
 --- a/configure
 +++ b/configure
 @@ -13905,7 +13905,7 @@ wired_storagedir=${wired_storagedir}
@@ -12,7 +12,7 @@ index e12215fa..0d7ef40e 100755
  
  
 diff --git a/configure.ac b/configure.ac
-index b462e0bc..cda499e7 100644
+index c76e1c2c..79593ab9 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -149,7 +149,7 @@ AC_SUBST([wired_storagedir], [${wired_storagedir}])
@@ -53,7 +53,7 @@ index 8c18f079..4260fb0c 100644
  	for (i = 0; !db && i < L_ARRAY_SIZE(paths); i++)
  		db = l_hwdb_new(paths[i]);
 diff --git a/src/iwd.config.rst b/src/iwd.config.rst
-index 0b2878b8..9b8db36a 100644
+index 9dc0fe0c..3f5a3ab1 100644
 --- a/src/iwd.config.rst
 +++ b/src/iwd.config.rst
 @@ -20,17 +20,17 @@ Configuration file for wireless daemon
