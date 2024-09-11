@@ -7,15 +7,14 @@ check() {
 
 prepare() {
   unpack https://static.rust-lang.org/dist/rustc-1.81.0-src.tar.gz
-  sed -i -E 'H;1h;$!d;x;s/("files"\s*:\s*\{)("([^"\\]|\\.)*"|[^"}])*/\1/' \
-    vendor/*/.cargo-checksum.json
   apply curl.diff
   apply libexec.diff
   apply libressl.diff
   apply system.diff
   apply target.diff
+  apply verify.diff
   apply version.diff
-  tree cd8c873858b19e4981735e42cbd05f750f3467c662a8f45c75f9fc24584ccccc
+  tree cab116209fd67c0e218f3a68b4da36a3d0867a32abe18b6755821bb6d38c03a8
 }
 
 build() {
