@@ -8,13 +8,13 @@ check() {
 prepare() {
   unpack https://static.rust-lang.org/dist/rustc-1.81.0-src.tar.gz
   apply curl.diff
-  apply libexec.diff
   apply libressl.diff
+  apply paths.diff
   apply system.diff
   apply target.diff
   apply verify.diff
   apply version.diff
-  tree cab116209fd67c0e218f3a68b4da36a3d0867a32abe18b6755821bb6d38c03a8
+  tree 5985b8cd1d1d26f5406943faabf485375f51444bc17518c2d8eda8f634483e44
 }
 
 build() {
