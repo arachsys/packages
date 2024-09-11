@@ -10,7 +10,7 @@ prepare() {
   unpack https://golang.org/dl/go1.23.1.src.tar.gz
   apply fmt.diff
   apply paths.diff
-  tree 7c02588d2491853c6d8e7635fae311c54e343ae39014972413be3e292727aea2
+  tree 91261f43469c87a76bcfaab9eb95623c470c635cdc84bc25082b16b5f657904c
 }
 
 build() {

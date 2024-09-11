@@ -1,3 +1,22 @@
+diff --git a/src/cmd/go/internal/cfg/cfg.go b/src/cmd/go/internal/cfg/cfg.go
+index 3715a19a..6f9401dc 100644
+--- a/src/cmd/go/internal/cfg/cfg.go
++++ b/src/cmd/go/internal/cfg/cfg.go
+@@ -452,6 +452,14 @@ func EnvOrAndChanged(name, def string) (v string, changed bool) {
+ 
+ var SumdbDir = gopathDir("pkg/sumdb")
+ 
++func init() {
++	if dir, err := os.UserCacheDir(); err == nil {
++		dir = filepath.Join(dir, "go-mod")
++		GOMODCACHE, GOMODCACHEChanged = EnvOrAndChanged("GOMODCACHE", dir)
++		SumdbDir = filepath.Join(GOMODCACHE, "sumdb")
++	}
++}
++
+ // GetArchEnv returns the name and setting of the
+ // GOARCH-specific architecture environment variable.
+ // If the current architecture has no GOARCH-specific variable,
 diff --git a/src/cmd/internal/dwarf/dwarf.go b/src/cmd/internal/dwarf/dwarf.go
 index 56b44a1..4a78528 100644
 --- a/src/cmd/internal/dwarf/dwarf.go
