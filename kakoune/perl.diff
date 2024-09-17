@@ -1,5 +1,5 @@
 diff --git a/rc/filetype/diff.kak b/rc/filetype/diff.kak
-index baa6599..791c802 100644
+index bd24c6d9..791c802a 100644
 --- a/rc/filetype/diff.kak
 +++ b/rc/filetype/diff.kak
 @@ -4,7 +4,6 @@ hook global BufCreate .*\.(diff|patch) %{
@@ -10,7 +10,7 @@ index baa6599..791c802 100644
  }
  
  hook -group diff-highlight global WinSetOption filetype=diff %{
-@@ -21,90 +20,6 @@ add-highlighter shared/diff/ regex "^@@[^\n]*@@" 0:cyan,default
+@@ -21,94 +20,6 @@ add-highlighter shared/diff/ regex "^@@[^\n]*@@" 0:cyan,default
  # If any trailing whitespace was introduced in diff, show it with red background
  add-highlighter shared/diff/ regex "^\+[^\n]*?(\h+)\n" 1:default,red
  
@@ -27,7 +27,7 @@ index baa6599..791c802 100644
 -        set-register c %val{cursor_column}
 -        # If there is a "diff" line, we don't need to look further back.
 -        try %{
--            execute-keys %{<a-l><semicolon><a-?>^(?:> )*diff\b<ret>x}
+-            execute-keys %{,<a-l><semicolon><a-?>^(?:> )*diff\b<ret>x}
 -        } catch %{
 -            # A single file diff won't have a diff line. Start parsing from
 -            # the buffer start, so we can tell if +++/--- lines are headers
@@ -91,7 +91,11 @@ index baa6599..791c802 100644
 -        set-register e nop
 -        set-register | %{
 -            eval set -- "$kak_quoted_reg_a"
--            perl "${kak_runtime}/rc/filetype/diff-parse.pl" "$@" >"$kak_command_fifo"
+-            if ! result=$(perl "${kak_runtime}/rc/filetype/diff-parse.pl" "$@"); then
+-                printf 'set-register e %s\n' "fail $result"
+-            else
+-                printf '%s\n' "$result"
+-            fi >"$kak_command_fifo"
 -        }
 -        execute-keys <a-|><ret>
 -        %reg{e}
@@ -102,7 +106,7 @@ index baa6599..791c802 100644
  
  define-command \
 diff --git a/rc/filetype/mail.kak b/rc/filetype/mail.kak
-index a7faf90..3bfac05 100644
+index b6ef616f..c069f325 100644
 --- a/rc/filetype/mail.kak
 +++ b/rc/filetype/mail.kak
 @@ -4,10 +4,6 @@ hook global BufCreate .+\.eml %{
