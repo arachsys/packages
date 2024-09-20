@@ -1,8 +1,8 @@
 diff --git a/clang/CMakeLists.txt b/clang/CMakeLists.txt
-index 5f2b7f06..f035bd95 100644
+index c6496167..ba8ad19f 100644
 --- a/clang/CMakeLists.txt
 +++ b/clang/CMakeLists.txt
-@@ -915,7 +915,6 @@ endif()
+@@ -928,7 +928,6 @@ endif()
  if (LLVM_ADD_NATIVE_VISUALIZERS_TO_SOLUTION)
    add_subdirectory(utils/ClangVisualizers)
  endif()
@@ -11,7 +11,7 @@ index 5f2b7f06..f035bd95 100644
  if(CLANG_BUILT_STANDALONE)
    llvm_distribution_add_targets()
 diff --git a/clang/tools/CMakeLists.txt b/clang/tools/CMakeLists.txt
-index f60db6ef..e5a9f5b9 100644
+index 4885afc1..e5a9f5b9 100644
 --- a/clang/tools/CMakeLists.txt
 +++ b/clang/tools/CMakeLists.txt
 @@ -1,6 +1,5 @@
@@ -21,21 +21,23 @@ index f60db6ef..e5a9f5b9 100644
  add_clang_subdirectory(driver)
  add_clang_subdirectory(apinotes-test)
  add_clang_subdirectory(clang-diff)
-@@ -8,13 +7,6 @@ add_clang_subdirectory(clang-format)
+@@ -8,15 +7,6 @@ add_clang_subdirectory(clang-format)
  add_clang_subdirectory(clang-format-vs)
  add_clang_subdirectory(clang-fuzzer)
  add_clang_subdirectory(clang-import-test)
 -add_clang_subdirectory(clang-linker-wrapper)
+-add_clang_subdirectory(clang-nvlink-wrapper)
 -add_clang_subdirectory(clang-offload-packager)
 -add_clang_subdirectory(clang-offload-bundler)
 -add_clang_subdirectory(clang-scan-deps)
+-add_clang_subdirectory(clang-installapi)
 -if(HAVE_CLANG_REPL_SUPPORT)
 -  add_clang_subdirectory(clang-repl)
 -endif()
  
  add_clang_subdirectory(c-index-test)
  
-@@ -31,14 +23,6 @@ if(CLANG_ENABLE_ARCMT)
+@@ -33,14 +23,6 @@ if(CLANG_ENABLE_ARCMT)
    add_clang_subdirectory(c-arcmt-test)
  endif()
  
@@ -50,7 +52,7 @@ index f60db6ef..e5a9f5b9 100644
  # We support checking out the clang-tools-extra repository into the 'extra'
  # subdirectory. It contains tools developed as part of the Clang/LLVM project
  # on top of the Clang tooling platform. We keep them in a separate repository
-@@ -48,6 +32,3 @@ add_llvm_external_project(clang-tools-extra extra)
+@@ -50,6 +32,3 @@ add_llvm_external_project(clang-tools-extra extra)
  
  # libclang may require clang-tidy in clang-tools-extra.
  add_clang_subdirectory(libclang)
@@ -106,10 +108,10 @@ index f4c4e520..e448cf87 100644
 -  DESTINATION "${CMAKE_INSTALL_DATADIR}/clang"
 -  COMPONENT clang-rename)
 diff --git a/llvm/cmake/modules/AddLLVM.cmake b/llvm/cmake/modules/AddLLVM.cmake
-index ceec15b6..8971e022 100644
+index 03f4e1f1..f866f4a1 100644
 --- a/llvm/cmake/modules/AddLLVM.cmake
 +++ b/llvm/cmake/modules/AddLLVM.cmake
-@@ -1311,19 +1311,16 @@ endfunction()
+@@ -1378,19 +1378,16 @@ endfunction()
  if(NOT LLVM_TOOLCHAIN_TOOLS)
    set (LLVM_TOOLCHAIN_TOOLS
      llvm-ar

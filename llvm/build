@@ -2,15 +2,15 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/tags
-  match llvm 18.1.8 'llvmorg-([0-9.]+)\.tar'
+  match llvm 19.1.0 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
   match cmake 3.30.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-18.1.8.tar.gz \
-    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-18.1.8.tar.gz
+  unpack llvm-19.1.0.tar.gz \
+    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-19.1.0.tar.gz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3.tar.gz
   apply cmake.diff
@@ -21,7 +21,7 @@ prepare() {
   apply sanitizer.diff
   apply ssp.diff
   apply tools.diff
-  tree 5e37c17d8f27a95b56af84ccdf5240cb03a2eb2e5e4557d93f33d5eedc68fc83
+  tree f772d78eb41c92d87fd6c9d5399f6db029dac45a1e0d3b4832054abcef3676c2
 }
 
 build() {
@@ -79,6 +79,7 @@ build() {
     -DLIBCXX_CXX_ABI=libcxxabi \
     -DLIBCXX_HAS_ATOMIC_LIB=No \
     -DLIBCXX_HAS_MUSL_LIBC=Yes \
+    -DLIBCXX_INSTALL_MODULES_DIR=/include/c++/v1 \
     -DLIBCXX_USE_COMPILER_RT=Yes \
     -DLIBCXXABI_USE_COMPILER_RT=Yes \
     -DLIBCXXABI_USE_LLVM_UNWINDER=Yes \
@@ -99,14 +100,15 @@ build() {
 
   mv /dst/include /dst/lib/include
   for DIR in /dst/bin /dst/lib /dst/lib/include; do
-    maybe cp -a -l -t $DIR -- $DIR/$CHOST/* && rm -f -r $DIR/$CHOST
+    maybe cp -a -l -t $DIR -- $DIR/$CHOST/*
+    rm -f -r $DIR/$CHOST
   done
 
   mkdir -p /dst/lib/{clang,llvm}/{bin,include,lib}
   mv /dst/bin/llvm-config /dst/lib/llvm/bin/
   cp $(bin/llvm-config --libfiles --link-static) /dst/lib/llvm/lib/
-  cp -R include/llvm ../llvm/include/{llvm,llvm-c} /dst/lib/llvm/include/
-  cp -R ../clang/include/{clang,clang-c} /dst/lib/clang/include/
+  cp -R include/llvm ../llvm/include/llvm /dst/lib/llvm/include/
+  cp -R ../clang/include/clang /dst/lib/clang/include/
   ln -s lld /dst/bin/llvm-ld
 
   for TARGET in wasm32 wasm64; do
@@ -130,9 +132,10 @@ build() {
 
   find /dst/lib/llvm/include -type d -or -name '*.def' -or -name '*.h' \
     -or -name '*.inc' -or -name '*.td' -or -delete
-  rm -f -r /dst/lib/llvm/include/**/{CMakeFiles,config.h}
+  rm -f -r /dst/lib/**/{.clang-format,config.h,CMake*,*.cmake,*.in,*.py}
   rm -f -r /dst/lib/{cmake,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
   rm -f -r /dst/lib/include/{clang-c,llvm-c}
+  mv /dst/lib/libc++.modules.json /dst/lib/clang/lib/
 
   RUNTIME=$(/src/build/bin/clang -print-libgcc-file-name)
   UNWIND=$(readlink /dst/lib/libunwind.so)
