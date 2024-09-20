@@ -3,15 +3,15 @@ require libedit
 
 check() {
   url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
-  match version 9.8p1 'openssh-([0-9.]+p[0-9]+)\.tar'
+  match version 9.9p1 'openssh-([0-9.]+p[0-9]+)\.tar'
 }
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.8p1.tar.gz
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.9p1.tar.gz
   apply chroot.diff
   apply config.diff
   apply home.diff
-  tree 3718c72b518f8eebdc3c077f3279363cf755a0dff224679266da79f5a15dc6a3
+  tree c0dce49d5e68d71d238d4f8917a4ad77a859915f6af6f3323e958f0a5c4bc7fa
 }
 
 build() {
@@ -21,6 +21,7 @@ build() {
     --with-privsep-{path=/run/empty,user=ssh} --with-xauth=/bin/xauth \
     --without-zlib-version-check
   sed -i '/^CFLAGS=/s/ -fzero-call-used-regs=all//' **/Makefile
+  sed -i '/#define USE_BTMP/d' config.h
   make && make install-nokeys DESTDIR=/dst
   chmod u+rw,go+r /dst/lib/openssh/*
 }
