@@ -156,7 +156,7 @@ maybe() {
 populate() {
   mkdir -m 0755 -p "$1"/{bin,dev,etc,lib,proc,run}
   mkdir -m 1777 -p "$1"/{run/shm,tmp}
-  cp -t "$1/etc" -u -L -R /etc/{protocols,resolv.conf,services,ssl} \
+  cp -t "$1/etc" -u -L -R /etc/{resolv.conf,services,ssl} \
     "$LIBRARY/skel/passwd" "$LIBRARY/skel/group"
   resolve "${@:2}" | while read IMG; do
     maybe cp -a -l -t "$1" -- "$IMGDIR/$IMG"/!(info)
