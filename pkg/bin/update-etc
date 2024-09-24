@@ -16,18 +16,6 @@ if ! cd -- ${1:-/etc} 2>/dev/null; then
   exit 1
 fi
 
-echo "Updating $PWD/protocols from salsa.debian.org"
-curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/protocols \
-  | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
-  > protocols.tmp
-if grep -q -F 'tcp 6 TCP' protocols.tmp; then
-  mv protocols.tmp protocols
-else
-  echo "Updated $PWD/protocols failed sanity check" >&2
-  rm protocols.tmp
-  exit 1
-fi
-
 echo "Updating $PWD/services from salsa.debian.org"
 curl -s -L https://salsa.debian.org/md/netbase/-/raw/master/etc/services \
   | sed -e 's/#.*//' -e 's/[[:blank:]]\+/ /g' -e 's/ $//' -e '/^$/d' \
