@@ -2,27 +2,27 @@ require libffi sqlite
 
 check() {
   url https://www.python.org/downloads/source/
-  match version 3.12.7 'Python-([0-9.]+)\.tar'
+  match version 3.13.0 'Python-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack python-3.12.7.tar.xz \
-    https://www.python.org/ftp/python/3.12.7/Python-3.12.7.tar.xz
-  curl -L -O https://pypi.debian.net/wheel/wheel-0.41.2-py3-none-any.whl
+  unpack python-3.13.0.tar.xz \
+    https://www.python.org/ftp/python/3.13.0/Python-3.13.0.tar.xz
+  curl -L -O https://pypi.debian.net/wheel/wheel-0.44.0-py3-none-any.whl
   apply checked.diff
   apply getpath.diff
   apply history.diff
   apply libressl.diff
   apply paths.diff
+  apply pgo.diff
   sed -i '1s_^#!.*_#!/bin/python3_' Misc/python-config.in **/*.py
-  tree 2573ab671fadf45178d38467ad637531688669b383515ff9441917b6c9b70312
+  tree 18cfe0963dd17f026ab71f4651d14b4714b3c0c56102ac9ca1475fc59f4f0f4c
 }
 
 build() {
   auto-config --enable-optimizations --enable-shared --with-ensurepip=no \
     --with-openssl=/lib --with-ssl-default-suites=openssl \
-    CFLAGS="-fno-semantic-interposition -DTHREAD_STACK_SIZE=0x200000" \
-    LDFLAGS=-fno-semantic-interposition
+    CFLAGS=-DTHREAD_STACK_SIZE=0x200000
   make && make install DESTDIR=/dst
 
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
@@ -37,15 +37,14 @@ build() {
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m ensurepip
 
   rm -f -r /dst/bin/{idle*,python*-config} /dst/lib/python/**/test{,s}/ \
-    /dst/lib/python/{__phello__.foo.py,dbm,idlelib,LICENSE.txt} \
+    /dst/lib/python/{__phello__.foo.py,idlelib,LICENSE.txt} \
     /dst/lib/python/{turtle*,__pycache__/turtle.*,tkinter,venv/scripts}
 
-  mv -f /dst/bin/2to3-* /dst/bin/2to3
   mv -f /dst/bin/pydoc3.* /dst/bin/pydoc3 && ln -s pydoc3 /dst/bin/pydoc
   mv -f /dst/bin/python3.* /dst/bin/python3 && ln -s python3 /dst/bin/python
   rm -f /dst/bin/pip3.* && ln -s pip3 /dst/bin/pip
 
-  sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/{2to3,pydoc3,pip3}
+  sed -i '1s_^#!.*_#!/bin/python3_' /dst/bin/{pydoc3,pip3}
 
   image - requires libffi
 }

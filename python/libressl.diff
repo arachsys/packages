@@ -1,8 +1,8 @@
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
-index 85fbc16..9b509ba 100644
+index 9d50b576..8c666c7f 100644
 --- a/Modules/_ssl.c
 +++ b/Modules/_ssl.c
-@@ -4519,7 +4519,7 @@ set_sni_callback(PySSLContext *self, PyObject *arg, void *c)
+@@ -4540,7 +4540,7 @@ set_sni_callback(PySSLContext *self, PyObject *arg, void *c)
      return 0;
  }
  

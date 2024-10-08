@@ -1,41 +1,9 @@
-diff --git a/Lib/aifc.py b/Lib/aifc.py
-index 5254987..0102ac3 100644
---- a/Lib/aifc.py
-+++ b/Lib/aifc.py
-@@ -961,7 +961,7 @@ def open(f, mode=None):
- if __name__ == '__main__':
-     import sys
-     if not sys.argv[1:]:
--        sys.argv.append('/usr/demos/data/audio/bach.aiff')
-+        sys.argv.append('/lib/demos/data/audio/bach.aiff')
-     fn = sys.argv[1]
-     with open(fn, 'r') as f:
-         print("Reading", fn)
-diff --git a/Lib/cgi.py b/Lib/cgi.py
-index 8787567..dc094f2 100755
---- a/Lib/cgi.py
-+++ b/Lib/cgi.py
-@@ -1,13 +1,4 @@
--#! /usr/local/bin/python
--
--# NOTE: the above "/usr/local/bin/python" is NOT a mistake.  It is
--# intentionally NOT "/usr/bin/env python".  On many systems
--# (e.g. Solaris), /usr/local/bin is not in $PATH as passed to CGI
--# scripts, and /usr/local/bin is the default directory where Python is
--# installed, so /usr/bin/env would be unable to find python.  Granted,
--# binary installations by Linux vendors often install Python in
--# /usr/bin.  So let those vendors patch cgi.py to match their choice
--# of installation.
-+#!/bin/python
- 
- """Support module for CGI (Common Gateway Interface) scripts.
- 
 diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
-index 0c2510e..268fbfd 100644
+index 117bf06c..a8f66363 100644
 --- a/Lib/ctypes/util.py
 +++ b/Lib/ctypes/util.py
-@@ -90,7 +90,7 @@ elif sys.platform.startswith("aix"):
-     from ctypes._aix import find_library
+@@ -99,7 +99,7 @@ elif sys.platform == "android":
+         return fname if os.path.isfile(fname) else None
  
  elif os.name == "posix":
 -    # Andreas Degert's find functions, using gcc, /sbin/ldconfig, objdump
@@ -43,7 +11,7 @@ index 0c2510e..268fbfd 100644
      import re, tempfile
  
      def _is_elf(filename):
-@@ -209,7 +209,7 @@ elif os.name == "posix":
+@@ -221,7 +221,7 @@ elif os.name == "posix":
              expr = os.fsencode(expr)
  
              try:
@@ -53,7 +21,7 @@ index 0c2510e..268fbfd 100644
                                          stderr=subprocess.DEVNULL)
              except OSError:  # E.g. command not found
 diff --git a/Lib/encodings/rot_13.py b/Lib/encodings/rot_13.py
-index 5627bfb..80f3f99 100755
+index 5627bfbc..80f3f99a 100755
 --- a/Lib/encodings/rot_13.py
 +++ b/Lib/encodings/rot_13.py
 @@ -1,4 +1,4 @@
@@ -62,22 +30,8 @@ index 5627bfb..80f3f99 100755
  """ Python Character Mapping Codec for ROT13.
  
  This codec de/encodes from str to str.
-diff --git a/Lib/mailcap.py b/Lib/mailcap.py
-index 2f4656e..268f1c6 100644
---- a/Lib/mailcap.py
-+++ b/Lib/mailcap.py
-@@ -66,8 +66,7 @@ def listmailcapfiles():
-         else:
-             # Don't bother with getpwuid()
-             home = '.' # Last resort
--        mailcaps = [home + '/.mailcap', '/etc/mailcap',
--                '/usr/etc/mailcap', '/usr/local/etc/mailcap']
-+        mailcaps = [home + '/.mailcap', '/etc/mailcap']
-     return mailcaps
- 
- 
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index 37228de..94cfce8 100644
+index 8604000e..0f3f85c9 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -47,14 +47,6 @@ __all__ = [
@@ -96,10 +50,10 @@ index 37228de..94cfce8 100644
  
  inited = False
 diff --git a/Lib/platform.py b/Lib/platform.py
-index 7bb2220..032705e 100755
+index 59583822..f847a90e 100755
 --- a/Lib/platform.py
 +++ b/Lib/platform.py
-@@ -1292,8 +1292,8 @@ def platform(aliased=False, terse=False):
+@@ -1388,8 +1388,8 @@ def platform(aliased=False, terse=False):
  ### freedesktop.org os-release standard
  # https://www.freedesktop.org/software/systemd/man/os-release.html
  
@@ -111,7 +65,7 @@ index 7bb2220..032705e 100755
  
  
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index e4f155e..1349e6f 100644
+index 47b2aa57..0db6351e 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -124,126 +78,124 @@ index e4f155e..1349e6f 100644
  devnull = '/dev/null'
  
 diff --git a/Lib/site.py b/Lib/site.py
-index 8bc0e3c..c556513 100644
+index ae79ec51..6596ee55 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -290,12 +290,12 @@ def _get_path(userbase):
- 
+@@ -321,12 +321,12 @@ def _get_path(userbase):
+     implementation_lower = implementation.lower()
      if os.name == 'nt':
          ver_nodot = sys.winver.replace('.', '')
--        return f'{userbase}\\Python{ver_nodot}\\site-packages'
-+        return f'{userbase}\\Python\\site-packages'
+-        return f'{userbase}\\{implementation}{ver_nodot}\\site-packages'
++        return f'{userbase}\\{implementation}\\site-packages'
  
      if sys.platform == 'darwin' and sys._framework:
-         return f'{userbase}/lib/python/site-packages'
+         return f'{userbase}/lib/{implementation_lower}/site-packages'
  
--    return f'{userbase}/lib/python{version[0]}.{version[1]}/site-packages'
-+    return f'{userbase}/lib/python/site-packages'
+-    return f'{userbase}/lib/python{version[0]}.{version[1]}{abi_thread}/site-packages'
++    return f'{userbase}/lib/python{abi_thread}/site-packages'
  
  
  def getuserbase():
-@@ -367,9 +367,7 @@ def getsitepackages(prefixes=None):
-                 libdirs.append("lib")
+@@ -405,7 +405,7 @@ def getsitepackages(prefixes=None):
  
              for libdir in libdirs:
--                path = os.path.join(prefix, libdir,
--                                    "python%d.%d" % sys.version_info[:2],
--                                    "site-packages")
-+                path = os.path.join(prefix, libdir, "python", "site-packages")
+                 path = os.path.join(prefix, libdir,
+-                                    f"{implementation}{ver[0]}.{ver[1]}{abi_thread}",
++                                    f"{implementation}{abi_thread}",
+                                     "site-packages")
                  sitepackages.append(path)
          else:
-             sitepackages.append(prefix)
-diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index 122d441..591f8a0 100644
---- a/Lib/sysconfig.py
-+++ b/Lib/sysconfig.py
-@@ -26,14 +26,12 @@ _ALWAYS_STR = {
+diff --git a/Lib/sysconfig/__init__.py b/Lib/sysconfig/__init__.py
+index 80aef344..7ad25450 100644
+--- a/Lib/sysconfig/__init__.py
++++ b/Lib/sysconfig/__init__.py
+@@ -27,14 +27,12 @@ _ALWAYS_STR = {
  
  _INSTALL_SCHEMES = {
      'posix_prefix': {
--        'stdlib': '{installed_base}/{platlibdir}/python{py_version_short}',
--        'platstdlib': '{platbase}/{platlibdir}/python{py_version_short}',
--        'purelib': '{base}/lib/python{py_version_short}/site-packages',
--        'platlib': '{platbase}/{platlibdir}/python{py_version_short}/site-packages',
+-        'stdlib': '{installed_base}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}',
+-        'platstdlib': '{platbase}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}',
+-        'purelib': '{base}/lib/{implementation_lower}{py_version_short}{abi_thread}/site-packages',
+-        'platlib': '{platbase}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}/site-packages',
 -        'include':
--            '{installed_base}/include/python{py_version_short}{abiflags}',
+-            '{installed_base}/include/{implementation_lower}{py_version_short}{abiflags}',
 -        'platinclude':
--            '{installed_platbase}/include/python{py_version_short}{abiflags}',
-+        'stdlib': '{installed_base}/{platlibdir}/python',
-+        'platstdlib': '{platbase}/{platlibdir}/python',
-+        'purelib': '{base}/lib/python/site-packages',
-+        'platlib': '{platbase}/{platlibdir}/python/site-packages',
-+        'include': '{installed_base}/lib/include/python',
-+        'platinclude': '{installed_platbase}/lib/include/python',
+-            '{installed_platbase}/include/{implementation_lower}{py_version_short}{abiflags}',
++        'stdlib': '{installed_base}/{platlibdir}/{implementation_lower}{abi_thread}',
++        'platstdlib': '{platbase}/{platlibdir}/{implementation_lower}{abi_thread}',
++        'purelib': '{base}/lib/{implementation_lower}{abi_thread}/site-packages',
++        'platlib': '{platbase}/{platlibdir}/{implementation_lower}{abi_thread}/site-packages',
++        'include': '{installed_base}/lib/include/{implementation_lower}{abiflags}',
++        'platinclude': '{installed_platbase}/lib/include/{implementation_lower}{abiflags}',
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -42,8 +40,8 @@ _INSTALL_SCHEMES = {
-         'platstdlib': '{base}/lib/python',
-         'purelib': '{base}/lib/python',
-         'platlib': '{base}/lib/python',
--        'include': '{installed_base}/include/python',
--        'platinclude': '{installed_base}/include/python',
-+        'include': '{installed_base}/lib/include/python',
-+        'platinclude': '{installed_base}/lib/include/python',
+@@ -43,8 +41,8 @@ _INSTALL_SCHEMES = {
+         'platstdlib': '{base}/lib/{implementation_lower}',
+         'purelib': '{base}/lib/{implementation_lower}',
+         'platlib': '{base}/lib/{implementation_lower}',
+-        'include': '{installed_base}/include/{implementation_lower}',
+-        'platinclude': '{installed_base}/include/{implementation_lower}',
++        'include': '{installed_base}/lib/include/{implementation_lower}',
++        'platinclude': '{installed_base}/lib/include/{implementation_lower}',
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -75,14 +73,12 @@ _INSTALL_SCHEMES = {
+@@ -77,14 +75,12 @@ _INSTALL_SCHEMES = {
      # Downstream distributors who patch posix_prefix/nt scheme are encouraged to
      # leave the following schemes unchanged
      'posix_venv': {
--        'stdlib': '{installed_base}/{platlibdir}/python{py_version_short}',
--        'platstdlib': '{platbase}/{platlibdir}/python{py_version_short}',
--        'purelib': '{base}/lib/python{py_version_short}/site-packages',
--        'platlib': '{platbase}/{platlibdir}/python{py_version_short}/site-packages',
+-        'stdlib': '{installed_base}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}',
+-        'platstdlib': '{platbase}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}',
+-        'purelib': '{base}/lib/{implementation_lower}{py_version_short}{abi_thread}/site-packages',
+-        'platlib': '{platbase}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}/site-packages',
 -        'include':
--            '{installed_base}/include/python{py_version_short}{abiflags}',
+-            '{installed_base}/include/{implementation_lower}{py_version_short}{abiflags}',
 -        'platinclude':
--            '{installed_platbase}/include/python{py_version_short}{abiflags}',
-+        'stdlib': '{installed_base}/{platlibdir}/python',
-+        'platstdlib': '{platbase}/{platlibdir}/python',
-+        'purelib': '{base}/lib/python/site-packages',
-+        'platlib': '{platbase}/{platlibdir}/python/site-packages',
-+        'include': '{installed_base}/lib/include/python',
-+        'platinclude': '{installed_platbase}/lib/include/python',
+-            '{installed_platbase}/include/{implementation_lower}{py_version_short}{abiflags}',
++        'stdlib': '{installed_base}/{platlibdir}/{implementation_lower}{abi_thread}',
++        'platstdlib': '{platbase}/{platlibdir}/{implementation_lower}{abi_thread}',
++        'purelib': '{base}/lib/{implementation_lower}{abi_thread}/site-packages',
++        'platlib': '{platbase}/{platlibdir}/{implementation_lower}{abi_thread}/site-packages',
++        'include': '{installed_base}/lib/include/{implementation_lower}{abiflags}',
++        'platinclude': '{installed_platbase}/lib/include/{implementation_lower}{abiflags}',
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -135,20 +131,20 @@ if _HAS_USER_BASE:
+@@ -139,20 +135,20 @@ if _HAS_USER_BASE:
      _INSTALL_SCHEMES |= {
          # NOTE: When modifying "purelib" scheme, update site._get_path() too.
          'nt_user': {
--            'stdlib': '{userbase}/Python{py_version_nodot_plat}',
--            'platstdlib': '{userbase}/Python{py_version_nodot_plat}',
--            'purelib': '{userbase}/Python{py_version_nodot_plat}/site-packages',
--            'platlib': '{userbase}/Python{py_version_nodot_plat}/site-packages',
--            'include': '{userbase}/Python{py_version_nodot_plat}/Include',
--            'scripts': '{userbase}/Python{py_version_nodot_plat}/Scripts',
-+            'stdlib': '{userbase}/Python',
-+            'platstdlib': '{userbase}/Python',
-+            'purelib': '{userbase}/Python/site-packages',
-+            'platlib': '{userbase}/Python/site-packages',
-+            'include': '{userbase}/Python/Include',
-+            'scripts': '{userbase}/Python/Scripts',
+-            'stdlib': '{userbase}/{implementation}{py_version_nodot_plat}',
+-            'platstdlib': '{userbase}/{implementation}{py_version_nodot_plat}',
+-            'purelib': '{userbase}/{implementation}{py_version_nodot_plat}/site-packages',
+-            'platlib': '{userbase}/{implementation}{py_version_nodot_plat}/site-packages',
+-            'include': '{userbase}/{implementation}{py_version_nodot_plat}/Include',
+-            'scripts': '{userbase}/{implementation}{py_version_nodot_plat}/Scripts',
++            'stdlib': '{userbase}/{implementation}',
++            'platstdlib': '{userbase}/{implementation}',
++            'purelib': '{userbase}/{implementation}/site-packages',
++            'platlib': '{userbase}/{implementation}/site-packages',
++            'include': '{userbase}/{implementation}/Include',
++            'scripts': '{userbase}/{implementation}/Scripts',
              'data': '{userbase}',
              },
          'posix_user': {
--            'stdlib': '{userbase}/{platlibdir}/python{py_version_short}',
--            'platstdlib': '{userbase}/{platlibdir}/python{py_version_short}',
--            'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
--            'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
--            'include': '{userbase}/include/python{py_version_short}',
-+            'stdlib': '{userbase}/{platlibdir}/python',
-+            'platstdlib': '{userbase}/{platlibdir}/python',
-+            'purelib': '{userbase}/lib/python/site-packages',
-+            'platlib': '{userbase}/lib/python/site-packages',
-+            'include': '{userbase}/lib/include/python',
+-            'stdlib': '{userbase}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}',
+-            'platstdlib': '{userbase}/{platlibdir}/{implementation_lower}{py_version_short}{abi_thread}',
+-            'purelib': '{userbase}/lib/{implementation_lower}{py_version_short}{abi_thread}/site-packages',
+-            'platlib': '{userbase}/lib/{implementation_lower}{py_version_short}{abi_thread}/site-packages',
+-            'include': '{userbase}/include/{implementation_lower}{py_version_short}{abi_thread}',
++            'stdlib': '{userbase}/{platlibdir}/{implementation_lower}{abi_thread}',
++            'platstdlib': '{userbase}/{platlibdir}/{implementation_lower}{abi_thread}',
++            'purelib': '{userbase}/lib/{implementation_lower}{abi_thread}/site-packages',
++            'platlib': '{userbase}/lib/{implementation_lower}{abi_thread}/site-packages',
++            'include': '{userbase}/lib/include/{implementation_lower}{abi_thread}',
              'scripts': '{userbase}/bin',
              'data': '{userbase}',
              },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index 2b4f431..5c84d67 100644
+index b5a15f7b..97aa7cd4 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
 @@ -170,7 +170,7 @@ def _candidate_tempdir_list():
@@ -256,10 +208,10 @@ index 2b4f431..5c84d67 100644
      # As a last resort, the current directory.
      try:
 diff --git a/Lib/uuid.py b/Lib/uuid.py
-index 470bc0d..8969f6e 100644
+index c286eac3..1e060127 100644
 --- a/Lib/uuid.py
 +++ b/Lib/uuid.py
-@@ -362,7 +362,6 @@ def _get_command_stdout(command, *args):
+@@ -365,7 +365,6 @@ def _get_command_stdout(command, *args):
  
      try:
          path_dirs = os.environ.get('PATH', os.defpath).split(os.pathsep)
@@ -268,10 +220,10 @@ index 470bc0d..8969f6e 100644
          if executable is None:
              return None
 diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
-index 2173c9b..21bf875 100644
+index 028e9483..4375449b 100644
 --- a/Lib/venv/__init__.py
 +++ b/Lib/venv/__init__.py
-@@ -145,12 +145,6 @@ class EnvBuilder:
+@@ -181,12 +181,6 @@ class EnvBuilder:
          create_if_needed(incpath)
          context.lib_path = libpath
          create_if_needed(libpath)
@@ -285,10 +237,10 @@ index 2173c9b..21bf875 100644
          context.bin_name = os.path.relpath(binpath, env_dir)
          context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 09ceccd..1129aa8 100644
+index 53822922..54bd323c 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -147,7 +147,7 @@ BINDIR=		@bindir@
+@@ -149,7 +149,7 @@ BINDIR=		@bindir@
  LIBDIR=		@libdir@
  MANDIR=		@mandir@
  INCLUDEDIR=	@includedir@
@@ -296,58 +248,58 @@ index 09ceccd..1129aa8 100644
 +CONFINCLUDEDIR=	$(exec_prefix)/lib/include
  PLATLIBDIR=	@PLATLIBDIR@
  SCRIPTDIR=	$(prefix)/$(PLATLIBDIR)
- ABIFLAGS=	@ABIFLAGS@
-@@ -158,9 +158,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
+ # executable name for shebangs
+@@ -159,9 +159,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
  
  # Detailed destination directories
  BINLIBDEST=	@BINLIBDEST@
--LIBDEST=	$(SCRIPTDIR)/python$(VERSION)
+-LIBDEST=	$(SCRIPTDIR)/python$(VERSION)$(ABI_THREAD)
 -INCLUDEPY=	$(INCLUDEDIR)/python$(LDVERSION)
 -CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(LDVERSION)
-+LIBDEST=	$(SCRIPTDIR)/python
++LIBDEST=	$(SCRIPTDIR)/python$(ABI_THREAD)
 +INCLUDEPY=	$(INCLUDEDIR)/python
 +CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python
  
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.py b/Modules/getpath.py
-index 9913fcb..17c27b9 100644
+index 1f1bfcb4..787f86e3 100644
 --- a/Modules/getpath.py
 +++ b/Modules/getpath.py
-@@ -177,9 +177,9 @@ if os_name == 'posix' or os_name == 'darwin':
+@@ -179,9 +179,9 @@ if os_name == 'posix' or os_name == 'darwin':
      BUILDDIR_TXT = 'pybuilddir.txt'
      BUILD_LANDMARK = 'Modules/Setup.local'
      DEFAULT_PROGRAM_NAME = f'python{VERSION_MAJOR}'
--    STDLIB_SUBDIR = f'{platlibdir}/python{VERSION_MAJOR}.{VERSION_MINOR}'
-+    STDLIB_SUBDIR = f'{platlibdir}/python'
+-    STDLIB_SUBDIR = f'{platlibdir}/python{VERSION_MAJOR}.{VERSION_MINOR}{ABI_THREAD}'
++    STDLIB_SUBDIR = f'{platlibdir}/python{ABI_THREAD}'
      STDLIB_LANDMARKS = [f'{STDLIB_SUBDIR}/os.py', f'{STDLIB_SUBDIR}/os.pyc']
--    PLATSTDLIB_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}.{VERSION_MINOR}/lib-dynload'
-+    PLATSTDLIB_LANDMARK = f'{platlibdir}/python/lib-dynload'
+-    PLATSTDLIB_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}.{VERSION_MINOR}{ABI_THREAD}/lib-dynload'
++    PLATSTDLIB_LANDMARK = f'{platlibdir}/python{ABI_THREAD}/lib-dynload'
      BUILDSTDLIB_LANDMARKS = ['Lib/os.py']
      VENV_LANDMARK = 'pyvenv.cfg'
-     ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}.zip'
+     ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}{ABI_THREAD}.zip'
 diff --git a/configure b/configure
-index b6f90bc..0b459e7 100755
+index 7cdd386c..1cbc1e1b 100755
 --- a/configure
 +++ b/configure
-@@ -24370,7 +24370,7 @@ fi
+@@ -24604,7 +24604,7 @@ fi
  
  
  
--BINLIBDEST='$(LIBDIR)/python$(VERSION)'
-+BINLIBDEST='$(LIBDIR)/python'
+-BINLIBDEST='$(LIBDIR)/python$(VERSION)$(ABI_THREAD)'
++BINLIBDEST='$(LIBDIR)/python$(ABI_THREAD)'
  
  
  # Check for --with-platlibdir
-@@ -24407,9 +24407,9 @@ fi
+@@ -24641,9 +24641,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then
--  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${VERSION}/config-${LDVERSION}"
-+  LIBPL='$(prefix)'"/${PLATLIBDIR}/python/config-${LDVERSION}"
+-  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${VERSION}${ABI_THREAD}/config-${LDVERSION}"
++  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${ABI_THREAD}/config-${LDVERSION}"
  else
--  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${VERSION}/config-${LDVERSION}-${PLATFORM_TRIPLET}"
-+  LIBPL='$(prefix)'"/${PLATLIBDIR}/python/config-${LDVERSION}-${PLATFORM_TRIPLET}"
+-  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${VERSION}${ABI_THREAD}/config-${LDVERSION}-${PLATFORM_TRIPLET}"
++  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${ABI_THREAD}/config-${LDVERSION}-${PLATFORM_TRIPLET}"
  fi
  
  
