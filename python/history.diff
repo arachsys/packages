@@ -1,34 +1,39 @@
 diff --git a/Lib/site.py b/Lib/site.py
-index 69670d9..1d79029 100644
+index 0a0dc47b..ae79ec51 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -464,29 +464,6 @@ def enablerlcompleter():
-             # want to ignore the exception.
-             pass
+@@ -516,34 +516,6 @@ def register_readline():
+         # want to ignore the exception.
+         pass
  
--        if readline.get_current_history_length() == 0:
--            # If no history was loaded, default to .python_history.
--            # The guard is necessary to avoid doubling history size at
--            # each interpreter exit when readline was already configured
--            # through a PYTHONSTARTUP hook, see:
--            # http://bugs.python.org/issue5845#msg198636
--            history = os.path.join(os.path.expanduser('~'),
--                                   '.python_history')
+-    if readline.get_current_history_length() == 0:
+-        from _pyrepl.main import CAN_USE_PYREPL
+-        # If no history was loaded, default to .python_history,
+-        # or PYTHON_HISTORY.
+-        # The guard is necessary to avoid doubling history size at
+-        # each interpreter exit when readline was already configured
+-        # through a PYTHONSTARTUP hook, see:
+-        # http://bugs.python.org/issue5845#msg198636
+-        history = gethistoryfile()
+-        if os.getenv("PYTHON_BASIC_REPL") or not CAN_USE_PYREPL:
+-            readline_module = readline
+-        else:
+-            readline_module = _pyrepl.readline
+-        try:
+-            readline_module.read_history_file(history)
+-        except (OSError,* _pyrepl.unix_console._error):
+-            pass
+-
+-        def write_history():
 -            try:
--                readline.read_history_file(history)
--            except OSError:
+-                readline_module.write_history_file(history)
+-            except (FileNotFoundError, PermissionError):
+-                # home directory does not exist or is not writable
+-                # https://bugs.python.org/issue19891
 -                pass
 -
--            def write_history():
--                try:
--                    readline.write_history_file(history)
--                except OSError:
--                    # bpo-19891, bpo-41193: Home directory does not exist
--                    # or is not writable, or the filesystem is read-only.
--                    pass
+-        atexit.register(write_history)
 -
--            atexit.register(write_history)
--
-     sys.__interactivehook__ = register_readline
  
  def venv(known_paths):
+     global PREFIXES, ENABLE_USER_SITE
