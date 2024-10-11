@@ -1,0 +1,24 @@
+diff --git a/lldb/source/DataFormatters/StringPrinter.cpp b/lldb/source/DataFormatters/StringPrinter.cpp
+index ab07c74f..8facc7bb 100644
+--- a/lldb/source/DataFormatters/StringPrinter.cpp
++++ b/lldb/source/DataFormatters/StringPrinter.cpp
+@@ -542,17 +542,8 @@ bool StringPrinter::ReadBufferAndDumpToStream<StringElementType::UTF32>(
+ template <>
+ bool StringPrinter::ReadBufferAndDumpToStream<StringElementType::ASCII>(
+     const ReadBufferAndDumpToStreamOptions &options) {
+-  // Treat ASCII the same as UTF8.
+-  //
+-  // FIXME: This is probably not the right thing to do (well, it's debatable).
+-  // If an ASCII-encoded string happens to contain a sequence of invalid bytes
+-  // that forms a valid UTF8 character, we'll print out that character. This is
+-  // good if you're playing fast and loose with encodings (probably good for
+-  // std::string users), but maybe not so good if you care about your string
+-  // formatter respecting the semantics of your selected string encoding. In
+-  // the latter case you'd want to see the character byte sequence ('\x..'), not
+-  // the UTF8 character itself.
+-  return ReadBufferAndDumpToStream<StringElementType::UTF8>(options);
++  return DumpEncodedBufferToStream<char>(GetPrintableElementType::ASCII,
++                                               nullptr, options);
+ }
+ 
+ } // namespace formatters
