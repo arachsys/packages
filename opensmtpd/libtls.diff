@@ -1,42 +1,13 @@
-diff --git a/configure b/configure
-index c28143d..4b67a0a 100755
---- a/configure
-+++ b/configure
-@@ -14278,8 +14278,6 @@ fi
- 
- AM_CFLAGS="-I\${top_srcdir}/openbsd-compat"
- 
--AM_CFLAGS="${AM_CFLAGS} -I\${top_srcdir}/openbsd-compat/libtls"
--
- # use libbsd by default; these needs to precede any other check, as we
- # might not need a compat function when using libbsd.
- 
-diff --git a/configure.ac b/configure.ac
-index 79b5163..6d96a39 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -42,11 +42,6 @@ AC_PATH_PROG([SED], [sed])
- 
- AM_CFLAGS="-I\${top_srcdir}/openbsd-compat"
- 
--dnl XXX: OpenSMTPD and libtls need to stay in sync, otherwise bad
--dnl things can happen at runtime.  Revisit this in the future once we
--dnl switch to the signer APIs.
--AM_CFLAGS="${AM_CFLAGS} -I\${top_srcdir}/openbsd-compat/libtls"
--
- # use libbsd by default; these needs to precede any other check, as we
- # might not need a compat function when using libbsd.
- AC_ARG_WITH([libbsd],
 diff --git a/mk/smtp/Makefile.am b/mk/smtp/Makefile.am
-index 0bc3151..7c7a91d 100644
+index fe9fa9e7..b51f6191 100644
 --- a/mk/smtp/Makefile.am
 +++ b/mk/smtp/Makefile.am
-@@ -9,28 +9,11 @@ smtp_SOURCES+=	$(top_srcdir)/usr.sbin/smtpd/smtp_client.c
+@@ -9,30 +9,12 @@ smtp_SOURCES+=	$(top_srcdir)/usr.sbin/smtpd/smtp_client.c
  smtp_SOURCES+=	$(top_srcdir)/usr.sbin/smtpd/smtpc.c
  smtp_SOURCES+=	$(top_srcdir)/usr.sbin/smtpd/ssl.c
  
 -# libtls
--smtp_SOURCES+=	$(top_srcdir)/openbsd-compat/libtls/asn.c
+-smtp_SOURCES+=	$(top_srcdir)/openbsd-compat/libtls/a_time_posix.c
 -smtp_SOURCES+=	$(top_srcdir)/openbsd-compat/libtls/tls.c
 -smtp_SOURCES+=	$(top_srcdir)/openbsd-compat/libtls/tls_client.c
 -smtp_SOURCES+=	$(top_srcdir)/openbsd-compat/libtls/tls_bio_cb.c
@@ -54,6 +25,8 @@ index 0bc3151..7c7a91d 100644
 -
  AM_CPPFLAGS=		-DIO_TLS \
  			-I$(top_srcdir)/usr.sbin/smtpd \
+ 			-I$(top_srcdir)/openbsd-compat \
+-			-I$(top_srcdir)/openbsd-compat/libtls \
  			-I$(srcdir) @CPPFLAGS@ $(PATHS) @DEFS@
  
 -LDADD=			$(LIBOBJS)
@@ -62,7 +35,7 @@ index 0bc3151..7c7a91d 100644
  MANPAGES=		smtp.1.out
  MANPAGES_IN=		$(top_srcdir)/usr.sbin/smtpd/smtp.1
 diff --git a/mk/smtp/Makefile.in b/mk/smtp/Makefile.in
-index c51564e..17525ad 100644
+index abca9523..a3077745 100644
 --- a/mk/smtp/Makefile.in
 +++ b/mk/smtp/Makefile.in
 @@ -110,22 +110,7 @@ am_smtp_OBJECTS = $(top_builddir)/usr.sbin/smtpd/iobuf.$(OBJEXT) \
@@ -70,7 +43,7 @@ index c51564e..17525ad 100644
  	$(top_builddir)/usr.sbin/smtpd/smtp_client.$(OBJEXT) \
  	$(top_builddir)/usr.sbin/smtpd/smtpc.$(OBJEXT) \
 -	$(top_builddir)/usr.sbin/smtpd/ssl.$(OBJEXT) \
--	$(top_builddir)/openbsd-compat/libtls/asn.$(OBJEXT) \
+-	$(top_builddir)/openbsd-compat/libtls/a_time_posix.$(OBJEXT) \
 -	$(top_builddir)/openbsd-compat/libtls/tls.$(OBJEXT) \
 -	$(top_builddir)/openbsd-compat/libtls/tls_client.$(OBJEXT) \
 -	$(top_builddir)/openbsd-compat/libtls/tls_bio_cb.$(OBJEXT) \
@@ -89,11 +62,11 @@ index c51564e..17525ad 100644
  smtp_OBJECTS = $(am_smtp_OBJECTS)
  smtp_LDADD = $(LDADD)
  smtp_DEPENDENCIES = $(LIBOBJS)
-@@ -149,21 +134,6 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+@@ -148,21 +133,7 @@ am__v_at_1 =
+ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
  depcomp = $(SHELL) $(top_srcdir)/depcomp
  am__maybe_remake_depfiles = depfiles
- am__depfiles_remade =  \
--	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po \
+-am__depfiles_remade = $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po \
@@ -108,15 +81,22 @@ index c51564e..17525ad 100644
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls_signer.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls_util.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls_verify.Po \
++am__depfiles_remade = \
  	$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/iobuf.Po \
  	$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/ioev.Po \
  	$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/log.Po \
-@@ -463,27 +433,12 @@ smtp_SOURCES = $(top_srcdir)/usr.sbin/smtpd/iobuf.c \
+@@ -458,35 +429,18 @@ PATHS = -DSMTPD_CONFDIR=\"$(sysconfdir)\"			\
+ 		-DPATH_LIBEXEC=\"$(pkglibexecdir)\"
+ 
+ 
+-# libtls
+ smtp_SOURCES = $(top_srcdir)/usr.sbin/smtpd/iobuf.c \
+ 	$(top_srcdir)/usr.sbin/smtpd/ioev.c \
  	$(top_srcdir)/usr.sbin/smtpd/log.c \
  	$(top_srcdir)/usr.sbin/smtpd/smtp_client.c \
  	$(top_srcdir)/usr.sbin/smtpd/smtpc.c \
 -	$(top_srcdir)/usr.sbin/smtpd/ssl.c \
--	$(top_srcdir)/openbsd-compat/libtls/asn.c \
+-	$(top_srcdir)/openbsd-compat/libtls/a_time_posix.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls_client.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls_bio_cb.c \
@@ -134,6 +114,8 @@ index c51564e..17525ad 100644
 +	$(top_srcdir)/usr.sbin/smtpd/ssl.c
  AM_CPPFLAGS = -DIO_TLS \
  			-I$(top_srcdir)/usr.sbin/smtpd \
+ 			-I$(top_srcdir)/openbsd-compat \
+-			-I$(top_srcdir)/openbsd-compat/libtls \
  			-I$(srcdir) @CPPFLAGS@ $(PATHS) @DEFS@
  
 -LDADD = $(LIBOBJS)
@@ -141,7 +123,7 @@ index c51564e..17525ad 100644
  MANPAGES = smtp.1.out
  MANPAGES_IN = $(top_srcdir)/usr.sbin/smtpd/smtp.1
  EXTRA_DIST = $(MANPAGES_IN)
-@@ -647,57 +602,6 @@ $(top_builddir)/usr.sbin/smtpd/smtpc.$(OBJEXT):  \
+@@ -650,57 +604,6 @@ $(top_builddir)/usr.sbin/smtpd/smtpc.$(OBJEXT):  \
  $(top_builddir)/usr.sbin/smtpd/ssl.$(OBJEXT):  \
  	$(top_builddir)/usr.sbin/smtpd/$(am__dirstamp) \
  	$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/$(am__dirstamp)
@@ -151,7 +133,7 @@ index c51564e..17525ad 100644
 -$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/$(am__dirstamp):
 -	@$(MKDIR_P) $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)
 -	@: > $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/$(am__dirstamp)
--$(top_builddir)/openbsd-compat/libtls/asn.$(OBJEXT):  \
+-$(top_builddir)/openbsd-compat/libtls/a_time_posix.$(OBJEXT):  \
 -	$(top_builddir)/openbsd-compat/libtls/$(am__dirstamp) \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/$(am__dirstamp)
 -$(top_builddir)/openbsd-compat/libtls/tls.$(OBJEXT):  \
@@ -199,7 +181,7 @@ index c51564e..17525ad 100644
  
  smtp$(EXEEXT): $(smtp_OBJECTS) $(smtp_DEPENDENCIES) $(EXTRA_smtp_DEPENDENCIES) 
  	@rm -f smtp$(EXEEXT)
-@@ -705,27 +609,11 @@ smtp$(EXEEXT): $(smtp_OBJECTS) $(smtp_DEPENDENCIES) $(EXTRA_smtp_DEPENDENCIES)
+@@ -708,27 +611,11 @@ smtp$(EXEEXT): $(smtp_OBJECTS) $(smtp_DEPENDENCIES) $(EXTRA_smtp_DEPENDENCIES)
  
  mostlyclean-compile:
  	-rm -f *.$(OBJEXT)
@@ -209,7 +191,7 @@ index c51564e..17525ad 100644
  distclean-compile:
  	-rm -f *.tab.c
  
--@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po@am__quote@ # am--include-marker
+-@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po@am__quote@ # am--include-marker
 -@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po@am__quote@ # am--include-marker
 -@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po@am__quote@ # am--include-marker
 -@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po@am__quote@ # am--include-marker
@@ -227,7 +209,7 @@ index c51564e..17525ad 100644
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/iobuf.Po@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/ioev.Po@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/log.Po@am__quote@ # am--include-marker
-@@ -977,8 +865,6 @@ distclean-generic:
+@@ -980,8 +867,6 @@ distclean-generic:
  	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
  	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
  	-rm -f ../../openbsd-compat/$(am__dirstamp)
@@ -236,11 +218,11 @@ index c51564e..17525ad 100644
  	-test -z "$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/$(am__dirstamp)" || rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/$(am__dirstamp)
  	-test -z "$(top_builddir)/usr.sbin/smtpd/$(am__dirstamp)" || rm -f $(top_builddir)/usr.sbin/smtpd/$(am__dirstamp)
  
-@@ -990,21 +876,6 @@ clean: clean-am
+@@ -993,21 +878,6 @@ clean: clean-am
  clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
  
  distclean: distclean-am
--		-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po
+-		-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po
@@ -258,11 +240,11 @@ index c51564e..17525ad 100644
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/iobuf.Po
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/ioev.Po
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/log.Po
-@@ -1102,21 +973,6 @@ install-ps-am:
+@@ -1105,21 +975,6 @@ install-ps-am:
  installcheck-am:
  
  maintainer-clean: maintainer-clean-am
--		-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po
+-		-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po
@@ -281,15 +263,15 @@ index c51564e..17525ad 100644
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/ioev.Po
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/log.Po
 diff --git a/mk/smtpd/Makefile.am b/mk/smtpd/Makefile.am
-index f0138bd..543e960 100644
+index 0cb01138..17c93627 100644
 --- a/mk/smtpd/Makefile.am
 +++ b/mk/smtpd/Makefile.am
-@@ -99,28 +99,11 @@ smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libasr/res_search_async.c
+@@ -99,30 +99,12 @@ smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libasr/res_search_async.c
  smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libasr/res_send_async.c
  endif
  
 -# libtls
--smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libtls/asn.c
+-smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libtls/a_time_posix.c
 -smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libtls/tls.c
 -smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libtls/tls_client.c
 -smtpd_SOURCES+=		$(top_srcdir)/openbsd-compat/libtls/tls_bio_cb.c
@@ -307,15 +289,17 @@ index f0138bd..543e960 100644
 -
  AM_CPPFLAGS=		-DIO_TLS \
  			-I$(top_srcdir)/usr.sbin/smtpd \
+ 			-I$(top_srcdir)/openbsd-compat \
+-			-I$(top_srcdir)/openbsd-compat/libtls \
  			-I$(srcdir) $(PATHS) @DEFS@
  
 -LDADD=			$(LIBOBJS) $(DB_LIB)
 +LDADD=			$(LIBOBJS) $(DB_LIB) -ltls
  
  MANPAGES=		aliases.5.out forward.5.out smtpd.8.out	\
- 			smtpd.conf.5.out smtpd-filters.7.out table.5.out
+ 			smtpd.conf.5.out smtpd-filters.7.out \
 diff --git a/mk/smtpd/Makefile.in b/mk/smtpd/Makefile.in
-index bca7d83..4c01cb1 100644
+index cf02a2c4..a3835303 100644
 --- a/mk/smtpd/Makefile.in
 +++ b/mk/smtpd/Makefile.in
 @@ -206,22 +206,7 @@ am__smtpd_SOURCES_DIST = $(top_srcdir)/usr.sbin/smtpd/aliases.c \
@@ -323,7 +307,7 @@ index bca7d83..4c01cb1 100644
  	$(top_srcdir)/openbsd-compat/libasr/getnetnamadr_async.c \
  	$(top_srcdir)/openbsd-compat/libasr/res_search_async.c \
 -	$(top_srcdir)/openbsd-compat/libasr/res_send_async.c \
--	$(top_srcdir)/openbsd-compat/libtls/asn.c \
+-	$(top_srcdir)/openbsd-compat/libtls/a_time_posix.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls_client.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls_bio_cb.c \
@@ -347,7 +331,7 @@ index bca7d83..4c01cb1 100644
  	$(top_builddir)/usr.sbin/smtpd/scheduler_ramqueue.$(OBJEXT) \
  	$(top_builddir)/usr.sbin/smtpd/stat_ramstat.$(OBJEXT) \
 -	$(am__objects_2) \
--	$(top_builddir)/openbsd-compat/libtls/asn.$(OBJEXT) \
+-	$(top_builddir)/openbsd-compat/libtls/a_time_posix.$(OBJEXT) \
 -	$(top_builddir)/openbsd-compat/libtls/tls.$(OBJEXT) \
 -	$(top_builddir)/openbsd-compat/libtls/tls_client.$(OBJEXT) \
 -	$(top_builddir)/openbsd-compat/libtls/tls_bio_cb.$(OBJEXT) \
@@ -370,7 +354,7 @@ index bca7d83..4c01cb1 100644
  	$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/getnetnamadr_async.Po \
  	$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_search_async.Po \
  	$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_send_async.Po \
--	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po \
+-	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po \
@@ -388,12 +372,20 @@ index bca7d83..4c01cb1 100644
  	$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/aliases.Po \
  	$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/bounce.Po \
  	$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/ca.Po \
-@@ -794,27 +749,12 @@ smtpd_SOURCES = $(top_srcdir)/usr.sbin/smtpd/aliases.c \
+@@ -732,7 +687,6 @@ PATHS = -DSMTPD_CONFDIR=\"$(sysconfdir)\"			\
+ 
+ # backends
+ 
+-# libtls
+ smtpd_SOURCES = $(top_srcdir)/usr.sbin/smtpd/aliases.c \
+ 	$(top_srcdir)/usr.sbin/smtpd/bounce.c \
+ 	$(top_srcdir)/usr.sbin/smtpd/ca.c \
+@@ -796,29 +750,13 @@ smtpd_SOURCES = $(top_srcdir)/usr.sbin/smtpd/aliases.c \
  	$(top_srcdir)/usr.sbin/smtpd/scheduler_null.c \
  	$(top_srcdir)/usr.sbin/smtpd/scheduler_proc.c \
  	$(top_srcdir)/usr.sbin/smtpd/scheduler_ramqueue.c \
 -	$(top_srcdir)/usr.sbin/smtpd/stat_ramstat.c $(am__append_2) \
--	$(top_srcdir)/openbsd-compat/libtls/asn.c \
+-	$(top_srcdir)/openbsd-compat/libtls/a_time_posix.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls_client.c \
 -	$(top_srcdir)/openbsd-compat/libtls/tls_bio_cb.c \
@@ -411,14 +403,16 @@ index bca7d83..4c01cb1 100644
 +	$(top_srcdir)/usr.sbin/smtpd/stat_ramstat.c $(am__append_2)
  AM_CPPFLAGS = -DIO_TLS \
  			-I$(top_srcdir)/usr.sbin/smtpd \
+ 			-I$(top_srcdir)/openbsd-compat \
+-			-I$(top_srcdir)/openbsd-compat/libtls \
  			-I$(srcdir) $(PATHS) @DEFS@
  
 -LDADD = $(LIBOBJS) $(DB_LIB)
 +LDADD = $(LIBOBJS) $(DB_LIB) -ltls
  MANPAGES = aliases.5.out forward.5.out smtpd.8.out	\
- 			smtpd.conf.5.out smtpd-filters.7.out table.5.out
- 
-@@ -1222,57 +1162,6 @@ $(top_builddir)/openbsd-compat/libasr/res_search_async.$(OBJEXT):  \
+ 			smtpd.conf.5.out smtpd-filters.7.out \
+ 			smtpd-tables.7.out table.5.out
+@@ -1228,57 +1166,6 @@ $(top_builddir)/openbsd-compat/libasr/res_search_async.$(OBJEXT):  \
  $(top_builddir)/openbsd-compat/libasr/res_send_async.$(OBJEXT):  \
  	$(top_builddir)/openbsd-compat/libasr/$(am__dirstamp) \
  	$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/$(am__dirstamp)
@@ -428,7 +422,7 @@ index bca7d83..4c01cb1 100644
 -$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/$(am__dirstamp):
 -	@$(MKDIR_P) $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)
 -	@: > $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/$(am__dirstamp)
--$(top_builddir)/openbsd-compat/libtls/asn.$(OBJEXT):  \
+-$(top_builddir)/openbsd-compat/libtls/a_time_posix.$(OBJEXT):  \
 -	$(top_builddir)/openbsd-compat/libtls/$(am__dirstamp) \
 -	$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/$(am__dirstamp)
 -$(top_builddir)/openbsd-compat/libtls/tls.$(OBJEXT):  \
@@ -476,7 +470,7 @@ index bca7d83..4c01cb1 100644
  
  smtpd$(EXEEXT): $(smtpd_OBJECTS) $(smtpd_DEPENDENCIES) $(EXTRA_smtpd_DEPENDENCIES) 
  	@rm -f smtpd$(EXEEXT)
-@@ -1282,7 +1171,6 @@ mostlyclean-compile:
+@@ -1288,7 +1175,6 @@ mostlyclean-compile:
  	-rm -f *.$(OBJEXT)
  	-rm -f $(top_builddir)/openbsd-compat/*.$(OBJEXT)
  	-rm -f $(top_builddir)/openbsd-compat/libasr/*.$(OBJEXT)
@@ -484,11 +478,11 @@ index bca7d83..4c01cb1 100644
  	-rm -f $(top_builddir)/usr.sbin/smtpd/*.$(OBJEXT)
  
  distclean-compile:
-@@ -1299,21 +1187,6 @@ distclean-compile:
+@@ -1305,21 +1191,6 @@ distclean-compile:
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/getnetnamadr_async.Po@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_search_async.Po@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_send_async.Po@am__quote@ # am--include-marker
--@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po@am__quote@ # am--include-marker
+-@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po@am__quote@ # am--include-marker
 -@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po@am__quote@ # am--include-marker
 -@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po@am__quote@ # am--include-marker
 -@AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po@am__quote@ # am--include-marker
@@ -506,7 +500,7 @@ index bca7d83..4c01cb1 100644
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/aliases.Po@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/bounce.Po@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/ca.Po@am__quote@ # am--include-marker
-@@ -1631,8 +1504,6 @@ distclean-generic:
+@@ -1637,8 +1508,6 @@ distclean-generic:
  	-test -z "$(top_builddir)/openbsd-compat/$(am__dirstamp)" || rm -f $(top_builddir)/openbsd-compat/$(am__dirstamp)
  	-test -z "$(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/$(am__dirstamp)" || rm -f $(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/$(am__dirstamp)
  	-test -z "$(top_builddir)/openbsd-compat/libasr/$(am__dirstamp)" || rm -f $(top_builddir)/openbsd-compat/libasr/$(am__dirstamp)
@@ -515,11 +509,11 @@ index bca7d83..4c01cb1 100644
  	-test -z "$(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/$(am__dirstamp)" || rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/$(am__dirstamp)
  	-test -z "$(top_builddir)/usr.sbin/smtpd/$(am__dirstamp)" || rm -f $(top_builddir)/usr.sbin/smtpd/$(am__dirstamp)
  
-@@ -1657,21 +1528,6 @@ distclean: distclean-am
+@@ -1663,21 +1532,6 @@ distclean: distclean-am
  	-rm -f $(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/getnetnamadr_async.Po
  	-rm -f $(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_search_async.Po
  	-rm -f $(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_send_async.Po
--	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po
+-	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po
@@ -537,11 +531,11 @@ index bca7d83..4c01cb1 100644
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/aliases.Po
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/bounce.Po
  	-rm -f $(top_builddir)/usr.sbin/smtpd/$(DEPDIR)/ca.Po
-@@ -1839,21 +1695,6 @@ maintainer-clean: maintainer-clean-am
+@@ -1845,21 +1699,6 @@ maintainer-clean: maintainer-clean-am
  	-rm -f $(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/getnetnamadr_async.Po
  	-rm -f $(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_search_async.Po
  	-rm -f $(top_builddir)/openbsd-compat/libasr/$(DEPDIR)/res_send_async.Po
--	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/asn.Po
+-	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/a_time_posix.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/by_mem.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/openssl.Po
 -	-rm -f $(top_builddir)/openbsd-compat/libtls/$(DEPDIR)/tls.Po
