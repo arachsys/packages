@@ -108,8 +108,8 @@ build() {
   mkdir -p /dst/lib/{clang,llvm}/{bin,include,lib}
   mv /dst/bin/llvm-config /dst/lib/llvm/bin/
   cp $(bin/llvm-config --libfiles --link-static) /dst/lib/llvm/lib/
-  cp -R include/llvm ../llvm/include/llvm /dst/lib/llvm/include/
-  cp -R ../clang/include/clang /dst/lib/clang/include/
+  cp -R include/llvm ../llvm/include/llvm{,-c} /dst/lib/llvm/include/
+  cp -R ../clang/include/clang{,-c} /dst/lib/clang/include/
   ln -s lld /dst/bin/llvm-ld
 
   for TARGET in wasm32 wasm64; do
