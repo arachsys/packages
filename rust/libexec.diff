@@ -50,28 +50,6 @@ index 2b11b8c3..06b6b405 100644
                  );
                  let lib_dir = bin_root.join("lib");
                  for lib in t!(fs::read_dir(&lib_dir), lib_dir.display().to_string()) {
-diff --git a/src/tools/cargo/crates/home/src/env.rs b/src/tools/cargo/crates/home/src/env.rs
-index 49fea542..9d5a76ba 100644
---- a/src/tools/cargo/crates/home/src/env.rs
-+++ b/src/tools/cargo/crates/home/src/env.rs
-@@ -71,7 +71,7 @@ pub fn cargo_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf>
-             }
-         }
-         _ => home_dir_with_env(env)
--            .map(|p| p.join(".cargo"))
-+            .map(|p| p.join(".cache").join("cargo"))
-             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "could not find cargo home dir")),
-     }
- }
-@@ -100,7 +100,7 @@ pub fn rustup_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf
-             }
-         }
-         _ => home_dir_with_env(env)
--            .map(|d| d.join(".rustup"))
-+            .map(|d| d.join(".cache").join("rustup"))
-             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "could not find rustup home dir")),
-     }
- }
 diff --git a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs b/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
 index 653e7157..719311f0 100644
 --- a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
