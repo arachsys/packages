@@ -40,56 +40,6 @@ index d90ebc17..b0229fae 100644
 +        }
      }
  }
-diff --git a/vendor/openssl-0.10.46/build.rs b/vendor/openssl-0.10.46/build.rs
-index 5cddce90..5b4dbe2e 100644
---- a/vendor/openssl-0.10.46/build.rs
-+++ b/vendor/openssl-0.10.46/build.rs
-@@ -106,5 +106,25 @@ fn main() {
-         if version >= 0x3_06_01_00_0 {
-             println!("cargo:rustc-cfg=libressl361");
-         }
-+
-+        if version >= 0x3_07_00_00_0 {
-+            println!("cargo:rustc-cfg=libressl370");
-+        }
-+
-+        if version >= 0x3_08_00_00_0 {
-+            println!("cargo:rustc-cfg=libressl380");
-+        }
-+
-+        if version >= 0x3_08_02_00_0 {
-+            println!("cargo:rustc-cfg=libressl382");
-+        }
-+
-+        if version >= 0x3_09_00_00_0 {
-+            println!("cargo:rustc-cfg=libressl390");
-+        }
-+
-+        if version >= 0x4_00_00_00_0 {
-+            println!("cargo:rustc-cfg=libressl400");
-+        }
-     }
- }
-diff --git a/vendor/openssl-0.10.46/src/conf.rs b/vendor/openssl-0.10.46/src/conf.rs
-index 715519c5..88740298 100644
---- a/vendor/openssl-0.10.46/src/conf.rs
-+++ b/vendor/openssl-0.10.46/src/conf.rs
-@@ -8,7 +8,7 @@ foreign_type_and_impl_send_sync! {
-     pub struct ConfRef;
- }
- 
--#[cfg(not(boringssl))]
-+#[cfg(not(any(boringssl, libressl400)))]
- mod methods {
-     use super::Conf;
-     use crate::cvt_p;
-@@ -61,5 +61,5 @@ mod methods {
-         }
-     }
- }
--#[cfg(not(boringssl))]
-+#[cfg(not(any(boringssl, libressl400)))]
- pub use methods::*;
 diff --git a/vendor/openssl-0.10.57/build.rs b/vendor/openssl-0.10.57/build.rs
 index 0a974b33..c3651a8e 100644
 --- a/vendor/openssl-0.10.57/build.rs
@@ -194,6 +144,40 @@ index 715519c5..88740298 100644
 -#[cfg(not(boringssl))]
 +#[cfg(not(any(boringssl, libressl400)))]
  pub use methods::*;
+diff --git a/vendor/openssl-0.10.64/build.rs b/vendor/openssl-0.10.64/build.rs
+index 7677abc0..f1965905 100644
+--- a/vendor/openssl-0.10.64/build.rs
++++ b/vendor/openssl-0.10.64/build.rs
+@@ -75,6 +75,9 @@ fn main() {
+         if version >= 0x3_09_00_00_0 {
+             println!("cargo:rustc-cfg=libressl390");
+         }
++        if version >= 0x4_00_00_00_0 {
++            println!("cargo:rustc-cfg=libressl400");
++        }
+     }
+ 
+     if let Ok(vars) = env::var("DEP_OPENSSL_CONF") {
+diff --git a/vendor/openssl-0.10.64/src/conf.rs b/vendor/openssl-0.10.64/src/conf.rs
+index 715519c5..a4261cbc 100644
+--- a/vendor/openssl-0.10.64/src/conf.rs
++++ b/vendor/openssl-0.10.64/src/conf.rs
+@@ -8,7 +8,7 @@ foreign_type_and_impl_send_sync! {
+     pub struct ConfRef;
+ }
+ 
+-#[cfg(not(boringssl))]
++#[cfg(not(any(boringssl, libressl400)))]
+ mod methods {
+     use super::Conf;
+     use crate::cvt_p;
+@@ -61,5 +61,5 @@ mod methods {
+         }
+     }
+ }
+-#[cfg(not(boringssl))]
++#[cfg(not(and(boringssl, libressl400)))]
+ pub use methods::*;
 diff --git a/vendor/openssl-sys-0.9.102/build/cfgs.rs b/vendor/openssl-sys-0.9.102/build/cfgs.rs
 index 91cb734c..e4b6a4d9 100644
 --- a/vendor/openssl-sys-0.9.102/build/cfgs.rs
@@ -222,6 +206,28 @@ index 606acc35..d8a8da2c 100644
          };
  
 @@ -346,7 +348,7 @@ fn version_error() -> ! {
+         "
+ 
+ This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3), or LibreSSL 2.5
+-through 3.9.x, but a different version of OpenSSL was found. The build is now aborting
++through 4.0.x, but a different version of OpenSSL was found. The build is now aborting
+ due to this version mismatch.
+ 
+ "
+diff --git a/vendor/openssl-sys-0.9.103/build/main.rs b/vendor/openssl-sys-0.9.103/build/main.rs
+index 98d6926f..019f82c3 100644
+--- a/vendor/openssl-sys-0.9.103/build/main.rs
++++ b/vendor/openssl-sys-0.9.103/build/main.rs
+@@ -379,6 +379,8 @@ See rust-openssl documentation for more information:
+             (3, 8, _) => ('3', '8', 'x'),
+             (3, 9, 0) => ('3', '9', '0'),
+             (3, 9, _) => ('3', '9', 'x'),
++            (4, 0, 0) => ('4', '0', '0'),
++            (4, 0, _) => ('4', '0', 'x'),
+             _ => version_error(),
+         };
+ 
+@@ -421,7 +423,7 @@ fn version_error() -> ! {
          "
  
  This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3), or LibreSSL 2.5
@@ -297,61 +303,6 @@ index 243f146b..66c62e97 100644
  
  This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3.0.0), or LibreSSL 2.5
 -through 3.4.1, but a different version of OpenSSL was found. The build is now aborting
-+through 4.0.x, but a different version of OpenSSL was found. The build is now aborting
- due to this version mismatch.
- 
- "
-diff --git a/vendor/openssl-sys-0.9.81/build/cfgs.rs b/vendor/openssl-sys-0.9.81/build/cfgs.rs
-index d925d90a..15244a3c 100644
---- a/vendor/openssl-sys-0.9.81/build/cfgs.rs
-+++ b/vendor/openssl-sys-0.9.81/build/cfgs.rs
-@@ -49,6 +49,21 @@ pub fn get(openssl_version: Option<u64>, libressl_version: Option<u64>) -> Vec<&
-         if libressl_version >= 0x3_07_00_00_0 {
-             cfgs.push("libressl370");
-         }
-+        if libressl_version >= 0x3_08_00_00_0 {
-+            cfgs.push("libressl380");
-+        }
-+        if libressl_version >= 0x3_08_01_00_0 {
-+            cfgs.push("libressl381");
-+        }
-+        if libressl_version >= 0x3_08_02_00_0 {
-+            cfgs.push("libressl382");
-+        }
-+        if libressl_version >= 0x3_09_00_00_0 {
-+            cfgs.push("libressl390");
-+        }
-+        if libressl_version >= 0x4_00_00_00_0 {
-+            cfgs.push("libressl400");
-+        }
-     } else {
-         let openssl_version = openssl_version.unwrap();
- 
-diff --git a/vendor/openssl-sys-0.9.81/build/main.rs b/vendor/openssl-sys-0.9.81/build/main.rs
-index c5a68a63..993e3a66 100644
---- a/vendor/openssl-sys-0.9.81/build/main.rs
-+++ b/vendor/openssl-sys-0.9.81/build/main.rs
-@@ -294,6 +294,15 @@ See rust-openssl documentation for more information:
-             (3, 6, 0) => ('3', '6', '0'),
-             (3, 6, _) => ('3', '6', 'x'),
-             (3, 7, 0) => ('3', '7', '0'),
-+            (3, 7, 1) => ('3', '7', '1'),
-+            (3, 7, _) => ('3', '7', 'x'),
-+            (3, 8, 0) => ('3', '8', '0'),
-+            (3, 8, 1) => ('3', '8', '1'),
-+            (3, 8, _) => ('3', '8', 'x'),
-+            (3, 9, 0) => ('3', '9', '0'),
-+            (3, 9, _) => ('3', '9', 'x'),
-+            (4, 0, 0) => ('4', '0', '0'),
-+            (4, 0, _) => ('4', '0', 'x'),
-             _ => version_error(),
-         };
- 
-@@ -336,7 +345,7 @@ fn version_error() -> ! {
-         "
- 
- This crate is only compatible with OpenSSL (version 1.0.1 through 1.1.1, or 3.0.0), or LibreSSL 2.5
--through 3.7.0, but a different version of OpenSSL was found. The build is now aborting
 +through 4.0.x, but a different version of OpenSSL was found. The build is now aborting
  due to this version mismatch.
  
