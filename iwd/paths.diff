@@ -1,5 +1,5 @@
 diff --git a/configure b/configure
-index e90cf099..1bf00544 100755
+index 68ae03ea..d4e89e40 100755
 --- a/configure
 +++ b/configure
 @@ -13905,7 +13905,7 @@ wired_storagedir=${wired_storagedir}
@@ -12,7 +12,7 @@ index e90cf099..1bf00544 100755
  
  
 diff --git a/configure.ac b/configure.ac
-index c76e1c2c..79593ab9 100644
+index 2d9f29cc..7fa18312 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -149,7 +149,7 @@ AC_SUBST([wired_storagedir], [${wired_storagedir}])

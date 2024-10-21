@@ -1,16 +1,16 @@
 diff --git a/src/netdev.c b/src/netdev.c
-index d95a2a1e..6ecfcd47 100644
+index 8379a598..c5ab205e 100644
 --- a/src/netdev.c
 +++ b/src/netdev.c
-@@ -192,6 +192,7 @@ struct netdev {
- 	bool in_reassoc : 1;
+@@ -193,6 +193,7 @@ struct netdev {
  	bool privacy : 1;
  	bool cqm_poll_fallback : 1;
+ 	bool external_auth : 1;
 +	bool bridged : 1;
  };
  
  struct netdev_preauth_state {
-@@ -5781,6 +5782,7 @@ static void netdev_bridge_port_event(const struct ifinfomsg *ifi, int bytes,
+@@ -5986,6 +5987,7 @@ static void netdev_bridge_port_event(const struct ifinfomsg *ifi, int bytes,
  	netdev = netdev_find(ifi->ifi_index);
  	if (!netdev)
  		return;
@@ -18,7 +18,7 @@ index d95a2a1e..6ecfcd47 100644
  
  	for (attr = IFLA_RTA(ifi); RTA_OK(attr, bytes);
  			attr = RTA_NEXT(attr, bytes)) {
-@@ -5872,6 +5874,11 @@ bool netdev_get_4addr(struct netdev *netdev)
+@@ -6077,6 +6079,11 @@ bool netdev_get_4addr(struct netdev *netdev)
  	return netdev->use_4addr;
  }
  
@@ -43,10 +43,10 @@ index 6299934e..2042b37f 100644
  bool netdev_get_is_up(struct netdev *netdev);
  const char *netdev_get_path(struct netdev *netdev);
 diff --git a/src/station.c b/src/station.c
-index 56a90f5f..4d205aad 100644
+index 9ebed8e2..da7569b0 100644
 --- a/src/station.c
 +++ b/src/station.c
-@@ -4935,7 +4935,7 @@ static struct station *station_create(struct netdev *netdev)
+@@ -4939,7 +4939,7 @@ static struct station *station_create(struct netdev *netdev)
  	l_dbus_object_add_interface(dbus, netdev_get_path(netdev),
  					IWD_STATION_INTERFACE, station);
  
