@@ -44,10 +44,10 @@ index d03c181e..b36d5e5e 100644
  	l_log_set_ident("iwd");
  
 diff --git a/src/wiphy.c b/src/wiphy.c
-index cdaa89ad..5f267b4e 100644
+index 06f72ef2..b1399600 100644
 --- a/src/wiphy.c
 +++ b/src/wiphy.c
-@@ -1322,9 +1322,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
+@@ -1315,9 +1315,7 @@ static void wiphy_print_basic_info(struct wiphy *wiphy)
  			if (!str)
  				continue;
  
