@@ -1,17 +1,17 @@
 diff --git a/src/bin/ch-remote.rs b/src/bin/ch-remote.rs
-index 05ad2464..c1384567 100644
+index f807189d..57b151db 100644
 --- a/src/bin/ch-remote.rs
 +++ b/src/bin/ch-remote.rs
-@@ -7,7 +7,7 @@ use api_client::simple_api_command;
- use api_client::simple_api_command_with_fds;
- use api_client::simple_api_full_command;
- use api_client::Error as ApiClientError;
+@@ -12,7 +12,7 @@ use api_client::{
+     simple_api_command, simple_api_command_with_fds, simple_api_full_command,
+     Error as ApiClientError,
+ };
 -use clap::{Arg, ArgAction, ArgMatches, Command};
 +use clap::{Arg, ArgAction, ArgMatches, ColorChoice, Command};
  use option_parser::{ByteSized, ByteSizedParseError};
- use std::fmt;
- use std::io::Read;
-@@ -904,21 +904,23 @@ fn create_data(path: &str) -> Result<String, Error> {
+ use vmm::config::RestoreConfig;
+ use vmm::vm_config::{
+@@ -908,21 +908,23 @@ fn create_data(path: &str) -> Result<String, Error> {
  }
  
  fn main() {
@@ -39,7 +39,7 @@ index 05ad2464..c1384567 100644
                  .num_args(1),
              #[cfg(feature = "dbus_api")]
              Arg::new("dbus-object-path")
-@@ -933,14 +935,14 @@ fn main() {
+@@ -937,7 +939,7 @@ fn main() {
                  .help("Use the system bus instead of a session bus"),
          ])
          .subcommand(
@@ -47,16 +47,14 @@ index 05ad2464..c1384567 100644
 +            Command::new("add-device").about("Add a VFIO device").arg(
                  Arg::new("device_config")
                      .index(1)
-                     .help(vmm::config::DeviceConfig::SYNTAX),
-             ),
+                     .help(DeviceConfig::SYNTAX),
+@@ -945,12 +947,12 @@ fn main() {
          )
          .subcommand(
--            Command::new("add-disk").about("Add block device").arg(
-+            Command::new("add-disk").about("Add a block device").arg(
-                 Arg::new("disk_config")
-                     .index(1)
-                     .help(vmm::config::DiskConfig::SYNTAX),
-@@ -948,7 +950,7 @@ fn main() {
+             Command::new("add-disk")
+-                .about("Add block device")
++                .about("Add a block device")
+                 .arg(Arg::new("disk_config").index(1).help(DiskConfig::SYNTAX)),
          )
          .subcommand(
              Command::new("add-fs")
@@ -65,7 +63,7 @@ index 05ad2464..c1384567 100644
                  .arg(
                      Arg::new("fs_config")
                          .index(1)
-@@ -957,7 +959,7 @@ fn main() {
+@@ -959,7 +961,7 @@ fn main() {
          )
          .subcommand(
              Command::new("add-pmem")
@@ -74,16 +72,13 @@ index 05ad2464..c1384567 100644
                  .arg(
                      Arg::new("pmem_config")
                          .index(1)
-@@ -965,7 +967,7 @@ fn main() {
-                 ),
+@@ -968,12 +970,12 @@ fn main() {
          )
          .subcommand(
--            Command::new("add-net").about("Add network device").arg(
-+            Command::new("add-net").about("Add a network device").arg(
-                 Arg::new("net_config")
-                     .index(1)
-                     .help(vmm::config::NetConfig::SYNTAX),
-@@ -973,7 +975,7 @@ fn main() {
+             Command::new("add-net")
+-                .about("Add network device")
++                .about("Add a network device")
+                 .arg(Arg::new("net_config").index(1).help(NetConfig::SYNTAX)),
          )
          .subcommand(
              Command::new("add-user-device")
@@ -92,24 +87,19 @@ index 05ad2464..c1384567 100644
                  .arg(
                      Arg::new("device_config")
                          .index(1)
-@@ -981,14 +983,14 @@ fn main() {
-                 ),
+@@ -982,24 +984,24 @@ fn main() {
          )
          .subcommand(
--            Command::new("add-vdpa").about("Add vDPA device").arg(
-+            Command::new("add-vdpa").about("Add a vDPA device").arg(
-                 Arg::new("vdpa_config")
-                     .index(1)
-                     .help(vmm::config::VdpaConfig::SYNTAX),
-             ),
+             Command::new("add-vdpa")
+-                .about("Add vDPA device")
++                .about("Add a vDPA device")
+                 .arg(Arg::new("vdpa_config").index(1).help(VdpaConfig::SYNTAX)),
          )
          .subcommand(
--            Command::new("add-vsock").about("Add vsock device").arg(
-+            Command::new("add-vsock").about("Add a vsock device").arg(
-                 Arg::new("vsock_config")
-                     .index(1)
-                     .help(vmm::config::VsockConfig::SYNTAX),
-@@ -996,14 +998,14 @@ fn main() {
+             Command::new("add-vsock")
+-                .about("Add vsock device")
++                .about("Add a vsock device")
+                 .arg(Arg::new("vsock_config").index(1).help(VsockConfig::SYNTAX)),
          )
          .subcommand(
              Command::new("remove-device")
@@ -126,7 +116,7 @@ index 05ad2464..c1384567 100644
          .subcommand(
              Command::new("resize")
                  .about("Resize the VM")
-@@ -1043,12 +1045,12 @@ fn main() {
+@@ -1039,12 +1041,12 @@ fn main() {
                  ),
          )
          .subcommand(Command::new("resume").about("Resume the VM"))
@@ -142,7 +132,7 @@ index 05ad2464..c1384567 100644
                  .arg(
                      Arg::new("snapshot_config")
                          .index(1)
-@@ -1057,7 +1059,7 @@ fn main() {
+@@ -1053,7 +1055,7 @@ fn main() {
          )
          .subcommand(
              Command::new("restore")
@@ -151,7 +141,7 @@ index 05ad2464..c1384567 100644
                  .arg(
                      Arg::new("restore_config")
                          .index(1)
-@@ -1066,7 +1068,7 @@ fn main() {
+@@ -1062,7 +1064,7 @@ fn main() {
          )
          .subcommand(
              Command::new("coredump")
@@ -160,7 +150,7 @@ index 05ad2464..c1384567 100644
                  .arg(Arg::new("coredump_config").index(1).help("<file_path>")),
          )
          .subcommand(
-@@ -1095,7 +1097,7 @@ fn main() {
+@@ -1091,7 +1093,7 @@ fn main() {
          )
          .subcommand(
              Command::new("create")
@@ -169,7 +159,7 @@ index 05ad2464..c1384567 100644
                  .arg(Arg::new("path").index(1).default_value("-")),
          )
          .subcommand(Command::new("ping").about("Ping the VMM to check for API server availability"))
-@@ -1148,7 +1150,7 @@ fn main() {
+@@ -1144,7 +1146,7 @@ fn main() {
              process::exit(1);
          }
          _ => {
@@ -179,19 +169,19 @@ index 05ad2464..c1384567 100644
          }
      };
 diff --git a/src/main.rs b/src/main.rs
-index 9568fbe8..0ea87517 100644
+index 43b901df..199b1ebc 100644
 --- a/src/main.rs
 +++ b/src/main.rs
-@@ -6,7 +6,7 @@
- #[macro_use]
- extern crate event_monitor;
+@@ -9,7 +9,7 @@ use std::sync::mpsc::channel;
+ use std::sync::Mutex;
+ use std::{env, io};
  
 -use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
 +use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ColorChoice};
+ use event_monitor::event;
  use libc::EFD_NONBLOCK;
  use log::{warn, LevelFilter};
- use option_parser::OptionParser;
-@@ -40,7 +40,7 @@ enum Error {
+@@ -47,7 +47,7 @@ enum Error {
      CreateDebugEventFd(#[source] std::io::Error),
      #[error("Failed to create exit EventFd: {0}")]
      CreateExitEventFd(#[source] std::io::Error),
@@ -200,7 +190,7 @@ index 9568fbe8..0ea87517 100644
      CreateHypervisor(#[source] hypervisor::HypervisorError),
      #[error("Failed to start the VMM thread: {0}")]
      StartVmmThread(#[source] vmm::Error),
-@@ -175,7 +175,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -182,7 +182,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          // 'BUILD_VERSION' is set by the build script 'build.rs' at
          // compile time
          .author(env!("CARGO_PKG_AUTHORS"))
@@ -210,7 +200,7 @@ index 9568fbe8..0ea87517 100644
          .arg_required_else_help(true)
          .group(ArgGroup::new("vm-config").multiple(true))
          .group(ArgGroup::new("vmm-config").multiple(true))
-@@ -184,7 +185,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -191,7 +192,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("cpus")
                  .long("cpus")
                  .help(
@@ -219,7 +209,7 @@ index 9568fbe8..0ea87517 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -196,7 +197,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -203,7 +204,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("platform")
                  .long("platform")
@@ -228,7 +218,7 @@ index 9568fbe8..0ea87517 100644
                  .num_args(1)
                  .group("vm-config"),
          )
-@@ -204,13 +205,12 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -211,13 +212,12 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("memory")
                  .long("memory")
                  .help(
@@ -244,7 +234,7 @@ index 9568fbe8..0ea87517 100644
                  )
                  .default_value(default_memory)
                  .group("vm-config"),
-@@ -219,14 +219,13 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -226,14 +226,13 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("memory-zone")
                  .long("memory-zone")
                  .help(
@@ -261,7 +251,7 @@ index 9568fbe8..0ea87517 100644
                  )
                  .num_args(1..)
                  .group("vm-config"),
-@@ -234,17 +233,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -241,17 +240,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("firmware")
                  .long("firmware")
@@ -281,7 +271,7 @@ index 9568fbe8..0ea87517 100644
                  .num_args(1)
                  .group("vm-config"),
          )
-@@ -281,7 +277,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -288,7 +284,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
                  .long("landlock")
                  .num_args(0)
                  .help(
@@ -290,7 +280,7 @@ index 9568fbe8..0ea87517 100644
                  )
                  .action(ArgAction::SetTrue)
                  .default_value("false")
-@@ -305,7 +301,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -312,7 +308,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("rng")
                  .long("rng")
                  .help(
@@ -299,7 +289,7 @@ index 9568fbe8..0ea87517 100644
                  )
                  .default_value(default_rng)
                  .group("vm-config"),
-@@ -334,7 +330,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -341,7 +337,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("serial")
                  .long("serial")
@@ -308,7 +298,7 @@ index 9568fbe8..0ea87517 100644
                  .default_value("null")
                  .group("vm-config"),
          )
-@@ -342,7 +338,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -349,7 +345,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("console")
                  .long("console")
                  .help(
@@ -317,7 +307,7 @@ index 9568fbe8..0ea87517 100644
                  )
                  .default_value("tty")
                  .group("vm-config"),
-@@ -408,6 +404,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -415,6 +411,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("v")
                  .short('v')
@@ -325,7 +315,7 @@ index 9568fbe8..0ea87517 100644
                  .action(ArgAction::Count)
                  .help("Sets the level of debugging output")
                  .group("logging"),
-@@ -415,21 +412,21 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -422,21 +419,21 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("log-file")
                  .long("log-file")
@@ -350,7 +340,7 @@ index 9568fbe8..0ea87517 100644
                  .num_args(1)
                  .group("vmm-config"),
          )
-@@ -468,7 +465,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -475,7 +472,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("debug-console")
              .long("debug-console")
@@ -359,7 +349,7 @@ index 9568fbe8..0ea87517 100644
              .default_value("off,iobase=0xe9")
              .group("vm-config"),
      );
-@@ -477,7 +474,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -484,7 +481,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("gdb")
              .long("gdb")
@@ -368,7 +358,7 @@ index 9568fbe8..0ea87517 100644
              .num_args(1)
              .group("vmm-config"),
      );
-@@ -487,7 +484,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -494,7 +491,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("dbus-service-name")
                  .long("dbus-service-name")
@@ -377,7 +367,7 @@ index 9568fbe8..0ea87517 100644
                  .num_args(1)
                  .group("vmm-config"),
          )
-@@ -510,7 +507,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -517,7 +514,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("igvm")
              .long("igvm")
@@ -386,7 +376,7 @@ index 9568fbe8..0ea87517 100644
              .num_args(1)
              .group("vm-config"),
      );
-@@ -613,11 +610,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
+@@ -620,11 +617,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
          // handler safe functions (writing to stderr) and manipulating signals.
          unsafe {
              signal_hook::low_level::register(signal_hook::consts::SIGSYS, || {
@@ -400,10 +390,10 @@ index 9568fbe8..0ea87517 100644
              })
          }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 204020c3..e866cf0f 100644
+index 3f8062d9..4557ab03 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -744,8 +744,8 @@ impl CpusConfig {
+@@ -745,8 +745,8 @@ impl CpusConfig {
  }
  
  impl PciSegmentConfig {
@@ -414,7 +404,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1049,10 +1049,10 @@ impl MemoryConfig {
+@@ -1050,10 +1050,10 @@ impl MemoryConfig {
  }
  
  impl RateLimiterGroupConfig {
@@ -428,7 +418,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1136,8 +1136,8 @@ impl RateLimiterGroupConfig {
+@@ -1137,8 +1137,8 @@ impl RateLimiterGroupConfig {
  }
  
  impl DiskConfig {
@@ -439,7 +429,7 @@ index 204020c3..e866cf0f 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1347,13 +1347,13 @@ impl FromStr for VhostMode {
+@@ -1348,13 +1348,13 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
@@ -456,7 +446,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1596,8 +1596,8 @@ impl RngConfig {
+@@ -1597,8 +1597,8 @@ impl RngConfig {
  
  impl BalloonConfig {
      pub const SYNTAX: &'static str =
@@ -467,7 +457,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1633,9 +1633,9 @@ impl BalloonConfig {
+@@ -1634,9 +1634,9 @@ impl BalloonConfig {
  }
  
  impl FsConfig {
@@ -480,7 +470,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1704,9 +1704,9 @@ impl FsConfig {
+@@ -1705,9 +1705,9 @@ impl FsConfig {
  }
  
  impl PmemConfig {
@@ -493,7 +483,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1875,7 +1875,7 @@ impl DebugConsoleConfig {
+@@ -1876,7 +1876,7 @@ impl DebugConsoleConfig {
  
  impl DeviceConfig {
      pub const SYNTAX: &'static str =
@@ -502,7 +492,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1932,7 +1932,7 @@ impl DeviceConfig {
+@@ -1933,7 +1933,7 @@ impl DeviceConfig {
  
  impl UserDeviceConfig {
      pub const SYNTAX: &'static str =
@@ -511,7 +501,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1976,9 +1976,9 @@ impl UserDeviceConfig {
+@@ -1977,9 +1977,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -524,7 +514,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2036,8 +2036,8 @@ impl VdpaConfig {
+@@ -2037,8 +2037,8 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -535,7 +525,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2096,8 +2096,8 @@ impl VsockConfig {
+@@ -2097,8 +2097,8 @@ impl VsockConfig {
  
  #[cfg(target_arch = "x86_64")]
  impl SgxEpcConfig {
@@ -546,7 +536,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(sgx_epc: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2121,10 +2121,10 @@ impl SgxEpcConfig {
+@@ -2122,10 +2122,10 @@ impl SgxEpcConfig {
  }
  
  impl NumaConfig {
@@ -560,7 +550,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2236,13 +2236,9 @@ pub struct RestoreConfig {
+@@ -2237,13 +2237,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
@@ -577,7 +567,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2325,8 +2321,8 @@ impl RestoreConfig {
+@@ -2326,8 +2322,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {
@@ -588,7 +578,7 @@ index 204020c3..e866cf0f 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2341,8 +2337,8 @@ impl TpmConfig {
+@@ -2342,8 +2338,8 @@ impl TpmConfig {
  }
  
  impl LandlockConfig {

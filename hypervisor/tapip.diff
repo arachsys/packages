@@ -1,16 +1,16 @@
 diff --git a/net_util/src/open_tap.rs b/net_util/src/open_tap.rs
-index 4276012d..1c16e599 100644
+index f75b9297..53782669 100644
 --- a/net_util/src/open_tap.rs
 +++ b/net_util/src/open_tap.rs
-@@ -3,7 +3,6 @@
+@@ -2,7 +2,6 @@
+ //
  // SPDX-License-Identifier: Apache-2.0 AND BSD-3-Clause
  
- use super::{vnet_hdr_len, MacAddr, Tap, TapError};
 -use std::net::Ipv4Addr;
  use std::path::Path;
  use std::{fs, io};
- use thiserror::Error;
-@@ -62,8 +61,6 @@ fn check_mq_support(if_name: &Option<&str>, queue_pairs: usize) -> Result<()> {
+ 
+@@ -64,8 +63,6 @@ fn check_mq_support(if_name: &Option<&str>, queue_pairs: usize) -> Result<()> {
  /// netmask.
  pub fn open_tap(
      if_name: Option<&str>,
@@ -19,7 +19,7 @@ index 4276012d..1c16e599 100644
      host_mac: &mut Option<MacAddr>,
      mtu: Option<u16>,
      num_rx_q: usize,
-@@ -72,10 +69,6 @@ pub fn open_tap(
+@@ -74,10 +71,6 @@ pub fn open_tap(
      let mut taps: Vec<Tap> = Vec::new();
      let mut ifname: String = String::new();
      let vnet_hdr_size = vnet_hdr_len() as i32;
@@ -30,7 +30,7 @@ index 4276012d..1c16e599 100644
  
      // In case the tap interface already exists, check if the number of
      // queues is appropriate. The tap might not support multiqueue while
-@@ -91,20 +84,6 @@ pub fn open_tap(
+@@ -93,20 +86,6 @@ pub fn open_tap(
                  Some(name) => Tap::open_named(name, num_rx_q, flags).map_err(Error::TapOpen)?,
                  None => Tap::new(num_rx_q).map_err(Error::TapOpen)?,
              };
@@ -52,18 +52,18 @@ index 4276012d..1c16e599 100644
                  tap.set_mac_addr(*mac).map_err(Error::TapSetMac)?
              } else {
 diff --git a/vhost_user_net/src/lib.rs b/vhost_user_net/src/lib.rs
-index 26e8bce2..363a4322 100644
+index 97449aaa..52ca9570 100644
 --- a/vhost_user_net/src/lib.rs
 +++ b/vhost_user_net/src/lib.rs
-@@ -15,7 +15,6 @@ use option_parser::Toggle;
- use option_parser::{OptionParser, OptionParserError};
- use std::fmt;
- use std::io;
+@@ -6,7 +6,6 @@
+ //
+ // SPDX-License-Identifier: (Apache-2.0 AND BSD-3-Clause)
+ 
 -use std::net::Ipv4Addr;
  use std::ops::Deref;
  use std::os::unix::io::{AsRawFd, RawFd};
- use std::process;
-@@ -58,7 +57,7 @@ pub enum Error {
+ use std::sync::{Arc, Mutex, RwLock};
+@@ -56,7 +55,7 @@ pub enum Error {
  }
  
  pub const SYNTAX: &str = "vhost-user-net backend parameters \
@@ -72,7 +72,7 @@ index 26e8bce2..363a4322 100644
  num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,tap=<if_name>\"";
  
  impl fmt::Display for Error {
-@@ -120,9 +119,7 @@ pub struct VhostUserNetBackend {
+@@ -118,9 +117,7 @@ pub struct VhostUserNetBackend {
  impl VhostUserNetBackend {
      #[allow(clippy::too_many_arguments)]
      fn new(
@@ -82,7 +82,7 @@ index 26e8bce2..363a4322 100644
          mtu: Option<u16>,
          num_queues: usize,
          queue_size: u16,
-@@ -131,8 +128,6 @@ impl VhostUserNetBackend {
+@@ -129,8 +126,6 @@ impl VhostUserNetBackend {
      ) -> Result<Self> {
          let mut taps = open_tap(
              ifname,
@@ -91,7 +91,17 @@ index 26e8bce2..363a4322 100644
              &mut Some(host_mac),
              mtu,
              num_queues / 2,
-@@ -290,9 +285,7 @@ impl VhostUserNetBackendConfig {
+@@ -271,9 +266,7 @@ impl VhostUserBackendMut for VhostUserNetBackend {
+ }
+ 
+ pub struct VhostUserNetBackendConfig {
+-    pub ip: Ipv4Addr,
+     pub host_mac: MacAddr,
+-    pub mask: Ipv4Addr,
+     pub mtu: Option<u16>,
+     pub socket: String,
+     pub num_queues: usize,
+@@ -288,9 +281,7 @@ impl VhostUserNetBackendConfig {
  
          parser
              .add("tap")
@@ -101,7 +111,7 @@ index 26e8bce2..363a4322 100644
              .add("mtu")
              .add("queue_size")
              .add("num_queues")
-@@ -302,18 +295,10 @@ impl VhostUserNetBackendConfig {
+@@ -300,18 +291,10 @@ impl VhostUserNetBackendConfig {
          parser.parse(backend).map_err(Error::FailedConfigParse)?;
  
          let tap = parser.get("tap");
@@ -120,7 +130,7 @@ index 26e8bce2..363a4322 100644
          let mtu = parser.convert("mtu").map_err(Error::FailedConfigParse)?;
          let queue_size = parser
              .convert("queue_size")
-@@ -331,9 +316,7 @@ impl VhostUserNetBackendConfig {
+@@ -329,9 +312,7 @@ impl VhostUserNetBackendConfig {
              .0;
  
          Ok(VhostUserNetBackendConfig {
@@ -130,7 +140,7 @@ index 26e8bce2..363a4322 100644
              mtu,
              socket,
              num_queues,
-@@ -359,9 +342,7 @@ pub fn start_net_backend(backend_command: &str) {
+@@ -357,9 +338,7 @@ pub fn start_net_backend(backend_command: &str) {
  
      let net_backend = Arc::new(RwLock::new(
          VhostUserNetBackend::new(
@@ -141,18 +151,18 @@ index 26e8bce2..363a4322 100644
              backend_config.num_queues,
              backend_config.queue_size,
 diff --git a/virtio-devices/src/net.rs b/virtio-devices/src/net.rs
-index ce46b938..dbd46c3e 100644
+index 38a14af0..0004a550 100644
 --- a/virtio-devices/src/net.rs
 +++ b/virtio-devices/src/net.rs
-@@ -26,7 +26,6 @@ use net_util::{
- use seccompiler::SeccompAction;
- use serde::{Deserialize, Serialize};
+@@ -6,7 +6,6 @@
+ // found in the THIRD-PARTY file.
+ 
  use std::collections::HashMap;
 -use std::net::Ipv4Addr;
  use std::num::Wrapping;
  use std::ops::Deref;
  use std::os::unix::io::{AsRawFd, RawFd};
-@@ -547,8 +546,6 @@ impl Net {
+@@ -545,8 +544,6 @@ impl Net {
      pub fn new(
          id: String,
          if_name: Option<&str>,
@@ -161,7 +171,7 @@ index ce46b938..dbd46c3e 100644
          guest_mac: Option<MacAddr>,
          host_mac: &mut Option<MacAddr>,
          mtu: Option<u16>,
-@@ -565,8 +562,6 @@ impl Net {
+@@ -563,8 +560,6 @@ impl Net {
      ) -> Result<Self> {
          let taps = open_tap(
              if_name,
@@ -171,10 +181,10 @@ index ce46b938..dbd46c3e 100644
              mtu,
              num_queues / 2,
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 8ef7cfb1..2105a6cb 100644
+index 4557ab03..352a00c2 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -1348,7 +1348,7 @@ impl FromStr for VhostMode {
+@@ -1349,7 +1349,7 @@ impl FromStr for VhostMode {
  
  impl NetConfig {
      pub const SYNTAX: &'static str = "Network parameters: \
@@ -183,7 +193,7 @@ index 8ef7cfb1..2105a6cb 100644
      num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,id=<device_id>,\
      vhost_user=<vhost_user_enable>,socket=<vhost_user_socket_path>,vhost_mode=client|server,\
      bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1360,8 +1360,6 @@ impl NetConfig {
+@@ -1361,8 +1361,6 @@ impl NetConfig {
  
          parser
              .add("tap")
@@ -192,7 +202,7 @@ index 8ef7cfb1..2105a6cb 100644
              .add("mac")
              .add("host_mac")
              .add("offload_tso")
-@@ -1386,14 +1384,6 @@ impl NetConfig {
+@@ -1387,14 +1385,6 @@ impl NetConfig {
          parser.parse(net).map_err(Error::ParseNetwork)?;
  
          let tap = parser.get("tap");
@@ -207,7 +217,7 @@ index 8ef7cfb1..2105a6cb 100644
          let mac = parser
              .convert("mac")
              .map_err(Error::ParseNetwork)?
-@@ -1500,8 +1490,6 @@ impl NetConfig {
+@@ -1501,8 +1491,6 @@ impl NetConfig {
  
          let config = NetConfig {
              tap,
@@ -217,10 +227,10 @@ index 8ef7cfb1..2105a6cb 100644
              host_mac,
              mtu,
 diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index 99ad5208..ea3dbeb8 100644
+index 4c9b65fd..062e0b96 100644
 --- a/vmm/src/device_manager.rs
 +++ b/vmm/src/device_manager.rs
-@@ -2573,8 +2573,6 @@ impl DeviceManager {
+@@ -2534,8 +2534,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          Some(tap_if_name),
@@ -229,7 +239,7 @@ index 99ad5208..ea3dbeb8 100644
                          Some(net_cfg.mac),
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
-@@ -2624,8 +2622,6 @@ impl DeviceManager {
+@@ -2585,8 +2583,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          None,
@@ -239,19 +249,18 @@ index 99ad5208..ea3dbeb8 100644
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index 9e2ff20d..bfc7c962 100644
+index 52ace1fd..47005552 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
-@@ -5,7 +5,7 @@
- use crate::{landlock::LandlockError, Landlock};
- use net_util::MacAddr;
- use serde::{Deserialize, Serialize};
--use std::{fs, net::Ipv4Addr, path::PathBuf, result};
-+use std::{fs, path::PathBuf, result};
- use virtio_devices::RateLimiterConfig;
+@@ -2,7 +2,6 @@
+ //
+ // SPDX-License-Identifier: Apache-2.0
+ //
+-use std::net::Ipv4Addr;
+ use std::path::PathBuf;
+ use std::{fs, result};
  
- pub type LandlockResult<T> = result::Result<T, LandlockError>;
-@@ -288,10 +288,6 @@ pub fn default_diskconfig_queue_size() -> u16 {
+@@ -293,10 +292,6 @@ pub fn default_diskconfig_queue_size() -> u16 {
  pub struct NetConfig {
      #[serde(default = "default_netconfig_tap")]
      pub tap: Option<String>,
@@ -262,7 +271,7 @@ index 9e2ff20d..bfc7c962 100644
      #[serde(default = "default_netconfig_mac")]
      pub mac: MacAddr,
      #[serde(default)]
-@@ -337,14 +333,6 @@ pub fn default_netconfig_tap() -> Option<String> {
+@@ -342,14 +337,6 @@ pub fn default_netconfig_tap() -> Option<String> {
      None
  }
  
