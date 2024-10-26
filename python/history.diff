@@ -1,39 +1,57 @@
 diff --git a/Lib/site.py b/Lib/site.py
-index 0a0dc47b..ae79ec51 100644
+index 0a0dc47b..261a7341 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -516,34 +516,6 @@ def register_readline():
-         # want to ignore the exception.
-         pass
+@@ -472,8 +472,7 @@ def gethistoryfile():
+         history = os.environ.get("PYTHON_HISTORY")
+         if history:
+             return history
+-    return os.path.join(os.path.expanduser('~'),
+-        '.python_history')
++    return None
  
--    if readline.get_current_history_length() == 0:
--        from _pyrepl.main import CAN_USE_PYREPL
+ 
+ def enablerlcompleter():
+@@ -518,8 +517,7 @@ def register_readline():
+ 
+     if readline.get_current_history_length() == 0:
+         from _pyrepl.main import CAN_USE_PYREPL
 -        # If no history was loaded, default to .python_history,
 -        # or PYTHON_HISTORY.
--        # The guard is necessary to avoid doubling history size at
--        # each interpreter exit when readline was already configured
--        # through a PYTHONSTARTUP hook, see:
--        # http://bugs.python.org/issue5845#msg198636
--        history = gethistoryfile()
--        if os.getenv("PYTHON_BASIC_REPL") or not CAN_USE_PYREPL:
--            readline_module = readline
--        else:
--            readline_module = _pyrepl.readline
++        # If no history was loaded, default to PYTHON_HISTORY.
+         # The guard is necessary to avoid doubling history size at
+         # each interpreter exit when readline was already configured
+         # through a PYTHONSTARTUP hook, see:
+@@ -529,20 +527,22 @@ def register_readline():
+             readline_module = readline
+         else:
+             readline_module = _pyrepl.readline
 -        try:
 -            readline_module.read_history_file(history)
 -        except (OSError,* _pyrepl.unix_console._error):
 -            pass
--
+ 
 -        def write_history():
--            try:
++        if history:
+             try:
 -                readline_module.write_history_file(history)
 -            except (FileNotFoundError, PermissionError):
 -                # home directory does not exist or is not writable
 -                # https://bugs.python.org/issue19891
--                pass
--
++                readline_module.read_history_file(history)
++            except (OSError,* _pyrepl.unix_console._error):
+                 pass
+ 
 -        atexit.register(write_history)
--
++            def write_history():
++                try:
++                    readline_module.write_history_file(history)
++                except (FileNotFoundError, PermissionError):
++                    # home directory does not exist or is not writable
++                    # https://bugs.python.org/issue19891
++                    pass
++
++            atexit.register(write_history)
+ 
  
  def venv(known_paths):
-     global PREFIXES, ENABLE_USER_SITE

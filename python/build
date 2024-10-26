@@ -16,7 +16,7 @@ prepare() {
   apply paths.diff
   apply pgo.diff
   sed -i '1s_^#!.*_#!/bin/python3_' Misc/python-config.in **/*.py
-  tree 18cfe0963dd17f026ab71f4651d14b4714b3c0c56102ac9ca1475fc59f4f0f4c
+  tree 89cbbe8c9f1debd72eb3fbdff693bf55d0403e8398c8044dfa36468b8908a002
 }
 
 build() {
