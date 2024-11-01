@@ -1,13 +1,13 @@
 check() {
   url https://api.github.com/repos/arachsys/microdns/branches/master
-  match snapshot 20240331 \
+  match snapshot 20241101 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack microdns-20240331-163c499d.tar.gz \
-    https://github.com/arachsys/microdns/archive/163c499d.tar.gz
-  tree 64bcff37ca77cdfc99ec8d8416af5d9d552a6a8e34f58624c5e56dbb371366d2
+  unpack microdns-20241101-f1d01b47.tar.gz \
+    https://github.com/arachsys/microdns/archive/f1d01b47.tar.gz
+  tree bea6ce08c44d26b4980e4a3038524be418064ebde9f8bb5736f31a0e0eae0fff
 }
 
 build() {
