@@ -1,18 +1,16 @@
-diff --git a/bridge/mst.c b/bridge/mst.c
-index 873ca536..c30ba7ae 100644
---- a/bridge/mst.c
-+++ b/bridge/mst.c
-@@ -4,8 +4,9 @@
-  */
+diff --git a/Makefile b/Makefile
+index 2b2c3dec..071a8e10 100644
+--- a/Makefile
++++ b/Makefile
+@@ -66,7 +66,7 @@ CCOPTS = -O2 -pipe
+ WFLAGS := -Wall -Wstrict-prototypes  -Wmissing-prototypes
+ WFLAGS += -Wmissing-declarations -Wold-style-definition -Wformat=2
  
- #include <stdio.h>
--#include <linux/if_bridge.h>
- #include <net/if.h>
-+#include <netinet/in.h>
-+#include <linux/if_bridge.h>
+-CFLAGS := $(WFLAGS) $(CCOPTS) -I../include -I../include/uapi $(DEFINES) $(CFLAGS)
++CFLAGS := $(WFLAGS) $(CCOPTS) -I../include $(DEFINES) $(CFLAGS)
+ YACCFLAGS = -d -t -v
  
- #include "libnetlink.h"
- #include "json_print.h"
+ SUBDIRS=lib ip tc bridge misc netem genl man
 diff --git a/include/libnetlink.h b/include/libnetlink.h
 index 30f0c2d2..0139efa0 100644
 --- a/include/libnetlink.h
@@ -25,3 +23,15 @@ index 30f0c2d2..0139efa0 100644
  #include <stdio.h>
  #include <string.h>
  #include <asm/types.h>
+diff --git a/ip/iplink.c b/ip/iplink.c
+index e650a5c2..e1104292 100644
+--- a/ip/iplink.c
++++ b/ip/iplink.c
+@@ -22,6 +22,7 @@
+ #include <sys/ioctl.h>
+ #include <stdbool.h>
+ #include <linux/mpls.h>
++#include <linux/limits.h>
+ 
+ #include "rt_names.h"
+ #include "utils.h"
