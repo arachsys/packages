@@ -11,7 +11,7 @@ check() {
   match automake 1.17 'automake-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/libtool/
-  match libtool 2.5.3 'libtool-([0-9.]+)\.tar'
+  match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
 
   url https://pkgconfig.freedesktop.org/releases/
   match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
@@ -29,13 +29,13 @@ prepare() {
   unpack -d tools/automake \
     https://ftp.gnu.org/gnu/automake/automake-1.17.tar.xz
   unpack -d tools/libtool \
-    https://ftp.gnu.org/gnu/libtool/libtool-2.5.3.tar.xz
+    https://ftp.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz
   unpack -d tools/pkgconf \
     https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
 
   apply console.diff
   apply lanplus.diff
-  tree 310f08c11cc3553b32f674904668be0690f5a9cace1c2c0f585a8513afc47004
+  tree 866e7f1f32cf139b2c182fb1ec9e7e3fbc10a1ae51a01bc006608659f5e6ef41
 }
 
 build() {
