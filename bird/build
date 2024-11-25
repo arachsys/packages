@@ -7,8 +7,9 @@ check() {
 
 prepare() {
   unpack https://bird.network.cz/download/bird-2.15.1.tar.gz
+  apply babel.diff
   apply history.diff
-  tree 6eafeadfc67feb2db3419d00ef9774a70995d0268fdaf56151f4a26c7d48d97f
+  tree c1e13d08064f9c6fd0c4ee996cae9d6df4649a82d383ef9e5d15c5657c751668
 }
 
 build() {
