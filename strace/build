@@ -9,7 +9,7 @@ prepare() {
 }
 
 build() {
-  auto-config --disable-gcc-Werror --disable-mpers --enable-bundled
+  auto-config --disable-bundled --disable-gcc-Werror --disable-mpers
   make install DESTDIR=/dst
   rm -f /dst/bin/strace-{graph,log-merge}
 }
