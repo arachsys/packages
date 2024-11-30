@@ -1,5 +1,5 @@
 diff --git a/compiler/rustc_session/src/filesearch.rs b/compiler/rustc_session/src/filesearch.rs
-index d78f4a78..794484ea 100644
+index 4aae2649..1455ff41 100644
 --- a/compiler/rustc_session/src/filesearch.rs
 +++ b/compiler/rustc_session/src/filesearch.rs
 @@ -157,9 +157,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
@@ -70,10 +70,10 @@ index e3b6430a..482ea807 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
-index edf18e2e..4d066d0e 100644
+index 27bbc8bd..15817eb7 100644
 --- a/src/bootstrap/src/core/build_steps/compile.rs
 +++ b/src/bootstrap/src/core/build_steps/compile.rs
-@@ -371,40 +371,7 @@ fn copy_self_contained_objects(
+@@ -367,40 +367,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -116,7 +116,7 @@ index edf18e2e..4d066d0e 100644
              panic!(
                  "Target {:?} does not have a \"wasi-root\" key in Config.toml \
 diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
-index 60ec57d0..31b41125 100644
+index 6fbdd76e..486670f7 100644
 --- a/src/bootstrap/src/core/sanity.rs
 +++ b/src/bootstrap/src/core/sanity.rs
 @@ -11,7 +11,7 @@
@@ -126,9 +126,9 @@ index 60ec57d0..31b41125 100644
 -use std::{env, fs};
 +use std::env;
  
+ use crate::Build;
  #[cfg(not(feature = "bootstrap-self-test"))]
- use crate::builder::Builder;
-@@ -325,28 +325,6 @@ than building it.
+@@ -330,28 +330,6 @@ than building it.
              continue;
          }
  
@@ -158,10 +158,10 @@ index 60ec57d0..31b41125 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 82b640f5..d3996781 100644
+index ecb219ea..e767201f 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
-@@ -177,6 +177,7 @@ pub struct Build {
+@@ -182,6 +182,7 @@ pub struct Build {
      metrics: crate::utils::metrics::BuildMetrics,
  }
  
