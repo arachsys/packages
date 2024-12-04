@@ -65,7 +65,7 @@ index 59583822..f847a90e 100755
  
  
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index 47b2aa57..0db6351e 100644
+index f2173032..1c5c71c1 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -78,7 +78,7 @@ index 47b2aa57..0db6351e 100644
  devnull = '/dev/null'
  
 diff --git a/Lib/site.py b/Lib/site.py
-index ae79ec51..6596ee55 100644
+index 095e91e9..fa2f7533 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
 @@ -321,12 +321,12 @@ def _get_path(userbase):
@@ -106,7 +106,7 @@ index ae79ec51..6596ee55 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig/__init__.py b/Lib/sysconfig/__init__.py
-index 80aef344..7ad25450 100644
+index ec3b638f..a1ccfe95 100644
 --- a/Lib/sysconfig/__init__.py
 +++ b/Lib/sysconfig/__init__.py
 @@ -27,14 +27,12 @@ _ALWAYS_STR = {
@@ -220,10 +220,10 @@ index c286eac3..1e060127 100644
          if executable is None:
              return None
 diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
-index 028e9483..4375449b 100644
+index f7a6d261..abae7c66 100644
 --- a/Lib/venv/__init__.py
 +++ b/Lib/venv/__init__.py
-@@ -181,12 +181,6 @@ class EnvBuilder:
+@@ -182,12 +182,6 @@ class EnvBuilder:
          create_if_needed(incpath)
          context.lib_path = libpath
          create_if_needed(libpath)
@@ -237,7 +237,7 @@ index 028e9483..4375449b 100644
          context.bin_name = os.path.relpath(binpath, env_dir)
          context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 53822922..54bd323c 100644
+index 03ca4cb6..4921f03a 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -149,7 +149,7 @@ BINDIR=		@bindir@
@@ -279,10 +279,10 @@ index 1f1bfcb4..787f86e3 100644
      VENV_LANDMARK = 'pyvenv.cfg'
      ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}{ABI_THREAD}.zip'
 diff --git a/configure b/configure
-index 7cdd386c..1cbc1e1b 100755
+index ae70f02f..8e39fed7 100755
 --- a/configure
 +++ b/configure
-@@ -24604,7 +24604,7 @@ fi
+@@ -24609,7 +24609,7 @@ fi
  
  
  
@@ -291,7 +291,7 @@ index 7cdd386c..1cbc1e1b 100755
  
  
  # Check for --with-platlibdir
-@@ -24641,9 +24641,9 @@ fi
+@@ -24646,9 +24646,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then

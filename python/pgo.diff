@@ -1,5 +1,5 @@
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 53822922..38281cc7 100644
+index 4921f03a..84c8c6c2 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -752,7 +752,7 @@ profile-run-stamp:
