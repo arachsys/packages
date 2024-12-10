@@ -2,18 +2,18 @@ require libaio
 
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match lvm2 2.03.28 'LVM2\.([0-9.]+)\.tgz'
+  match lvm2 2.03.29 'LVM2\.([0-9.]+)\.tgz'
 }
 
 prepare() {
-  unpack lvm2-2.03.28.tar.gz \
-    https://sourceware.org/ftp/lvm2/LVM2.2.03.28.tgz
+  unpack lvm2-2.03.29.tar.gz \
+    https://sourceware.org/ftp/lvm2/LVM2.2.03.29.tgz
   apply basename.diff
   apply pkgconfig.diff
   apply static.diff
   apply stdio.diff
   apply tidy.diff
-  tree eb2e2566f25fc1637003c7e93ba5632d5f3ed4b97bf7ca9af64f18b07fc48cfa
+  tree 457de2e1bcebcc20e9b9a1359e8765c3477583324cfa62d9dff8276d420cc1f1
 }
 
 build() {
