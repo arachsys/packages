@@ -1,1 +1,19 @@
-resolve "${@+base}" "${@-build}" | sort
+usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} resolve PKG...
+
+Expand the specified package image list by recursively adding runtime
+requirements and the base packages. Run with 'build' to list the standard
+build requirements.
+
+Set the package source tree location with \$PKGDIR and the image directory
+with \$IMGDIR.
+EOF
+  exit 64
+}
+
+if [[ $# -lt 1 ]]; then
+  usage
+fi
+
+resolve base "$@" | sort

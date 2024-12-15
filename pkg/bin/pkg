@@ -27,6 +27,25 @@ ACTION=$LIBRARY/actions/$1
 if [[ -f $ACTION ]]; then
   shift && source "$ACTION"
 else
-  warn "$(< $LIBRARY/help)"
-  [[ $1 == ?(help) ]]
+  cat >&2 <<EOF
+Usage:
+  ${0##*/} apply [-c CACHEDIR] [-d DIR] [-p STRIP] PATCH
+  ${0##*/} build [-f] [-o OUTDIR] [-s SRC] PKG [FEATURE]...
+  ${0##*/} check [-p JOBS] [PKG]...
+  ${0##*/} hashtree DIR [EXCLUDE]...
+  ${0##*/} prepare [-f] PKG SRC [FEATURE]...
+  ${0##*/} requirements PKG [FEATURE]...
+  ${0##*/} resolve PKG...
+  ${0##*/} shell [-s SRC] [PKG]... [-- CMD [ARG]...]
+  ${0##*/} system DIR [PKG]...
+  ${0##*/} unpack [-c CACHEDIR] [-d DIR] [-p STRIP] TARFILE
+
+Set the package source tree location with \$PKGDIR, the image directory
+with \$IMGDIR and the download cache directory with \$CACHEDIR.
+
+Although the temporary containers used for hermetic builds and ${0##*/} shell
+help protect the host from accidental damage, they are not secure against
+untrusted code or deliberate attacks.
+EOF
+  exit 64
 fi

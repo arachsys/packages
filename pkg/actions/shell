@@ -15,7 +15,21 @@ while [[ ${!OPTIND} != "--" ]] && getopts :s: OPTION; do
       fi
       ;;
     *)
-      die "$(< $LIBRARY/help)"
+      cat >&2 <<EOF
+Usage: ${0##*/} shell [-s SRC] [PKG]... [-- CMD [ARG]...]
+
+Start a login shell or other command in a temporary container assembled
+from the images in \$IMGDIR, including the base packages, specified
+additions and their runtime requirements. If none are listed, the standard
+build requirements are used. A source tree to bind at /src can be provided
+with the -s option. The temporary root filesystem is deleted when the
+shell exits.
+
+Although the temporary containers constructed by ${0##*/} shell help protect
+the host from accidental damage, they are not secure against untrusted
+code or deliberate attacks.
+EOF
+      exit 64
       ;;
   esac
 done

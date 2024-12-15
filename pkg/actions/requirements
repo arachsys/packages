@@ -1,6 +1,6 @@
 action() {
   if [[ $# -lt 1 ]]; then
-    die "$(< $LIBRARY/help)"
+    usage
   fi
 
   PKG=$(locate "$PKGDIR" "$1")
@@ -21,6 +21,18 @@ helper() {
   if [[ ${#REQUIREMENTS[@]} -gt 0 ]]; then
     printf '%s\n' "${!REQUIREMENTS[@]}"
   fi
+}
+
+usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} requirements PKG [FEATURE]...
+
+List the build requirements for PKG with the specified FEATURE options.
+
+Set the package source tree location with \$PKGDIR and the image directory
+with \$IMGDIR.
+EOF
+  exit 64
 }
 
 if [[ $$ -eq 1 ]]; then

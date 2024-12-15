@@ -1,6 +1,15 @@
 if [[ $# -lt 1 ]]; then
-  die "$(< $LIBRARY/help)"
-else
-  unset CACHEDIR PKG
-  apply "$@"
+  cat >&2 <<EOF
+Usage: ${0##*/} apply [-c CACHEDIR] [-d DIR] [-p STRIP] PATCH
+
+Apply a patch from a remote URL or local file to the current directory
+or the directory specified with the -d option. By default, one leading
+component is stripped from filenames when applying patches but this can
+be adjusted with the -p option. An optional cache directory for downloads
+can be provided with the -c option.
+EOF
+  exit 64
 fi
+
+unset CACHEDIR PKG
+apply "$@"

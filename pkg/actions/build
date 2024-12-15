@@ -14,14 +14,14 @@ action() {
         mkdir -p "$SRC"
         ;;
       *)
-        die "$(< $LIBRARY/help)"
+        usage
         ;;
     esac
   done
   shift $((OPTIND - 1))
 
   if [[ $# -lt 1 ]]; then
-    die "$(< $LIBRARY/help)"
+    usage
   fi
 
   PKG=$(locate "$PKGDIR" "$1")
@@ -87,6 +87,27 @@ helper() {
 
   maybe hardlink -q -t -- /img/*/info
   find /img -depth -exec touch -r / {} +
+}
+
+usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} build [-f] [-o OUTDIR] [-s SRC] PKG [FEATURE]...
+
+Build an image for package PKG with the specified FEATURE options in the
+image directory \$IMGDIR. Images for all the build requirements and base
+packages must already exist in the image directory. Any existing image
+for PKG is replaced on successful completion; otherwise it is untouched.
+
+An alternative output directory to \$IMGDIR can be specified with the -o
+option, and a pre-prepared tree of source code to build can be provided
+with the -s option. The -f flag forces an update of invalid tree hashes
+and starts a debug shell in the sandbox if the build fails, equivalent
+to including 'force' in the FEATURE list.
+
+Set the package source tree location with \$PKGDIR, the image directory
+with \$IMGDIR and the download cache directory with \$CACHEDIR.
+EOF
+  exit 64
 }
 
 if [[ $$ -eq 1 ]]; then

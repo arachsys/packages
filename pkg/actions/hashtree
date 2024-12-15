@@ -1,5 +1,16 @@
-if [[ $# -gt 0 ]]; then
-  cd -- "$1" && shift
+if [[ $# -lt 1 ]]; then
+  cat >&2 <<EOF
+Usage: ${0##*/} hashtree DIR [EXCLUDE]...
+
+Generate a hash of the source code in directory DIR, skipping paths which
+match any EXCLUDE pattern. When DIR is unspecified, the current directory
+is used. File contents, executability and path names are hashed, together
+with symlinks and directories, but timestamps, ownerships and permissions
+do not affect the result. Out-of-tree symlinks, pipes, sockets and device
+nodes are forbidden as a security risk and will result in an error.
+EOF
+  exit 64
 fi
 
-hashtree "$@"
+cd -- "$1"
+hashtree "${@:2}"

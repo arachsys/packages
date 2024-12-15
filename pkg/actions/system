@@ -1,5 +1,13 @@
 if [[ $# -lt 1 ]]; then
-  die "$(< $LIBRARY/help)"
+  cat >&2 <<EOF
+Usage: ${0##*/} system DIR [PKG]...
+
+Construct a system image in DIR from package images in \$IMGDIR, including
+the base packages, specified additions and their runtime requirements.
+If none are listed, the standard build requirements are used. DIR must
+not already exist.
+EOF
+  exit 64
 elif [[ $1 != - ]] && [[ -e "$1" ]]; then
   die "Cannot construct system image: $1 already exists"
 fi

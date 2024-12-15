@@ -20,6 +20,9 @@ apply() {
         fi
         STRIP=$OPTARG
         ;;
+      *)
+        die "Invalid apply option: ${!OPTIND}"
+        ;;
     esac
   done
   shift $((OPTIND - 1))
@@ -228,6 +231,9 @@ unpack() {
           die "Invalid prefix length to strip"
         fi
         STRIP=$OPTARG
+        ;;
+      *)
+        die "Invalid unpack option: ${!OPTIND}"
         ;;
     esac
   done

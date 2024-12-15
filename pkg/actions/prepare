@@ -10,7 +10,7 @@ action() {
   shift $((OPTIND - 1))
 
   if [[ $# -lt 1 ]]; then
-    die "$(< $LIBRARY/help)"
+    usage
   elif [[ $2 != ?(-) ]] && [[ -e "$2" ]]; then
     die "Cannot unpack sources: $2 already exists"
   fi
@@ -82,6 +82,24 @@ helper() {
   chown -f -R 0:0 /src
   chmod -f -R u=rwX,go=rX /src
   find /src -depth -exec touch -h -r / {} +
+}
+
+usage() {
+  cat >&2 <<EOF
+Usage: ${0##*/} prepare [-f] PKG SRC [FEATURE]...
+
+In the directory SRC, which must not already exist, unpack and patch the
+sources for package PKG with the specified FEATURE options. Preparation
+stops at the first error, leaving the partial source tree for debugging.
+
+The -f flag forces an update of invalid tree hashes, equivalent to
+including 'force' in the FEATURE list. Specify SRC as - to unpack in a
+temporary directory for verification or update.
+
+Set the package source tree location with \$PKGDIR, the image directory
+with \$IMGDIR and the download cache directory with \$CACHEDIR.
+EOF
+  exit 64
 }
 
 if [[ $$ -eq 1 ]]; then

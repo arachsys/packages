@@ -1,6 +1,15 @@
 if [[ $# -lt 1 ]]; then
-  die "$(< $LIBRARY/help)"
-else
-  unset CACHEDIR PKG
-  unpack "$@"
+  cat >&2 <<EOF
+Usage: ${0##*/} unpack [-c CACHEDIR] [-d DIR] [-p STRIP] TARFILE
+
+Unpack a source archive from a remote URL or local file in the current
+directory or the directory specified with the -d option. By default,
+one leading component is stripped from extracted filenames but this can
+be adjusted with the -p option. An optional cache directory for downloads
+can be provided with the -c option.
+EOF
+  exit 64
 fi
+
+unset CACHEDIR PKG
+unpack "$@"
