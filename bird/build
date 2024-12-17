@@ -2,7 +2,7 @@ require bison flex
 
 check() {
   url https://bird.network.cz/download/
-  match version 2.16 'bird-([0-9.]+)\.tar'
+  match version 2.16 'bird-(2\.[0-9.]+)\.tar'
 }
 
 prepare() {
