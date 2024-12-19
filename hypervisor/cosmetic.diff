@@ -169,7 +169,7 @@ index f807189d..57b151db 100644
          }
      };
 diff --git a/src/main.rs b/src/main.rs
-index 43b901df..199b1ebc 100644
+index fc9f6038..21cef90f 100644
 --- a/src/main.rs
 +++ b/src/main.rs
 @@ -9,7 +9,7 @@ use std::sync::mpsc::channel;
@@ -198,9 +198,9 @@ index 43b901df..199b1ebc 100644
 +        .about("Launch a cloud-hypervisor VMM")
 +        .color(ColorChoice::Never)
          .arg_required_else_help(true)
-         .group(ArgGroup::new("vm-config").multiple(true))
+         .group(ArgGroup::new("vm-config").multiple(true).requires("vm-payload"))
          .group(ArgGroup::new("vmm-config").multiple(true))
-@@ -191,7 +192,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -192,7 +193,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("cpus")
                  .long("cpus")
                  .help(
@@ -209,7 +209,7 @@ index 43b901df..199b1ebc 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -203,7 +204,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -204,7 +205,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("platform")
                  .long("platform")
@@ -218,7 +218,7 @@ index 43b901df..199b1ebc 100644
                  .num_args(1)
                  .group("vm-config"),
          )
-@@ -211,13 +212,12 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -212,13 +213,12 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("memory")
                  .long("memory")
                  .help(
@@ -234,7 +234,7 @@ index 43b901df..199b1ebc 100644
                  )
                  .default_value(default_memory)
                  .group("vm-config"),
-@@ -226,14 +226,13 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -227,14 +227,13 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("memory-zone")
                  .long("memory-zone")
                  .help(
@@ -251,14 +251,14 @@ index 43b901df..199b1ebc 100644
                  )
                  .num_args(1..)
                  .group("vm-config"),
-@@ -241,17 +240,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -242,17 +241,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("firmware")
                  .long("firmware")
 -                .help("Path to firmware that is loaded in an architectural specific way")
 +                .help("Path to architecture-specific firmware")
                  .num_args(1)
-                 .group("vm-config"),
+                 .group("vm-payload"),
          )
          .arg(
              Arg::new("kernel")
@@ -269,9 +269,9 @@ index 43b901df..199b1ebc 100644
 -                )
 +                .help("Path to kernel image")
                  .num_args(1)
-                 .group("vm-config"),
+                 .group("vm-payload"),
          )
-@@ -288,7 +284,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -289,7 +285,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
                  .long("landlock")
                  .num_args(0)
                  .help(
@@ -280,7 +280,7 @@ index 43b901df..199b1ebc 100644
                  )
                  .action(ArgAction::SetTrue)
                  .default_value("false")
-@@ -312,7 +308,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -313,7 +309,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("rng")
                  .long("rng")
                  .help(
@@ -289,7 +289,7 @@ index 43b901df..199b1ebc 100644
                  )
                  .default_value(default_rng)
                  .group("vm-config"),
-@@ -341,7 +337,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -342,7 +338,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("serial")
                  .long("serial")
@@ -298,7 +298,7 @@ index 43b901df..199b1ebc 100644
                  .default_value("null")
                  .group("vm-config"),
          )
-@@ -349,7 +345,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -350,7 +346,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
              Arg::new("console")
                  .long("console")
                  .help(
@@ -307,15 +307,16 @@ index 43b901df..199b1ebc 100644
                  )
                  .default_value("tty")
                  .group("vm-config"),
-@@ -415,6 +411,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -416,28 +412,29 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("v")
                  .short('v')
 +                .long("verbose")
                  .action(ArgAction::Count)
-                 .help("Sets the level of debugging output")
+-                .help("Sets the level of debugging output")
++                .help("Set the level of debugging output")
                  .group("logging"),
-@@ -422,21 +419,21 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+         )
          .arg(
              Arg::new("log-file")
                  .long("log-file")
@@ -340,7 +341,7 @@ index 43b901df..199b1ebc 100644
                  .num_args(1)
                  .group("vmm-config"),
          )
-@@ -475,7 +472,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -476,7 +473,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("debug-console")
              .long("debug-console")
@@ -349,7 +350,7 @@ index 43b901df..199b1ebc 100644
              .default_value("off,iobase=0xe9")
              .group("vm-config"),
      );
-@@ -484,7 +481,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -485,7 +482,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("gdb")
              .long("gdb")
@@ -358,7 +359,7 @@ index 43b901df..199b1ebc 100644
              .num_args(1)
              .group("vmm-config"),
      );
-@@ -494,7 +491,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -495,7 +492,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          .arg(
              Arg::new("dbus-service-name")
                  .long("dbus-service-name")
@@ -367,16 +368,16 @@ index 43b901df..199b1ebc 100644
                  .num_args(1)
                  .group("vmm-config"),
          )
-@@ -517,7 +514,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -518,7 +515,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
      let app = app.arg(
          Arg::new("igvm")
              .long("igvm")
 -            .help("Path to IGVM file to load.")
 +            .help("Path to IGVM file to load")
              .num_args(1)
-             .group("vm-config"),
+             .group("vm-payload"),
      );
-@@ -620,11 +617,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
+@@ -621,11 +618,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
          // handler safe functions (writing to stderr) and manipulating signals.
          unsafe {
              signal_hook::low_level::register(signal_hook::consts::SIGSYS, || {
@@ -390,7 +391,7 @@ index 43b901df..199b1ebc 100644
              })
          }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 3f8062d9..4557ab03 100644
+index 422e904f..9ba0dba0 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
 @@ -745,8 +745,8 @@ impl CpusConfig {
@@ -429,7 +430,7 @@ index 3f8062d9..4557ab03 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1348,13 +1348,13 @@ impl FromStr for VhostMode {
+@@ -1349,13 +1349,13 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
@@ -446,7 +447,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1597,8 +1597,8 @@ impl RngConfig {
+@@ -1598,8 +1598,8 @@ impl RngConfig {
  
  impl BalloonConfig {
      pub const SYNTAX: &'static str =
@@ -457,7 +458,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1634,9 +1634,9 @@ impl BalloonConfig {
+@@ -1635,9 +1635,9 @@ impl BalloonConfig {
  }
  
  impl FsConfig {
@@ -470,7 +471,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1705,9 +1705,9 @@ impl FsConfig {
+@@ -1706,9 +1706,9 @@ impl FsConfig {
  }
  
  impl PmemConfig {
@@ -483,7 +484,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1876,7 +1876,7 @@ impl DebugConsoleConfig {
+@@ -1877,7 +1877,7 @@ impl DebugConsoleConfig {
  
  impl DeviceConfig {
      pub const SYNTAX: &'static str =
@@ -492,7 +493,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1933,7 +1933,7 @@ impl DeviceConfig {
+@@ -1934,7 +1934,7 @@ impl DeviceConfig {
  
  impl UserDeviceConfig {
      pub const SYNTAX: &'static str =
@@ -501,7 +502,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1977,9 +1977,9 @@ impl UserDeviceConfig {
+@@ -1978,9 +1978,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -514,7 +515,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2037,8 +2037,8 @@ impl VdpaConfig {
+@@ -2038,8 +2038,8 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -525,7 +526,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2097,8 +2097,8 @@ impl VsockConfig {
+@@ -2098,8 +2098,8 @@ impl VsockConfig {
  
  #[cfg(target_arch = "x86_64")]
  impl SgxEpcConfig {
@@ -536,7 +537,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(sgx_epc: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2122,10 +2122,10 @@ impl SgxEpcConfig {
+@@ -2123,10 +2123,10 @@ impl SgxEpcConfig {
  }
  
  impl NumaConfig {
@@ -550,7 +551,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2237,13 +2237,9 @@ pub struct RestoreConfig {
+@@ -2238,13 +2238,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
@@ -567,7 +568,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2326,8 +2322,8 @@ impl RestoreConfig {
+@@ -2327,8 +2323,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {
@@ -578,7 +579,7 @@ index 3f8062d9..4557ab03 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2342,8 +2338,8 @@ impl TpmConfig {
+@@ -2343,8 +2339,8 @@ impl TpmConfig {
  }
  
  impl LandlockConfig {

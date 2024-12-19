@@ -1,5 +1,5 @@
 diff --git a/net_util/src/open_tap.rs b/net_util/src/open_tap.rs
-index f75b9297..53782669 100644
+index 4fc8851e..53782669 100644
 --- a/net_util/src/open_tap.rs
 +++ b/net_util/src/open_tap.rs
 @@ -2,7 +2,6 @@
@@ -19,18 +19,16 @@ index f75b9297..53782669 100644
      host_mac: &mut Option<MacAddr>,
      mtu: Option<u16>,
      num_rx_q: usize,
-@@ -74,10 +71,6 @@ pub fn open_tap(
+@@ -74,8 +71,6 @@ pub fn open_tap(
      let mut taps: Vec<Tap> = Vec::new();
      let mut ifname: String = String::new();
      let vnet_hdr_size = vnet_hdr_len() as i32;
 -    // Check if the given interface exists before we create it.
--    let tap_existed = if_name.map_or(false, |n| {
--        Path::new(&format!("/sys/class/net/{n}")).exists()
--    });
+-    let tap_existed = if_name.is_some_and(|n| Path::new(&format!("/sys/class/net/{n}")).exists());
  
      // In case the tap interface already exists, check if the number of
      // queues is appropriate. The tap might not support multiqueue while
-@@ -93,20 +86,6 @@ pub fn open_tap(
+@@ -91,20 +86,6 @@ pub fn open_tap(
                  Some(name) => Tap::open_named(name, num_rx_q, flags).map_err(Error::TapOpen)?,
                  None => Tap::new(num_rx_q).map_err(Error::TapOpen)?,
              };
@@ -151,7 +149,7 @@ index 97449aaa..52ca9570 100644
              backend_config.num_queues,
              backend_config.queue_size,
 diff --git a/virtio-devices/src/net.rs b/virtio-devices/src/net.rs
-index 38a14af0..0004a550 100644
+index 5fba6f7d..26b24935 100644
 --- a/virtio-devices/src/net.rs
 +++ b/virtio-devices/src/net.rs
 @@ -6,7 +6,6 @@
@@ -181,10 +179,10 @@ index 38a14af0..0004a550 100644
              mtu,
              num_queues / 2,
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 4557ab03..352a00c2 100644
+index 9ba0dba0..4f511bd6 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -1349,7 +1349,7 @@ impl FromStr for VhostMode {
+@@ -1350,7 +1350,7 @@ impl FromStr for VhostMode {
  
  impl NetConfig {
      pub const SYNTAX: &'static str = "Network parameters: \
@@ -193,7 +191,7 @@ index 4557ab03..352a00c2 100644
      num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,id=<device_id>,\
      vhost_user=<vhost_user_enable>,socket=<vhost_user_socket_path>,vhost_mode=client|server,\
      bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1361,8 +1361,6 @@ impl NetConfig {
+@@ -1362,8 +1362,6 @@ impl NetConfig {
  
          parser
              .add("tap")
@@ -202,7 +200,7 @@ index 4557ab03..352a00c2 100644
              .add("mac")
              .add("host_mac")
              .add("offload_tso")
-@@ -1387,14 +1385,6 @@ impl NetConfig {
+@@ -1388,14 +1386,6 @@ impl NetConfig {
          parser.parse(net).map_err(Error::ParseNetwork)?;
  
          let tap = parser.get("tap");
@@ -217,7 +215,7 @@ index 4557ab03..352a00c2 100644
          let mac = parser
              .convert("mac")
              .map_err(Error::ParseNetwork)?
-@@ -1501,8 +1491,6 @@ impl NetConfig {
+@@ -1502,8 +1492,6 @@ impl NetConfig {
  
          let config = NetConfig {
              tap,
@@ -227,10 +225,10 @@ index 4557ab03..352a00c2 100644
              host_mac,
              mtu,
 diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index 4c9b65fd..062e0b96 100644
+index 8b3c20e5..54c19e8b 100644
 --- a/vmm/src/device_manager.rs
 +++ b/vmm/src/device_manager.rs
-@@ -2534,8 +2534,6 @@ impl DeviceManager {
+@@ -2523,8 +2523,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          Some(tap_if_name),
@@ -239,7 +237,7 @@ index 4c9b65fd..062e0b96 100644
                          Some(net_cfg.mac),
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
-@@ -2585,8 +2583,6 @@ impl DeviceManager {
+@@ -2574,8 +2572,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          None,
