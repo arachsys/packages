@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 6536ba13..dcf69e57 100755
+index 9908ae25..a4d5c681 100755
 --- a/configure
 +++ b/configure
-@@ -33836,10 +33836,10 @@ case "$target_os" in #(
+@@ -34290,10 +34290,10 @@ case "$target_os" in #(
       ;;
  esac
  
@@ -17,10 +17,10 @@ index 6536ba13..dcf69e57 100755
  # Check whether --with-rubyarchprefix was given.
  if test ${with_rubyarchprefix+y}
 diff --git a/configure.ac b/configure.ac
-index 18b42479..9b3e1d5c 100644
+index 30e197bf..bbd1c198 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4262,10 +4262,10 @@ AS_CASE(["$target_os"],
+@@ -4316,10 +4316,10 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -35,10 +35,10 @@ index 18b42479..9b3e1d5c 100644
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
  			   [prefix for architecture dependent ruby libraries [[RUBYLIBPREFIX/ARCH]]]),
 diff --git a/lib/rdoc.rb b/lib/rdoc.rb
-index cf52ce87..77230135 100644
+index b42059c7..af5d30fc 100644
 --- a/lib/rdoc.rb
 +++ b/lib/rdoc.rb
-@@ -143,7 +143,7 @@ module RDoc
+@@ -141,7 +141,7 @@ module RDoc
        require 'fileutils'
        begin
          # XDG
@@ -48,7 +48,7 @@ index cf52ce87..77230135 100644
            FileUtils.mkdir_p xdg_data_home
          end
 diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
-index ca161a4d..833f7f6c 100644
+index 1bd208fe..e1dc7b73 100644
 --- a/lib/rubygems/defaults.rb
 +++ b/lib/rubygems/defaults.rb
 @@ -21,7 +21,7 @@ module Gem

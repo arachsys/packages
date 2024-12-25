@@ -1,8 +1,8 @@
 diff --git a/lib/irb/init.rb b/lib/irb/init.rb
-index 35504751..24ecadce 100644
+index d474bd41..9247ca00 100644
 --- a/lib/irb/init.rb
 +++ b/lib/irb/init.rb
-@@ -92,7 +92,7 @@ module IRB # :nodoc:
+@@ -93,7 +93,7 @@ module IRB # :nodoc:
      @CONF[:VERBOSE] = nil
  
      @CONF[:EVAL_HISTORY] = nil
@@ -11,7 +11,7 @@ index 35504751..24ecadce 100644
  
      @CONF[:BACK_TRACE_LIMIT] = 16
  
-@@ -471,10 +471,10 @@ module IRB # :nodoc:
+@@ -506,10 +506,10 @@ module IRB # :nodoc:
          end
        end
        if home = ENV["HOME"]
