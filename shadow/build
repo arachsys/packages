@@ -2,15 +2,15 @@ enable setuid setgid
 
 check() {
   url https://github.com/shadow-maint/shadow/tags
-  match version 4.17.0 'tags/([0-9.]+)\.tar'
+  match version 4.17.1 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/4.17.0/shadow-4.17.0.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/4.17.1/shadow-4.17.1.tar.xz
   apply bcrypt.diff
   apply nss.diff
   apply paths.diff
-  tree 2b995d5bbe505fe821001de01cfbacff96e98eee835fa78b8162c7b47d00003d
+  tree 57c9a8eb812341d3cb924c8c10c52fad965665c1a4712ca94cfd23293a2a1f0b
 }
 
 build() {
