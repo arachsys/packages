@@ -1,12 +1,12 @@
 check() {
   url https://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git/refs/
-  match version 1.47.1 '>v([0-9.]+)<'
+  match version 1.47.2 '>v([0-9.]+)<'
 }
 
 prepare() {
-  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.1/e2fsprogs-1.47.1.tar.xz
+  unpack https://kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.xz
   apply paths.diff
-  tree 3778a9e0ab67cb1f64d83eff69b0956fe4012ca2a95fce937884eb40f5a071ca
+  tree dd685486bed822e01595173ba54cc4922534330c602a84cc222068b89d8bfa87
 }
 
 build() {
