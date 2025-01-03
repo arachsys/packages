@@ -1,11 +1,11 @@
 check() {
   url https://fping.org/dist/
-  match version 5.2 'fping-([0-9.]+)\.tar'
+  match version 5.3 'fping-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://fping.org/dist/fping-5.2.tar.gz
-  tree 69fbc3e907f65560e880315c9b01b5161aef519cd61b8ed16f8e54dc4b6bfc23
+  unpack https://fping.org/dist/fping-5.3.tar.gz
+  tree d31e07f9855555809a4a469e4980c416428e01f0bd134479b58c181471cf1892
 }
 
 build() {
