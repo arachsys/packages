@@ -1,8 +1,8 @@
 diff --git a/src/tools/cargo/crates/home/src/env.rs b/src/tools/cargo/crates/home/src/env.rs
-index 49fea542..9d5a76ba 100644
+index f5a6a223..fd08f524 100644
 --- a/src/tools/cargo/crates/home/src/env.rs
 +++ b/src/tools/cargo/crates/home/src/env.rs
-@@ -71,7 +71,7 @@ pub fn cargo_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf>
+@@ -75,7 +75,7 @@ pub fn cargo_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf>
              }
          }
          _ => home_dir_with_env(env)
@@ -11,7 +11,7 @@ index 49fea542..9d5a76ba 100644
              .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "could not find cargo home dir")),
      }
  }
-@@ -100,7 +100,7 @@ pub fn rustup_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf
+@@ -108,7 +108,7 @@ pub fn rustup_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf
              }
          }
          _ => home_dir_with_env(env)
@@ -43,7 +43,7 @@ index ad31d3d2..ff87117e 100644
      }
  }
 diff --git a/vendor/home-0.5.9/src/env.rs b/vendor/home-0.5.9/src/env.rs
-index 49fea542..531849c8 100644
+index 49fea542..9d5a76ba 100644
 --- a/vendor/home-0.5.9/src/env.rs
 +++ b/vendor/home-0.5.9/src/env.rs
 @@ -71,7 +71,7 @@ pub fn cargo_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf>

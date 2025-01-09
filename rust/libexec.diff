@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
-index 71f69e03..52ecd0d3 100644
+index d7ae0299..5a8e6aff 100644
 --- a/src/bootstrap/bootstrap.py
 +++ b/src/bootstrap/bootstrap.py
-@@ -632,7 +632,7 @@ class RustBuild(object):
+@@ -639,7 +639,7 @@ class RustBuild(object):
  
                  self.fix_bin_or_dylib("{}/bin/rustc".format(bin_root))
                  self.fix_bin_or_dylib("{}/bin/rustdoc".format(bin_root))
@@ -12,7 +12,7 @@ index 71f69e03..52ecd0d3 100644
                  rustlib_bin_dir = "{}/rustlib/{}/bin".format(lib_dir, self.build)
                  self.fix_bin_or_dylib("{}/rust-lld".format(rustlib_bin_dir))
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 4957de2e..a3251eb6 100644
+index 0cb89716..6fd3f913 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
 @@ -427,7 +427,7 @@ impl Step for Rustc {
@@ -25,10 +25,10 @@ index 4957de2e..a3251eb6 100644
  
              let libdir_relative = builder.libdir_relative(compiler);
 diff --git a/src/bootstrap/src/core/build_steps/tool.rs b/src/bootstrap/src/core/build_steps/tool.rs
-index 3a1eb43b..76c66be8 100644
+index 3cfbef27..3820558b 100644
 --- a/src/bootstrap/src/core/build_steps/tool.rs
 +++ b/src/bootstrap/src/core/build_steps/tool.rs
-@@ -852,7 +852,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -834,7 +834,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -38,10 +38,10 @@ index 3a1eb43b..76c66be8 100644
          builder.copy_link(&path, &libexec_path.join("rust-analyzer-proc-macro-srv"));
  
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index 1e3f8da5..2ce428e7 100644
+index db1f5b08..38a52433 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
-@@ -572,7 +572,7 @@ impl Config {
+@@ -592,7 +592,7 @@ impl Config {
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustc"));
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustdoc"));
                  self.fix_bin_or_dylib(

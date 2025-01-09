@@ -2,20 +2,21 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/tags
-  match version 1.83.0 'tags/([0-9.]+)\.tar'
+  match version 1.84.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.83.0-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.84.0-src.tar.gz
   apply curl.diff       # must patch vendor/curl-sys-*
   apply home.diff       # must patch vendor/home-*, tools/cargo/crates/home
   apply libexec.diff
   apply libressl.diff   # must patch vendor/openssl{,-sys}-*
+  apply objcopy.diff
   apply system.diff
   apply target.diff
   apply verify.diff
   apply version.diff
-  tree 95f5dc68f25bf19cf1cc3f6961c0b33e53dd2e685b30124d135de1c830345578
+  tree 1875fb70ea6a0298a4f71d6f7cc2c7efc0c769419b5a150d60fd953ec6a52ed0
 }
 
 build() {
@@ -26,7 +27,7 @@ build() {
     --build=$(/lib/llvm/bin/llvm-config --host-target) \
     --llvm-libunwind=system --llvm-config=/lib/llvm/bin/llvm-config \
     --local-rust-root= --release-channel=stable --set=change-id=99999999 \
-    --set=llvm.static-libstdcpp=false \
+    --set=llvm.static-libstdcpp=false --set=rust.llvm-tools=false \
     --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
