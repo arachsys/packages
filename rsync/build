@@ -1,17 +1,18 @@
 check() {
   url https://download.samba.org/pub/rsync/
-  match version 3.3.0 'rsync-([0-9.]+)\.tar'
+  match version 3.4.0 'rsync-([0-9.]+)\.tar'
 
   url https://github.com/Cyan4973/xxHash/tags
   match xxhash 0.8.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://download.samba.org/pub/rsync/rsync-3.3.0.tar.gz
+  unpack https://download.samba.org/pub/rsync/rsync-3.4.0.tar.gz
   unpack -d xxhash xxhash-0.8.3.tar.gz \
     https://github.com/Cyan4973/xxHash/archive/refs/tags/v0.8.3.tar.gz
+  apply backport.diff
   apply paths.diff
-  tree 166818e3e6144347d0b7a2fcc8e749fcc9945122f43887cc5c6dc13f75377c63
+  tree a0cb43a82b224c06817851044e2b7433d924a4ab114defcd8bf336ef9987f4f8
 }
 
 build() {
