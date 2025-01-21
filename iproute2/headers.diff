@@ -11,27 +11,3 @@ index 2b2c3dec..071a8e10 100644
  YACCFLAGS = -d -t -v
  
  SUBDIRS=lib ip tc bridge misc netem genl man
-diff --git a/include/libnetlink.h b/include/libnetlink.h
-index 30f0c2d2..0139efa0 100644
---- a/include/libnetlink.h
-+++ b/include/libnetlink.h
-@@ -2,6 +2,7 @@
- #ifndef __LIBNETLINK_H__
- #define __LIBNETLINK_H__ 1
- 
-+#include <endian.h>
- #include <stdio.h>
- #include <string.h>
- #include <asm/types.h>
-diff --git a/ip/iplink.c b/ip/iplink.c
-index e650a5c2..e1104292 100644
---- a/ip/iplink.c
-+++ b/ip/iplink.c
-@@ -22,6 +22,7 @@
- #include <sys/ioctl.h>
- #include <stdbool.h>
- #include <linux/mpls.h>
-+#include <linux/limits.h>
- 
- #include "rt_names.h"
- #include "utils.h"
