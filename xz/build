@@ -1,11 +1,11 @@
 check() {
   url https://github.com/tukaani-project/xz/tags
-  match version 5.6.3 'v([0-9.]+)\.tar'
+  match version 5.6.4 'v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/tukaani-project/xz/releases/download/v5.6.3/xz-5.6.3.tar.xz
-  tree 46a5b92d49f20b5715c8bff22e4cf2fc2f468d55adc9023dd8ed0dc1fabe90b4
+  unpack https://github.com/tukaani-project/xz/releases/download/v5.6.4/xz-5.6.4.tar.xz
+  tree cc73c162f17f80c34e75ca8f10a4faf94ecb56d8fc92c92871e3c7b75661d743
 }
 
 build() {
