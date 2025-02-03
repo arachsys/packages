@@ -50,7 +50,7 @@ index 4fc8851e..53782669 100644
                  tap.set_mac_addr(*mac).map_err(Error::TapSetMac)?
              } else {
 diff --git a/vhost_user_net/src/lib.rs b/vhost_user_net/src/lib.rs
-index 97449aaa..52ca9570 100644
+index 4339b95f..dedc361c 100644
 --- a/vhost_user_net/src/lib.rs
 +++ b/vhost_user_net/src/lib.rs
 @@ -6,7 +6,6 @@
@@ -149,7 +149,7 @@ index 97449aaa..52ca9570 100644
              backend_config.num_queues,
              backend_config.queue_size,
 diff --git a/virtio-devices/src/net.rs b/virtio-devices/src/net.rs
-index 5fba6f7d..26b24935 100644
+index a3908048..5ebf13f1 100644
 --- a/virtio-devices/src/net.rs
 +++ b/virtio-devices/src/net.rs
 @@ -6,7 +6,6 @@
@@ -160,7 +160,7 @@ index 5fba6f7d..26b24935 100644
  use std::num::Wrapping;
  use std::ops::Deref;
  use std::os::unix::io::{AsRawFd, RawFd};
-@@ -545,8 +544,6 @@ impl Net {
+@@ -547,8 +546,6 @@ impl Net {
      pub fn new(
          id: String,
          if_name: Option<&str>,
@@ -169,7 +169,7 @@ index 5fba6f7d..26b24935 100644
          guest_mac: Option<MacAddr>,
          host_mac: &mut Option<MacAddr>,
          mtu: Option<u16>,
-@@ -563,8 +560,6 @@ impl Net {
+@@ -565,8 +562,6 @@ impl Net {
      ) -> Result<Self> {
          let taps = open_tap(
              if_name,
@@ -179,10 +179,10 @@ index 5fba6f7d..26b24935 100644
              mtu,
              num_queues / 2,
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 9ba0dba0..4f511bd6 100644
+index c43cb543..73725b97 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -1350,7 +1350,7 @@ impl FromStr for VhostMode {
+@@ -1381,7 +1381,7 @@ impl FromStr for VhostMode {
  
  impl NetConfig {
      pub const SYNTAX: &'static str = "Network parameters: \
@@ -191,7 +191,7 @@ index 9ba0dba0..4f511bd6 100644
      num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,id=<device_id>,\
      vhost_user=<vhost_user_enable>,socket=<vhost_user_socket_path>,vhost_mode=client|server,\
      bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1362,8 +1362,6 @@ impl NetConfig {
+@@ -1393,8 +1393,6 @@ impl NetConfig {
  
          parser
              .add("tap")
@@ -200,7 +200,7 @@ index 9ba0dba0..4f511bd6 100644
              .add("mac")
              .add("host_mac")
              .add("offload_tso")
-@@ -1388,14 +1386,6 @@ impl NetConfig {
+@@ -1419,14 +1417,6 @@ impl NetConfig {
          parser.parse(net).map_err(Error::ParseNetwork)?;
  
          let tap = parser.get("tap");
@@ -215,7 +215,7 @@ index 9ba0dba0..4f511bd6 100644
          let mac = parser
              .convert("mac")
              .map_err(Error::ParseNetwork)?
-@@ -1502,8 +1492,6 @@ impl NetConfig {
+@@ -1533,8 +1523,6 @@ impl NetConfig {
  
          let config = NetConfig {
              tap,
@@ -225,10 +225,10 @@ index 9ba0dba0..4f511bd6 100644
              host_mac,
              mtu,
 diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index 8b3c20e5..54c19e8b 100644
+index 830590b4..be80b616 100644
 --- a/vmm/src/device_manager.rs
 +++ b/vmm/src/device_manager.rs
-@@ -2523,8 +2523,6 @@ impl DeviceManager {
+@@ -2532,8 +2532,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          Some(tap_if_name),
@@ -237,7 +237,7 @@ index 8b3c20e5..54c19e8b 100644
                          Some(net_cfg.mac),
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
-@@ -2574,8 +2572,6 @@ impl DeviceManager {
+@@ -2583,8 +2581,6 @@ impl DeviceManager {
                      virtio_devices::Net::new(
                          id.clone(),
                          None,
@@ -247,7 +247,7 @@ index 8b3c20e5..54c19e8b 100644
                          &mut net_cfg.host_mac,
                          net_cfg.mtu,
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index 52ace1fd..47005552 100644
+index cbb7f7b0..d9bf9c24 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
 @@ -2,7 +2,6 @@
@@ -258,7 +258,7 @@ index 52ace1fd..47005552 100644
  use std::path::PathBuf;
  use std::{fs, result};
  
-@@ -293,10 +292,6 @@ pub fn default_diskconfig_queue_size() -> u16 {
+@@ -300,10 +299,6 @@ pub fn default_diskconfig_queue_size() -> u16 {
  pub struct NetConfig {
      #[serde(default = "default_netconfig_tap")]
      pub tap: Option<String>,
@@ -269,7 +269,7 @@ index 52ace1fd..47005552 100644
      #[serde(default = "default_netconfig_mac")]
      pub mac: MacAddr,
      #[serde(default)]
-@@ -342,14 +337,6 @@ pub fn default_netconfig_tap() -> Option<String> {
+@@ -349,14 +344,6 @@ pub fn default_netconfig_tap() -> Option<String> {
      None
  }
  

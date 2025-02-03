@@ -169,7 +169,7 @@ index f807189d..57b151db 100644
          }
      };
 diff --git a/src/main.rs b/src/main.rs
-index fc9f6038..21cef90f 100644
+index 6ef75654..95e0a03f 100644
 --- a/src/main.rs
 +++ b/src/main.rs
 @@ -9,7 +9,7 @@ use std::sync::mpsc::channel;
@@ -213,8 +213,8 @@ index fc9f6038..21cef90f 100644
          .arg(
              Arg::new("platform")
                  .long("platform")
--                .help("num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>")
-+                .help("Platform parameters: num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>")
+-                .help("num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,iommu_address_width=<bits>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>")
++                .help("Platform parameters: num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,iommu_address_width=<bits>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>")
                  .num_args(1)
                  .group("vm-config"),
          )
@@ -391,10 +391,10 @@ index fc9f6038..21cef90f 100644
              })
          }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 422e904f..9ba0dba0 100644
+index 0cf29792..c43cb543 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -745,8 +745,8 @@ impl CpusConfig {
+@@ -760,8 +760,8 @@ impl CpusConfig {
  }
  
  impl PciSegmentConfig {
@@ -405,7 +405,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1050,10 +1050,10 @@ impl MemoryConfig {
+@@ -1077,10 +1077,10 @@ impl MemoryConfig {
  }
  
  impl RateLimiterGroupConfig {
@@ -419,7 +419,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1137,8 +1137,8 @@ impl RateLimiterGroupConfig {
+@@ -1164,8 +1164,8 @@ impl RateLimiterGroupConfig {
  }
  
  impl DiskConfig {
@@ -430,7 +430,7 @@ index 422e904f..9ba0dba0 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1349,13 +1349,13 @@ impl FromStr for VhostMode {
+@@ -1380,13 +1380,13 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
@@ -447,7 +447,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1598,8 +1598,8 @@ impl RngConfig {
+@@ -1629,8 +1629,8 @@ impl RngConfig {
  
  impl BalloonConfig {
      pub const SYNTAX: &'static str =
@@ -458,7 +458,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1635,9 +1635,9 @@ impl BalloonConfig {
+@@ -1666,9 +1666,9 @@ impl BalloonConfig {
  }
  
  impl FsConfig {
@@ -471,7 +471,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1706,9 +1706,9 @@ impl FsConfig {
+@@ -1737,9 +1737,9 @@ impl FsConfig {
  }
  
  impl PmemConfig {
@@ -484,7 +484,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1877,7 +1877,7 @@ impl DebugConsoleConfig {
+@@ -1908,7 +1908,7 @@ impl DebugConsoleConfig {
  
  impl DeviceConfig {
      pub const SYNTAX: &'static str =
@@ -493,7 +493,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1934,7 +1934,7 @@ impl DeviceConfig {
+@@ -1965,7 +1965,7 @@ impl DeviceConfig {
  
  impl UserDeviceConfig {
      pub const SYNTAX: &'static str =
@@ -502,7 +502,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1978,9 +1978,9 @@ impl UserDeviceConfig {
+@@ -2009,9 +2009,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -515,7 +515,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2038,8 +2038,8 @@ impl VdpaConfig {
+@@ -2069,8 +2069,8 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -526,7 +526,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2098,8 +2098,8 @@ impl VsockConfig {
+@@ -2129,8 +2129,8 @@ impl VsockConfig {
  
  #[cfg(target_arch = "x86_64")]
  impl SgxEpcConfig {
@@ -537,7 +537,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(sgx_epc: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2123,10 +2123,10 @@ impl SgxEpcConfig {
+@@ -2154,10 +2154,10 @@ impl SgxEpcConfig {
  }
  
  impl NumaConfig {
@@ -551,7 +551,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2238,13 +2238,9 @@ pub struct RestoreConfig {
+@@ -2269,13 +2269,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
@@ -568,7 +568,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2327,8 +2323,8 @@ impl RestoreConfig {
+@@ -2358,8 +2354,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {
@@ -579,7 +579,7 @@ index 422e904f..9ba0dba0 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2343,8 +2339,8 @@ impl TpmConfig {
+@@ -2374,8 +2370,8 @@ impl TpmConfig {
  }
  
  impl LandlockConfig {
