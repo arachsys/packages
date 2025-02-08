@@ -1,15 +1,17 @@
 check() {
   url https://www.sqlite.org/index.html
-  match version 3.48.0 'Version ([0-9.]*[0-9])'
+  match version 3.49.0 'Version ([0-9.]*[0-9])'
 }
 
 prepare() {
-  unpack sqlite-3.48.0.tar.gz \
-    https://www.sqlite.org/2025/sqlite-autoconf-3480000.tar.gz
-  tree ea9eea7649d4f3ae5296cdc257aea22ba687dbb3dd3206e6b57cf8d01020c5b9
+  unpack sqlite-3.49.0.tar.gz \
+    https://www.sqlite.org/2025/sqlite-autoconf-3490000.tar.gz
+  apply dynamic.diff
+  tree e244e05aa9f4f43138863d6adf9f77fef4189f299ed58b47f5872426fae017d4
 }
 
 build() {
-  auto-config --disable-static-shell
-  make install DESTDIR=/dst
+  /src/configure --prefix= --all
+  make install DESTDIR=/dst LDFLAGS.rpath= datadir='${prefix}/lib' \
+    includedir='${prefix}/lib/include'
 }
