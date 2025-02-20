@@ -2,12 +2,12 @@ require lmdb perl
 
 check() {
   url https://bitbucket.org/mutt/mutt/downloads/
-  match version 2.2.13 'mutt-([0-9.]+)\.tar'
+  match version 2.2.14 'mutt-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://bitbucket.org/mutt/mutt/downloads/mutt-2.2.13.tar.gz
-  tree 715a25fa4a6aafc098ce9688981e9774c673a82918dd4b17aec8f045d9501753
+  unpack https://bitbucket.org/mutt/mutt/downloads/mutt-2.2.14.tar.gz
+  tree 0aa4647d3e6dd11c3aec1e46f487e9fba84ab3e9e873ddd2d765971612e8e548
 }
 
 build() {
