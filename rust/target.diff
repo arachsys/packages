@@ -1,8 +1,8 @@
 diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
-index 321ab404..5e8bac11 100644
+index 02962d55..d857b0a4 100644
 --- a/compiler/rustc_target/src/spec/mod.rs
 +++ b/compiler/rustc_target/src/spec/mod.rs
-@@ -1619,6 +1619,9 @@ macro_rules! supported_targets {
+@@ -1649,6 +1649,9 @@ macro_rules! supported_targets {
  }
  
  supported_targets! {
@@ -44,3 +44,45 @@ index 00000000..5e08e5fd
 +    base.options.static_position_independent_executables = true;
 +    base
 +}
+diff --git a/vendor/cc-1.2.0/src/target/generated.rs b/vendor/cc-1.2.0/src/target/generated.rs
+index 0c9b0ae1..23d18039 100644
+--- a/vendor/cc-1.2.0/src/target/generated.rs
++++ b/vendor/cc-1.2.0/src/target/generated.rs
+@@ -124,6 +124,18 @@ pub(crate) const LIST: &[(&str, TargetInfo<'static>)] = &[
+             unversioned_llvm_target: "arm64-apple-watchos-simulator",
+         },
+     ),
++    (
++        "aarch64-arachsys-linux-musl",
++        TargetInfo {
++            full_arch: "aarch64",
++            arch: "aarch64",
++            vendor: "arachsys",
++            os: "linux",
++            env: "musl",
++            abi: "",
++            unversioned_llvm_target: "aarch64-arachsys-linux-musl",
++        },
++    ),
+     (
+         "aarch64-fuchsia",
+         TargetInfo {
+@@ -2848,6 +2860,18 @@ pub(crate) const LIST: &[(&str, TargetInfo<'static>)] = &[
+             unversioned_llvm_target: "x86_64-apple-watchos-simulator",
+         },
+     ),
++    (
++        "x86_64-arachsys-linux-musl",
++        TargetInfo {
++            full_arch: "x86_64",
++            arch: "x86_64",
++            vendor: "arachsys",
++            os: "linux",
++            env: "musl",
++            abi: "",
++            unversioned_llvm_target: "x86_64-arachsys-linux-musl",
++        },
++    ),
+     (
+         "x86_64-fortanix-unknown-sgx",
+         TargetInfo {
