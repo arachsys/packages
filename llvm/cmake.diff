@@ -1,8 +1,8 @@
 diff --git a/cmake/Modules/GNUInstallDirs.cmake b/cmake/Modules/GNUInstallDirs.cmake
-index 9796854..bbc3e02 100644
+index ed34c4a9..018c5f1c 100644
 --- a/cmake/Modules/GNUInstallDirs.cmake
 +++ b/cmake/Modules/GNUInstallDirs.cmake
-@@ -311,10 +311,10 @@ unset(__LAST_LIBDIR_DEFAULT)
+@@ -321,10 +321,10 @@ unset(__LAST_LIBDIR_DEFAULT)
  
  _GNUInstallDirs_cache_path(CMAKE_INSTALL_INCLUDEDIR "include"
    "C header files (include)")
@@ -17,7 +17,7 @@ index 9796854..bbc3e02 100644
  
  #-----------------------------------------------------------------------------
  # Values whose defaults are relative to DATAROOTDIR.  Store empty values in
-@@ -384,19 +384,9 @@ macro(GNUInstallDirs_get_absolute_install_dir absvar var)
+@@ -394,19 +394,9 @@ macro(GNUInstallDirs_get_absolute_install_dir absvar var)
  
    if(NOT IS_ABSOLUTE "${${var}}")
      # Handle special cases:

@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Linux.cpp b/clang/lib/Driver/ToolChains/Linux.cpp
-index 2265138e..4a9822d1 100644
+index 0767fe6c..3d85dfb3 100644
 --- a/clang/lib/Driver/ToolChains/Linux.cpp
 +++ b/clang/lib/Driver/ToolChains/Linux.cpp
 @@ -43,7 +43,8 @@ std::string Linux::getMultiarchTriple(const Driver &D,
@@ -63,7 +63,7 @@ index 2265138e..4a9822d1 100644
  
    case llvm::Triple::loongarch64: {
      const char *Libc;
-@@ -127,50 +121,48 @@ std::string Linux::getMultiarchTriple(const Driver &D,
+@@ -130,50 +124,48 @@ std::string Linux::getMultiarchTriple(const Driver &D,
    }
  
    case llvm::Triple::m68k:

@@ -1,5 +1,5 @@
 diff --git a/lldb/source/DataFormatters/StringPrinter.cpp b/lldb/source/DataFormatters/StringPrinter.cpp
-index ab07c74f..8facc7bb 100644
+index 25717842..372f957c 100644
 --- a/lldb/source/DataFormatters/StringPrinter.cpp
 +++ b/lldb/source/DataFormatters/StringPrinter.cpp
 @@ -542,17 +542,8 @@ bool StringPrinter::ReadBufferAndDumpToStream<StringElementType::UTF32>(
