@@ -7,15 +7,17 @@ check() {
 
 prepare() {
   unpack https://static.rust-lang.org/dist/rustc-1.85.0-src.tar.gz
+  apply cc.diff
   apply curl.diff       # must patch vendor/curl-sys-*
   apply home.diff       # must patch vendor/home-*, tools/cargo/crates/home
   apply libexec.diff
   apply libressl.diff   # must patch vendor/openssl{,-sys}-*
+  apply llvm.diff
   apply system.diff
-  apply target.diff     # must patch vendor/cc-* used by src/bootstrap
+  apply target.diff
   apply verify.diff
   apply version.diff
-  tree e2d59e1a96a0575772da7b5532d107970eae4afecbebab3591fad1b303bccdea
+  tree cba5238f1e37aee6c76142164185b36fa265f18db94cdf3a5656dbe97482d761
 }
 
 build() {
