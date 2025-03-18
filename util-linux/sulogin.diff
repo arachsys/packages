@@ -1,65 +1,38 @@
 diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 2682c30..8b71be7 100644
+index aeaa3f11..1b878b30 100644
 --- a/login-utils/sulogin.c
 +++ b/login-utils/sulogin.c
 @@ -68,6 +68,8 @@
  #include "sulogin-consoles.h"
  #define CONMAX		16
  
-+#define EXIT_TIMEOUT 142
++#define EXIT_TIMEOUT	142
 +
  static unsigned int timeout;
  static int profile;
  static volatile uint32_t openfd;		/* Remember higher file descriptors */
-@@ -78,7 +80,7 @@ static struct sigaction saved_sigquit;
- static struct sigaction saved_sighup;
- static struct sigaction saved_sigchld;
- 
--static volatile sig_atomic_t alarm_rised;
-+static volatile sig_atomic_t alarm_raised;
- static volatile sig_atomic_t sigchild;
- 
- #define SULOGIN_PASSWORD_BUFSIZ	128
-@@ -419,7 +421,7 @@ static void tcfinal(struct console *con)
- static void alrm_handler(int sig __attribute__((unused)))
- {
- 	/* Timeout expired */
--	alarm_rised = 1;
-+	alarm_raised = 1;
- }
- 
- static void chld_handler(int sig __attribute__((unused)))
-@@ -662,18 +664,10 @@ static void doprompt(const char *crypted, struct console *con, int deny)
+@@ -665,18 +667,10 @@ static void doprompt(const char *crypted, struct console *con, int deny)
  				     "See sulogin(8) man page for more details.\n\n"
  				     "Press Enter to continue.\n"));
  	else {
 -#if defined(USE_ONELINE)
  		if (crypted[0] && !locked_account_password(crypted))
--			fprintf(con->file, _("Give root password for login: "));
-+			fprintf(con->file, _("Give root password for maintenance: "));
+-			fprintf(con->file, _("Enter root password for login: "));
++			fprintf(con->file, _("Enter root password for maintenance: "));
  		else
 -			fprintf(con->file, _("Press Enter for login: "));
 -#else
 -		if (crypted[0] && !locked_account_password(crypted))
--			fprintf(con->file, _("Give root password for maintenance\n"));
+-			fprintf(con->file, _("Enter root password for system maintenance\n"));
 -		else
--			fprintf(con->file, _("Press Enter for maintenance\n"));
+-			fprintf(con->file, _("Press Enter for system maintenance\n"));
 -		fprintf(con->file, _("(or press Control-D to continue): "));
 -#endif
 +			fprintf(con->file, _("Press Enter for maintenance: "));
  	}
  	fflush(con->file);
  err:
-@@ -781,7 +775,7 @@ static char *getpasswd(struct console *con)
- 
- 		if (read(fd, &c, 1) < 1) {
- 			if (errno == EINTR || errno == EAGAIN) {
--				if (alarm_rised) {
-+				if (alarm_raised) {
- 					ret = NULL;
- 					goto quit;
- 				}
-@@ -997,11 +991,11 @@ int main(int argc, char **argv)
+@@ -1000,11 +994,11 @@ int main(int argc, char **argv)
  	struct console *con;
  	char *tty = NULL;
  	struct passwd *pwd;
@@ -72,12 +45,9 @@ index 2682c30..8b71be7 100644
  	int wait = 0;
  	pid_t pid;
  
-@@ -1213,14 +1207,13 @@ int main(int argc, char **argv)
- 				}
- 				fprintf(stderr, _("Login incorrect\n\n"));
+@@ -1233,12 +1227,11 @@ int main(int argc, char **argv)
  			}
--			if (alarm_rised) {
-+			if (alarm_raised) {
+ 			if (alarm_raised) {
  				tcfinal(con);
 -				warnx(_("Timed out\n\n"));
  			}
@@ -89,7 +59,7 @@ index 2682c30..8b71be7 100644
  		case -1:
  			warn(_("fork failed"));
  			/* fallthrough */
-@@ -1258,9 +1251,11 @@ int main(int argc, char **argv)
+@@ -1276,9 +1269,11 @@ int main(int argc, char **argv)
  			continue;
  		if (con->pid < 0)
  			continue;
@@ -103,7 +73,7 @@ index 2682c30..8b71be7 100644
  			kill(con->pid, SIGTERM);
  			wait++;
  		}
-@@ -1270,22 +1265,18 @@ int main(int argc, char **argv)
+@@ -1288,22 +1283,18 @@ int main(int argc, char **argv)
  	sigaddset(&set, SIGCHLD);
  
  	do {
@@ -125,11 +95,11 @@ index 2682c30..8b71be7 100644
 -		}
 -
 -		if (!ret && status.si_pid > 0) {
-+		} else if (status.si_pid > 0) {
++		} else if (!ret && status.si_pid > 0) {
  			list_for_each(ptr, &consoles) {
  				con = list_entry(ptr, struct console, entry);
  
-@@ -1294,17 +1285,14 @@ int main(int argc, char **argv)
+@@ -1312,17 +1303,14 @@ int main(int argc, char **argv)
  				if (con->pid < 0)
  					continue;
  				if (con->pid == status.si_pid) {
@@ -150,7 +120,7 @@ index 2682c30..8b71be7 100644
  	} while (1);
  
  	mask_signal(SIGCHLD, SIG_DFL, NULL);
-@@ -1313,5 +1301,5 @@ int main(int argc, char **argv)
+@@ -1331,5 +1319,5 @@ int main(int argc, char **argv)
  	tcreset_selinux(&consoles);
  #endif
  

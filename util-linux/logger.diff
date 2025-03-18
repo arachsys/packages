@@ -1,11 +1,11 @@
 diff --git a/misc-utils/logger.c b/misc-utils/logger.c
-index 50ae211..de48a86 100644
+index bcdff061..59884482 100644
 --- a/misc-utils/logger.c
 +++ b/misc-utils/logger.c
-@@ -412,7 +412,7 @@ static char const *rfc3164_current_time(void)
- 	};
- 
- 	logger_gettimeofday(&tv, NULL);
+@@ -426,7 +426,7 @@ static char const *rfc3164_current_time(void)
+ 	ret = logger_gettimeofday(&tv, NULL);
+ 	if (ret == -1)
+ 		err(EXIT_FAILURE, _("gettimeofday() failed"));
 -	localtime_r(&tv.tv_sec, &tm);
 +	gmtime_r(&tv.tv_sec, &tm);
  	snprintf(time, sizeof(time),"%s %2d %2.2d:%2.2d:%2.2d",
