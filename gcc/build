@@ -19,7 +19,7 @@ check() {
   match mpc 1.3.1 'mpc-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/mpfr/
-  match mpfr 4.2.1 'mpfr-([0-9.]+)\.tar'
+  match mpfr 4.2.2 'mpfr-([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -28,7 +28,7 @@ prepare() {
   unpack -d gmp https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
   unpack -d isl https://libisl.sourceforge.io/isl-0.27.tar.xz
   unpack -d mpc https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz
-  unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.1.tar.xz
+  unpack -d mpfr https://ftp.gnu.org/gnu/mpfr/mpfr-4.2.2.tar.xz
 
   ln -s bu/{bfd,binutils,gas,gprof,ld,libctf,libsframe,opcodes} .
 
@@ -40,7 +40,7 @@ prepare() {
   apply relro.diff
   apply rpath.diff
 
-  tree 828e68ced3a48d1bb06d13860ffb1eed6d5be7f6d45e5fdf71cbaa990600a35f
+  tree 3fce77b3a20efa81a8bec8b65696348e3aeb1d0f7ebafad9abbffd9b1d803fca
 }
 
 build() {
