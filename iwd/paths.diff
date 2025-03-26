@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 68ae03ea..d4e89e40 100755
+index 4bdd78d2..e1dfa0c2 100755
 --- a/configure
 +++ b/configure
-@@ -13905,7 +13905,7 @@ wired_storagedir=${wired_storagedir}
+@@ -13956,7 +13956,7 @@ wired_storagedir=${wired_storagedir}
  printf "%s\n" "#define DAEMON_STORAGEDIR \"${daemon_storagedir}\"" >>confdefs.h
  
  
@@ -12,10 +12,10 @@ index 68ae03ea..d4e89e40 100755
  
  
 diff --git a/configure.ac b/configure.ac
-index 2d9f29cc..7fa18312 100644
+index adae0222..0aa9583b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -149,7 +149,7 @@ AC_SUBST([wired_storagedir], [${wired_storagedir}])
+@@ -152,7 +152,7 @@ AC_SUBST([wired_storagedir], [${wired_storagedir}])
  
  AC_DEFINE_UNQUOTED(DAEMON_STORAGEDIR, "${daemon_storagedir}",
  			[Directory for Wireless daemon storage files])
@@ -25,7 +25,7 @@ index 2d9f29cc..7fa18312 100644
  
  AC_DEFINE_UNQUOTED(WIRED_STORAGEDIR, "${wired_storagedir}",
 diff --git a/ell/dbus.c b/ell/dbus.c
-index 67b3fece..12f8868f 100644
+index 473444cc..7e9636be 100644
 --- a/ell/dbus.c
 +++ b/ell/dbus.c
 @@ -31,7 +31,7 @@
@@ -38,22 +38,25 @@ index 67b3fece..12f8868f 100644
  #define DBUS_SERVICE_DBUS	"org.freedesktop.DBus"
  
 diff --git a/ell/hwdb.c b/ell/hwdb.c
-index 8c18f079..4260fb0c 100644
+index 37db0c17..8e99e091 100644
 --- a/ell/hwdb.c
 +++ b/ell/hwdb.c
-@@ -147,9 +147,7 @@ LIB_EXPORT struct l_hwdb *l_hwdb_new_default(void)
- {
+@@ -170,11 +170,8 @@ LIB_EXPORT struct l_hwdb *l_hwdb_new_default(void)
  	struct l_hwdb *db = NULL;
  	size_t i;
--	const char * const paths[] = {"/etc/udev/hwdb.bin",
--					"/usr/lib/udev/hwdb.bin",
--					"/lib/udev/hwdb.bin"};
-+	const char * const paths[] = {"/etc/hwdb.bin", "/lib/hwdb.bin"};
+ 	static const char * const paths[] = {
+-		"/etc/systemd/hwdb/hwdb.bin",
+-		"/etc/udev/hwdb.bin",
+-		"/usr/lib/systemd/hwdb/hwdb.bin",
+-		"/usr/lib/udev/hwdb.bin",
+-		"/lib/udev/hwdb.bin",
++		"/etc/hwdb.bin",
++		"/lib/hwdb.bin",
+ 	};
  
  	for (i = 0; !db && i < L_ARRAY_SIZE(paths); i++)
- 		db = l_hwdb_new(paths[i]);
 diff --git a/src/iwd.config.rst b/src/iwd.config.rst
-index 9dc0fe0c..3f5a3ab1 100644
+index 895a1012..f6cfbb2a 100644
 --- a/src/iwd.config.rst
 +++ b/src/iwd.config.rst
 @@ -20,17 +20,17 @@ Configuration file for wireless daemon
@@ -92,10 +95,10 @@ index c719fbc2..ef8d2b45 100644
  
  See *iwd.debug* for further environment variables for debugging.
 diff --git a/src/main.c b/src/main.c
-index fbb4033a..d03c181e 100644
+index c68876a2..b36d5e5e 100644
 --- a/src/main.c
 +++ b/src/main.c
-@@ -561,7 +561,7 @@ int main(int argc, char *argv[])
+@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
  
  	for (i = 0; config_dirs[i]; i++) {
  		L_AUTO_FREE_VAR(char *, path) =
