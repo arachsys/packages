@@ -1,8 +1,8 @@
 diff --git a/runtime/autoload/dist/ft.vim b/runtime/autoload/dist/ft.vim
-index 48eaf3f..01997fd 100644
+index a7403052..3d3bfb0c 100644
 --- a/runtime/autoload/dist/ft.vim
 +++ b/runtime/autoload/dist/ft.vim
-@@ -768,7 +768,7 @@ enddef
+@@ -966,7 +966,7 @@ enddef
  var ft_rules_udev_rules_pattern = '^\s*\cudev_rules\s*=\s*"\([^"]\{-1,}\)/*".*'
  export def FTRules()
    var path = expand('<amatch>:p')
@@ -11,7 +11,7 @@ index 48eaf3f..01997fd 100644
      setf udevrules
      return
    endif
-@@ -776,7 +776,7 @@ export def FTRules()
+@@ -974,7 +974,7 @@ export def FTRules()
      setf conf  # Better than hog
      return
    endif
@@ -21,10 +21,10 @@ index 48eaf3f..01997fd 100644
      return
    endif
 diff --git a/runtime/autoload/dist/script.vim b/runtime/autoload/dist/script.vim
-index 9e41969..ade2cd8 100644
+index 859126f0..6ca7e16a 100644
 --- a/runtime/autoload/dist/script.vim
 +++ b/runtime/autoload/dist/script.vim
-@@ -21,8 +21,8 @@ enddef
+@@ -22,8 +22,8 @@ enddef
  def DetectFromHashBang(firstline: string)
    var line1 = firstline
  
@@ -35,7 +35,7 @@ index 9e41969..ade2cd8 100644
    # Recognize only a few {options} that are commonly used.
    if line1 =~ '^#!\s*\S*\<env\s'
      line1 = substitute(line1, '\S\+=\S\+', '', 'g')
-@@ -33,9 +33,9 @@ def DetectFromHashBang(firstline: string)
+@@ -34,9 +34,9 @@ def DetectFromHashBang(firstline: string)
    # Get the program name.
    # Only accept spaces in PC style paths: "#!c:/program files/perl [args]".
    # If the word env is used, use the first word after the space:
@@ -48,11 +48,11 @@ index 9e41969..ade2cd8 100644
    if line1 =~ '^#!\s*\a:[/\\]'
      name = substitute(line1, '^#!.*[/\\]\(\i\+\).*', '\1', '')
 diff --git a/runtime/filetype.vim b/runtime/filetype.vim
-index b4bcc80..5d3b618 100644
+index 4e386e9e..a9a253cc 100644
 --- a/runtime/filetype.vim
 +++ b/runtime/filetype.vim
-@@ -115,7 +115,7 @@ au BufNewFile,BufRead *.am
- 	\ if expand("<afile>") !~? 'Makefile.am\>' | setf elf | endif
+@@ -137,7 +137,7 @@ au BufNewFile,BufRead [mM]akefile.am,GNUmakefile.am	setf automake
+ au BufNewFile,BufRead *.am			setf elf
  
  " ALSA configuration
 -au BufNewFile,BufRead .asoundrc,*/usr/share/alsa/alsa.conf,*/etc/asound.conf setf alsaconf
@@ -60,7 +60,7 @@ index b4bcc80..5d3b618 100644
  
  " Arc Macro Language
  au BufNewFile,BufRead *.aml			setf aml
-@@ -759,7 +759,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
+@@ -998,7 +998,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
  " GPG
  au BufNewFile,BufRead */.gnupg/options		setf gpg
  au BufNewFile,BufRead */.gnupg/gpg.conf		setf gpg
@@ -69,8 +69,8 @@ index b4bcc80..5d3b618 100644
  if !empty($GNUPGHOME)
    au BufNewFile,BufRead $GNUPGHOME/options	setf gpg
    au BufNewFile,BufRead $GNUPGHOME/gpg.conf	setf gpg
-@@ -1288,7 +1288,7 @@ au BufNewFile,BufRead Neomuttrc			setf neomuttrc
- au BufNewFile,BufRead .netrc			setf netrc
+@@ -1697,7 +1697,7 @@ au BufNewFile,BufRead .netrc			setf netrc
+ au BufNewFile,BufRead */neofetch/config.conf	setf sh
  
  " Nginx
 -au BufNewFile,BufRead *.nginx,nginx*.conf,*nginx.conf,*/etc/nginx/*,*/usr/local/nginx/conf/*,*/nginx/*.conf			setf nginx
@@ -78,7 +78,7 @@ index b4bcc80..5d3b618 100644
  
  " Nim file
  au BufNewFile,BufRead *.nim,*.nims,*.nimble	setf nim
-@@ -2131,8 +2131,8 @@ au BufNewFile,BufRead *.uc			setf uc
+@@ -2736,8 +2736,8 @@ au BufNewFile,BufRead *.uc			setf uc
  au BufNewFile,BufRead */etc/updatedb.conf	setf updatedb
  
  " Upstart (init(8)) config files
@@ -90,7 +90,7 @@ index b4bcc80..5d3b618 100644
  au BufNewFile,BufRead */.init/*.conf,*/.init/*.override	       setf upstart
  au BufNewFile,BufRead */.config/upstart/*.conf		       setf upstart
 diff --git a/runtime/ftplugin/debchangelog.vim b/runtime/ftplugin/debchangelog.vim
-index cf8dd17..f4d4cff 100644
+index aa657a9b..80c9b32b 100644
 --- a/runtime/ftplugin/debchangelog.vim
 +++ b/runtime/ftplugin/debchangelog.vim
 @@ -358,12 +358,12 @@ except ImportError:
@@ -109,10 +109,10 @@ index cf8dd17..f4d4cff 100644
      endif
      let completions = []
 diff --git a/runtime/ftplugin/j.vim b/runtime/ftplugin/j.vim
-index ae235ab..4d55692 100644
+index 8335ea06..f8a13ba7 100644
 --- a/runtime/ftplugin/j.vim
 +++ b/runtime/ftplugin/j.vim
-@@ -17,7 +17,7 @@ setlocal comments=:NB.
+@@ -18,7 +18,7 @@ setlocal comments=:NB.
  setlocal commentstring=NB.\ %s
  setlocal formatoptions-=t
  setlocal matchpairs=(:)
@@ -122,10 +122,10 @@ index ae235ab..4d55692 100644
  " Includes. To make the shorthand form "require 'web/cgi'" work, double the
  " last path component. Also strip off leading folder names like "~addons/".
 diff --git a/runtime/ftplugin/javascript.vim b/runtime/ftplugin/javascript.vim
-index 9a0b29e..1ac09f3 100644
+index 455b794c..72239722 100644
 --- a/runtime/ftplugin/javascript.vim
 +++ b/runtime/ftplugin/javascript.vim
-@@ -46,7 +46,7 @@ setlocal suffixes+=.snap
+@@ -51,7 +51,7 @@ setlocal suffixes+=.snap
  
  " Remove irrelevant part of 'path'.
  " User is expected to augment it with contextually-relevant paths
@@ -135,23 +135,23 @@ index 9a0b29e..1ac09f3 100644
  " Matchit configuration
  if exists("loaded_matchit")
 diff --git a/runtime/syntax/sh.vim b/runtime/syntax/sh.vim
-index 822b1a9..7a02499 100644
+index 37d1c0a8..b123d784 100644
 --- a/runtime/syntax/sh.vim
 +++ b/runtime/syntax/sh.vim
-@@ -27,8 +27,6 @@ elseif !exists("g:is_kornshell") && !exists("g:is_bash") && !exists("g:is_posix"
-  let s:shell = ""
-  if executable("/bin/sh")
-   let s:shell = resolve("/bin/sh")
-- elseif executable("/usr/bin/sh")
--  let s:shell = resolve("/usr/bin/sh")
-  endif
-  if     s:shell =~ '\<ksh\>'
-   let b:is_kornshell= 1
+@@ -53,8 +53,6 @@ elseif !exists("b:is_kornshell") && !exists("b:is_bash") && !exists("b:is_posix"
+   let s:shell = ""
+   if executable("/bin/sh")
+    let s:shell = resolve("/bin/sh")
+-  elseif executable("/usr/bin/sh")
+-   let s:shell = resolve("/usr/bin/sh")
+   endif
+   if     s:shell =~ '\<ksh\>'
+    let b:is_kornshell= 1
 diff --git a/runtime/termcap b/runtime/termcap
-index 38790c4..99c5337 100644
+index cb8355e2..9722af05 100644
 --- a/runtime/termcap
 +++ b/runtime/termcap
-@@ -36,7 +36,7 @@ M3|sun-17|Sun 17-line window:\
+@@ -37,7 +37,7 @@ M3|sun-17|Sun 17-line window:\
  
  v9|925a|tvi925a|TeleVideo Model 925:\
  	:al=\EE:am:bs:bt=\EI:bw:cd=\EY:ce=\ET:cl=^Z:cm=\E=%+ %+ :co#80:dc=\EW:\
@@ -160,7 +160,7 @@ index 38790c4..99c5337 100644
  	:kh=^^:kl=^H:kn#12:kr=^L:ku=^K:li#24:nd=^L:pt:se=\EG0:sg#1:so=\EG4:\
  	:ue=\EG0:ug#1:ul:up=^K:us=\EG8:is=\El\
  	:vb=\Eb\200\200\200\200\200\200\200\200\200\200\200\200\200\200\Ed:\
-@@ -47,7 +47,7 @@ d0|vt100|vt100-am|vt100am|dec vt100:\
+@@ -48,7 +48,7 @@ d0|vt100|vt100-am|vt100am|dec vt100:\
  	:le=^H:bs:am:cm=5\E[%i%d;%dH:nd=2\E[C:up=2\E[A:\
  	:ce=3\E[K:cd=50\E[J:so=2\E[7m:se=2\E[m:us=2\E[4m:ue=2\E[m:\
  	:md=2\E[1m:mr=2\E[7m:mb=2\E[5m:me=2\E[m:is=\E[1;24r\E[24;1H:\
@@ -170,10 +170,10 @@ index 38790c4..99c5337 100644
  	:ku=\EOA:kd=\EOB:kr=\EOC:kl=\EOD:kb=^H:\
  	:ho=\E[H:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:pt:sr=5\EM:vt#3:xn:\
 diff --git a/src/optiondefs.h b/src/optiondefs.h
-index f9e10ae..9cc07c9 100644
+index b6b5d49e..13eb3a63 100644
 --- a/src/optiondefs.h
 +++ b/src/optiondefs.h
-@@ -1803,7 +1803,7 @@ static struct vimoption options[] =
+@@ -1896,7 +1896,7 @@ static struct vimoption options[] =
  #if defined(AMIGA) || defined(MSWIN)
  			    (char_u *)".,,",
  #else
