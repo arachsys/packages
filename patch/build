@@ -1,11 +1,11 @@
 check() {
   url https://ftp.gnu.org/gnu/patch/
-  match version 2.7.6 'patch-([0-9.]+)\.tar'
+  match version 2.8 'patch-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/patch/patch-2.7.6.tar.xz
-  tree a7976150e27880bc0184e17d460c3f93f12f564a5715fd1fa9cf6dcb82c27277
+  unpack https://ftp.gnu.org/gnu/patch/patch-2.8.tar.xz
+  tree cbe8b90f2ff73fa1067a1eebdbfa10dc943d8edb5b9d1347320cdea8dd343fb2
 }
 
 build() {
