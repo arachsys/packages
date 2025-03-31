@@ -1,12 +1,12 @@
 check() {
   url https://www.libarchive.org/downloads/
-  match version 3.7.8 'libarchive-([0-9.]+)\.tar'
+  match version 3.7.9 'libarchive-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.libarchive.org/downloads/libarchive-3.7.8.tar.xz
+  unpack https://www.libarchive.org/downloads/libarchive-3.7.9.tar.xz
   apply cosmetic.diff
-  tree 67bfa4ef28d0ca1124997a99ff9d536c7d91937416e137e5fe5792d3a8893384
+  tree f4ff2bdd4a6750748e485efdaf211b52b3ec3cfec0f59c557141ec283332d0cc
 }
 
 build() {
