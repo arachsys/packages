@@ -1,5 +1,5 @@
 diff --git a/src/bin/ch-remote.rs b/src/bin/ch-remote.rs
-index f807189d..57b151db 100644
+index f807189d..a8d5b7b3 100644
 --- a/src/bin/ch-remote.rs
 +++ b/src/bin/ch-remote.rs
 @@ -12,7 +12,7 @@ use api_client::{
@@ -29,7 +29,7 @@ index f807189d..57b151db 100644
                  .long("api-socket")
 -                .help("HTTP API socket path (UNIX domain socket).")
 +                .value_name("path")
-+                .help("HTTP API unix socket path")
++                .help("API socket path")
                  .num_args(1),
              #[cfg(feature = "dbus_api")]
              Arg::new("dbus-service-name")
@@ -169,7 +169,7 @@ index f807189d..57b151db 100644
          }
      };
 diff --git a/src/main.rs b/src/main.rs
-index 6ef75654..95e0a03f 100644
+index 943716e6..50e5e0e0 100644
 --- a/src/main.rs
 +++ b/src/main.rs
 @@ -9,7 +9,7 @@ use std::sync::mpsc::channel;
@@ -190,57 +190,128 @@ index 6ef75654..95e0a03f 100644
      CreateHypervisor(#[source] hypervisor::HypervisorError),
      #[error("Failed to start the VMM thread: {0}")]
      StartVmmThread(#[source] vmm::Error),
-@@ -182,7 +182,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-         // 'BUILD_VERSION' is set by the build script 'build.rs' at
-         // compile time
-         .author(env!("CARGO_PKG_AUTHORS"))
--        .about("Launch a cloud-hypervisor VMM.")
-+        .about("Launch a cloud-hypervisor VMM")
-+        .color(ColorChoice::Never)
-         .arg_required_else_help(true)
-         .group(ArgGroup::new("vm-config").multiple(true).requires("vm-payload"))
-         .group(ArgGroup::new("vmm-config").multiple(true))
-@@ -192,7 +193,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-             Arg::new("cpus")
-                 .long("cpus")
-                 .help(
--                    "boot=<boot_vcpus>,max=<max_vcpus>,\
-+                    "CPU parameters: boot=<vcpus>,max=<vcpus>,\
+@@ -186,7 +186,7 @@ fn get_cli_options_sorted(
+     [
+         Arg::new("api-socket")
+             .long("api-socket")
+-            .help("HTTP API socket (UNIX domain socket): path=</path/to/a/file> or fd=<fd>.")
++            .help("API socket: path=<path>|fd=<fd>")
+             .num_args(1)
+             .group("vmm-config"),
+         Arg::new("balloon")
+@@ -201,14 +201,14 @@ fn get_cli_options_sorted(
+             .group("vm-config"), Arg::new("console")
+             .long("console")
+             .help(
+-                "Control (virtio) console: \"off|null|pty|tty|file=</path/to/a/file>,iommu=on|off\"",
++                "Virtio console parameters: off|null|pty|tty|file=<path>,iommu=on|off",
+             )
+             .default_value("tty")
+             .group("vm-config"),
+         Arg::new("cpus")
+             .long("cpus")
+             .help(
+-                "boot=<boot_vcpus>,max=<max_vcpus>,\
++                "CPU parameters: boot=<vcpus>,max=<vcpus>,\
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -204,7 +205,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-         .arg(
-             Arg::new("platform")
-                 .long("platform")
--                .help("num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,iommu_address_width=<bits>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>")
-+                .help("Platform parameters: num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,iommu_address_width=<bits>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>")
-                 .num_args(1)
-                 .group("vm-config"),
-         )
-@@ -212,13 +213,12 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-             Arg::new("memory")
-                 .long("memory")
-                 .help(
--                    "Memory parameters \
+@@ -219,13 +219,13 @@ fn get_cli_options_sorted(
+         #[cfg(target_arch = "x86_64")]
+         Arg::new("debug-console")
+             .long("debug-console")
+-            .help("Debug console: off|pty|tty|file=</path/to/a/file>,iobase=<port in hex>")
++            .help("Debug console parameters: off|pty|tty|file=<path>,iobase=<port>")
+             .default_value("off,iobase=0xe9")
+             .group("vm-config"),
+         #[cfg(feature = "dbus_api")]
+         Arg::new("dbus-service-name")
+             .long("dbus-service-name")
+-            .help("Well known name of the device")
++            .help("Well-known name of the device")
+             .num_args(1)
+             .group("vmm-config"),
+         #[cfg(feature = "dbus_api")]
+@@ -253,12 +253,12 @@ fn get_cli_options_sorted(
+             .group("vm-config"),
+         Arg::new("event-monitor")
+             .long("event-monitor")
+-            .help("File to report events on: path=</path/to/a/file> or fd=<fd>")
++            .help("Event monitor: path=<path>|fd=<fd>")
+             .num_args(1)
+             .group("vmm-config"),
+         Arg::new("firmware")
+             .long("firmware")
+-            .help("Path to firmware that is loaded in an architectural specific way")
++            .help("Path to architecture-specific firmware")
+             .num_args(1)
+             .group("vm-payload"),
+         Arg::new("fs")
+@@ -269,13 +269,13 @@ fn get_cli_options_sorted(
+         #[cfg(feature = "guest_debug")]
+         Arg::new("gdb")
+             .long("gdb")
+-            .help("GDB socket (UNIX domain socket): path=</path/to/a/file>")
++            .help("GDB socket: path=<path>")
+             .num_args(1)
+             .group("vmm-config"),
+         #[cfg(feature = "igvm")]
+         Arg::new("igvm")
+             .long("igvm")
+-            .help("Path to IGVM file to load.")
++            .help("Path to IGVM file")
+             .num_args(1)
+             .group("vm-payload"),
+         #[cfg(feature = "sev_snp")]
+@@ -291,17 +291,14 @@ fn get_cli_options_sorted(
+             .group("vm-config"),
+         Arg::new("kernel")
+             .long("kernel")
+-            .help(
+-                "Path to kernel to load. This may be a kernel or firmware that supports a PVH \
+-                entry point (e.g. vmlinux) or architecture equivalent",
+-            )
++            .help("Path to kernel image")
+             .num_args(1)
+             .group("vm-payload"),
+         Arg::new("landlock")
+             .long("landlock")
+             .num_args(0)
+             .help(
+-                "enable/disable Landlock.",
++                "Enable/disable Landlock",
+             )
+             .action(ArgAction::SetTrue)
+             .default_value("false")
+@@ -313,33 +310,31 @@ fn get_cli_options_sorted(
+             .group("vm-config"),
+         Arg::new("log-file")
+             .long("log-file")
+-            .help("Log file. Standard error is used if not specified")
++            .help("Log file [default: stderr]")
+             .num_args(1)
+             .group("logging"),
+         Arg::new("memory")
+             .long("memory")
+             .help(
+-                "Memory parameters \
 -                     \"size=<guest_memory_size>,mergeable=on|off,shared=on|off,\
-+                    "Memory parameters: size=<guest_memory_size>,mergeable=on|off,shared=on|off,\
++                "Memory parameters: size=<guest_memory_size>,mergeable=on|off,shared=on|off,\
                       hugepages=on|off,hugepage_size=<hugepage_size>,\
                       hotplug_method=acpi|virtio-mem,\
                       hotplug_size=<hotpluggable_memory_size>,\
                       hotplugged_size=<hotplugged_memory_size>,\
 -                     prefault=on|off,thp=on|off\"",
 +                     prefault=on|off,thp=on|off",
-                 )
-                 .default_value(default_memory)
-                 .group("vm-config"),
-@@ -227,14 +227,13 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-             Arg::new("memory-zone")
-                 .long("memory-zone")
-                 .help(
--                    "User defined memory zone parameters \
+             )
+             .default_value(default_memory)
+             .group("vm-config"),
+         Arg::new("memory-zone")
+             .long("memory-zone")
+             .help(
+-                "User defined memory zone parameters \
 -                     \"size=<guest_memory_region_size>,file=<backing_file>,\
-+                    "Memory zone parameters: size=<guest_memory_region_size>,file=<backing_file>,\
++                "Memory zone parameters size=<guest_memory_region_size>,file=<backing_file>,\
                       shared=on|off,\
                       hugepages=on|off,hugepage_size=<hugepage_size>,\
                       host_numa_node=<node_id>,\
@@ -248,136 +319,58 @@ index 6ef75654..95e0a03f 100644
                       hotplugged_size=<hotplugged_memory_size>,\
 -                     prefault=on|off\"",
 +                     prefault=on|off",
-                 )
-                 .num_args(1..)
-                 .group("vm-config"),
-@@ -242,17 +241,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-         .arg(
-             Arg::new("firmware")
-                 .long("firmware")
--                .help("Path to firmware that is loaded in an architectural specific way")
-+                .help("Path to architecture-specific firmware")
-                 .num_args(1)
-                 .group("vm-payload"),
-         )
-         .arg(
-             Arg::new("kernel")
-                 .long("kernel")
--                .help(
--                    "Path to kernel to load. This may be a kernel or firmware that supports a PVH \
--                entry point (e.g. vmlinux) or architecture equivalent",
--                )
-+                .help("Path to kernel image")
-                 .num_args(1)
-                 .group("vm-payload"),
-         )
-@@ -289,7 +285,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-                 .long("landlock")
-                 .num_args(0)
-                 .help(
--                    "enable/disable Landlock.",
-+                    "enable/disable Landlock",
-                 )
-                 .action(ArgAction::SetTrue)
-                 .default_value("false")
-@@ -313,7 +309,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-             Arg::new("rng")
-                 .long("rng")
-                 .help(
--                    "Random number generator parameters \"src=<entropy_source_path>,iommu=on|off\"",
-+                    "Random number generator parameters: src=<entropy_source_path>,iommu=on|off",
-                 )
-                 .default_value(default_rng)
-                 .group("vm-config"),
-@@ -342,7 +338,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-         .arg(
-             Arg::new("serial")
-                 .long("serial")
--                .help("Control serial port: off|null|pty|tty|file=</path/to/a/file>|socket=</path/to/a/file>")
-+                .help("Serial port parameters: off|null|pty|tty|file=<path>|socket=<path>")
-                 .default_value("null")
-                 .group("vm-config"),
-         )
-@@ -350,7 +346,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-             Arg::new("console")
-                 .long("console")
-                 .help(
--                    "Control (virtio) console: \"off|null|pty|tty|file=</path/to/a/file>,iommu=on|off\"",
-+                    "Virtio console parameters: off|null|pty|tty|file=<path>,iommu=on|off",
-                 )
-                 .default_value("tty")
-                 .group("vm-config"),
-@@ -416,28 +412,29 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-         .arg(
-             Arg::new("v")
-                 .short('v')
-+                .long("verbose")
-                 .action(ArgAction::Count)
--                .help("Sets the level of debugging output")
-+                .help("Set the level of debugging output")
-                 .group("logging"),
-         )
-         .arg(
-             Arg::new("log-file")
-                 .long("log-file")
--                .help("Log file. Standard error is used if not specified")
-+                .help("Log file [default: stderr]")
-                 .num_args(1)
-                 .group("logging"),
-         )
-         .arg(
-             Arg::new("api-socket")
-                 .long("api-socket")
--                .help("HTTP API socket (UNIX domain socket): path=</path/to/a/file> or fd=<fd>.")
-+                .help("API unix socket: path=<path>|fd=<fd>")
-                 .num_args(1)
-                 .group("vmm-config"),
-         )
-         .arg(
-             Arg::new("event-monitor")
-                 .long("event-monitor")
--                .help("File to report events on: path=</path/to/a/file> or fd=<fd>")
-+                .help("Event monitor: path=<path>|fd=<fd>")
-                 .num_args(1)
-                 .group("vmm-config"),
-         )
-@@ -476,7 +473,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-     let app = app.arg(
-         Arg::new("debug-console")
-             .long("debug-console")
--            .help("Debug console: off|pty|tty|file=</path/to/a/file>,iobase=<port in hex>")
-+            .help("Debug console parameters: off|pty|tty|file=<path>,iobase=<port>")
-             .default_value("off,iobase=0xe9")
+             )
+             .num_args(1..)
              .group("vm-config"),
-     );
-@@ -485,7 +482,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-     let app = app.arg(
-         Arg::new("gdb")
-             .long("gdb")
--            .help("GDB socket (UNIX domain socket): path=</path/to/a/file>")
-+            .help("GDB socket: path=<path>")
+@@ -361,7 +356,7 @@ fn get_cli_options_sorted(
+         Arg::new("platform")
+             .long("platform")
+             .help(
+-                "num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,iommu_address_width=<bits>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>"
++                "Platform parameters: num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,iommu_address_width=<bits>,serial_number=<dmi_device_serial_number>,uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>"
+             )
              .num_args(1)
-             .group("vmm-config"),
-     );
-@@ -495,7 +492,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-         .arg(
-             Arg::new("dbus-service-name")
-                 .long("dbus-service-name")
--                .help("Well known name of the device")
-+                .help("Well-known name of the device")
-                 .num_args(1)
-                 .group("vmm-config"),
-         )
-@@ -518,7 +515,7 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
-     let app = app.arg(
-         Arg::new("igvm")
-             .long("igvm")
--            .help("Path to IGVM file to load.")
-+            .help("Path to IGVM file to load")
-             .num_args(1)
-             .group("vm-payload"),
-     );
-@@ -621,11 +618,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
+             .group("vm-config"),
+@@ -396,7 +391,7 @@ fn get_cli_options_sorted(
+         Arg::new("rng")
+             .long("rng")
+             .help(
+-                "Random number generator parameters \"src=<entropy_source_path>,iommu=on|off\"",
++                "Random number generator parameters: src=<entropy_source_path>,iommu=on|off",
+             )
+             .default_value(default_rng)
+             .group("vm-config"),
+@@ -407,7 +402,7 @@ fn get_cli_options_sorted(
+             .default_value("true"),
+         Arg::new("serial")
+             .long("serial")
+-            .help("Control serial port: off|null|pty|tty|file=</path/to/a/file>|socket=</path/to/a/file>")
++            .help("Serial port parameters: off|null|pty|tty|file=<path>|socket=<path>")
+             .default_value("null")
+             .group("vm-config"),
+         #[cfg(target_arch = "x86_64")]
+@@ -428,8 +423,9 @@ fn get_cli_options_sorted(
+             .group("vm-config"),
+         Arg::new("v")
+             .short('v')
++            .long("verbose")
+             .action(ArgAction::Count)
+-            .help("Sets the level of debugging output")
++            .help("Set the level of debugging output")
+             .group("logging"),
+         Arg::new("vdpa")
+             .long("vdpa")
+@@ -473,7 +469,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+         // 'BUILD_VERSION' is set by the build script 'build.rs' at
+         // compile time
+         .author(env!("CARGO_PKG_AUTHORS"))
+-        .about("Launch a cloud-hypervisor VMM.")
++        .about("Launch a cloud-hypervisor VMM")
++        .color(ColorChoice::Never)
+         .arg_required_else_help(true)
+         .groups(groups)
+         .args(args)
+@@ -550,11 +547,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
          // handler safe functions (writing to stderr) and manipulating signals.
          unsafe {
              signal_hook::low_level::register(signal_hook::consts::SIGSYS, || {
