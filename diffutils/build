@@ -1,11 +1,11 @@
 check() {
   url https://ftp.gnu.org/gnu/diffutils/
-  match version 3.11 'diffutils-([0-9.]+)\.tar'
+  match version 3.12 'diffutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/diffutils/diffutils-3.11.tar.xz
-  tree 572221fbc61654040ade8b67da8da3c90c6559d54e8b9f5c9f49dffe6c6fd18c
+  unpack https://ftp.gnu.org/gnu/diffutils/diffutils-3.12.tar.xz
+  tree a6f74914ad0cc9af08ad71c054fa323a212a741826d6024c5329acac9fa13126
 }
 
 build() {
