@@ -3,20 +3,20 @@ require libffi
 
 check() {
   url https://www.ruby-lang.org/en/downloads/
-  match version 3.4.2 'ruby-([0-9.]+)\.tar'
+  match version 3.4.3 'ruby-([0-9.]+)\.tar'
 
   url https://github.com/yaml/libyaml/tags
   match version 0.2.5 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.2.tar.gz
+  unpack https://cache.ruby-lang.org/pub/ruby/3.4/ruby-3.4.3.tar.gz
   unpack -d libyaml \
     https://github.com/yaml/libyaml/releases/download/0.2.5/yaml-0.2.5.tar.gz
   apply irb.diff
   apply paths.diff
   apply plain.diff
-  tree 844c2fd7193becd98773f8419ae53594a2d742d841fcfe8e9c715457fde09038
+  tree cf60e6044294cc44e7079e2d2c1fea0427d399bd682d3332cfba1d5bd3aa7633
 }
 
 build() {
