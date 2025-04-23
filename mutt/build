@@ -1,8 +1,8 @@
 require lmdb perl
 
 check() {
-  url https://bitbucket.org/mutt/mutt/downloads/
-  match version 2.2.14 'mutt-([0-9.]+)\.tar'
+  url https://gitlab.com/muttmua/mutt/-/tags
+  match version 2.2.14 'mutt-([0-9.]+) signed'
 }
 
 prepare() {
