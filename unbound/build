@@ -2,12 +2,12 @@ require expat
 
 check() {
   url https://nlnetlabs.nl/downloads/unbound/
-  match version 1.22.0 'unbound-([0-9.]+)\.tar'
+  match version 1.23.0 'unbound-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.22.0.tar.gz
-  tree 3b80c5dcc5ac17334742cbd79020c22ff9e9592092dce783ba807247db39aba5
+  unpack https://nlnetlabs.nl/downloads/unbound/unbound-1.23.0.tar.gz
+  tree e108f20a0d1eb72e71319545953d3d1d734ff294d0ebaac4a4b40054674c5d05
 }
 
 build() {
