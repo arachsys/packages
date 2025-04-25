@@ -1,8 +1,8 @@
 diff --git a/Makefile.def b/Makefile.def
-index 35e994eb7..1dc7303d7 100644
+index 3f980bce..86e2469e 100644
 --- a/Makefile.def
 +++ b/Makefile.def
-@@ -67,7 +67,7 @@ host_modules= { module= mpc; lib_path=src/.libs; bootstrap=true;
+@@ -68,7 +68,7 @@ host_modules= { module= mpc; lib_path=src/.libs; bootstrap=true;
  		extra_configure_flags='--disable-shared @extra_mpc_gmp_configure_flags@ @extra_mpc_mpfr_configure_flags@  @host_libs_picflag@ --disable-maintainer-mode';
  		no_install= true; };
  host_modules= { module= isl; lib_path=.libs; bootstrap=true;
@@ -12,10 +12,10 @@ index 35e994eb7..1dc7303d7 100644
  		no_install= true; };
  host_modules= { module= gold; bootstrap=true; };
 diff --git a/Makefile.in b/Makefile.in
-index 06a9398e1..824520bc5 100644
+index b1ed67d3..c87b823b 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -16567,7 +16567,7 @@ configure-isl:
+@@ -16674,7 +16674,7 @@ configure-isl:
  	  $$s/$$module_srcdir/configure \
  	  --srcdir=$${topdir}/$$module_srcdir \
  	  $(HOST_CONFIGARGS) --build=${build_alias} --host=${host_alias} \

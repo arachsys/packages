@@ -1,5 +1,5 @@
 diff --git a/gcc/system.h b/gcc/system.h
-index cf45db3f9..39c83edde 100644
+index e516b49d..575d0e98 100644
 --- a/gcc/system.h
 +++ b/gcc/system.h
 @@ -43,6 +43,7 @@ along with GCC; see the file COPYING3.  If not see
@@ -11,7 +11,7 @@ index cf45db3f9..39c83edde 100644
  
  /* Define a generic NULL if one hasn't already been defined.  */
 diff --git a/libvtv/vtv_rts.cc b/libvtv/vtv_rts.cc
-index 4c0d2fc16..d37e6c30c 100644
+index ccb71540..8077b3c4 100644
 --- a/libvtv/vtv_rts.cc
 +++ b/libvtv/vtv_rts.cc
 @@ -125,7 +125,7 @@
@@ -24,7 +24,7 @@ index 4c0d2fc16..d37e6c30c 100644
  #endif
  
 diff --git a/libvtv/vtv_utils.cc b/libvtv/vtv_utils.cc
-index d40b9c6a6..a58eea82b 100644
+index b55bae22..07420c45 100644
 --- a/libvtv/vtv_utils.cc
 +++ b/libvtv/vtv_utils.cc
 @@ -35,7 +35,7 @@

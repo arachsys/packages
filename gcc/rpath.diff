@@ -1,8 +1,8 @@
 diff --git a/libstdc++-v3/acinclude.m4 b/libstdc++-v3/acinclude.m4
-index 5136c0571..693f7b3f6 100644
+index a0094c2d..eb22b333 100644
 --- a/libstdc++-v3/acinclude.m4
 +++ b/libstdc++-v3/acinclude.m4
-@@ -2756,20 +2756,20 @@ AC_DEFUN([GLIBCXX_ENABLE_VTABLE_VERIFY], [
+@@ -3145,20 +3145,20 @@ AC_DEFUN([GLIBCXX_ENABLE_VTABLE_VERIFY], [
      case ${target_os} in
        cygwin*|mingw32*)
          VTV_CXXFLAGS="-fvtable-verify=std -Wl,-lvtv,-u_vtable_map_vars_start,-u_vtable_map_vars_end"
@@ -28,10 +28,10 @@ index 5136c0571..693f7b3f6 100644
      esac
      VTV_PCH_CXXFLAGS="-fvtable-verify=std"
 diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
-index 68ee94c9e..2da55a3a4 100755
+index 819a1d82..5cc6b46a 100755
 --- a/libstdc++-v3/configure
 +++ b/libstdc++-v3/configure
-@@ -18829,20 +18829,20 @@ $as_echo "$enable_vtable_verify" >&6; }
+@@ -19574,20 +19574,20 @@ $as_echo "$enable_vtable_verify" >&6; }
      case ${target_os} in
        cygwin*|mingw32*)
          VTV_CXXFLAGS="-fvtable-verify=std -Wl,-lvtv,-u_vtable_map_vars_start,-u_vtable_map_vars_end"
