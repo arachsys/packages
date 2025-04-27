@@ -11,6 +11,6 @@ prepare() {
 
 build() {
   make COPTS+='-DLEASEFILE=\"/var/lib/dnsmasq.leases\"' \
-       COPTS+='-DRUNFILE=\"/run/dnsmasq.pid\"'
-  make install DESTDIR=/dst BINDIR=/bin MANDIR=/lib/man
+       COPTS+='-DRUNFILE=\"/run/dnsmasq.pid\"' \
+       DESTDIR=/dst BINDIR=/bin MANDIR=/lib/man install
 }
