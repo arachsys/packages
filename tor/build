@@ -9,7 +9,8 @@ prepare() {
   unpack https://dist.torproject.org/tor-0.4.8.16.tar.gz
   apply cosmetic.diff
   apply config.diff
-  tree f8e56ebf5816b9ba8a986151166489b3a4b0c5c2fa6f7bb076bf4910912699ae
+  apply libressl.diff
+  tree 5be1bcb9df5fa996c61a416474506622da3fd5ec034dcee94c94748496745aaa
 }
 
 build() {
