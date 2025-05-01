@@ -1,11 +1,11 @@
 check() {
   url https://sourceforge.net/projects/smartmontools/files/smartmontools/
-  match version 7.4 '/files/smartmontools/([0-9.]+)/'
+  match version 7.5 '/files/smartmontools/([0-9.]+)/'
 }
 
 prepare() {
-  unpack https://downloads.sourceforge.net/project/smartmontools/smartmontools/7.4/smartmontools-7.4.tar.gz
-  tree 8d7003adc3db587e1a798b1f8eda425a998f4bda419a0b7b0d05464ceab77665
+  unpack https://downloads.sourceforge.net/project/smartmontools/smartmontools/7.5/smartmontools-7.5.tar.gz
+  tree 5fa813fe3fcecc78f1f15a71dd11823d9812b4a6ba40895ee68d48c047186ff9
 }
 
 build() {
