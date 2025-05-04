@@ -1,25 +1,29 @@
 enable rpaths
+require perl
 
 check() {
-  url https://dovecot.org/download
-  match version 2.3.21.1 'dovecot-([0-9.]+)\.tar'
+  url https://github.com/dovecot/core/tags
+  match version 2.4.1 'tags/([0-9.]+)\.tar'
 
-  url https://pigeonhole.dovecot.org/download.html
-  match pigeonhole 0.5.21.1 'dovecot-[0-9.]+-pigeonhole-([0-9.]+)\.tar'
+  url https://github.com/dovecot/pigeonhole/tags
+  match pigeonhole 2.4.1 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dovecot.org/releases/2.3/dovecot-2.3.21.1.tar.gz
+  unpack https://dovecot.org/releases/2.4/dovecot-2.4.1-4.tar.gz
   unpack -d pigeonhole \
-    https://pigeonhole.dovecot.org/releases/2.3/dovecot-2.3-pigeonhole-0.5.21.1.tar.gz
+    https://pigeonhole.dovecot.org/releases/2.4/dovecot-pigeonhole-2.4.1-4.tar.gz
+  apply ldap.diff
+  apply musl.diff
   apply paths.diff
   apply users.diff
-  tree 835ced33994531a9c5c8b9078ea2e1ac820792f5123eb83fec3b5ade9e6ba145
+  tree 59fa2d7fcbd2f97d0e01665ada7c70e75126c07182c02cc488d809f10b1a2b28
 }
 
 build() {
   auto-config --with-moduledir=/lib/dovecot/modules \
-    --with-rundir=/run/dovecot
+    --with-rundir=/run/dovecot {ZLIB,ZSTD}_CFLAGS=-I/lib/include \
+    ZLIB_LIBS=-lz ZSTD_LIBS=-lzstd
   make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
     pkglibdir=/lib/dovecot/shared
 

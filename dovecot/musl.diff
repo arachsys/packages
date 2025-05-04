@@ -1,0 +1,13 @@
+diff --git a/src/lib/cpu-count.c b/src/lib/cpu-count.c
+index 3eb38fa4..5464bc03 100644
+--- a/src/lib/cpu-count.c
++++ b/src/lib/cpu-count.c
+@@ -2,7 +2,7 @@
+ #include "cpu-count.h"
+ 
+ #ifdef HAVE_SCHED_H
+-#  define __USE_GNU
++#  define _GNU_SOURCE
+ #  include <sched.h>
+ #  ifdef HAVE_SYS_CPUSET_H
+ #    include <sys/cpuset.h>

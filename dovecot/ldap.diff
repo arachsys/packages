@@ -1,0 +1,20 @@
+diff --git a/pigeonhole/src/lib-sieve/storage/ldap/sieve-ldap-storage.c b/pigeonhole/src/lib-sieve/storage/ldap/sieve-ldap-storage.c
+index ecf2724c..715572c7 100644
+--- a/pigeonhole/src/lib-sieve/storage/ldap/sieve-ldap-storage.c
++++ b/pigeonhole/src/lib-sieve/storage/ldap/sieve-ldap-storage.c
+@@ -3,7 +3,6 @@
+ 
+ #include "lib.h"
+ #include "settings.h"
+-#include "ldap-utils.h"
+ #include "iostream-ssl.h"
+ 
+ #include "sieve-common.h"
+@@ -13,6 +12,7 @@
+ 
+ #if defined(SIEVE_BUILTIN_LDAP) || defined(PLUGIN_BUILD)
+ 
++#include "ldap-utils.h"
+ #include "sieve-error.h"
+ 
+ #ifndef PLUGIN_BUILD

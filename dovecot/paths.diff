@@ -11,3 +11,29 @@ index c107156..bd2a8b6 100644
  #endif
  
  /* AIX doesn't have these defined */
+diff --git a/src/lib-settings/Makefile.am b/src/lib-settings/Makefile.am
+index 1fbd90ef..6156e468 100644
+--- a/src/lib-settings/Makefile.am
++++ b/src/lib-settings/Makefile.am
+@@ -24,7 +24,7 @@ BUILT_SOURCES = settings-history-core.c
+ settings-history.c: settings-history-core.c
+ 
+ settings-history-core.c: $(top_srcdir)/src/lib-settings/settings-history.pl $(top_srcdir)/src/lib-settings/settings-history-core.txt
+-	$(AM_V_GEN)$(top_srcdir)/src/lib-settings/settings-history.pl $(top_srcdir)/src/lib-settings/settings-history-core.txt $(DOVECOT_PRO_BUILD) > settings-history-core.c || rm -f settings-history-core.c
++	$(AM_V_GEN)perl $(top_srcdir)/src/lib-settings/settings-history.pl $(top_srcdir)/src/lib-settings/settings-history-core.txt $(DOVECOT_PRO_BUILD) > settings-history-core.c || rm -f settings-history-core.c
+ 
+ EXTRA_DIST = \
+ 	settings-history-core.txt \
+diff --git a/src/lib-settings/Makefile.in b/src/lib-settings/Makefile.in
+index f0a3e599..e799686e 100644
+--- a/src/lib-settings/Makefile.in
++++ b/src/lib-settings/Makefile.in
+@@ -896,7 +896,7 @@ uninstall-am: uninstall-pkginc_libHEADERS
+ settings-history.c: settings-history-core.c
+ 
+ settings-history-core.c: $(top_srcdir)/src/lib-settings/settings-history.pl $(top_srcdir)/src/lib-settings/settings-history-core.txt
+-	$(AM_V_GEN)$(top_srcdir)/src/lib-settings/settings-history.pl $(top_srcdir)/src/lib-settings/settings-history-core.txt $(DOVECOT_PRO_BUILD) > settings-history-core.c || rm -f settings-history-core.c
++	$(AM_V_GEN)perl $(top_srcdir)/src/lib-settings/settings-history.pl $(top_srcdir)/src/lib-settings/settings-history-core.txt $(DOVECOT_PRO_BUILD) > settings-history-core.c || rm -f settings-history-core.c
+ 
+ check-local:
+ 	for bin in $(test_programs); do \
