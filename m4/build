@@ -1,11 +1,11 @@
 check() {
   url https://ftp.gnu.org/gnu/m4/
-  match version 1.4.19 'm4-([0-9.]+)\.tar'
+  match version 1.4.20 'm4-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.xz
-  tree 813718c173f9e6c39831babf258421a2269b30a4a2e32407935cb6c2b8ed84a0
+  unpack https://ftp.gnu.org/gnu/m4/m4-1.4.20.tar.xz
+  tree b811f9a2ae914bb040a3ff037efe58cce85cbd1c5af1f4284bdcf4706116b072
 }
 
 build() {
