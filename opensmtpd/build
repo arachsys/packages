@@ -4,20 +4,20 @@ enable setgid
 
 check() {
   url https://www.opensmtpd.org/archives/
-  match opensmtpd 7.6.0p1 'opensmtpd-([0-9.]+p[0-9]+)\.tar'
+  match opensmtpd 7.7.0p0 'opensmtpd-([0-9.]+p[0-9]+)\.tar'
 
   url https://github.com/void-linux/musl-fts/tags
   match musl-fts 1.2.7 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.opensmtpd.org/archives/opensmtpd-7.6.0p1.tar.gz
+  unpack https://www.opensmtpd.org/archives/opensmtpd-7.7.0p0.tar.gz
   unpack -d fts musl-fts-1.2.7.tar.gz \
     https://github.com/void-linux/musl-fts/archive/v1.2.7.tar.gz
   apply forward.diff
   apply libtls.diff
   apply paths.diff
-  tree c4417d13614374ad784b24c1d5f78cfaabded7ab59b73d2bebbd4b2dc5105c13
+  tree a592dd397e48601261b94b3e28520906b36c40d60de43c83453fbadcc81aee59
 }
 
 build() {
