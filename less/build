@@ -1,11 +1,11 @@
 check() {
   url http://www.greenwoodsoftware.com/less/download.html
-  match version 668 'less-([0-9.]+)\.tar'
+  match version 678 'less-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack http://www.greenwoodsoftware.com/less/less-668.tar.gz
-  tree c9d8b65c493cb521cc4b198b8f11e4765c192ab35c5519861fd7b296a94d2c4c
+  unpack http://www.greenwoodsoftware.com/less/less-678.tar.gz
+  tree e3709d945cb9e35920664f34a7f25db4aa82272809678370a8bb0720cd04761d
 }
 
 build() {
