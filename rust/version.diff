@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 741a0183..c69c7b95 100644
+index 0be5ee4a..ae1c0a69 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
-@@ -352,7 +352,7 @@ impl Build {
+@@ -401,7 +401,7 @@ impl Build {
          }
  
          if rust_info.is_from_tarball() && config.description.is_none() {

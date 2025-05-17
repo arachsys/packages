@@ -1,9 +1,9 @@
 diff --git a/compiler/rustc_session/src/filesearch.rs b/compiler/rustc_session/src/filesearch.rs
-index ec83761d..2df5728d 100644
+index bdeca91e..c59e19d4 100644
 --- a/compiler/rustc_session/src/filesearch.rs
 +++ b/compiler/rustc_session/src/filesearch.rs
-@@ -164,9 +164,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
-         smallvec![get_or_default_sysroot().expect("Failed finding sysroot")];
+@@ -173,9 +173,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
+     let mut sysroot_candidates: SmallVec<[PathBuf; 2]> = smallvec![get_or_default_sysroot()];
      let path = current_dll_path().and_then(|s| try_canonicalize(s).map_err(|e| e.to_string()));
      if let Ok(dll) = path {
 +        // If the dll is in a directory named `shared`, it must be in
@@ -20,7 +20,7 @@ index ec83761d..2df5728d 100644
              // The original `path` pointed at the `rustc_driver` crate's dll.
              // Now that dll should only be in one of two locations. The first is
              // in the compiler's libdir, for example `$sysroot/lib/*.dll`. The
-@@ -213,12 +220,27 @@ pub fn get_or_default_sysroot() -> Result<PathBuf, String> {
+@@ -222,12 +229,27 @@ pub fn get_or_default_sysroot() -> PathBuf {
      fn default_from_rustc_driver_dll() -> Result<PathBuf, String> {
          let dll = current_dll_path().map(|s| canonicalize(s))?;
  
@@ -70,10 +70,10 @@ index e3b6430a..482ea807 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
-index 479327d6..9cc5c45c 100644
+index 18b5d442..83897a8b 100644
 --- a/src/bootstrap/src/core/build_steps/compile.rs
 +++ b/src/bootstrap/src/core/build_steps/compile.rs
-@@ -332,40 +332,7 @@ fn copy_self_contained_objects(
+@@ -375,54 +375,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -88,24 +88,38 @@ index 479327d6..9cc5c45c 100644
 -        let srcdir = builder.musl_libdir(target).unwrap_or_else(|| {
 -            panic!("Target {:?} does not have a \"musl-libdir\" key", target.triple)
 -        });
--        for &obj in &["libc.a", "crt1.o", "Scrt1.o", "rcrt1.o", "crti.o", "crtn.o"] {
--            copy_and_stamp(
--                builder,
--                &libdir_self_contained,
--                &srcdir,
--                obj,
--                &mut target_deps,
--                DependencyType::TargetSelfContained,
--            );
+-        if !target.starts_with("wasm32") {
+-            for &obj in &["libc.a", "crt1.o", "Scrt1.o", "rcrt1.o", "crti.o", "crtn.o"] {
+-                copy_and_stamp(
+-                    builder,
+-                    &libdir_self_contained,
+-                    &srcdir,
+-                    obj,
+-                    &mut target_deps,
+-                    DependencyType::TargetSelfContained,
+-                );
+-            }
+-            let crt_path = builder.ensure(llvm::CrtBeginEnd { target });
+-            for &obj in &["crtbegin.o", "crtbeginS.o", "crtend.o", "crtendS.o"] {
+-                let src = crt_path.join(obj);
+-                let target = libdir_self_contained.join(obj);
+-                builder.copy_link(&src, &target, FileType::NativeLibrary);
+-                target_deps.push((target, DependencyType::TargetSelfContained));
+-            }
+-        } else {
+-            // For wasm32 targets, we need to copy the libc.a and crt1-command.o files from the
+-            // musl-libdir, but we don't need the other files.
+-            for &obj in &["libc.a", "crt1-command.o"] {
+-                copy_and_stamp(
+-                    builder,
+-                    &libdir_self_contained,
+-                    &srcdir,
+-                    obj,
+-                    &mut target_deps,
+-                    DependencyType::TargetSelfContained,
+-                );
+-            }
 -        }
--        let crt_path = builder.ensure(llvm::CrtBeginEnd { target });
--        for &obj in &["crtbegin.o", "crtbeginS.o", "crtend.o", "crtendS.o"] {
--            let src = crt_path.join(obj);
--            let target = libdir_self_contained.join(obj);
--            builder.copy_link(&src, &target);
--            target_deps.push((target, DependencyType::TargetSelfContained));
--        }
--
 -        if !target.starts_with("s390x") {
 -            let libunwind_path = copy_llvm_libunwind(builder, target, &libdir_self_contained);
 -            target_deps.push((libunwind_path, DependencyType::TargetSelfContained));
@@ -114,9 +128,9 @@ index 479327d6..9cc5c45c 100644
 +    if target.contains("-wasi") {
          let srcdir = builder.wasi_libdir(target).unwrap_or_else(|| {
              panic!(
-                 "Target {:?} does not have a \"wasi-root\" key in Config.toml \
+                 "Target {:?} does not have a \"wasi-root\" key in bootstrap.toml \
 diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
-index 9e4a0816..36c3b590 100644
+index dbfebd11..efeb0039 100644
 --- a/src/bootstrap/src/core/sanity.rs
 +++ b/src/bootstrap/src/core/sanity.rs
 @@ -11,7 +11,7 @@
@@ -128,7 +142,7 @@ index 9e4a0816..36c3b590 100644
  
  use crate::Build;
  #[cfg(not(test))]
-@@ -325,28 +325,6 @@ than building it.
+@@ -322,28 +322,6 @@ than building it.
              continue;
          }
  
@@ -136,7 +150,7 @@ index 9e4a0816..36c3b590 100644
 -        if target.contains("musl") && !target.contains("unikraft") {
 -            // If this is a native target (host is also musl) and no musl-root is given,
 -            // fall back to the system toolchain in /usr before giving up
--            if build.musl_root(*target).is_none() && build.is_builder_target(target) {
+-            if build.musl_root(*target).is_none() && build.is_builder_target(*target) {
 -                let target = build.config.target_config.entry(*target).or_default();
 -                target.musl_root = Some("/usr".into());
 -            }
@@ -149,7 +163,7 @@ index 9e4a0816..36c3b590 100644
 -                None => panic!(
 -                    "when targeting MUSL either the rust.musl-root \
 -                            option or the target.$TARGET.musl-root option must \
--                            be specified in config.toml"
+-                            be specified in bootstrap.toml"
 -                ),
 -            }
 -        }
@@ -158,10 +172,10 @@ index 9e4a0816..36c3b590 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 21b02a3b..741a0183 100644
+index 843d474f..0be5ee4a 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
-@@ -180,6 +180,7 @@ pub struct Build {
+@@ -201,6 +201,7 @@ pub struct Build {
      metrics: crate::utils::metrics::BuildMetrics,
  }
  
