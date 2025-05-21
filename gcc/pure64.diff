@@ -1,8 +1,8 @@
-diff --git a/bu/ld/emulparams/elf32_x86_64.sh b/bu/ld/emulparams/elf32_x86_64.sh
-index 6a92eec1..5b27bca2 100644
---- a/bu/ld/emulparams/elf32_x86_64.sh
-+++ b/bu/ld/emulparams/elf32_x86_64.sh
-@@ -40,19 +40,3 @@ if [ "x${host}" = "x${target}" ]; then
+diff --git a/ld/emulparams/elf32_x86_64.sh b/ld/emulparams/elf32_x86_64.sh
+index 4bff41287..c87cfddae 100644
+--- a/ld/emulparams/elf32_x86_64.sh
++++ b/ld/emulparams/elf32_x86_64.sh
+@@ -38,19 +38,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -22,11 +22,11 @@ index 6a92eec1..5b27bca2 100644
 -    esac
 -    ;;
 -esac
-diff --git a/bu/ld/emulparams/elf_x86_64.sh b/bu/ld/emulparams/elf_x86_64.sh
-index 92449745..92961dd1 100644
---- a/bu/ld/emulparams/elf_x86_64.sh
-+++ b/bu/ld/emulparams/elf_x86_64.sh
-@@ -41,19 +41,3 @@ if [ "x${host}" = "x${target}" ]; then
+diff --git a/ld/emulparams/elf_x86_64.sh b/ld/emulparams/elf_x86_64.sh
+index a689a7b6d..3bcada2c5 100644
+--- a/ld/emulparams/elf_x86_64.sh
++++ b/ld/emulparams/elf_x86_64.sh
+@@ -39,19 +39,3 @@ if [ "x${host}" = "x${target}" ]; then
        NATIVE=yes
    esac
  fi
@@ -47,7 +47,7 @@ index 92449745..92961dd1 100644
 -  ;;
 -esac
 diff --git a/gcc/config/aarch64/aarch64-linux.h b/gcc/config/aarch64/aarch64-linux.h
-index 116bb4e6..4c062d5b 100644
+index 4277f03da..b4b2314b3 100644
 --- a/gcc/config/aarch64/aarch64-linux.h
 +++ b/gcc/config/aarch64/aarch64-linux.h
 @@ -21,10 +21,10 @@
@@ -64,7 +64,7 @@ index 116bb4e6..4c062d5b 100644
  #undef  ASAN_CC1_SPEC
  #define ASAN_CC1_SPEC "%{%:sanitize(address):-funwind-tables}"
 diff --git a/gcc/config/aarch64/t-aarch64-linux b/gcc/config/aarch64/t-aarch64-linux
-index 70e36b32..34af9c65 100644
+index 57bf4100f..e27a859e2 100644
 --- a/gcc/config/aarch64/t-aarch64-linux
 +++ b/gcc/config/aarch64/t-aarch64-linux
 @@ -22,7 +22,4 @@ LIB1ASMSRC   = aarch64/lib1funcs.asm
@@ -76,10 +76,10 @@ index 70e36b32..34af9c65 100644
 -
 -MULTILIB_OSDIRNAMES += mabi.ilp32=../libilp32$(call if_multiarch,:aarch64$(AARCH_BE)-linux-gnu_ilp32)
 diff --git a/gcc/config/arm/linux-eabi.h b/gcc/config/arm/linux-eabi.h
-index 8ef5643b..bfe47d04 100644
+index a11987559..fde358eed 100644
 --- a/gcc/config/arm/linux-eabi.h
 +++ b/gcc/config/arm/linux-eabi.h
-@@ -65,14 +65,7 @@
+@@ -62,14 +62,7 @@
     GLIBC_DYNAMIC_LINKER_DEFAULT and TARGET_DEFAULT_FLOAT_ABI.  */
  
  #undef  GLIBC_DYNAMIC_LINKER
@@ -95,7 +95,7 @@ index 8ef5643b..bfe47d04 100644
  
  /* For ARM musl currently supports four dynamic linkers:
     - ld-musl-arm.so.1 - for the EABI-derived soft-float ABI
-@@ -82,14 +75,9 @@
+@@ -79,14 +72,9 @@
     musl does not support the legacy OABI mode.
     All the dynamic linkers live in /lib.
     We default to soft-float, EL. */
@@ -113,7 +113,7 @@ index 8ef5643b..bfe47d04 100644
  /* At this point, bpabi.h will have clobbered LINK_SPEC.  We want to
     use the GNU/Linux version, not the generic BPABI version.  */
 diff --git a/gcc/config/arm/linux-elf.h b/gcc/config/arm/linux-elf.h
-index d4d389e2..60afaa1f 100644
+index 7b7b7cbbe..be96ce4cc 100644
 --- a/gcc/config/arm/linux-elf.h
 +++ b/gcc/config/arm/linux-elf.h
 @@ -60,7 +60,7 @@
@@ -126,7 +126,7 @@ index d4d389e2..60afaa1f 100644
  #define LINUX_TARGET_LINK_SPEC  "%{h*} \
     %{static:-Bstatic} \
 diff --git a/gcc/config/i386/linux64.h b/gcc/config/i386/linux64.h
-index 24170ee2..bca112f5 100644
+index 2bd9f48e2..15964ee76 100644
 --- a/gcc/config/i386/linux64.h
 +++ b/gcc/config/i386/linux64.h
 @@ -27,13 +27,13 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
@@ -150,7 +150,7 @@ index 24170ee2..bca112f5 100644
 -#define MUSL_DYNAMIC_LINKERX32 "/lib/ld-musl-x32.so.1"
 +#define MUSL_DYNAMIC_LINKERX32 "/lib/ld.so"
 diff --git a/gcc/config/i386/t-linux64 b/gcc/config/i386/t-linux64
-index 64a4a20e..808794e4 100644
+index 138956b09..db1f03de8 100644
 --- a/gcc/config/i386/t-linux64
 +++ b/gcc/config/i386/t-linux64
 @@ -33,6 +33,3 @@
