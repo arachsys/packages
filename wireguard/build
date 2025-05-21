@@ -1,12 +1,12 @@
 check() {
   url https://git.zx2c4.com/wireguard-tools
-  match version 1.0.20210914 'wireguard-tools-([0-9.]+)\.tar'
+  match version 1.0.20250521 'wireguard-tools-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210914.tar.xz
+  unpack https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20250521.tar.xz
   find -xtype l -delete
-  tree c31b5599561b7b467bbbe00d69b8ba1f5114c1289b93c91c87586d566ff4382c
+  tree 2140caa0153c74cf3e386aefc221100bd908506d69471958561d5adb2631fde2
 }
 
 build() {
