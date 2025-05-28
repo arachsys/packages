@@ -8,7 +8,7 @@ check() {
   match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/automake/
-  match automake 1.17 'automake-([0-9.]+)\.tar'
+  match automake 1.18 'automake-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/libtool/
   match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
@@ -27,7 +27,7 @@ prepare() {
   unpack -d tools/autoconf \
     https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
   unpack -d tools/automake \
-    https://ftp.gnu.org/gnu/automake/automake-1.17.tar.xz
+    https://ftp.gnu.org/gnu/automake/automake-1.18.tar.xz
   unpack -d tools/libtool \
     https://ftp.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz
   unpack -d tools/pkgconf \
@@ -35,7 +35,7 @@ prepare() {
 
   apply console.diff
   apply lanplus.diff
-  tree 866e7f1f32cf139b2c182fb1ec9e7e3fbc10a1ae51a01bc006608659f5e6ef41
+  tree 089eb691654086a8d4060c4c83d1f498eb99961088591b26104b1cb83627ce5a
 }
 
 build() {
