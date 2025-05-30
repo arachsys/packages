@@ -1,0 +1,59 @@
+diff --git a/mpy-cross/main.c b/mpy-cross/main.c
+index 7ab95149..10e69992 100644
+--- a/mpy-cross/main.c
++++ b/mpy-cross/main.c
+@@ -119,32 +119,40 @@ static int compile_and_save(const char *file, const char *output_file, const cha
+ 
+ static int usage(char **argv) {
+     printf(
+-        "usage: %s [<opts>] [-X <implopt>] [--] <input filename>\n"
++        "Usage: %s [<option>]... [--] <file>\n"
+         "Options:\n"
+-        "--version : show version information\n"
+-        "-o : output file for compiled bytecode (defaults to input filename with .mpy extension, or stdout if input is stdin)\n"
+-        "-s : source filename to embed in the compiled bytecode (defaults to input file)\n"
+-        "-v : verbose (trace various operations); can be multiple\n"
+-        "-O[N] : apply bytecode optimizations of level N\n"
++        "  -o <file>     output filename for the compiled bytecode\n"
++        "                (defaults to the input filename with an .mpy\n"
++        "                extension, or stdout if input is stdin)\n"
++        "  -s <name>     source filename to embed in the compiled bytecode\n"
++        "                (defaults to the input filename)\n"
++        "  -v            increase tracing verbosity; may be repeated\n"
++        "  -O[<n>]       apply bytecode optimizations of level <n>\n"
++        "  --version     show version information\n"
+         "\n"
+-        "Target specific options:\n"
+-        "-msmall-int-bits=number : set the maximum bits used to encode a small-int\n"
+-        "-march=<arch> : set architecture for native emitter;\n"
+-        "                x86, x64, armv6, armv6m, armv7m, armv7em, armv7emsp, armv7emdp, xtensa, xtensawin, rv32imc, debug\n"
++        "Target-specific options:\n"
++        "  -march=<arch> set the native emitter architecture:\n"
++        "                x86, x64, armv6, armv6m, armv7m, armv7em, armv7emsp,\n"
++        "                armv7emdp, xtensa, xtensawin, rv32imc, debug\n"
++        "  -msmall-int-bits=<n>\n"
++        "                set the maximum bits used to encode a small-int\n"
+         "\n"
+-        "Implementation specific options:\n", argv[0]
++        "Implementation-specific options:\n", argv[0]
+         );
+     int impl_opts_cnt = 0;
+     printf(
+         #if MICROPY_EMIT_NATIVE
+-        "  emit={bytecode,native,viper} -- set the default code emitter\n"
++        "  -X emit={bytecode,native,viper}\n"
++        "                set the default code emitter\n"
+         #else
+-        "  emit=bytecode -- set the default code emitter\n"
++        "  -X emit=bytecode\n"
++        "                set the default code emitter\n"
+         #endif
+         );
+     impl_opts_cnt++;
+     printf(
+-        "  heapsize=<n> -- set the heap size for the GC (default %ld)\n"
++        "  -X heapsize=<bytes>\n"
++        "                set the heap size for the GC (default %ld)\n"
+         , heap_size);
+     impl_opts_cnt++;
+ 
