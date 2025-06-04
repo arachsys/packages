@@ -1,8 +1,8 @@
 diff --git a/Lib/site.py b/Lib/site.py
-index 89a81c55..095e91e9 100644
+index aedf3639..959306f6 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -473,8 +473,7 @@ def gethistoryfile():
+@@ -474,8 +474,7 @@ def gethistoryfile():
          history = os.environ.get("PYTHON_HISTORY")
          if history:
              return history
@@ -12,7 +12,7 @@ index 89a81c55..095e91e9 100644
  
  
  def enablerlcompleter():
-@@ -547,8 +546,7 @@ def register_readline():
+@@ -548,8 +547,7 @@ def register_readline():
              pass
  
      if readline is None or readline.get_current_history_length() == 0:
@@ -22,7 +22,7 @@ index 89a81c55..095e91e9 100644
          # The guard is necessary to avoid doubling history size at
          # each interpreter exit when readline was already configured
          # through a PYTHONSTARTUP hook, see:
-@@ -564,20 +562,21 @@ def register_readline():
+@@ -565,25 +563,26 @@ def register_readline():
              readline_module = readline
              exceptions = OSError
  
@@ -41,6 +41,11 @@ index 89a81c55..095e91e9 100644
 +                readline_module.read_history_file(history)
 +            except exceptions:
                  pass
+-            except OSError:
+-                if errno.EROFS:
+-                    pass  # gh-128066: read-only file system
+-                else:
+-                    raise
  
 -        atexit.register(write_history)
 +            def write_history():
@@ -50,6 +55,11 @@ index 89a81c55..095e91e9 100644
 +                    # home directory does not exist or is not writable
 +                    # https://bugs.python.org/issue19891
 +                    pass
++                except OSError:
++                    if errno.EROFS:
++                        pass  # gh-128066: read-only file system
++                    else:
++                        raise
 +
 +            atexit.register(write_history)
  

@@ -31,7 +31,7 @@ index 5627bfbc..80f3f99a 100755
  
  This codec de/encodes from str to str.
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index 8604000e..0f3f85c9 100644
+index 2af7c4b7..d23c8271 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -47,14 +47,6 @@ __all__ = [
@@ -50,10 +50,10 @@ index 8604000e..0f3f85c9 100644
  
  inited = False
 diff --git a/Lib/platform.py b/Lib/platform.py
-index 59583822..f847a90e 100755
+index 8895177e..3bd71a55 100755
 --- a/Lib/platform.py
 +++ b/Lib/platform.py
-@@ -1388,8 +1388,8 @@ def platform(aliased=False, terse=False):
+@@ -1389,8 +1389,8 @@ def platform(aliased=False, terse=False):
  ### freedesktop.org os-release standard
  # https://www.freedesktop.org/software/systemd/man/os-release.html
  
@@ -65,7 +65,7 @@ index 59583822..f847a90e 100755
  
  
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index f2173032..1c5c71c1 100644
+index 80561ae7..eceb5596 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -78,10 +78,10 @@ index f2173032..1c5c71c1 100644
  devnull = '/dev/null'
  
 diff --git a/Lib/site.py b/Lib/site.py
-index 095e91e9..fa2f7533 100644
+index 959306f6..9ee889ae 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -321,12 +321,12 @@ def _get_path(userbase):
+@@ -322,12 +322,12 @@ def _get_path(userbase):
      implementation_lower = implementation.lower()
      if os.name == 'nt':
          ver_nodot = sys.winver.replace('.', '')
@@ -96,7 +96,7 @@ index 095e91e9..fa2f7533 100644
  
  
  def getuserbase():
-@@ -405,7 +405,7 @@ def getsitepackages(prefixes=None):
+@@ -406,7 +406,7 @@ def getsitepackages(prefixes=None):
  
              for libdir in libdirs:
                  path = os.path.join(prefix, libdir,
@@ -106,7 +106,7 @@ index 095e91e9..fa2f7533 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig/__init__.py b/Lib/sysconfig/__init__.py
-index ec3b638f..a1ccfe95 100644
+index 510c7b95..8bd7d7e7 100644
 --- a/Lib/sysconfig/__init__.py
 +++ b/Lib/sysconfig/__init__.py
 @@ -27,14 +27,12 @@ _ALWAYS_STR = {
@@ -195,7 +195,7 @@ index ec3b638f..a1ccfe95 100644
              'data': '{userbase}',
              },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index b5a15f7b..97aa7cd4 100644
+index 67aa13f4..f57a8976 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
 @@ -170,7 +170,7 @@ def _candidate_tempdir_list():
@@ -237,7 +237,7 @@ index f7a6d261..abae7c66 100644
          context.bin_name = os.path.relpath(binpath, env_dir)
          context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 03ca4cb6..4921f03a 100644
+index 70d54958..1320a6fd 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -149,7 +149,7 @@ BINDIR=		@bindir@
@@ -279,10 +279,10 @@ index 1f1bfcb4..787f86e3 100644
      VENV_LANDMARK = 'pyvenv.cfg'
      ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}{ABI_THREAD}.zip'
 diff --git a/configure b/configure
-index ae70f02f..8e39fed7 100755
+index 1cd1f690..f83c0340 100755
 --- a/configure
 +++ b/configure
-@@ -24609,7 +24609,7 @@ fi
+@@ -24629,7 +24629,7 @@ fi
  
  
  
@@ -291,7 +291,7 @@ index ae70f02f..8e39fed7 100755
  
  
  # Check for --with-platlibdir
-@@ -24646,9 +24646,9 @@ fi
+@@ -24666,9 +24666,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then
