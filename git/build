@@ -1,23 +1,23 @@
 check() {
   url https://www.kernel.org/pub/software/scm/git/
-  match version 2.49.0 'git-([0-9.]+)\.tar'
+  match version 2.50.0 'git-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/software/scm/git/git-2.49.0.tar.xz
+  unpack https://www.kernel.org/pub/software/scm/git/git-2.50.0.tar.xz
   apply filter-branch.diff
   apply usage.diff
-  tree 7131935830bff218f64f07b9e58c8837611135ff70b37b543553eb5af56e801e
+  tree 48882f4d384a4e8c02c16792544978e2e4fd308e05ac9fde4c34b3805b4a0365
 }
 
 build() {
   make install DESTDIR=/dst prefix= gitexecdir=/lib/git \
     gitwebdir=/lib/gitweb htmldir=/lib/doc/git infodir=/lib/info \
     mandir=/lib/man template_dir=/lib/git/templates \
-    CURL_LDFLAGS=-lcurl NO_{EXPAT,GETTEXT,PERL,PYTHON,REGEX,TCLTK}=1 \
-    USE_CURL_FOR_IMAP_SEND=1 USE_LIBPCRE=1
+    CURL_LDFLAGS=-lcurl USE_CURL_FOR_IMAP_SEND=1 USE_LIBPCRE=1 \
+    NO_{BASH_COMPLETION,EXPAT,GETTEXT,PERL,PYTHON,REGEX,TCLTK}=1
   grep -l -r -F -Z 'fatal: git was built without support for' /dst \
-    | xargs -r -0 rm --
+    | xargs -r -t -0 rm --
   rm -r /dst/lib/git/templates
   image - requires curl
 }
