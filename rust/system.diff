@@ -70,10 +70,10 @@ index e3b6430a..482ea807 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
-index 18b5d442..83897a8b 100644
+index 2e5865e5..17fbdbe2 100644
 --- a/src/bootstrap/src/core/build_steps/compile.rs
 +++ b/src/bootstrap/src/core/build_steps/compile.rs
-@@ -375,54 +375,7 @@ fn copy_self_contained_objects(
+@@ -371,54 +371,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -130,7 +130,7 @@ index 18b5d442..83897a8b 100644
              panic!(
                  "Target {:?} does not have a \"wasi-root\" key in bootstrap.toml \
 diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
-index dbfebd11..efeb0039 100644
+index eb0bf1d1..b85cfedd 100644
 --- a/src/bootstrap/src/core/sanity.rs
 +++ b/src/bootstrap/src/core/sanity.rs
 @@ -11,7 +11,7 @@
@@ -150,7 +150,7 @@ index dbfebd11..efeb0039 100644
 -        if target.contains("musl") && !target.contains("unikraft") {
 -            // If this is a native target (host is also musl) and no musl-root is given,
 -            // fall back to the system toolchain in /usr before giving up
--            if build.musl_root(*target).is_none() && build.is_builder_target(*target) {
+-            if build.musl_root(*target).is_none() && build.config.is_host_target(*target) {
 -                let target = build.config.target_config.entry(*target).or_default();
 -                target.musl_root = Some("/usr".into());
 -            }
@@ -172,10 +172,10 @@ index dbfebd11..efeb0039 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 843d474f..0be5ee4a 100644
+index 1e6acad5..15673ea1 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
-@@ -201,6 +201,7 @@ pub struct Build {
+@@ -202,6 +202,7 @@ pub struct Build {
      metrics: crate::utils::metrics::BuildMetrics,
  }
  

@@ -1,8 +1,8 @@
 diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
-index 7234d1dc..6f72c2e6 100644
+index 303be54a..597e7db2 100644
 --- a/compiler/rustc_target/src/spec/mod.rs
 +++ b/compiler/rustc_target/src/spec/mod.rs
-@@ -1733,6 +1733,9 @@ macro_rules! supported_targets {
+@@ -1736,6 +1736,9 @@ macro_rules! supported_targets {
  }
  
  supported_targets! {

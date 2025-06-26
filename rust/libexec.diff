@@ -1,5 +1,5 @@
 diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
-index 68400ba0..3310de46 100644
+index 42ad14a8..57a92ca4 100644
 --- a/src/bootstrap/bootstrap.py
 +++ b/src/bootstrap/bootstrap.py
 @@ -705,7 +705,7 @@ class RustBuild(object):
@@ -12,7 +12,7 @@ index 68400ba0..3310de46 100644
                  lib_dir = "{}/lib".format(bin_root)
                  rustlib_bin_dir = "{}/rustlib/{}/bin".format(lib_dir, self.build)
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 83f71aee..6afbff95 100644
+index 3c412683..89a6c40b 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
 @@ -432,7 +432,7 @@ impl Step for Rustc {
@@ -25,10 +25,10 @@ index 83f71aee..6afbff95 100644
              }
  
 diff --git a/src/bootstrap/src/core/build_steps/tool.rs b/src/bootstrap/src/core/build_steps/tool.rs
-index cd57e06a..84062737 100644
+index ac568eab..68d7a938 100644
 --- a/src/bootstrap/src/core/build_steps/tool.rs
 +++ b/src/bootstrap/src/core/build_steps/tool.rs
-@@ -954,7 +954,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -961,7 +961,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -38,7 +38,7 @@ index cd57e06a..84062737 100644
          builder.copy_link(
              &tool_result.tool_path,
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index 5bd947f6..0f7b13e0 100644
+index da305fb1..504ffead 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
 @@ -591,7 +591,7 @@ impl Config {
@@ -51,10 +51,10 @@ index 5bd947f6..0f7b13e0 100644
                  let lib_dir = bin_root.join("lib");
                  for lib in t!(fs::read_dir(&lib_dir), lib_dir.display().to_string()) {
 diff --git a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs b/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
-index 13812e96..1ee54294 100644
+index c7c1b043..ff5b856f 100644
 --- a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
 +++ b/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
-@@ -143,7 +143,7 @@ impl Sysroot {
+@@ -148,7 +148,7 @@ impl Sysroot {
          let Some(root) = self.root() else {
              return Err(anyhow::format_err!("no sysroot",));
          };
