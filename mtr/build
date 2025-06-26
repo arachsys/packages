@@ -9,7 +9,7 @@ check() {
   match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/automake/
-  match automake 1.18 'automake-([0-9.]+)\.tar'
+  match automake 1.18.1 'automake-([0-9.]+)\.tar'
 
   url https://pkgconfig.freedesktop.org/releases/
   match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
@@ -22,13 +22,13 @@ prepare() {
   unpack -d tools/autoconf \
     https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
   unpack -d tools/automake \
-    https://ftp.gnu.org/gnu/automake/automake-1.18.tar.xz
+    https://ftp.gnu.org/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/pkgconf \
     https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
 
   apply cosmetic.diff
   apply prune.diff
-  tree 81b99a33fdc62b9eee5f2ba9647245b75789c67bf3fceedb68be91f4f1ea1416
+  tree fcf11784adfc956dd4b3a2eee6f1637dc97587b84747448b9f0e679ef0ed91a8
 }
 
 build() {
