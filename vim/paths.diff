@@ -1,8 +1,8 @@
 diff --git a/runtime/autoload/dist/ft.vim b/runtime/autoload/dist/ft.vim
-index a7403052..3d3bfb0c 100644
+index 5014e754..3fe2a81e 100644
 --- a/runtime/autoload/dist/ft.vim
 +++ b/runtime/autoload/dist/ft.vim
-@@ -966,7 +966,7 @@ enddef
+@@ -1028,7 +1028,7 @@ enddef
  var ft_rules_udev_rules_pattern = '^\s*\cudev_rules\s*=\s*"\([^"]\{-1,}\)/*".*'
  export def FTRules()
    var path = expand('<amatch>:p')
@@ -11,7 +11,7 @@ index a7403052..3d3bfb0c 100644
      setf udevrules
      return
    endif
-@@ -974,7 +974,7 @@ export def FTRules()
+@@ -1036,7 +1036,7 @@ export def FTRules()
      setf conf  # Better than hog
      return
    endif
@@ -21,7 +21,7 @@ index a7403052..3d3bfb0c 100644
      return
    endif
 diff --git a/runtime/autoload/dist/script.vim b/runtime/autoload/dist/script.vim
-index 859126f0..6ca7e16a 100644
+index c184bd03..70c7e385 100644
 --- a/runtime/autoload/dist/script.vim
 +++ b/runtime/autoload/dist/script.vim
 @@ -22,8 +22,8 @@ enddef
@@ -34,8 +34,8 @@ index 859126f0..6ca7e16a 100644
 +  # "#!/bin/bash" to make matching easier.
    # Recognize only a few {options} that are commonly used.
    if line1 =~ '^#!\s*\S*\<env\s'
-     line1 = substitute(line1, '\S\+=\S\+', '', 'g')
-@@ -34,9 +34,9 @@ def DetectFromHashBang(firstline: string)
+     line1 = substitute(line1, '\s\zs--split-string[ \t=]', '', '')
+@@ -35,9 +35,9 @@ def DetectFromHashBang(firstline: string)
    # Get the program name.
    # Only accept spaces in PC style paths: "#!c:/program files/perl [args]".
    # If the word env is used, use the first word after the space:
@@ -48,7 +48,7 @@ index 859126f0..6ca7e16a 100644
    if line1 =~ '^#!\s*\a:[/\\]'
      name = substitute(line1, '^#!.*[/\\]\(\i\+\).*', '\1', '')
 diff --git a/runtime/filetype.vim b/runtime/filetype.vim
-index 4e386e9e..a9a253cc 100644
+index 6b0e5d61..a50bdb84 100644
 --- a/runtime/filetype.vim
 +++ b/runtime/filetype.vim
 @@ -137,7 +137,7 @@ au BufNewFile,BufRead [mM]akefile.am,GNUmakefile.am	setf automake
@@ -60,7 +60,7 @@ index 4e386e9e..a9a253cc 100644
  
  " Arc Macro Language
  au BufNewFile,BufRead *.aml			setf aml
-@@ -998,7 +998,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
+@@ -1008,7 +1008,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
  " GPG
  au BufNewFile,BufRead */.gnupg/options		setf gpg
  au BufNewFile,BufRead */.gnupg/gpg.conf		setf gpg
@@ -69,16 +69,7 @@ index 4e386e9e..a9a253cc 100644
  if !empty($GNUPGHOME)
    au BufNewFile,BufRead $GNUPGHOME/options	setf gpg
    au BufNewFile,BufRead $GNUPGHOME/gpg.conf	setf gpg
-@@ -1697,7 +1697,7 @@ au BufNewFile,BufRead .netrc			setf netrc
- au BufNewFile,BufRead */neofetch/config.conf	setf sh
- 
- " Nginx
--au BufNewFile,BufRead *.nginx,nginx*.conf,*nginx.conf,*/etc/nginx/*,*/usr/local/nginx/conf/*,*/nginx/*.conf			setf nginx
-+au BufNewFile,BufRead *.nginx,nginx*.conf,*nginx.conf,*/etc/nginx/*,*/nginx/conf/*,*/nginx/*.conf			setf nginx
- 
- " Nim file
- au BufNewFile,BufRead *.nim,*.nims,*.nimble	setf nim
-@@ -2736,8 +2736,8 @@ au BufNewFile,BufRead *.uc			setf uc
+@@ -2756,8 +2756,8 @@ au BufNewFile,BufRead *.uc			setf uc
  au BufNewFile,BufRead */etc/updatedb.conf	setf updatedb
  
  " Upstart (init(8)) config files
@@ -89,6 +80,15 @@ index 4e386e9e..a9a253cc 100644
  au BufNewFile,BufRead */etc/init/*.conf,*/etc/init/*.override  setf upstart
  au BufNewFile,BufRead */.init/*.conf,*/.init/*.override	       setf upstart
  au BufNewFile,BufRead */.config/upstart/*.conf		       setf upstart
+@@ -3239,7 +3239,7 @@ au BufNewFile,BufRead neomuttrc*,Neomuttrc*		call s:StarSetf('neomuttrc')
+ au BufNewFile,BufRead nfs.conf,nfsmount.conf		setf dosini
+ 
+ " Nginx
+-au BufNewFile,BufRead */etc/nginx/*,*/usr/local/nginx/conf/*	call s:StarSetf('nginx')
++au BufNewFile,BufRead */etc/nginx/*,	call s:StarSetf('nginx')
+ 
+ " Nroff macros
+ au BufNewFile,BufRead tmac.*			call s:StarSetf('nroff')
 diff --git a/runtime/ftplugin/debchangelog.vim b/runtime/ftplugin/debchangelog.vim
 index aa657a9b..80c9b32b 100644
 --- a/runtime/ftplugin/debchangelog.vim
@@ -135,18 +135,18 @@ index 455b794c..72239722 100644
  " Matchit configuration
  if exists("loaded_matchit")
 diff --git a/runtime/syntax/sh.vim b/runtime/syntax/sh.vim
-index 37d1c0a8..b123d784 100644
+index 3e0a481f..246dde2c 100644
 --- a/runtime/syntax/sh.vim
 +++ b/runtime/syntax/sh.vim
-@@ -53,8 +53,6 @@ elseif !exists("b:is_kornshell") && !exists("b:is_bash") && !exists("b:is_posix"
+@@ -89,8 +89,6 @@ elseif !exists("b:is_kornshell") && !exists("b:is_bash") && !exists("b:is_posix"
    let s:shell = ""
    if executable("/bin/sh")
     let s:shell = resolve("/bin/sh")
 -  elseif executable("/usr/bin/sh")
 -   let s:shell = resolve("/usr/bin/sh")
    endif
-   if     s:shell =~ '\<ksh\>'
-    let b:is_kornshell= 1
+   if s:shell =~ '\<ksh\>'
+    " The binary is too ambiguous (i.e. '/bin/ksh' or some such).
 diff --git a/runtime/termcap b/runtime/termcap
 index cb8355e2..9722af05 100644
 --- a/runtime/termcap
@@ -170,10 +170,10 @@ index cb8355e2..9722af05 100644
  	:ku=\EOA:kd=\EOB:kr=\EOC:kl=\EOD:kb=^H:\
  	:ho=\E[H:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:pt:sr=5\EM:vt#3:xn:\
 diff --git a/src/optiondefs.h b/src/optiondefs.h
-index b6b5d49e..13eb3a63 100644
+index 30741818..ff25bea4 100644
 --- a/src/optiondefs.h
 +++ b/src/optiondefs.h
-@@ -1896,7 +1896,7 @@ static struct vimoption options[] =
+@@ -1936,7 +1936,7 @@ static struct vimoption options[] =
  #if defined(AMIGA) || defined(MSWIN)
  			    (char_u *)".,,",
  #else
