@@ -1,8 +1,8 @@
 diff --git a/bind.c b/bind.c
-index 7610378..a7ede69 100644
+index 6aaa6374..18a6e05f 100644
 --- a/bind.c
 +++ b/bind.c
-@@ -954,8 +954,9 @@ rl_re_read_init_file (int count, int ignore)
+@@ -1034,8 +1034,9 @@ rl_re_read_init_file (int count, int ignore)
     to the first non-null filename from this list:
       1. the filename used for the previous call
       2. the value of the shell variable `INPUTRC'
@@ -14,34 +14,35 @@ index 7610378..a7ede69 100644
     If the file existed and could be opened and read, 0 is returned,
     otherwise errno is returned. */
  int
-@@ -968,10 +969,15 @@ rl_read_init_file (const char *filename)
+@@ -1048,10 +1049,15 @@ rl_read_init_file (const char *filename)
      filename = sh_get_env_value ("INPUTRC");
    if (filename == 0 || *filename == 0)
      {
+-      filename = DEFAULT_INPUTRC;
+-      /* Try to read DEFAULT_INPUTRC; fall back to SYS_INPUTRC on failure */
 +      /* Try to read ~/.config/readline/inputrc */
 +      filename = "~/.config/readline/inputrc";
-+      if (_rl_read_init_file (filename, 0) == 0)
-+	return 0;
-+      /* On failure try to read DEFAULT_INPUTRC */
-       filename = DEFAULT_INPUTRC;
--      /* Try to read DEFAULT_INPUTRC; fall back to SYS_INPUTRC on failure */
        if (_rl_read_init_file (filename, 0) == 0)
  	return 0;
++      /* On failure try to read DEFAULT_INPUTRC */
++      filename = DEFAULT_INPUTRC;
++      if (_rl_read_init_file (filename, 0) == 0)
++	return 0;
 +      /* Fall back to SYS_INPUTRC as last resort */
        filename = SYS_INPUTRC;
      }
  
 diff --git a/histfile.c b/histfile.c
-index 3bfec55..237539e 100644
+index 11bdd84b..8232b264 100644
 --- a/histfile.c
 +++ b/histfile.c
-@@ -151,36 +151,7 @@ static int history_rename (const char *, const char *);
+@@ -151,35 +151,7 @@ static int history_rename (const char *, const char *);
  static char *
  history_filename (const char *filename)
  {
 -  char *return_val;
 -  const char *home;
--  int home_len;
+-  size_t home_len;
 -
 -  return_val = filename ? savestring (filename) : (char *)NULL;
 -
@@ -56,9 +57,8 @@ index 3bfec55..237539e 100644
 -
 -  if (home == 0)
 -    return (NULL);
--  else
--    home_len = strlen (home);
 -
+-  home_len = strlen (home);
 -  return_val = (char *)xmalloc (2 + home_len + 8); /* strlen(".history") == 8 */
 -  strcpy (return_val, home);
 -  return_val[home_len] = '/';
@@ -72,4 +72,4 @@ index 3bfec55..237539e 100644
 +  return filename ? savestring (filename) : NULL;
  }
  
- static char *
+ #if defined (DEBUG)
