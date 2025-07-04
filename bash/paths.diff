@@ -1,8 +1,8 @@
 diff --git a/config-top.h b/config-top.h
-index db4ab6e..d0a59ad 100644
+index c47ab01b..ce1fb515 100644
 --- a/config-top.h
 +++ b/config-top.h
-@@ -63,7 +63,7 @@
+@@ -58,7 +58,7 @@
  /* The default value of the PATH variable. */
  #ifndef DEFAULT_PATH_VALUE
  #define DEFAULT_PATH_VALUE \
@@ -11,11 +11,11 @@ index db4ab6e..d0a59ad 100644
  #endif
  
  /* If you want to unconditionally set a value for PATH in every restricted
-@@ -74,13 +74,13 @@
+@@ -69,13 +69,13 @@
     the Posix.2 confstr () function, or CS_PATH define are not present. */
  #ifndef STANDARD_UTILS_PATH
  #define STANDARD_UTILS_PATH \
--  "/bin:/usr/bin:/sbin:/usr/sbin:/etc:/usr/etc"
+-  "/bin:/usr/bin:/sbin:/usr/sbin"
 +  "/bin"
  #endif
  
@@ -28,10 +28,10 @@ index db4ab6e..d0a59ad 100644
  
  /* Default primary and secondary prompt strings. */
 diff --git a/lib/sh/tmpfile.c b/lib/sh/tmpfile.c
-index ef8b067..a5db680 100644
+index 6105ebd6..caad0398 100644
 --- a/lib/sh/tmpfile.c
 +++ b/lib/sh/tmpfile.c
-@@ -78,14 +78,6 @@ get_sys_tmpdir ()
+@@ -84,14 +84,6 @@ get_sys_tmpdir (void)
    if (file_iswdir (sys_tmpdir))
      return sys_tmpdir;
  

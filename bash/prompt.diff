@@ -1,8 +1,8 @@
 diff --git a/config-top.h b/config-top.h
-index 951f7ac..dffadb5 100644
+index ce1fb515..5df15c6a 100644
 --- a/config-top.h
 +++ b/config-top.h
-@@ -84,7 +84,7 @@
+@@ -79,7 +79,7 @@
  #endif
  
  /* Default primary and secondary prompt strings. */

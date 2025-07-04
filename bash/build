@@ -1,15 +1,14 @@
 check() {
   url https://ftp.gnu.org/gnu/bash/
-  match version 5.2.37 'bash-([0-9.]+)\.tar\.gz'
+  match version 5.3 'bash-([0-9.]+)\.tar\.gz'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/bash/bash-5.2.37.tar.gz
+  unpack https://ftp.gnu.org/gnu/bash/bash-5.3.tar.gz
   apply config.diff
   apply paths.diff
   apply prompt.diff
-  apply sync.diff
-  tree a10c077afb3d4b197cd4e2fb4513668eb5df51bfd0638f80632437c37c3de2cf
+  tree 4aacfb3a58d7e2d97de5cd723173873f491e87f6b4bf6761ca6c797a559f38a5
 }
 
 build() {
