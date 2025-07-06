@@ -3,7 +3,7 @@ require m4 perl
 
 check() {
   url https://github.com/traviscross/mtr/tags
-  match version 0.95 'v([0-9.]+)\.tar'
+  match version 0.96 'v([0-9.]+)\.tar'
 
   url https://ftp.gnu.org/gnu/autoconf/
   match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
@@ -16,8 +16,8 @@ check() {
 }
 
 prepare() {
-  unpack mtr-20240803.tar.gz \
-    https://github.com/traviscross/mtr/archive/e14581c5.tar.gz
+  unpack mtr-0.96.tar.gz \
+    https://github.com/traviscross/mtr/archive/refs/tags/v0.96.tar.gz
 
   unpack -d tools/autoconf \
     https://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
@@ -28,7 +28,7 @@ prepare() {
 
   apply cosmetic.diff
   apply prune.diff
-  tree fcf11784adfc956dd4b3a2eee6f1637dc97587b84747448b9f0e679ef0ed91a8
+  tree 84926569e2a9d0209b6332ebdfc3d00315a43f2c1d6b07339ef856164c7aeaa7
 }
 
 build() {
