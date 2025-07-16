@@ -1,0 +1,26 @@
+diff --git a/configure b/configure
+index 3b7b0df6..12782fd5 100755
+--- a/configure
++++ b/configure
+@@ -21476,7 +21476,7 @@ printf "%s\n" "no" >&6; }
+   fi
+ 
+ 
+-supports_unittests=yes
++supports_unittests=no
+ # cross-compilation of unit tests static library/programs fails when
+ # libcurl shared library is built. This might be due to a libtool or
+ # automake issue. In this case we disable unit tests.
+diff --git a/configure.ac b/configure.ac
+index bce4bf69..b2413570 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -540,7 +540,7 @@ CURL_CHECK_COMPILER_ARRAY_SIZE_NEGATIVE
+ CURL_CHECK_COMPILER_PROTOTYPE_MISMATCH
+ CURL_CHECK_COMPILER_SYMBOL_HIDING
+ 
+-supports_unittests=yes
++supports_unittests=no
+ # cross-compilation of unit tests static library/programs fails when
+ # libcurl shared library is built. This might be due to a libtool or
+ # automake issue. In this case we disable unit tests.
