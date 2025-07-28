@@ -1,7 +1,7 @@
-diff --git a/ld/elf-hints-local.h b/ld/elf-hints-local.h
-index 9cdfa2f29..fa6eb443c 100644
---- a/ld/elf-hints-local.h
-+++ b/ld/elf-hints-local.h
+diff --git a/bu/ld/elf-hints-local.h b/bu/ld/elf-hints-local.h
+index 9cdfa2f2..fa6eb443 100644
+--- a/bu/ld/elf-hints-local.h
++++ b/bu/ld/elf-hints-local.h
 @@ -41,6 +41,6 @@ struct elfhints_hdr
  
  #define ELFHINTS_MAGIC	0x746e6845
@@ -11,43 +11,24 @@ index 9cdfa2f29..fa6eb443c 100644
  
  #endif /* !_ELF_HINTS_H_ */
 diff --git a/gcc/gcc.cc b/gcc/gcc.cc
-index 16bb07f2c..ec59e80eb 100644
+index 4fd87f2c..e5042f66 100644
 --- a/gcc/gcc.cc
 +++ b/gcc/gcc.cc
-@@ -1585,10 +1585,10 @@ static const char *gcc_libexec_prefix;
+@@ -1611,10 +1611,10 @@ static const char *gcc_libexec_prefix;
  /* Default prefixes to attach to command names.  */
  
  #ifndef STANDARD_STARTFILE_PREFIX_1
 -#define STANDARD_STARTFILE_PREFIX_1 "/lib/"
-+#define STANDARD_STARTFILE_PREFIX_1 "/lib/static/"
++#define STANDARD_STARTFILE_PREFIX_1 "/lib/shared/"
  #endif
  #ifndef STANDARD_STARTFILE_PREFIX_2
 -#define STANDARD_STARTFILE_PREFIX_2 "/usr/lib/"
-+#define STANDARD_STARTFILE_PREFIX_2 ""
++#define STANDARD_STARTFILE_PREFIX_2 "/lib/static/"
  #endif
  
  #ifdef CROSS_DIRECTORY_STRUCTURE  /* Don't use these prefixes for a cross compiler.  */
-@@ -7909,10 +7909,14 @@ is_directory (const char *path1, bool linker)
-       && IS_DIR_SEPARATOR (path[0])
-       && ((cp - path == 6
- 	   && filename_ncmp (path + 1, "lib", 3) == 0)
--	  || (cp - path == 10
--	      && filename_ncmp (path + 1, "usr", 3) == 0
--	      && IS_DIR_SEPARATOR (path[4])
--	      && filename_ncmp (path + 5, "lib", 3) == 0)))
-+	 || (cp - path == 13
-+	     && filename_ncmp (path + 1, "lib", 3) == 0
-+	     && IS_DIR_SEPARATOR (path[4])
-+	     && filename_ncmp (path + 5, "static", 6) == 0)
-+	 || (cp - path == 13
-+	     && filename_ncmp (path + 1, "lib", 3) == 0
-+	     && IS_DIR_SEPARATOR (path[4])
-+	     && filename_ncmp (path + 5, "shared", 6) == 0)))
-     return 0;
- 
-   return (stat (path, &st) >= 0 && S_ISDIR (st.st_mode));
 diff --git a/libffi/src/closures.c b/libffi/src/closures.c
-index f7bead67b..352b7e33e 100644
+index f7bead67..352b7e33 100644
 --- a/libffi/src/closures.c
 +++ b/libffi/src/closures.c
 @@ -702,7 +702,6 @@ static struct
@@ -59,7 +40,7 @@ index f7bead67b..352b7e33e 100644
    { open_temp_exec_file_env, "HOME", 0 },
  #ifdef HAVE_MNTENT
 diff --git a/libiberty/make-temp-file.c b/libiberty/make-temp-file.c
-index 1d2f21d6c..23dceafbd 100644
+index 01aa8cc7..d09f66af 100644
 --- a/libiberty/make-temp-file.c
 +++ b/libiberty/make-temp-file.c
 @@ -96,8 +96,6 @@ try_dir (const char *dir, const char *base)
@@ -82,7 +63,7 @@ index 1d2f21d6c..23dceafbd 100644
        
        /* If all else fails, use the current directory!  */
 diff --git a/libiberty/tmpnam.c b/libiberty/tmpnam.c
-index cc3433366..a1e65abe1 100644
+index cc343336..a1e65abe 100644
 --- a/libiberty/tmpnam.c
 +++ b/libiberty/tmpnam.c
 @@ -18,7 +18,7 @@ not be used in new projects.  Use @code{mkstemp} instead.
@@ -95,10 +76,10 @@ index cc3433366..a1e65abe1 100644
  
  static char tmpnam_buffer[L_tmpnam];
 diff --git a/libtool.m4 b/libtool.m4
-index b92e284d9..2829e2a42 100644
+index add2d4a1..bb80d650 100644
 --- a/libtool.m4
 +++ b/libtool.m4
-@@ -2452,7 +2452,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu | gnu* | uclinuxfdpiceabi)
+@@ -2529,7 +2529,7 @@ linux* | k*bsd*-gnu | kopensolaris*-gnu | gnu* | uclinuxfdpiceabi)
    need_version=no
    library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major $libname${shared_ext}'
    soname_spec='${libname}${release}${shared_ext}$major'
