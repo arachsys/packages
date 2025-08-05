@@ -1,0 +1,90 @@
+diff --git a/vmm/src/config.rs b/vmm/src/config.rs
+index 7ffef833..dca1727f 100644
+--- a/vmm/src/config.rs
++++ b/vmm/src/config.rs
+@@ -1288,12 +1288,10 @@ impl NetConfig {
+         let tap = parser.get("tap");
+         let ip = parser
+             .convert("ip")
+-            .map_err(Error::ParseNetwork)?
+-            .unwrap_or_else(default_netconfig_ip);
++            .map_err(Error::ParseNetwork)?;
+         let mask = parser
+             .convert("mask")
+-            .map_err(Error::ParseNetwork)?
+-            .unwrap_or_else(default_netconfig_mask);
++            .map_err(Error::ParseNetwork)?;
+         let mac = parser
+             .convert("mac")
+             .map_err(Error::ParseNetwork)?
+diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
+index 2df6f1d5..a05f8c6f 100644
+--- a/vmm/src/device_manager.rs
++++ b/vmm/src/device_manager.rs
+@@ -2820,8 +2820,8 @@ impl DeviceManager {
+                     virtio_devices::Net::new(
+                         id.clone(),
+                         Some(tap_if_name),
+-                        Some(net_cfg.ip),
+-                        Some(net_cfg.mask),
++                        net_cfg.ip,
++                        net_cfg.mask,
+                         Some(net_cfg.mac),
+                         &mut net_cfg.host_mac,
+                         net_cfg.mtu,
+@@ -2871,8 +2871,8 @@ impl DeviceManager {
+                     virtio_devices::Net::new(
+                         id.clone(),
+                         None,
+-                        Some(net_cfg.ip),
+-                        Some(net_cfg.mask),
++                        net_cfg.ip,
++                        net_cfg.mask,
+                         Some(net_cfg.mac),
+                         &mut net_cfg.host_mac,
+                         net_cfg.mtu,
+diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
+index d8962be0..59cb8af0 100644
+--- a/vmm/src/vm_config.rs
++++ b/vmm/src/vm_config.rs
+@@ -2,7 +2,7 @@
+ //
+ // SPDX-License-Identifier: Apache-2.0
+ //
+-use std::net::{IpAddr, Ipv4Addr};
++use std::net::IpAddr;
+ use std::path::PathBuf;
+ use std::{fs, result};
+ 
+@@ -300,10 +300,10 @@ pub fn default_diskconfig_queue_size() -> u16 {
+ pub struct NetConfig {
+     #[serde(default = "default_netconfig_tap")]
+     pub tap: Option<String>,
+-    #[serde(default = "default_netconfig_ip")]
+-    pub ip: IpAddr,
+-    #[serde(default = "default_netconfig_mask")]
+-    pub mask: IpAddr,
++    #[serde(default)]
++    pub ip: Option<IpAddr>,
++    #[serde(default)]
++    pub mask: Option<IpAddr>,
+     #[serde(default = "default_netconfig_mac")]
+     pub mac: MacAddr,
+     #[serde(default)]
+@@ -349,16 +349,6 @@ pub fn default_netconfig_tap() -> Option<String> {
+     None
+ }
+ 
+-pub fn default_netconfig_ip() -> IpAddr {
+-    warn!("Deprecation warning: No IP address provided. A default IP address is assigned. This behavior will be deprecated soon.");
+-    IpAddr::V4(Ipv4Addr::new(192, 168, 249, 1))
+-}
+-
+-pub fn default_netconfig_mask() -> IpAddr {
+-    warn!("Deprecation warning: No network mask provided. A default network mask is assigned. This behavior will be deprecated soon.");
+-    IpAddr::V4(Ipv4Addr::new(255, 255, 255, 0))
+-}
+-
+ pub fn default_netconfig_mac() -> MacAddr {
+     MacAddr::local_random()
+ }
