@@ -2,22 +2,22 @@ require bison flex
 
 check() {
   url https://www.netfilter.org/projects/nftables/downloads.html
-  match nftables 1.1.3 'nftables-([0-9.]+)\.tar'
+  match nftables 1.1.4 'nftables-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libmnl/downloads.html
   match libmnl 1.0.5 'libmnl-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libnftnl/downloads.html
-  match libnftnl 1.2.9 'libnftnl-([0-9.]+)\.tar'
+  match libnftnl 1.3.0 'libnftnl-([0-9.]+)\.tar'
 }
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
-  unpack $NFP/nftables/files/nftables-1.1.3.tar.xz
+  unpack $NFP/nftables/files/nftables-1.1.4.tar.xz
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.5.tar.bz2
-  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.2.9.tar.xz
+  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.3.0.tar.xz
   apply histfile.diff
-  tree 176e9ddfa2449335db1eb853c3873ac2394abde37c89eedc7e75d79f5056066a
+  tree d99594a7dbad797c424733b02a69573212238ae6ebcb645a2b86df83dbdd1bc6
 }
 
 build() {
