@@ -1,40 +1,45 @@
 diff --git a/cmake/Modules/GNUInstallDirs.cmake b/cmake/Modules/GNUInstallDirs.cmake
-index ed34c4a9..018c5f1c 100644
+index ff9c11a9..984d732a 100644
 --- a/cmake/Modules/GNUInstallDirs.cmake
 +++ b/cmake/Modules/GNUInstallDirs.cmake
-@@ -321,10 +321,10 @@ unset(__LAST_LIBDIR_DEFAULT)
+@@ -89,7 +89,7 @@ where ``<dir>`` is one of:
+ ``INCLUDEDIR``
+   C header files (``include``)
+ ``OLDINCLUDEDIR``
+-  C header files for non-gcc (``/usr/include``)
++  C header files for non-gcc (``include``)
+ ``DATAROOTDIR``
+   read-only architecture-independent data root (``share``)
+ ``DATADIR``
+@@ -401,7 +401,7 @@ set(_GNUInstallDirs_SHAREDSTATEDIR_DEFAULT "com")
+ set(_GNUInstallDirs_LOCALSTATEDIR_DEFAULT "var")
+ set(_GNUInstallDirs_LIBDIR_DEFAULT "lib")
+ set(_GNUInstallDirs_INCLUDEDIR_DEFAULT "include")
+-set(_GNUInstallDirs_OLDINCLUDEDIR_DEFAULT "/usr/include")
++set(_GNUInstallDirs_OLDINCLUDEDIR_DEFAULT "include")
+ set(_GNUInstallDirs_DATAROOTDIR_DEFAULT "share")
  
- _GNUInstallDirs_cache_path(CMAKE_INSTALL_INCLUDEDIR "include"
-   "C header files (include)")
--_GNUInstallDirs_cache_path(CMAKE_INSTALL_OLDINCLUDEDIR "/usr/include"
--  "C header files for non-gcc (/usr/include)")
--_GNUInstallDirs_cache_path(CMAKE_INSTALL_DATAROOTDIR "share"
--  "Read-only architecture-independent data root (share)")
-+_GNUInstallDirs_cache_path(CMAKE_INSTALL_OLDINCLUDEDIR "include"
-+  "C header files for non-gcc (include)")
-+_GNUInstallDirs_cache_path(CMAKE_INSTALL_DATAROOTDIR "lib"
-+  "Read-only architecture-independent data root (lib)")
- 
- #-----------------------------------------------------------------------------
- # Values whose defaults are relative to DATAROOTDIR.  Store empty values in
-@@ -394,19 +394,9 @@ macro(GNUInstallDirs_get_absolute_install_dir absvar var)
+ # Define the special defaults handling
+@@ -628,10 +628,6 @@ function(GNUInstallDirs_get_absolute_install_dir absvar var)
+   endif()
  
    if(NOT IS_ABSOLUTE "${${var}}")
-     # Handle special cases:
+-    # Handle special cases:
 -    # - CMAKE_INSTALL_PREFIX == /
-     # - CMAKE_INSTALL_PREFIX == /usr
-     # - CMAKE_INSTALL_PREFIX == /opt/...
--    if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/")
--      if("${GGAID_dir}" STREQUAL "SYSCONFDIR" OR "${GGAID_dir}" STREQUAL "LOCALSTATEDIR" OR "${GGAID_dir}" STREQUAL "RUNSTATEDIR")
--        set(${absvar} "/${${var}}")
--      else()
--        if (NOT "${${var}}" MATCHES "^usr/")
--          set(${var} "usr/${${var}}")
--        endif()
--        set(${absvar} "/${${var}}")
+-    # - CMAKE_INSTALL_PREFIX == /usr
+-    # - CMAKE_INSTALL_PREFIX == /opt/...
+     if("${GGAID_dir}" STREQUAL "SYSCONFDIR" OR "${GGAID_dir}" STREQUAL "LOCALSTATEDIR" OR "${GGAID_dir}" STREQUAL "RUNSTATEDIR")
+       _GNUInstallDirs_special_absolute(${absvar} "${${var}}" "${CMAKE_INSTALL_PREFIX}")
+       # If the CMAKE_INSTALL_PREFIX was not special, the output
+@@ -644,11 +640,6 @@ function(GNUInstallDirs_get_absolute_install_dir absvar var)
+           set(${absvar} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+         endif()
+       endif()
+-    elseif("${CMAKE_INSTALL_PREFIX}" STREQUAL "/")
+-      if (NOT "${${var}}" MATCHES "^usr/")
+-        set(${var} "usr/${${var}}")
 -      endif()
--    elseif("${CMAKE_INSTALL_PREFIX}" MATCHES "^/usr/?$")
-+    if("${CMAKE_INSTALL_PREFIX}" MATCHES "^/usr/?$")
-       if("${GGAID_dir}" STREQUAL "SYSCONFDIR" OR "${GGAID_dir}" STREQUAL "LOCALSTATEDIR" OR "${GGAID_dir}" STREQUAL "RUNSTATEDIR")
-         set(${absvar} "/${${var}}")
-       else()
+-      set(${absvar} "/${${var}}")
+     else()
+       set(${absvar} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+     endif()
