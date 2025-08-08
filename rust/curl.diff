@@ -1,8 +1,8 @@
-diff --git a/vendor/curl-sys-0.4.52+curl-7.81.0/build.rs b/vendor/curl-sys-0.4.52+curl-7.81.0/build.rs
-index e9a2a42d..789372f3 100644
---- a/vendor/curl-sys-0.4.52+curl-7.81.0/build.rs
-+++ b/vendor/curl-sys-0.4.52+curl-7.81.0/build.rs
-@@ -31,6 +31,11 @@ fn main() {
+diff --git a/vendor/curl-sys-0.4.79+curl-8.12.0/build.rs b/vendor/curl-sys-0.4.79+curl-8.12.0/build.rs
+index 8315a20f..34c6d3e2 100644
+--- a/vendor/curl-sys-0.4.79+curl-8.12.0/build.rs
++++ b/vendor/curl-sys-0.4.79+curl-8.12.0/build.rs
+@@ -35,6 +35,11 @@ fn main() {
              return println!("cargo:rustc-flags=-l curl");
          }
  
@@ -18,6 +18,22 @@ diff --git a/vendor/curl-sys-0.4.80+curl-8.12.1/build.rs b/vendor/curl-sys-0.4.8
 index 89f431d9..0de47526 100644
 --- a/vendor/curl-sys-0.4.80+curl-8.12.1/build.rs
 +++ b/vendor/curl-sys-0.4.80+curl-8.12.1/build.rs
+@@ -35,6 +35,11 @@ fn main() {
+             return println!("cargo:rustc-flags=-l curl");
+         }
+ 
++        // Force the system libcurl on Linux
++        if target.contains("linux") {
++            return println!("cargo:rustc-flags=-l curl");
++        }
++
+         // Next, fall back and try to use pkg-config if its available.
+         if windows {
+             if try_vcpkg() {
+diff --git a/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs b/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs
+index db930c31..c34aa0e8 100644
+--- a/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs
++++ b/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs
 @@ -35,6 +35,11 @@ fn main() {
              return println!("cargo:rustc-flags=-l curl");
          }

@@ -1,54 +1,3 @@
-diff --git a/compiler/rustc_session/src/filesearch.rs b/compiler/rustc_session/src/filesearch.rs
-index bdeca91e..c59e19d4 100644
---- a/compiler/rustc_session/src/filesearch.rs
-+++ b/compiler/rustc_session/src/filesearch.rs
-@@ -173,9 +173,16 @@ pub fn sysroot_candidates() -> SmallVec<[PathBuf; 2]> {
-     let mut sysroot_candidates: SmallVec<[PathBuf; 2]> = smallvec![get_or_default_sysroot()];
-     let path = current_dll_path().and_then(|s| try_canonicalize(s).map_err(|e| e.to_string()));
-     if let Ok(dll) = path {
-+        // If the dll is in a directory named `shared`, it must be in
-+        // the compiler's libdir using the Arachsys Linux convention of
-+        // `$sysroot/lib/shared/*.dll`, not the target libdir. Otherwise,
-         // use `parent` twice to chop off the file name and then also the
-         // directory containing the dll which should be either `lib` or `bin`.
--        if let Some(path) = dll.parent().and_then(|p| p.parent()) {
-+        if let Some(path) = dll.parent() && path.ends_with("shared") {
-+            if let Some(path) = path.parent().and_then(|p| p.parent()) {
-+                sysroot_candidates.push(path.to_owned());
-+            }
-+        } else if let Some(path) = dll.parent().and_then(|p| p.parent()) {
-             // The original `path` pointed at the `rustc_driver` crate's dll.
-             // Now that dll should only be in one of two locations. The first is
-             // in the compiler's libdir, for example `$sysroot/lib/*.dll`. The
-@@ -222,12 +229,27 @@ pub fn get_or_default_sysroot() -> PathBuf {
-     fn default_from_rustc_driver_dll() -> Result<PathBuf, String> {
-         let dll = current_dll_path().map(|s| canonicalize(s))?;
- 
--        // `dll` will be in one of the following two:
-+        // `dll` will be in one of the following three:
-         // - compiler's libdir: $sysroot/lib/*.dll
-+        // - compiler's libdir: $sysroot/lib/shared/*.dll
-         // - target's libdir: $sysroot/lib/rustlib/$target/lib/*.dll
-         //
-+        // If the dll is in a directory named `shared`, it must be in the
-+        // compiler's libdir using the Arachsys Linux convention of
-+        // `$sysroot/lib/shared/*.dll`, not the target libdir. Otherwise
-         // use `parent` twice to chop off the file name and then also the
-         // directory containing the dll
-+
-+        if let Some(dir) = dll.parent() && dir.ends_with("shared") {
-+            return dir.parent() // chop off `shared`
-+                .and_then(|p| p.parent()) // chop off `lib`
-+                .map(|s| s.to_owned())
-+                .ok_or(format!(
-+                    "Could not move 3 levels upper using `parent()` on {}",
-+                    dll.display()
-+                ));
-+        }
-+
-         let dir = dll.parent().and_then(|p| p.parent()).ok_or(format!(
-             "Could not move 2 levels upper using `parent()` on {}",
-             dll.display()
 diff --git a/compiler/rustc_target/src/spec/crt_objects.rs b/compiler/rustc_target/src/spec/crt_objects.rs
 index e3b6430a..482ea807 100644
 --- a/compiler/rustc_target/src/spec/crt_objects.rs
@@ -70,10 +19,10 @@ index e3b6430a..482ea807 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
-index 2e5865e5..17fbdbe2 100644
+index f6efb23e..493e1803 100644
 --- a/src/bootstrap/src/core/build_steps/compile.rs
 +++ b/src/bootstrap/src/core/build_steps/compile.rs
-@@ -371,54 +371,7 @@ fn copy_self_contained_objects(
+@@ -379,54 +379,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -130,7 +79,7 @@ index 2e5865e5..17fbdbe2 100644
              panic!(
                  "Target {:?} does not have a \"wasi-root\" key in bootstrap.toml \
 diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
-index eb0bf1d1..b85cfedd 100644
+index 493f73b2..ff1c1c3c 100644
 --- a/src/bootstrap/src/core/sanity.rs
 +++ b/src/bootstrap/src/core/sanity.rs
 @@ -11,7 +11,7 @@
@@ -140,9 +89,9 @@ index eb0bf1d1..b85cfedd 100644
 -use std::{env, fs};
 +use std::env;
  
- use crate::Build;
  #[cfg(not(test))]
-@@ -322,28 +322,6 @@ than building it.
+ use crate::builder::Builder;
+@@ -339,28 +339,6 @@ than building it.
              continue;
          }
  
@@ -172,10 +121,10 @@ index eb0bf1d1..b85cfedd 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 1e6acad5..15673ea1 100644
+index f44fe454..74d63995 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
-@@ -202,6 +202,7 @@ pub struct Build {
+@@ -206,6 +206,7 @@ pub struct Build {
      metrics: crate::utils::metrics::BuildMetrics,
  }
  
