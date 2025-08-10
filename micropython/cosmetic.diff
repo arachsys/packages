@@ -1,5 +1,5 @@
 diff --git a/mpy-cross/main.c b/mpy-cross/main.c
-index 7ab95149..10e69992 100644
+index 16f749ae..ba90a2f7 100644
 --- a/mpy-cross/main.c
 +++ b/mpy-cross/main.c
 @@ -119,32 +119,40 @@ static int compile_and_save(const char *file, const char *output_file, const cha
@@ -26,11 +26,11 @@ index 7ab95149..10e69992 100644
 -        "Target specific options:\n"
 -        "-msmall-int-bits=number : set the maximum bits used to encode a small-int\n"
 -        "-march=<arch> : set architecture for native emitter;\n"
--        "                x86, x64, armv6, armv6m, armv7m, armv7em, armv7emsp, armv7emdp, xtensa, xtensawin, rv32imc, debug\n"
+-        "                x86, x64, armv6, armv6m, armv7m, armv7em, armv7emsp, armv7emdp, xtensa, xtensawin, rv32imc, host, debug\n"
 +        "Target-specific options:\n"
 +        "  -march=<arch> set the native emitter architecture:\n"
 +        "                x86, x64, armv6, armv6m, armv7m, armv7em, armv7emsp,\n"
-+        "                armv7emdp, xtensa, xtensawin, rv32imc, debug\n"
++        "                armv7emdp, xtensa, xtensawin, rv32imc, host, debug\n"
 +        "  -msmall-int-bits=<n>\n"
 +        "                set the maximum bits used to encode a small-int\n"
          "\n"

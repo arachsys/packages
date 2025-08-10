@@ -2,22 +2,22 @@ require python
 
 check() {
   url https://github.com/micropython/micropython/tags
-  match version 1.25.0 'tags/v([0-9.]+)\.tar'
+  match version 1.26.0 'tags/v([0-9.]+)\.tar'
 
   url https://github.com/pyserial/pyserial/tags
   match pyserial 3.5 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack micropython-1.25.0.tar.gz \
-    https://github.com/micropython/micropython/archive/refs/tags/v1.25.0.tar.gz
+  unpack micropython-1.26.0.tar.gz \
+    https://github.com/micropython/micropython/archive/refs/tags/v1.26.0.tar.gz
   unpack -d pyserial pyserial-3.5.tar.gz \
     https://github.com/pyserial/pyserial/archive/refs/tags/v3.5.tar.gz
 
   apply cosmetic.diff
-  echo '__version__ = "1.25.0"' >tools/mpremote/mpremote/__init__.py
+  echo '__version__ = "1.26.0"' >tools/mpremote/mpremote/__init__.py
 
-  tree 370c1a96a0c71d0771162baef9caff7282a803e1aa4d49b332ac6100fe9f7273
+  tree f926f5967df2adcd391d36e5deb2a2ac797c15811706f985c5707b19ded7794f
 }
 
 build() {
