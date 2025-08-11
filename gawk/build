@@ -1,10 +1,10 @@
 check() {
-  url https://ftp.gnu.org/gnu/gawk/
+  url https://ftpmirror.gnu.org/gnu/gawk/
   match version 5.3.2 'gawk-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/gawk/gawk-5.3.2.tar.xz
+  unpack https://ftpmirror.gnu.org/gnu/gawk/gawk-5.3.2.tar.xz
   tree a81a1ac05f93e5b3f1f8bb5c2b72708f03115ae4e06cda257f124f3465ba288b
 }
 

@@ -1,10 +1,10 @@
 check() {
-  url https://ftp.gnu.org/gnu/gzip/
+  url https://ftpmirror.gnu.org/gnu/gzip/
   match version 1.14 'gzip-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/gzip/gzip-1.14.tar.xz
+  unpack https://ftpmirror.gnu.org/gnu/gzip/gzip-1.14.tar.xz
   tree 148e3e0ee323995d57b3e14f5715370f6578c59ff6b374f49b7e2a008390cf34
 }
 
