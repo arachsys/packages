@@ -1,11 +1,11 @@
 check() {
   url https://www.nano-editor.org/dist/latest/
-  match version 8.5 'nano-([0-9.]+)\.tar'
+  match version 8.6 'nano-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.nano-editor.org/dist/v8/nano-8.5.tar.xz
-  tree 76e072c9e34fad69d785503ba2a5c27fe5a6effb23970fc98ed4240ec959a405
+  unpack https://www.nano-editor.org/dist/v8/nano-8.6.tar.xz
+  tree d4ca2c9e2dd0bbdf3d56ad1f17006eddc7e4c76cd7185fc815d06119d86a2a5e
 }
 
 build() {
