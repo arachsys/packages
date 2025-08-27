@@ -1,8 +1,8 @@
 diff --git a/lldb/source/Host/common/Editline.cpp b/lldb/source/Host/common/Editline.cpp
-index 73da1d84..5180f092 100644
+index 5ed30fbb..c93bc4d2 100644
 --- a/lldb/source/Host/common/Editline.cpp
 +++ b/lldb/source/Host/common/Editline.cpp
-@@ -209,14 +209,10 @@ private:
+@@ -223,14 +223,10 @@ private:
        FileSystem::Instance().GetHomeDirectory(lldb_history_file);
        llvm::sys::path::append(lldb_history_file, ".lldb");
  
@@ -20,22 +20,23 @@ index 73da1d84..5180f092 100644
          llvm::sys::path::append(lldb_history_file, filename);
          m_path = std::string(lldb_history_file.str());
        }
-@@ -1241,9 +1237,7 @@ void Editline::ConfigureEditor(bool multiline) {
+@@ -1279,10 +1275,7 @@ void Editline::ConfigureEditor(bool multiline) {
    ApplyTerminalSizeChange();
  
    if (m_history_sp && m_history_sp->IsValid()) {
 -    if (!m_history_sp->Load()) {
--        fputs("Could not load history file\n.", m_output_file);
+-      fputs("Could not load history file\n.",
+-            locked_output_stream.GetFile().GetStream());
 -    }
 +    m_history_sp->Load();
      el_wset(m_editline, EL_HIST, history, m_history_sp->GetHistoryPtr());
    }
    el_set(m_editline, EL_CLIENTDATA, this);
 diff --git a/lldb/source/Interpreter/CommandInterpreter.cpp b/lldb/source/Interpreter/CommandInterpreter.cpp
-index 764dcfd1..ec4e45ba 100644
+index 00c34724..094a1e59 100644
 --- a/lldb/source/Interpreter/CommandInterpreter.cpp
 +++ b/lldb/source/Interpreter/CommandInterpreter.cpp
-@@ -2371,7 +2371,7 @@ int CommandInterpreter::GetOptionArgumentPosition(const char *in_string) {
+@@ -2480,7 +2480,7 @@ int CommandInterpreter::GetOptionArgumentPosition(const char *in_string) {
  
  static void GetHomeInitFile(llvm::SmallVectorImpl<char> &init_file,
                              llvm::StringRef suffix = {}) {
@@ -44,7 +45,7 @@ index 764dcfd1..ec4e45ba 100644
    if (!suffix.empty()) {
      init_file_name.append("-");
      init_file_name.append(suffix.str());
-@@ -2394,7 +2394,7 @@ static void GetHomeREPLInitFile(llvm::SmallVectorImpl<char> &init_file,
+@@ -2503,7 +2503,7 @@ static void GetHomeREPLInitFile(llvm::SmallVectorImpl<char> &init_file,
    }
  
    std::string init_file_name =
