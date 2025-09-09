@@ -1,18 +1,18 @@
 diff --git a/src/main.cc b/src/main.cc
-index e721699..fbd7687 100644
+index c584a487..114dea06 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -41,6 +41,8 @@ namespace Kakoune
- 
- extern const char* version;
+@@ -44,6 +44,8 @@ extern const char* version;
+ namespace
+ {
  
 +#ifdef SHOW_STARTUP_INFO
 +
  struct {
      unsigned int version;
      StringView notes;
-@@ -187,6 +189,8 @@ void show_startup_info(Client* local_client, int last_version)
-     }
+@@ -108,6 +110,8 @@ void show_startup_info(Client* local_client, int last_version)
+                                  std::move(info), {}, InfoStyle::Prompt);
  }
  
 +#endif
@@ -20,7 +20,7 @@ index e721699..fbd7687 100644
  inline void write_stdout(StringView str) { try { write(STDOUT_FILENO, str); } catch (runtime_error&) {} }
  inline void write_stderr(StringView str) { try { write(STDERR_FILENO, str); } catch (runtime_error&) {} }
  
-@@ -877,8 +881,10 @@ int run_server(StringView session, StringView server_init,
+@@ -815,8 +819,10 @@ int run_server(StringView session, StringView server_init,
                      local_client->context().faces()["Error"]
                  });
  

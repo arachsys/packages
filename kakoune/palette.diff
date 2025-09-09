@@ -1,10 +1,10 @@
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
-index 812b20b..d4c49ba 100644
+index 4a2120ea..ef1471dc 100644
 --- a/doc/pages/options.asciidoc
 +++ b/doc/pages/options.asciidoc
-@@ -381,6 +381,11 @@ are exclusively available to built-in options.
-             set the maximum allowable width of an info box. set to zero for
-             no limit.
+@@ -389,6 +389,11 @@ are exclusively available to built-in options.
+             if *yes* or *true*, use native terminal cursor visibility control
+             instead of Kakoune's cursor management (defaults to *false*)
  
 +        *terminal_use_palette*:::
 +            if *yes* or *true*, approximate 24-bit colors using the standard
@@ -15,13 +15,13 @@ index 812b20b..d4c49ba 100644
  *startup_info_version* `int`::
      _default_ 0 +
 diff --git a/src/main.cc b/src/main.cc
-index 2a708ac..d5c854c 100644
+index 114dea06..13820b98 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -568,7 +568,8 @@ void register_options()
-                        "    terminal_shift_function_key    int\n"
+@@ -525,7 +525,8 @@ void register_options()
                         "    terminal_padding_char          codepoint\n"
                         "    terminal_padding_fill          bool\n"
+                        "    terminal_cursor_native         bool\n"
 -                       "    terminal_info_max_width        int\n",
 +                       "    terminal_info_max_width        int\n"
 +                       "    terminal_use_palette           bool\n",
@@ -29,12 +29,12 @@ index 2a708ac..d5c854c 100644
      reg.declare_option("modelinefmt", "format string used to generate the modeline",
                         "%val{bufname} %val{cursor_line}:%val{cursor_char_column} {{context_info}} {{mode_info}} - %val{client}@[%val{session}]"_str);
 diff --git a/src/terminal_ui.cc b/src/terminal_ui.cc
-index d411dd6..ffd10ca 100644
+index d1d7389c..2729442e 100644
 --- a/src/terminal_ui.cc
 +++ b/src/terminal_ui.cc
-@@ -227,13 +227,24 @@ void TerminalUI::Screen::set_face(const Face& face, Writer& writer)
+@@ -226,13 +226,24 @@ void TerminalUI::Screen::set_face(const Face& face, Writer& writer)
      static constexpr int ul_table[]{ 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-     static constexpr const char* attr_table[]{ "0", "4", "4:3", "7", "5", "1", "2", "3", "9" };
+     static constexpr const char* attr_table[]{ "0", "4", "4:3", "21", "7", "5", "1", "2", "3", "9" };
  
 +    auto nearest = [](const Color& color) {
 +        int i = color.r < 35 ? 0 : (color.r - 35)/40;
@@ -60,7 +60,7 @@ index d411dd6..ffd10ca 100644
      };
  
      if (m_active_face == face)
-@@ -267,10 +278,12 @@ void TerminalUI::Screen::set_face(const Face& face, Writer& writer)
+@@ -266,10 +277,12 @@ void TerminalUI::Screen::set_face(const Face& face, Writer& writer)
              writer.write(";");
          if (face.underline != Color::Default)
          {
@@ -76,8 +76,8 @@ index d411dd6..ffd10ca 100644
          }
          else
              format_with(writer, "59");
-@@ -1533,6 +1546,8 @@ void TerminalUI::set_ui_options(const Options& options)
-     m_padding_fill = find("terminal_padding_fill").map(to_bool).value_or(false);
+@@ -1589,6 +1602,8 @@ void TerminalUI::set_ui_options(const Options& options)
+     }
  
      m_info_max_width = find("terminal_info_max_width").map(str_to_int_ifp).value_or(0);
 +
@@ -86,12 +86,12 @@ index d411dd6..ffd10ca 100644
  
  }
 diff --git a/src/terminal_ui.hh b/src/terminal_ui.hh
-index dd4ef87..e1a9633 100644
+index 8c76abf4..f4c33c2e 100644
 --- a/src/terminal_ui.hh
 +++ b/src/terminal_ui.hh
 @@ -95,6 +95,7 @@ private:
  
-         std::unique_ptr<size_t[]> hashes;
+         UniquePtr<size_t[]> hashes;
          Face m_active_face;
 +        bool m_use_palette = false;
      };
