@@ -43,3 +43,16 @@ index ff9c11a9..984d732a 100644
      else()
        set(${absvar} "${CMAKE_INSTALL_PREFIX}/${${var}}")
      endif()
+diff --git a/cmake/Source/CTest/cmCTestCurl.h b/cmake/Source/CTest/cmCTestCurl.h
+index 0d5fb7c8..729f1615 100644
+--- a/cmake/Source/CTest/cmCTestCurl.h
++++ b/cmake/Source/CTest/cmCTestCurl.h
+@@ -52,7 +52,7 @@ private:
+   std::vector<std::string> HttpHeaders;
+   std::string HTTPProxyAuth;
+   std::string HTTPProxy;
+-  curl_proxytype HTTPProxyType;
++  long HTTPProxyType;
+   bool UseHttp10 = false;
+   bool Quiet = false;
+   int TimeOutSeconds = 0;
