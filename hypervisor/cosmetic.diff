@@ -1,10 +1,10 @@
 diff --git a/src/bin/ch-remote.rs b/src/bin/ch-remote.rs
-index 4278af61..fe41ac3f 100644
+index 803ffc7e..2e91540b 100644
 --- a/src/bin/ch-remote.rs
 +++ b/src/bin/ch-remote.rs
 @@ -16,7 +16,7 @@ use api_client::{
-     simple_api_command, simple_api_command_with_fds, simple_api_full_command,
-     Error as ApiClientError,
+     Error as ApiClientError, simple_api_command, simple_api_command_with_fds,
+     simple_api_full_command,
  };
 -use clap::{Arg, ArgAction, ArgMatches, Command};
 +use clap::{Arg, ArgAction, ArgMatches, ColorChoice, Command};
@@ -157,16 +157,18 @@ index 4278af61..fe41ac3f 100644
          .arg_required_else_help(true)
          .subcommand_required(true)
          .args(get_cli_args())
-@@ -1128,7 +1129,7 @@ fn main() {
+@@ -1128,9 +1129,7 @@ fn main() {
              process::exit(1);
          }
          _ => {
--            error!("Please either provide the api-socket option or dbus-service-name and dbus-object-path options");
+-            error!(
+-                "Please either provide the api-socket option or dbus-service-name and dbus-object-path options"
+-            );
 +            error!("Please provide the --api-socket option");
              process::exit(1);
          }
      };
-@@ -1166,7 +1167,7 @@ fn main() {
+@@ -1168,7 +1167,7 @@ fn main() {
                      Ok(json) => json,
                      Err(e) => {
                          return Some(format!(
@@ -176,19 +178,19 @@ index 4278af61..fe41ac3f 100644
                          ));
                      }
 diff --git a/src/main.rs b/src/main.rs
-index 101da170..eb1fd597 100644
+index 7bdcbfac..ba6f90d7 100644
 --- a/src/main.rs
 +++ b/src/main.rs
-@@ -12,7 +12,7 @@ use std::sync::mpsc::channel;
- use std::sync::Mutex;
+@@ -12,7 +12,7 @@ use std::sync::Mutex;
+ use std::sync::mpsc::channel;
  use std::{env, io};
  
 -use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
 +use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ColorChoice};
  use event_monitor::event;
  use libc::EFD_NONBLOCK;
- use log::{error, warn, LevelFilter};
-@@ -50,7 +50,7 @@ enum Error {
+ use log::{LevelFilter, error, warn};
+@@ -52,7 +52,7 @@ enum Error {
      CreateDebugEventFd(#[source] std::io::Error),
      #[error("Failed to create exit EventFd")]
      CreateExitEventFd(#[source] std::io::Error),
@@ -197,7 +199,7 @@ index 101da170..eb1fd597 100644
      CreateHypervisor(#[source] hypervisor::HypervisorError),
      #[error("Failed to start the VMM thread")]
      StartVmmThread(#[source] vmm::Error),
-@@ -189,7 +189,7 @@ fn get_cli_options_sorted(
+@@ -191,7 +191,7 @@ fn get_cli_options_sorted(
      [
          Arg::new("api-socket")
              .long("api-socket")
@@ -206,7 +208,7 @@ index 101da170..eb1fd597 100644
              .num_args(1)
              .group("vmm-config"),
          Arg::new("balloon")
-@@ -204,14 +204,14 @@ fn get_cli_options_sorted(
+@@ -206,14 +206,14 @@ fn get_cli_options_sorted(
              .group("vm-config"), Arg::new("console")
              .long("console")
              .help(
@@ -223,7 +225,7 @@ index 101da170..eb1fd597 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -222,13 +222,13 @@ fn get_cli_options_sorted(
+@@ -224,13 +224,13 @@ fn get_cli_options_sorted(
          #[cfg(target_arch = "x86_64")]
          Arg::new("debug-console")
              .long("debug-console")
@@ -239,7 +241,7 @@ index 101da170..eb1fd597 100644
              .num_args(1)
              .group("vmm-config"),
          #[cfg(feature = "dbus_api")]
-@@ -256,12 +256,12 @@ fn get_cli_options_sorted(
+@@ -258,12 +258,12 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("event-monitor")
              .long("event-monitor")
@@ -254,7 +256,7 @@ index 101da170..eb1fd597 100644
              .num_args(1)
              .group("vm-payload"),
          Arg::new("fs")
-@@ -272,13 +272,13 @@ fn get_cli_options_sorted(
+@@ -280,13 +280,13 @@ fn get_cli_options_sorted(
          #[cfg(feature = "guest_debug")]
          Arg::new("gdb")
              .long("gdb")
@@ -270,7 +272,7 @@ index 101da170..eb1fd597 100644
              .num_args(1)
              .group("vm-payload"),
          #[cfg(feature = "sev_snp")]
-@@ -294,17 +294,14 @@ fn get_cli_options_sorted(
+@@ -308,17 +308,14 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("kernel")
              .long("kernel")
@@ -290,7 +292,7 @@ index 101da170..eb1fd597 100644
              )
              .action(ArgAction::SetTrue)
              .default_value("false")
-@@ -316,33 +313,31 @@ fn get_cli_options_sorted(
+@@ -330,33 +327,31 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("log-file")
              .long("log-file")
@@ -329,7 +331,7 @@ index 101da170..eb1fd597 100644
              )
              .num_args(1..)
              .group("vm-config"),
-@@ -364,7 +359,7 @@ fn get_cli_options_sorted(
+@@ -378,7 +373,7 @@ fn get_cli_options_sorted(
          Arg::new("platform")
              .long("platform")
              .help(
@@ -338,7 +340,7 @@ index 101da170..eb1fd597 100644
              )
              .num_args(1)
              .group("vm-config"),
-@@ -399,7 +394,7 @@ fn get_cli_options_sorted(
+@@ -413,7 +408,7 @@ fn get_cli_options_sorted(
          Arg::new("rng")
              .long("rng")
              .help(
@@ -347,7 +349,7 @@ index 101da170..eb1fd597 100644
              )
              .default_value(default_rng)
              .group("vm-config"),
-@@ -410,7 +405,7 @@ fn get_cli_options_sorted(
+@@ -424,7 +419,7 @@ fn get_cli_options_sorted(
              .default_value("true"),
          Arg::new("serial")
              .long("serial")
@@ -355,8 +357,8 @@ index 101da170..eb1fd597 100644
 +            .help("Serial port parameters: off|null|pty|tty|file=<path>|socket=<path>")
              .default_value("null")
              .group("vm-config"),
-         #[cfg(target_arch = "x86_64")]
-@@ -431,8 +426,9 @@ fn get_cli_options_sorted(
+         Arg::new("tpm")
+@@ -439,8 +434,9 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("v")
              .short('v')
@@ -367,7 +369,7 @@ index 101da170..eb1fd597 100644
              .group("logging"),
          Arg::new("vdpa")
              .long("vdpa")
-@@ -476,7 +472,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -484,7 +480,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          // 'BUILD_VERSION' is set by the build script 'build.rs' at
          // compile time
          .author(env!("CARGO_PKG_AUTHORS"))
@@ -377,24 +379,24 @@ index 101da170..eb1fd597 100644
          .arg_required_else_help(true)
          .groups(groups)
          .args(args)
-@@ -553,11 +550,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
+@@ -561,11 +558,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
          // handler safe functions (writing to stderr) and manipulating signals.
          unsafe {
              signal_hook::low_level::register(signal_hook::consts::SIGSYS, || {
--                eprint!(
+-                eprintln!(
 -                    "\n==== Possible seccomp violation ====\n\
 -                Try running with `strace -ff` to identify the cause and open an issue: \
--                https://github.com/cloud-hypervisor/cloud-hypervisor/issues/new\n"
+-                https://github.com/cloud-hypervisor/cloud-hypervisor/issues/new"
 -                );
-+                eprint!("Possible seccomp violation\n");
++                eprintln!("Possible seccomp violation");
                  signal_hook::low_level::emulate_default_handler(SIGSYS).unwrap();
              })
          }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index b2d940a6..7ffef833 100644
+index 366b369e..6a75e701 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -617,8 +617,8 @@ impl CpusConfig {
+@@ -661,8 +661,8 @@ impl CpusConfig {
  }
  
  impl PciSegmentConfig {
@@ -405,7 +407,7 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -934,10 +934,10 @@ impl MemoryConfig {
+@@ -978,10 +978,10 @@ impl MemoryConfig {
  }
  
  impl RateLimiterGroupConfig {
@@ -419,7 +421,7 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1021,8 +1021,8 @@ impl RateLimiterGroupConfig {
+@@ -1065,8 +1065,8 @@ impl RateLimiterGroupConfig {
  }
  
  impl DiskConfig {
@@ -430,7 +432,7 @@ index b2d940a6..7ffef833 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1247,13 +1247,13 @@ impl FromStr for VhostMode {
+@@ -1292,13 +1292,13 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
@@ -447,18 +449,18 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1496,8 +1496,8 @@ impl RngConfig {
+@@ -1541,8 +1541,8 @@ impl RngConfig {
+ }
  
  impl BalloonConfig {
-     pub const SYNTAX: &'static str =
--        "Balloon parameters \"size=<balloon_size>,deflate_on_oom=on|off,\
+-    pub const SYNTAX: &'static str = "Balloon parameters \"size=<balloon_size>,deflate_on_oom=on|off,\
 -        free_page_reporting=on|off\"";
-+        "Balloon parameters: size=<balloon_size>,deflate_on_oom=on|off,\
++    pub const SYNTAX: &'static str = "Balloon parameters: size=<balloon_size>,deflate_on_oom=on|off,\
 +        free_page_reporting=on|off";
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1533,9 +1533,9 @@ impl BalloonConfig {
+@@ -1578,9 +1578,9 @@ impl BalloonConfig {
  }
  
  impl FsConfig {
@@ -471,7 +473,20 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1604,9 +1604,9 @@ impl FsConfig {
+@@ -1650,9 +1650,9 @@ impl FsConfig {
+ 
+ #[cfg(feature = "fw_cfg")]
+ impl FwCfgConfig {
+-    pub const SYNTAX: &'static str = "Boot params to pass to FW CFG device \
+-    \"e820=on|off,kernel=on|off,cmdline=on|off,initramfs=on|off,acpi_table=on|off, \
+-    items=[name0=<backing_file_path>,file0=<file_path>:name1=<backing_file_path>,file1=<file_path>]\"";
++    pub const SYNTAX: &'static str = "FW CFG parameters: \
++    e820=on|off,kernel=on|off,cmdline=on|off,initramfs=on|off,acpi_table=on|off, \
++    items=[name0=<backing_file_path>,file0=<file_path>:name1=<backing_file_path>,file1=<file_path>]";
+     pub fn parse(fw_cfg_config: &str) -> Result<Self> {
+         let mut parser = OptionParser::new();
+         parser
+@@ -1745,9 +1745,9 @@ impl FwCfgItem {
  }
  
  impl PmemConfig {
@@ -484,16 +499,16 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1775,7 +1775,7 @@ impl DebugConsoleConfig {
+@@ -1917,7 +1917,7 @@ impl DebugConsoleConfig {
+ }
  
  impl DeviceConfig {
-     pub const SYNTAX: &'static str =
--        "Direct device assignment parameters \"path=<device_path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>\"";
-+        "Device assignment parameters: path=<device_path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>";
+-    pub const SYNTAX: &'static str = "Direct device assignment parameters \"path=<device_path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>\"";
++    pub const SYNTAX: &'static str = "Device assignment parameters: path=<device_path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>";
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1832,7 +1832,7 @@ impl DeviceConfig {
+@@ -1975,7 +1975,7 @@ impl DeviceConfig {
  
  impl UserDeviceConfig {
      pub const SYNTAX: &'static str =
@@ -502,7 +517,7 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1876,9 +1876,9 @@ impl UserDeviceConfig {
+@@ -2019,9 +2019,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -515,7 +530,7 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1936,8 +1936,8 @@ impl VdpaConfig {
+@@ -2080,8 +2080,8 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -526,18 +541,7 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1996,8 +1996,8 @@ impl VsockConfig {
- 
- #[cfg(target_arch = "x86_64")]
- impl SgxEpcConfig {
--    pub const SYNTAX: &'static str = "SGX EPC parameters \
--        \"id=<epc_section_identifier>,size=<epc_section_size>,prefault=on|off\"";
-+    pub const SYNTAX: &'static str = "SGX EPC parameters: \
-+        id=<epc_section_identifier>,size=<epc_section_size>,prefault=on|off";
- 
-     pub fn parse(sgx_epc: &str) -> Result<Self> {
-         let mut parser = OptionParser::new();
-@@ -2021,10 +2021,10 @@ impl SgxEpcConfig {
+@@ -2140,10 +2140,10 @@ impl VsockConfig {
  }
  
  impl NumaConfig {
@@ -545,13 +549,13 @@ index b2d940a6..7ffef833 100644
 -        \"guest_numa_id=<node_id>,cpus=<cpus_id>,distances=<list_of_distances_to_destination_nodes>,\
 +    pub const SYNTAX: &'static str = "NUMA parameters: \
 +        guest_numa_id=<node_id>,cpus=<cpus_id>,distances=<list_of_distances_to_destination_nodes>,\
-         memory_zones=<list_of_memory_zones>,sgx_epc_sections=<list_of_sgx_epc_sections>,\
+         memory_zones=<list_of_memory_zones>,\
 -        pci_segments=<list_of_pci_segments>\"";
 +        pci_segments=<list_of_pci_segments>";
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2136,13 +2136,9 @@ pub struct RestoreConfig {
+@@ -2251,13 +2251,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
@@ -568,7 +572,7 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2225,8 +2221,8 @@ impl RestoreConfig {
+@@ -2340,8 +2336,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {
@@ -579,7 +583,7 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2241,8 +2237,8 @@ impl TpmConfig {
+@@ -2356,8 +2352,8 @@ impl TpmConfig {
  }
  
  impl LandlockConfig {
@@ -590,3 +594,17 @@ index b2d940a6..7ffef833 100644
  
      pub fn parse(landlock_rule: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
+@@ -2396,10 +2392,9 @@ impl LandlockConfig {
+ 
+ #[cfg(feature = "ivshmem")]
+ impl IvshmemConfig {
+-    pub const SYNTAX: &'static str = "Ivshmem device. Specify the backend file path and size \
+-    for the shared memory: \"path=</path/to/a/file>, size=<file_size>\" \
+-    \nThe <file_size> must be a power of 2 (e.g., 2M, 4M, etc.), as it represents the size \
+-    of the memory region mapped to the guest. Default size is 128M.";
++    pub const SYNTAX: &'static str = "Ivshmem device parameters: \
++    path=</path/to/a/file>, size=<file_size> \
++    \n<file_size> must be a power of 2; the default size is 128M.";
+     pub fn parse(ivshmem: &str) -> Result<Self> {
+         let mut parser = OptionParser::new();
+         parser.add("path").add("size");
