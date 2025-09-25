@@ -1,5 +1,5 @@
 diff --git a/src/tools/cargo/src/cargo/sources/directory.rs b/src/tools/cargo/src/cargo/sources/directory.rs
-index 6f676a79..14a46d01 100644
+index b1bde85f..fb2b6deb 100644
 --- a/src/tools/cargo/src/cargo/sources/directory.rs
 +++ b/src/tools/cargo/src/cargo/sources/directory.rs
 @@ -1,4 +1,5 @@
