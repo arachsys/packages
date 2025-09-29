@@ -1,16 +1,14 @@
 diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index a8dc72ed..28e01dab 100644
+index bddfa389..f6f5318f 100644
 --- a/net/core/neighbour.c
 +++ b/net/core/neighbour.c
-@@ -457,7 +457,10 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
- 		DEBUG_NET_WARN_ON_ONCE(skip_perm);
- 		neigh_flush_table(tbl);
+@@ -472,7 +472,8 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
  	}
--	pneigh_ifdown_and_unlock(tbl, dev);
-+	if (skip_perm)
-+		write_unlock_bh(&tbl->lock);
-+	else
-+		pneigh_ifdown_and_unlock(tbl, dev);
+ 	write_unlock_bh(&tbl->lock);
+ 
+-	pneigh_ifdown(tbl, dev, skip_perm);
++	if (!skip_perm)
++		pneigh_ifdown(tbl, dev, skip_perm);
  	pneigh_queue_purge(&tbl->proxy_queue, dev ? dev_net(dev) : NULL,
  			   tbl->family);
  	if (skb_queue_empty_lockless(&tbl->proxy_queue))

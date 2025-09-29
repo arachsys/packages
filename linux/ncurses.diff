@@ -1,8 +1,8 @@
 diff --git a/scripts/kconfig/mconf-cfg.sh b/scripts/kconfig/mconf-cfg.sh
-index 1e61f50a5..9c095ac2d 100755
+index 1bc304dc..372472f7 100755
 --- a/scripts/kconfig/mconf-cfg.sh
 +++ b/scripts/kconfig/mconf-cfg.sh
-@@ -4,6 +4,12 @@
+@@ -6,6 +6,12 @@ set -eu
  cflags=$1
  libs=$2
  
@@ -15,7 +15,7 @@ index 1e61f50a5..9c095ac2d 100755
  PKG="ncursesw"
  PKG2="ncurses"
  
-@@ -36,14 +42,6 @@ if [ -f /usr/include/ncurses/ncurses.h ]; then
+@@ -38,14 +44,6 @@ if [ -f /usr/include/ncurses/ncurses.h ]; then
  	exit 0
  fi
  
@@ -31,10 +31,10 @@ index 1e61f50a5..9c095ac2d 100755
  echo >&2 "* Unable to find the ncurses package."
  echo >&2 "* Install ncurses (ncurses-devel or libncurses-dev"
 diff --git a/scripts/kconfig/nconf-cfg.sh b/scripts/kconfig/nconf-cfg.sh
-index f871a2160..58a7ab63d 100755
+index a20290b1..ffe5c707 100755
 --- a/scripts/kconfig/nconf-cfg.sh
 +++ b/scripts/kconfig/nconf-cfg.sh
-@@ -4,6 +4,12 @@
+@@ -6,6 +6,12 @@ set -eu
  cflags=$1
  libs=$2
  
