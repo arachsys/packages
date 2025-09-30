@@ -11,3 +11,17 @@ index 2b2c3dec..071a8e10 100644
  YACCFLAGS = -d -t -v
  
  SUBDIRS=lib ip tc bridge misc netem genl man
+diff --git a/lib/bridge.c b/lib/bridge.c
+index 5386aa01..104f5858 100644
+--- a/lib/bridge.c
++++ b/lib/bridge.c
+@@ -2,8 +2,8 @@
+ 
+ #include <net/if.h>
+ 
+-#include "bridge.h"
+ #include "utils.h"
++#include "bridge.h"
+ 
+ void bridge_print_vlan_flags(__u16 flags)
+ {
