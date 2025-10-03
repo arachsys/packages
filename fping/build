@@ -5,7 +5,8 @@ check() {
 
 prepare() {
   unpack https://fping.org/dist/fping-5.4.tar.gz
-  tree 5acb1361a7662a6c25b3a9fa91f4ec76a091e0b716a36466c78bbfa15bc43495
+  apply sigint.diff
+  tree cf9d24c2f99a821e76cdde6a72f8585cd736cab4099269cd6c10dc1e0d3eb818
 }
 
 build() {

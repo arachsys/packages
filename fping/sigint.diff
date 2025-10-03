@@ -1,0 +1,13 @@
+diff --git a/src/fping.c b/src/fping.c
+index 67791755..12a2ce4c 100644
+--- a/src/fping.c
++++ b/src/fping.c
+@@ -2033,6 +2033,8 @@ select_again:
+     nfound = select(socketmax + 1, &readset, NULL, NULL, timeout);
+     if (nfound < 0) {
+         if (errno == EINTR) {
++            if (finish_requested)
++                return -1;
+             /* interrupted system call: redo the select */
+             goto select_again;
+         }
