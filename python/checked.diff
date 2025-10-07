@@ -1,8 +1,8 @@
 diff --git a/Lib/compileall.py b/Lib/compileall.py
-index 47e24463..99020501 100644
+index 67fe3704..c9ef5e4d 100644
 --- a/Lib/compileall.py
 +++ b/Lib/compileall.py
-@@ -370,9 +370,7 @@ def main():
+@@ -372,9 +372,7 @@ def main():
      parser.add_argument('--invalidation-mode',
                          choices=sorted(invalidation_modes),
                          help=('set .pyc invalidation mode; defaults to '
@@ -14,7 +14,7 @@ index 47e24463..99020501 100644
                          help=('Optimization levels to run compilation with. '
                                'Default is -1 which uses the optimization level '
 diff --git a/Lib/py_compile.py b/Lib/py_compile.py
-index 388614e5..631343ab 100644
+index 43d8ec90..48b644ea 100644
 --- a/Lib/py_compile.py
 +++ b/Lib/py_compile.py
 @@ -70,10 +70,7 @@ class PycInvalidationMode(enum.Enum):

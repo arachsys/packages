@@ -1,8 +1,8 @@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index d0128b20..253d61df 100644
+index 1e759934..dedd02ed 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
-@@ -932,8 +932,8 @@ _PyConfig_InitPathConfig(PyConfig *config, int compute_path_config)
+@@ -924,8 +924,8 @@ _PyConfig_InitPathConfig(PyConfig *config, int compute_path_config)
  #else
          !int_to_dict(dict, "WITH_NEXT_FRAMEWORK", 0) ||
  #endif

@@ -1,9 +1,9 @@
 diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
-index 117bf06c..a8f66363 100644
+index 378f1216..32bfef62 100644
 --- a/Lib/ctypes/util.py
 +++ b/Lib/ctypes/util.py
-@@ -99,7 +99,7 @@ elif sys.platform == "android":
-         return fname if os.path.isfile(fname) else None
+@@ -193,7 +193,7 @@ elif sys.platform == "emscripten":
+         return None
  
  elif os.name == "posix":
 -    # Andreas Degert's find functions, using gcc, /sbin/ldconfig, objdump
@@ -11,7 +11,7 @@ index 117bf06c..a8f66363 100644
      import re, tempfile
  
      def _is_elf(filename):
-@@ -221,7 +221,7 @@ elif os.name == "posix":
+@@ -315,7 +315,7 @@ elif os.name == "posix":
              expr = os.fsencode(expr)
  
              try:
@@ -31,10 +31,10 @@ index 5627bfbc..80f3f99a 100755
  
  This codec de/encodes from str to str.
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index 2af7c4b7..d23c8271 100644
+index 33e86d51..bf8aa891 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
-@@ -47,14 +47,6 @@ __all__ = [
+@@ -42,14 +42,6 @@ __all__ = [
  
  knownfiles = [
      "/etc/mime.types",
@@ -50,10 +50,10 @@ index 2af7c4b7..d23c8271 100644
  
  inited = False
 diff --git a/Lib/platform.py b/Lib/platform.py
-index 8895177e..3bd71a55 100755
+index 784b6b74..5e7ffb76 100644
 --- a/Lib/platform.py
 +++ b/Lib/platform.py
-@@ -1389,8 +1389,8 @@ def platform(aliased=False, terse=False):
+@@ -1406,8 +1406,8 @@ def platform(aliased=False, terse=False):
  ### freedesktop.org os-release standard
  # https://www.freedesktop.org/software/systemd/man/os-release.html
  
@@ -65,7 +65,7 @@ index 8895177e..3bd71a55 100755
  
  
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index 80561ae7..eceb5596 100644
+index d38f3bd5..d2c63a85 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -78,10 +78,10 @@ index 80561ae7..eceb5596 100644
  devnull = '/dev/null'
  
 diff --git a/Lib/site.py b/Lib/site.py
-index 959306f6..9ee889ae 100644
+index 2fe897a3..fb3d2b06 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -322,12 +322,12 @@ def _get_path(userbase):
+@@ -328,12 +328,12 @@ def _get_path(userbase):
      implementation_lower = implementation.lower()
      if os.name == 'nt':
          ver_nodot = sys.winver.replace('.', '')
@@ -96,7 +96,7 @@ index 959306f6..9ee889ae 100644
  
  
  def getuserbase():
-@@ -406,7 +406,7 @@ def getsitepackages(prefixes=None):
+@@ -412,7 +412,7 @@ def getsitepackages(prefixes=None):
  
              for libdir in libdirs:
                  path = os.path.join(prefix, libdir,
@@ -106,7 +106,7 @@ index 959306f6..9ee889ae 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig/__init__.py b/Lib/sysconfig/__init__.py
-index 510c7b95..8bd7d7e7 100644
+index 2ecbff22..62a96ef9 100644
 --- a/Lib/sysconfig/__init__.py
 +++ b/Lib/sysconfig/__init__.py
 @@ -27,14 +27,12 @@ _ALWAYS_STR = {
@@ -162,7 +162,7 @@ index 510c7b95..8bd7d7e7 100644
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -139,20 +135,20 @@ if _HAS_USER_BASE:
+@@ -141,20 +137,20 @@ if _HAS_USER_BASE:
      _INSTALL_SCHEMES |= {
          # NOTE: When modifying "purelib" scheme, update site._get_path() too.
          'nt_user': {
@@ -195,7 +195,7 @@ index 510c7b95..8bd7d7e7 100644
              'data': '{userbase}',
              },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index 67aa13f4..f57a8976 100644
+index 5e3ccab5..3d5baf9d 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
 @@ -170,7 +170,7 @@ def _candidate_tempdir_list():
@@ -208,10 +208,10 @@ index 67aa13f4..f57a8976 100644
      # As a last resort, the current directory.
      try:
 diff --git a/Lib/uuid.py b/Lib/uuid.py
-index c286eac3..1e060127 100644
+index 313f2fc4..dde6ff8f 100644
 --- a/Lib/uuid.py
 +++ b/Lib/uuid.py
-@@ -365,7 +365,6 @@ def _get_command_stdout(command, *args):
+@@ -426,7 +426,6 @@ def _get_command_stdout(command, *args):
  
      try:
          path_dirs = os.environ.get('PATH', os.defpath).split(os.pathsep)
@@ -220,10 +220,10 @@ index c286eac3..1e060127 100644
          if executable is None:
              return None
 diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
-index f7a6d261..abae7c66 100644
+index 17ee28e8..b06a42c3 100644
 --- a/Lib/venv/__init__.py
 +++ b/Lib/venv/__init__.py
-@@ -182,12 +182,6 @@ class EnvBuilder:
+@@ -191,12 +191,6 @@ class EnvBuilder:
          create_if_needed(incpath)
          context.lib_path = libpath
          create_if_needed(libpath)
@@ -237,10 +237,10 @@ index f7a6d261..abae7c66 100644
          context.bin_name = os.path.relpath(binpath, env_dir)
          context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 70d54958..1320a6fd 100644
+index ba039794..4e75b780 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -149,7 +149,7 @@ BINDIR=		@bindir@
+@@ -156,7 +156,7 @@ BINDIR=		@bindir@
  LIBDIR=		@libdir@
  MANDIR=		@mandir@
  INCLUDEDIR=	@includedir@
@@ -249,7 +249,7 @@ index 70d54958..1320a6fd 100644
  PLATLIBDIR=	@PLATLIBDIR@
  SCRIPTDIR=	$(prefix)/$(PLATLIBDIR)
  # executable name for shebangs
-@@ -159,9 +159,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
+@@ -166,9 +166,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
  
  # Detailed destination directories
  BINLIBDEST=	@BINLIBDEST@
@@ -263,7 +263,7 @@ index 70d54958..1320a6fd 100644
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.py b/Modules/getpath.py
-index 1f1bfcb4..787f86e3 100644
+index b89d7427..90768f36 100644
 --- a/Modules/getpath.py
 +++ b/Modules/getpath.py
 @@ -179,9 +179,9 @@ if os_name == 'posix' or os_name == 'darwin':
@@ -279,10 +279,10 @@ index 1f1bfcb4..787f86e3 100644
      VENV_LANDMARK = 'pyvenv.cfg'
      ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}{ABI_THREAD}.zip'
 diff --git a/configure b/configure
-index 1cd1f690..f83c0340 100755
+index d31c24df..080fceab 100755
 --- a/configure
 +++ b/configure
-@@ -24629,7 +24629,7 @@ fi
+@@ -26784,7 +26784,7 @@ fi
  
  
  
@@ -291,7 +291,7 @@ index 1cd1f690..f83c0340 100755
  
  
  # Check for --with-platlibdir
-@@ -24666,9 +24666,9 @@ fi
+@@ -26822,9 +26822,9 @@ fi
  
  
  if test x$PLATFORM_TRIPLET = x; then

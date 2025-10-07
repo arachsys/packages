@@ -1,8 +1,21 @@
+diff --git a/Lib/_pyrepl/readline.py b/Lib/_pyrepl/readline.py
+index 23b8fa6b..590d732f 100644
+--- a/Lib/_pyrepl/readline.py
++++ b/Lib/_pyrepl/readline.py
+@@ -465,6 +465,8 @@ class _ReadlineWrapper:
+                 f.write(entry + "\n")
+ 
+     def append_history_file(self, filename: str = gethistoryfile()) -> None:
++        if filename is None:
++            return
+         reader = self.get_reader()
+         saved_length = self.get_history_length()
+         length = self.get_current_history_length() - saved_length
 diff --git a/Lib/site.py b/Lib/site.py
-index aedf3639..959306f6 100644
+index f9327197..2fe897a3 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -474,8 +474,7 @@ def gethistoryfile():
+@@ -480,8 +480,7 @@ def gethistoryfile():
          history = os.environ.get("PYTHON_HISTORY")
          if history:
              return history
@@ -12,7 +25,7 @@ index aedf3639..959306f6 100644
  
  
  def enablerlcompleter():
-@@ -548,8 +547,7 @@ def register_readline():
+@@ -554,8 +553,7 @@ def register_readline():
              pass
  
      if readline is None or readline.get_current_history_length() == 0:
@@ -22,7 +35,7 @@ index aedf3639..959306f6 100644
          # The guard is necessary to avoid doubling history size at
          # each interpreter exit when readline was already configured
          # through a PYTHONSTARTUP hook, see:
-@@ -565,25 +563,26 @@ def register_readline():
+@@ -571,25 +569,26 @@ def register_readline():
              readline_module = readline
              exceptions = OSError
  
@@ -35,7 +48,7 @@ index aedf3639..959306f6 100644
 +        if history:
              try:
 -                readline_module.write_history_file(history)
--            except (FileNotFoundError, PermissionError):
+-            except FileNotFoundError, PermissionError:
 -                # home directory does not exist or is not writable
 -                # https://bugs.python.org/issue19891
 +                readline_module.read_history_file(history)
@@ -51,7 +64,7 @@ index aedf3639..959306f6 100644
 +            def write_history():
 +                try:
 +                    readline_module.write_history_file(history)
-+                except (FileNotFoundError, PermissionError):
++                except FileNotFoundError, PermissionError:
 +                    # home directory does not exist or is not writable
 +                    # https://bugs.python.org/issue19891
 +                    pass
