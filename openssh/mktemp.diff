@@ -1,0 +1,82 @@
+diff --git a/hostfile.c b/hostfile.c
+index f7fa332e..eeee7bc8 100644
+--- a/hostfile.c
++++ b/hostfile.c
+@@ -654,7 +654,7 @@ hostfile_replace_entries(const char *filename, const char *host, const char *ip,
+ 	/*
+ 	 * Prepare temporary file for in-place deletion.
+ 	 */
+-	if ((r = asprintf(&temp, "%s.XXXXXXXXXXX", filename)) == -1 ||
++	if ((r = asprintf(&temp, "%s.XXXXXX", filename)) == -1 ||
+ 	    (r = asprintf(&back, "%s.old", filename)) == -1) {
+ 		r = SSH_ERR_ALLOC_FAIL;
+ 		goto fail;
+diff --git a/misc.c b/misc.c
+index 6e4a1fcc..c6d61af6 100644
+--- a/misc.c
++++ b/misc.c
+@@ -1871,11 +1871,11 @@ mktemp_proto(char *s, size_t len)
+ 	int r;
+ 
+ 	if ((tmpdir = getenv("TMPDIR")) != NULL) {
+-		r = snprintf(s, len, "%s/ssh-XXXXXXXXXXXX", tmpdir);
++		r = snprintf(s, len, "%s/ssh-XXXXXX", tmpdir);
+ 		if (r > 0 && (size_t)r < len)
+ 			return;
+ 	}
+-	r = snprintf(s, len, "/tmp/ssh-XXXXXXXXXXXX");
++	r = snprintf(s, len, "/tmp/ssh-XXXXXX");
+ 	if (r < 0 || (size_t)r >= len)
+ 		fatal_f("template string too short");
+ }
+diff --git a/moduli.c b/moduli.c
+index 999a9098..1832e658 100644
+--- a/moduli.c
++++ b/moduli.c
+@@ -409,7 +409,7 @@ write_checkpoint(char *cpfile, u_int32_t lineno)
+ 	char tmp[PATH_MAX];
+ 	int r, writeok, closeok;
+ 
+-	r = snprintf(tmp, sizeof(tmp), "%s.XXXXXXXXXX", cpfile);
++	r = snprintf(tmp, sizeof(tmp), "%s.XXXXXX", cpfile);
+ 	if (r < 0 || r >= PATH_MAX) {
+ 		logit("write_checkpoint: temp pathname too long");
+ 		return;
+diff --git a/session.c b/session.c
+index 4732b381..8ef64515 100644
+--- a/session.c
++++ b/session.c
+@@ -244,7 +244,7 @@ prepare_auth_info_file(struct passwd *pw, struct sshbuf *info)
+ 		return;
+ 
+ 	temporarily_use_uid(pw);
+-	auth_info_file = xstrdup("/tmp/sshauth.XXXXXXXXXXXXXXX");
++	auth_info_file = xstrdup("/tmp/sshauth.XXXXXX");
+ 	if ((fd = mkstemp(auth_info_file)) == -1) {
+ 		error_f("mkstemp: %s", strerror(errno));
+ 		goto out;
+diff --git a/ssh-keygen.c b/ssh-keygen.c
+index 12fc0ce8..0d80ebc3 100644
+--- a/ssh-keygen.c
++++ b/ssh-keygen.c
+@@ -1046,9 +1046,9 @@ do_gen_all_hostkeys(struct passwd *pw)
+ 		 * Private key doesn't exist or is invalid; proceed with
+ 		 * key generation.
+ 		 */
+-		xasprintf(&prv_tmp, "%s%s.XXXXXXXXXX",
++		xasprintf(&prv_tmp, "%s%s.XXXXXX",
+ 		    identity_file, key_types[i].path);
+-		xasprintf(&pub_tmp, "%s%s.pub.XXXXXXXXXX",
++		xasprintf(&pub_tmp, "%s%s.pub.XXXXXX",
+ 		    identity_file, key_types[i].path);
+ 		xasprintf(&pub_file, "%s%s.pub",
+ 		    identity_file, key_types[i].path);
+@@ -1284,7 +1284,7 @@ do_known_hosts(struct passwd *pw, const char *name, int find_host,
+ 	 */
+ 	if (!find_host && (hash_hosts || delete_host)) {
+ 		if (strlcpy(tmp, identity_file, sizeof(tmp)) >= sizeof(tmp) ||
+-		    strlcat(tmp, ".XXXXXXXXXX", sizeof(tmp)) >= sizeof(tmp) ||
++		    strlcat(tmp, ".XXXXXX", sizeof(tmp)) >= sizeof(tmp) ||
+ 		    strlcpy(old, identity_file, sizeof(old)) >= sizeof(old) ||
+ 		    strlcat(old, ".old", sizeof(old)) >= sizeof(old))
+ 			fatal("known_hosts path too long");

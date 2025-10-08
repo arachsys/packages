@@ -1,0 +1,283 @@
+diff --git a/misc-agent.c b/misc-agent.c
+index 07c8fb13..3d8db89e 100644
+--- a/misc-agent.c
++++ b/misc-agent.c
+@@ -153,65 +153,43 @@ unix_listener_tmp(char *path, int backlog)
+ 	return sock;
+ }
+ 
+-/*
+- * Create a subdirectory under the supplied home directory if it
+- * doesn't already exist
+- */
+-static int
+-ensure_mkdir(const char *homedir, const char *subdir)
+-{
+-	char *path;
+-
+-	xasprintf(&path, "%s/%s", homedir, subdir);
+-	if (mkdir(path, 0700) == 0)
+-		debug("created directory %s", path);
+-	else if (errno != EEXIST) {
+-		error_f("mkdir %s: %s", path, strerror(errno));
+-		free(path);
+-		return -1;
+-	}
+-	free(path);
+-	return 0;
+-}
+-
+-static int
+-agent_prepare_sockdir(const char *homedir)
+-{
+-	if (homedir == NULL || *homedir == '\0' ||
+-	    ensure_mkdir(homedir, _PATH_SSH_USER_DIR) != 0 ||
+-	    ensure_mkdir(homedir, _PATH_SSH_AGENT_SOCKET_DIR) != 0)
+-		return -1;
+-	return 0;
+-}
+-
+-
+-/* Get a path template for an agent socket in the user's homedir */
+-static char *
+-agent_socket_template(const char *homedir, const char *tag)
+-{
+-	char *hostnamehash, *ret;
+-
+-	if ((hostnamehash = hostname_hash(SOCKET_HOSTNAME_HASHLEN)) == NULL)
+-		return NULL;
+-	xasprintf(&ret, "%s/%s/s.%s.%s.XXXXXXXXXX",
+-	    homedir, _PATH_SSH_AGENT_SOCKET_DIR, hostnamehash, tag);
+-	free(hostnamehash);
+-	return ret;
+-}
+-
+ int
+-agent_listener(const char *homedir, const char *tag, int *sockp, char **pathp)
++agent_listener(const char *tag, int *sockp, char **pathp, int forcetmp)
+ {
+ 	int sock;
+-	char *path;
++	char *dir = NULL, *path;
+ 
+ 	*sockp = -1;
+ 	*pathp = NULL;
+ 
+-	if (agent_prepare_sockdir(homedir) != 0)
+-		return -1; /* error already logged */
+-	if ((path = agent_socket_template(homedir, tag)) == NULL)
+-		return -1; /* error already logged */
++	if (!forcetmp) {
++		xasprintf(&dir, "/run/user/%ld/ssh", (long) getuid());
++		if (mkdir(dir, 0700) == 0) {
++			debug("created directory %s", dir);
++		} else if (errno == ENOENT) {
++			free(dir);
++			dir = NULL;
++		} else if (errno != EEXIST) {
++			error_f("mkdir %s: %s", dir, strerror(errno));
++			free(dir);
++			return -1;
++		}
++	}
++
++	if (dir) {
++		xasprintf(&path, "%s/s.%s.XXXXXX", dir, tag);
++		free(dir);
++	} else {
++		xasprintf(&dir, "%s/ssh-XXXXXX", getenv("TMPDIR") ?: "/tmp");
++		if (mkdtemp(dir) == NULL) {
++			error_f("mkdtemp %s: %s", dir, strerror(errno));
++			free(dir);
++			return -1;
++		}
++		xasprintf(&path, "%s/%s.%ld", dir, tag, (long) getpid());
++		free(dir);
++	}
++
+ 	if ((sock = unix_listener_tmp(path, SSH_LISTEN_BACKLOG)) == -1) {
+ 		free(path);
+ 		return -1; /* error already logged */
+@@ -271,12 +249,12 @@ socket_is_stale(const char *path)
+ #endif
+ 
+ void
+-agent_cleanup_stale(const char *homedir, int ignore_hosthash)
++agent_cleanup_stale(void)
+ {
+ 	DIR *d = NULL;
+ 	struct dirent *dp;
+ 	struct stat sb;
+-	char *prefix = NULL, *dirpath = NULL, *path = NULL;
++	char *dirpath = NULL, *path = NULL;
+ 	struct timespec now, sub, *mtimp = NULL;
+ 
+ 	/* Only consider sockets last modified > 1 hour ago */
+@@ -288,18 +266,7 @@ agent_cleanup_stale(const char *homedir, int ignore_hosthash)
+ 	sub.tv_nsec = 0;
+ 	timespecsub(&now, &sub, &now);
+ 
+-	/* Only consider sockets from the same hostname */
+-	if (!ignore_hosthash) {
+-		if ((path = agent_hostname_hash()) == NULL) {
+-			error_f("couldn't get hostname hash");
+-			return;
+-		}
+-		xasprintf(&prefix, "s.%s.", path);
+-		free(path);
+-		path = NULL;
+-	}
+-
+-	xasprintf(&dirpath, "%s/%s", homedir, _PATH_SSH_AGENT_SOCKET_DIR);
++	xasprintf(&dirpath, "/run/user/%ld/ssh-agent", (long) getuid());
+ 	if ((d = opendir(dirpath)) == NULL) {
+ 		if (errno != ENOENT)
+ 			error_f("opendir \"%s\": %s", dirpath, strerror(errno));
+@@ -334,12 +301,6 @@ agent_cleanup_stale(const char *homedir, int ignore_hosthash)
+ 			    dirpath, dp->d_name);
+ 			continue;
+ 		}
+-		if (!ignore_hosthash &&
+-		    strncmp(dp->d_name, prefix, strlen(prefix)) != 0) {
+-			debug3_f("Ignoring socket \"%s/%s\" "
+-			    "from different host", dirpath, dp->d_name);
+-			continue;
+-		}
+ 		if (socket_is_stale(path)) {
+ 			debug_f("cleanup stale socket %s", path);
+ 			unlinkat(dirfd(d), dp->d_name, 0);
+@@ -350,7 +311,6 @@ agent_cleanup_stale(const char *homedir, int ignore_hosthash)
+ 		closedir(d);
+ 	free(path);
+ 	free(dirpath);
+-	free(prefix);
+ }
+ 
+ #undef unlinkat
+diff --git a/misc.h b/misc.h
+index f3c5a18c..0d79262a 100644
+--- a/misc.h
++++ b/misc.h
+@@ -235,8 +235,8 @@ int ptimeout_isset(struct timespec *pt);
+ 
+ /* misc-agent.c */
+ char	*agent_hostname_hash(void);
+-int	 agent_listener(const char *, const char *, int *, char **);
+-void	 agent_cleanup_stale(const char *, int);
++int	 agent_listener(const char *, int *, char **, int);
++void	 agent_cleanup_stale(void);
+ 
+ /* readpass.c */
+ 
+diff --git a/pathnames.h b/pathnames.h
+index 6f0639fb..390aac40 100644
+--- a/pathnames.h
++++ b/pathnames.h
+@@ -66,13 +66,6 @@
+ #define _PATH_SSH_USER_DIR		".config/ssh"
+ #define _PATH_CFG_USER_DIR		".config"
+ 
+-
+-/*
+- * The directory in which ssh-agent sockets and agent sockets forwarded by
+- * sshd reside. This directory should not be world-readable.
+- */
+-#define _PATH_SSH_AGENT_SOCKET_DIR _PATH_SSH_USER_DIR "/agent"
+-
+ /*
+  * Per-user file containing host keys of known hosts.  This file need not be
+  * readable by anyone except the user him/herself, though this does not
+diff --git a/session.c b/session.c
+index 4dd17976..533c7059 100644
+--- a/session.c
++++ b/session.c
+@@ -197,7 +197,7 @@ auth_input_request_forwarding(struct ssh *ssh, struct passwd * pw)
+ 	/* Temporarily drop privileged uid for mkdir/bind. */
+ 	temporarily_use_uid(pw);
+ 
+-	if (agent_listener(pw->pw_dir, "sshd", &sock, &auth_sock_name) != 0) {
++	if (agent_listener("sshd", &sock, &auth_sock_name, 0) != 0) {
+ 		/* a more detailed error is already logged */
+ 		ssh_packet_send_debug(ssh, "Agent forwarding disabled: "
+ 		    "couldn't create listener socket");
+diff --git a/ssh-agent.c b/ssh-agent.c
+index df241379..9cf2737d 100644
+--- a/ssh-agent.c
++++ b/ssh-agent.c
+@@ -2192,7 +2192,7 @@ main(int ac, char **av)
+ 	int c_flag = 0, d_flag = 0, D_flag = 0, k_flag = 0;
+ 	int s_flag = 0, T_flag = 0, u_flag = 0, U_flag = 0;
+ 	int sock = -1, ch, result, saved_errno;
+-	char *homedir = NULL, *shell, *format, *pidstr, *agentsocket = NULL;
++	char *shell, *format, *pidstr, *agentsocket = NULL;
+ 	char *fdstr;
+ 	const char *errstr = NULL;
+ 	const char *ccp;
+@@ -2346,11 +2346,9 @@ main(int ac, char **av)
+ 		exit(0);
+ 	}
+ 	if (u_flag) {
+-		if ((homedir = get_homedir()) == NULL)
+-			fatal("Couldn't determine home directory");
+-		agent_cleanup_stale(homedir, u_flag > 1);
+-		printf("Deleted stale agent sockets in ~/%s\n",
+-		    _PATH_SSH_AGENT_SOCKET_DIR);
++		agent_cleanup_stale();
++		printf("Deleted stale agent sockets in /run/user/%ld/ssh\n",
++		    (long) getuid());
+ 		exit(0);
+ 	}
+ 
+@@ -2387,43 +2385,25 @@ main(int ac, char **av)
+ 		socket_activated = 1;
+ 	}
+ 
+-	if (sock == -1 && agentsocket == NULL && !T_flag) {
+-		/* Default case: ~/.ssh/agent/[socket] */
+-		if ((homedir = get_homedir()) == NULL)
+-			fatal("Couldn't determine home directory");
++	if (sock == -1 && agentsocket == NULL) {
+ 		if (!U_flag)
+-			agent_cleanup_stale(homedir, 0);
+-		if (agent_listener(homedir, "agent", &sock, &agentsocket) != 0)
++			agent_cleanup_stale();
++		if (agent_listener("agent", &sock, &agentsocket, T_flag) != 0)
+ 			fatal_f("Couldn't prepare agent socket");
+ 		if (strlcpy(socket_name, agentsocket,
+ 		    sizeof(socket_name)) >= sizeof(socket_name)) {
+ 			fatal_f("Socket path \"%s\" too long",
+ 			    agentsocket);
+ 		}
+-		free(homedir);
+ 		free(agentsocket);
+ 		agentsocket = NULL;
+ 	} else if (sock == -1) {
+-		if (T_flag) {
+-			/*
+-			 * Create private directory for agent socket
+-			 * in $TMPDIR.
+-			 */
+-			mktemp_proto(socket_dir, sizeof(socket_dir));
+-			if (mkdtemp(socket_dir) == NULL) {
+-				perror("mkdtemp: private socket dir");
+-				exit(1);
+-			}
+-			snprintf(socket_name, sizeof(socket_name),
+-			    "%s/agent.%ld", socket_dir, (long)parent_pid);
+-		} else {
+-			/* Try to use specified agent socket */
+-			socket_dir[0] = '\0';
+-			if (strlcpy(socket_name, agentsocket,
+-			   sizeof(socket_name)) >= sizeof(socket_name)) {
+-				fatal_f("Socket path \"%s\" too long",
+-				    agentsocket);
+-			}
++		/* Try to use specified agent socket */
++		socket_dir[0] = '\0';
++		if (strlcpy(socket_name, agentsocket,
++		   sizeof(socket_name)) >= sizeof(socket_name)) {
++			fatal_f("Socket path \"%s\" too long",
++			    agentsocket);
+ 		}
+ 		/* Listen on socket */
+ 		prev_mask = umask(0177);
