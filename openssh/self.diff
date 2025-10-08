@@ -1,0 +1,16 @@
+diff --git a/sshd.c b/sshd.c
+index 3c76b60b..71d55331 100644
+--- a/sshd.c
++++ b/sshd.c
+@@ -1461,7 +1461,10 @@ main(int ac, char **av)
+ 		}
+ 	}
+ 	if (!test_flag && !inetd_flag && !do_dump_cfg && !path_absolute(av[0]))
+-		fatal("sshd requires execution with an absolute path");
++		if (!(av[0] = calloc(PATH_MAX + 1, 1)) ||
++		    readlink("/proc/self/exe", av[0], PATH_MAX) <= 0 ||
++		    !path_absolute(av[0]))
++			fatal("sshd requires execution with an absolute path");
+ 
+ 	closefrom(STDERR_FILENO + 1);
+ 

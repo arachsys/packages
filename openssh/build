@@ -13,7 +13,8 @@ prepare() {
   apply config.diff
   apply home.diff
   apply mktemp.diff
-  tree 4e373345f391e9f4d604f0871d7302492f896ba81e0e34215f8d0d63a86912fb
+  apply self.diff
+  tree f339a308e14c99ea5a732e1f2f2fc4091b0e56c2d5503d4d9e5dd40323308ee3
 }
 
 build() {
