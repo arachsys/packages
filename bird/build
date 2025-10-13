@@ -1,14 +1,14 @@
 require bison flex
 
 check() {
-  url https://bird.network.cz/download/
-  match version 2.17.1 'bird-(2\.[0-9.]+)\.tar'
+  url https://bird.nic.cz/get-bird/
+  match version 2.17.2 'bird-(2\.[0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://bird.network.cz/download/bird-2.17.1.tar.gz
+  unpack https://bird.nic.cz/download/bird-2.17.2.tar.gz
   apply history.diff
-  tree d73954f57edb302ada014d1c3c5be6feaa8e91ad3017ed15282c24bdc969e488
+  tree 0bd1629acdb66eef9bb9cbc7dae19481cb13231386ee602fa2fe2ae2ece8b21e
 }
 
 build() {
