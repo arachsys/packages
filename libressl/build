@@ -1,12 +1,12 @@
 check() {
   url https://www.libressl.org/
-  match version 4.1.1 'LibreSSL ([0-9.]+)'
+  match version 4.2.0 'LibreSSL ([0-9.]+)'
 }
 
 prepare() {
-  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-4.1.1.tar.gz
+  unpack https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-4.2.0.tar.gz
   apply dynamic.diff
-  tree 086e449030629fbadb840bf1c99c2b866c641601617deb5ab8504126e04e0382
+  tree 8194b95c3ae75b573a840ff874dd9360695319b1c80447695a65e1dd3d9a76b5
 }
 
 build() {
