@@ -20,9 +20,10 @@ prepare() {
 }
 
 build() {
-  auto-config --enable-optimizations --enable-shared --with-ensurepip=no \
-    --with-openssl=/lib --with-ssl-default-suites=openssl \
-    --with-tzpath=/lib/zoneinfo CFLAGS=-DTHREAD_STACK_SIZE=0x200000
+  auto-config $([[ $CHOST != arm* ]] && echo --enable-optimizations) \
+    --enable-shared --with-ensurepip=no --with-openssl=/lib \
+    --with-ssl-default-suites=openssl --with-tzpath=/lib/zoneinfo \
+    CFLAGS=-DTHREAD_STACK_SIZE=0x200000 \
   make && make install DESTDIR=/dst
 
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
