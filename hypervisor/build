@@ -9,9 +9,10 @@ prepare() {
   unpack cloud-hypervisor-48.0.tar.xz \
     https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v48.0/cloud-hypervisor-v48.0.tar.xz
   apply cosmetic.diff
+  apply discard.diff
   apply hotplug.diff
   apply tapip.diff
-  tree aefc18b74f4dd4d94bcab99070fe74a5b4fdd42b0ca6515e805c38e4ebe10e20
+  tree 6bcb17e53da1cb23112e7ee41b40506a804c396d48c2f4e36078bbd7157178d1
 }
 
 build() {
