@@ -1,20 +1,20 @@
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match version 2.03.35 'LVM2\.([0-9.]+)\.tgz'
+  match version 2.03.36 'LVM2\.([0-9.]+)\.tgz'
 
   url https://releases.pagure.org/libaio/
   match libaio 0.3.113 'libaio-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack lvm2-2.03.35.tar.gz https://sourceware.org/ftp/lvm2/LVM2.2.03.35.tgz
+  unpack lvm2-2.03.36.tar.gz https://sourceware.org/ftp/lvm2/LVM2.2.03.36.tgz
   unpack -d aio https://releases.pagure.org/libaio/libaio-0.3.113.tar.gz
   apply basename.diff
   apply pkgconfig.diff
   apply static.diff
   apply stdio.diff
   apply tidy.diff
-  tree ae3e59f94b24908bb5d9608232c8d3144c58fc0b9cd27b9b8b05bd759eef77ec
+  tree 06e38686f36bfd122b5c70ef90f82ff83322cf369645e9b89a03523c12c72be4
 }
 
 build() {
