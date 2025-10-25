@@ -1,0 +1,20 @@
+require rust
+
+check() {
+  url https://github.com/typst/typst/tags
+  match version 0.14.0 'tags/v([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack typst-0.14.0.tar.gz \
+    https://github.com/typst/typst/archive/refs/tags/v0.14.0.tar.gz
+  cargo vendor >>.cargo/config.toml
+  apply libressl.diff
+  tree 87c79008841bd4ff7406738a7830802c0e6e5fc18fc032af1cac9b97cb28c971
+}
+
+build() {
+  OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
+    cargo build --release
+  install -t /dst/bin -D target/release/typst
+}
