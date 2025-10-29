@@ -3,21 +3,19 @@ require perl
 
 check() {
   url https://github.com/dovecot/core/tags
-  match version 2.4.1 'tags/([0-9.]+)\.tar'
+  match version 2.4.2 'tags/([0-9.]+)\.tar'
 
   url https://github.com/dovecot/pigeonhole/tags
-  match pigeonhole 2.4.1 'tags/([0-9.]+)\.tar'
+  match pigeonhole 2.4.2 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dovecot.org/releases/2.4/dovecot-2.4.1-4.tar.gz
+  unpack https://dovecot.org/releases/2.4/dovecot-2.4.2.tar.gz
   unpack -d pigeonhole \
-    https://pigeonhole.dovecot.org/releases/2.4/dovecot-pigeonhole-2.4.1-4.tar.gz
-  apply ldap.diff
-  apply musl.diff
+    https://pigeonhole.dovecot.org/releases/2.4/dovecot-pigeonhole-2.4.2.tar.gz
   apply paths.diff
   apply users.diff
-  tree 59fa2d7fcbd2f97d0e01665ada7c70e75126c07182c02cc488d809f10b1a2b28
+  tree c9c9cc790df29473a12b5e46ef326f8177fade9ede2ffb6c2c22513463387ce2
 }
 
 build() {
