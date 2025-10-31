@@ -10,13 +10,14 @@ prepare() {
   apply ncurses.diff
   apply ping.diff
   apply proxy.diff
+  apply virtio.diff
 
   find . -type f -executable -exec sed -e '1s:^#! *//*:#!/:' \
     -e '1s:^#!/usr/local/:#!/:' -e '1s:^#!/usr/:#!/:' \
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree d537c24ccfbe733b7b9643c4f78659fa110a126d5e96e3cbe1b36d5484050f57
+  tree 2e57b526fe527968f431fd943c20ed77d99c8de3693971a7c9da09fdbb4fcdac
 }
 
 build() {
