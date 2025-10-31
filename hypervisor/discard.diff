@@ -99,7 +99,7 @@ index aa31c543..8ac0b58e 100644
 +    }
  }
 diff --git a/block/src/lib.rs b/block/src/lib.rs
-index 5599258e..86ab403a 100644
+index 5599258e..f30ae943 100644
 --- a/block/src/lib.rs
 +++ b/block/src/lib.rs
 @@ -41,7 +41,7 @@ use std::os::unix::io::AsRawFd;
@@ -342,7 +342,7 @@ index 5599258e..86ab403a 100644
  
  enum BlockSize {
      LogicalBlock,
-@@ -920,3 +1062,701 @@ impl DiskTopology {
+@@ -920,3 +1062,702 @@ impl DiskTopology {
          })
      }
  }
@@ -350,6 +350,7 @@ index 5599258e..86ab403a 100644
 +#[cfg(test)]
 +mod tests {
 +    use std::os::fd::FromRawFd;
++    use std::sync::Arc;
 +
 +    use virtio_bindings::bindings::virtio_ring::VRING_DESC_F_WRITE;
 +    use virtio_queue::desc::RawDescriptor;
@@ -1045,7 +1046,7 @@ index 5599258e..86ab403a 100644
 +    }
 +}
 diff --git a/block/src/raw_async.rs b/block/src/raw_async.rs
-index 1a582073..cd87c81f 100644
+index 1a582073..101eb3b4 100644
 --- a/block/src/raw_async.rs
 +++ b/block/src/raw_async.rs
 @@ -3,7 +3,7 @@
@@ -1066,7 +1067,7 @@ index 1a582073..cd87c81f 100644
  pub struct RawFileDisk {
      file: File,
  }
-@@ -241,4 +243,89 @@ impl AsyncIo for RawFileAsync {
+@@ -241,4 +243,86 @@ impl AsyncIo for RawFileAsync {
  
          Ok(())
      }
@@ -1123,31 +1124,28 @@ index 1a582073..cd87c81f 100644
 +
 +        let zero_buffer = [0u8; ZERO_BUFFER_SIZE];
 +        let mut total_written = 0;
-+        let mut current_offset = offset;
 +
++        let mut iovecs = Vec::with_capacity(1);
 +        while total_written < len {
 +            let bytes_to_write = std::cmp::min(len - total_written, ZERO_BUFFER_SIZE);
-+            let iovecs = [libc::iovec {
++            iovecs.push(libc::iovec {
 +                // SAFETY: a pointer to our stack buffer
 +                iov_base: zero_buffer.as_ptr() as *mut libc::c_void,
 +                iov_len: bytes_to_write,
-+            }];
-+
-+            // SAFETY: we know the file descriptor is valid.
-+            unsafe {
-+                sq.push(
-+                    &opcode::Writev::new(types::Fd(self.fd), iovecs.as_ptr(), iovecs.len() as u32)
-+                        .offset(current_offset)
-+                        .build()
-+                        .user_data(user_data),
-+                )
-+                .map_err(|_| {
-+                    AsyncIoError::WriteVectored(Error::other("Submission queue is full"))
-+                })?
-+            };
++            });
 +            total_written += bytes_to_write;
-+            current_offset += bytes_to_write as u64;
 +        }
++
++        // SAFETY: we know the file descriptor is valid.
++        unsafe {
++            sq.push(
++                &opcode::Writev::new(types::Fd(self.fd), iovecs.as_ptr(), iovecs.len() as u32)
++                    .offset(offset)
++                    .build()
++                    .user_data(user_data),
++            )
++            .map_err(|_| AsyncIoError::WriteVectored(Error::other("Submission queue is full")))?
++        };
 +
 +        // Update the submission queue and submit new operations to the
 +        // io_uring instance.
@@ -1496,7 +1494,7 @@ index 96c2e09b..df2368ee 100644
           id=<device_id>,pci_segment=<segment_id>,rate_limit_group=<group_id>,\
           queue_affinity=<list_of_queue_indices_with_their_associated_cpuset>,\
 -         serial=<serial_number>";
-+         serial=<serial_number>,discard=on|off,detect-zeroes=on|off|unmap";
++         serial=<serial_number>,discard=on|off,detect_zeroes=on|off|unmap";
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
@@ -1507,7 +1505,7 @@ index 96c2e09b..df2368ee 100644
 -            .add("queue_affinity");
 +            .add("queue_affinity")
 +            .add("discard")
-+            .add("detect-zeroes");
++            .add("detect_zeroes");
          parser.parse(disk).map_err(Error::ParseDisk)?;
  
          let path = parser.get("path").map(PathBuf::from);
@@ -1521,7 +1519,7 @@ index 96c2e09b..df2368ee 100644
 +            .unwrap_or_default();
 +
 +        let detect_zeroes = parser
-+            .convert("detect-zeroes")
++            .convert("detect_zeroes")
 +            .map_err(Error::ParseDisk)?
 +            .unwrap_or_default();
 +
