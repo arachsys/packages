@@ -2,11 +2,11 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/tags
-  match version 1.90.0 'tags/([0-9.]+)\.tar'
+  match version 1.91.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.90.0-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.91.0-src.tar.gz
   apply curl.diff       # must patch vendor/curl-sys-*
   apply home.diff       # must patch vendor/home-*, tools/cargo/crates/home
   apply libexec.diff
@@ -15,7 +15,7 @@ prepare() {
   apply target.diff
   apply verify.diff
   apply version.diff
-  tree 23372d60248495b0d4be7a8ef60e193a2d795630b499f0acfaa61715cf82ec8e
+  tree 7cc4305b22bac293a8c3180dd34e6f2daf028628af9b38727ac80feeadbced4c
 }
 
 build() {

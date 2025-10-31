@@ -14,10 +14,10 @@ index 8315a20f..34c6d3e2 100644
          // Next, fall back and try to use pkg-config if its available.
          if windows {
              if try_vcpkg() {
-diff --git a/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs b/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs
-index db930c31..c34aa0e8 100644
---- a/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs
-+++ b/vendor/curl-sys-0.4.82+curl-8.14.1/build.rs
+diff --git a/vendor/curl-sys-0.4.83+curl-8.15.0/build.rs b/vendor/curl-sys-0.4.83+curl-8.15.0/build.rs
+index 433a6c51..1d602c5b 100644
+--- a/vendor/curl-sys-0.4.83+curl-8.15.0/build.rs
++++ b/vendor/curl-sys-0.4.83+curl-8.15.0/build.rs
 @@ -35,6 +35,11 @@ fn main() {
              return println!("cargo:rustc-flags=-l curl");
          }

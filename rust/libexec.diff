@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
-index 40e08361..883dd083 100644
+index 2ece53eb..a4ac51a3 100644
 --- a/src/bootstrap/bootstrap.py
 +++ b/src/bootstrap/bootstrap.py
-@@ -711,7 +711,7 @@ class RustBuild(object):
+@@ -723,7 +723,7 @@ class RustBuild(object):
                  self.fix_bin_or_dylib("{}/bin/rustc".format(bin_root))
                  self.fix_bin_or_dylib("{}/bin/rustdoc".format(bin_root))
                  self.fix_bin_or_dylib(
@@ -12,11 +12,11 @@ index 40e08361..883dd083 100644
                  lib_dir = "{}/lib".format(bin_root)
                  rustlib_bin_dir = "{}/rustlib/{}/bin".format(lib_dir, self.build)
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 5cfaa6a7..478d0883 100644
+index 2453d442..83429476 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
-@@ -440,7 +440,7 @@ impl Step for Rustc {
-                 },
+@@ -490,7 +490,7 @@ impl Step for Rustc {
+                 tool::RustAnalyzerProcMacroSrv::from_compilers(compilers),
                  builder.kind,
              ) {
 -                let dst = image.join("libexec");
@@ -25,23 +25,23 @@ index 5cfaa6a7..478d0883 100644
              }
  
 diff --git a/src/bootstrap/src/core/build_steps/tool.rs b/src/bootstrap/src/core/build_steps/tool.rs
-index f5fa33b9..398e3568 100644
+index dcc4898c..d69e7587 100644
 --- a/src/bootstrap/src/core/build_steps/tool.rs
 +++ b/src/bootstrap/src/core/build_steps/tool.rs
-@@ -1152,7 +1152,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -1124,7 +1124,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
--        let libexec_path = builder.sysroot(self.compiler).join("libexec");
-+        let libexec_path = builder.sysroot(self.compiler).join("bin");
+-        let libexec_path = builder.sysroot(self.compilers.target_compiler).join("libexec");
++        let libexec_path = builder.sysroot(self.compilers.target_compiler).join("bin");
          t!(fs::create_dir_all(&libexec_path));
          builder.copy_link(
              &tool_result.tool_path,
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index 7ec6c62a..6c5be113 100644
+index 2f3c8055..fe68e8e7 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
-@@ -198,7 +198,7 @@ impl Config {
+@@ -200,7 +200,7 @@ impl Config {
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustc"));
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustdoc"));
                  self.fix_bin_or_dylib(

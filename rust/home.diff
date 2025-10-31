@@ -42,25 +42,3 @@ index f5a6a223..fd08f524 100644
              .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "could not find rustup home dir")),
      }
  }
-diff --git a/vendor/home-0.5.9/src/env.rs b/vendor/home-0.5.9/src/env.rs
-index 49fea542..9d5a76ba 100644
---- a/vendor/home-0.5.9/src/env.rs
-+++ b/vendor/home-0.5.9/src/env.rs
-@@ -71,7 +71,7 @@ pub fn cargo_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf>
-             }
-         }
-         _ => home_dir_with_env(env)
--            .map(|p| p.join(".cargo"))
-+            .map(|p| p.join(".cache").join("cargo"))
-             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "could not find cargo home dir")),
-     }
- }
-@@ -100,7 +100,7 @@ pub fn rustup_home_with_cwd_env(env: &dyn Env, cwd: &Path) -> io::Result<PathBuf
-             }
-         }
-         _ => home_dir_with_env(env)
--            .map(|d| d.join(".rustup"))
-+            .map(|d| d.join(".cache").join("rustup"))
-             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "could not find rustup home dir")),
-     }
- }
