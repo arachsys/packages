@@ -9,6 +9,12 @@ check() {
 
   url https://github.com/nghttp2/nghttp2/tags
   match nghttp2 1.68.0 'tags/v([0-9.]+)\.tar'
+
+  url https://github.com/ngtcp2/ngtcp2/tags
+  match ngtcp2 1.17.0 'tags/v([0-9.]+)\.tar'
+
+  url https://github.com/ngtcp2/nghttp3/tags
+  match nghttp3 1.12.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -17,24 +23,40 @@ prepare() {
     https://github.com/rockdaboot/libpsl/releases/download/0.21.5/libpsl-0.21.5.tar.gz
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.68.0/nghttp2-1.68.0.tar.xz
+  unpack -d ngtcp2 \
+    https://github.com/ngtcp2/ngtcp2/releases/download/v1.17.0/ngtcp2-1.17.0.tar.xz
+  unpack -d nghttp3 \
+    https://github.com/ngtcp2/nghttp3/releases/download/v1.12.0/nghttp3-1.12.0.tar.xz
   apply perl.diff
-  tree 867b0ddaae348d1f3433ca1645ecfb2679d41f512ae6d3f9fa99e4dcc1afefc3
+  tree 8633a45da817b169902b3acd7c7cbaff31b02105387b9f8b3cd04879d74ea4b3
 }
 
 build() {
   cd /src/libpsl
-  auto-config --disable-shared --enable-builtin
-  make
+  auto-config --prefix=/tmp --disable-shared --enable-builtin --with-pic
+  make install
 
   cd /src/nghttp2
-  auto-config --disable-shared --enable-lib-only --with-pic
-  make
+  auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic
+  make install
+
+  cd /src/nghttp3
+  auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic
+  make install
+
+  cd /src/ngtcp2
+  auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic \
+    LIBNGHTTP3_CFLAGS=-I/tmp/lib/includes LIBNGHTTP3_LIBS=-L/tmp/lib \
+    OPENSSL_CFLAGS=-I/lib/include OPENSSL_LIBS=-lssl
+  make install
 
   cd /src
-  PATH_SEPARATOR=: auto-config --disable-docs --disable-manual --enable-ipv6 \
-    --with-nghttp2 --with-openssl --with-ca-bundle=/etc/ssl/cert.pem \
-    CPPFLAGS="-I/src/nghttp2/lib/includes -I/src/libpsl/include" \
-    LDFLAGS="-L/src/nghttp2/lib/.libs -L/src/libpsl/src/.libs"
+  auto-config --disable-docs --disable-manual --enable-ipv6 \
+    --without-ca-bundle --without-ca-path --with-ca-fallback \
+    --with-nghttp2 --with-nghttp3 --with-ngtcp2 --with-openssl \
+    CPPFLAGS='-DUSE_NGHTTP3=1 -DUSE_NGTCP2=1 -I/tmp/lib/include' \
+    LDFLAGS=-L/tmp/lib LIBS='-lnghttp3 -lngtcp2 -lngtcp2_crypto_libressl' \
+    PATH_SEPARATOR=: USE_NGHTTP3=1 USE_NGTCP2=1
   make install DESTDIR=/dst
-  rm -f /dst/bin/curl-config /dst/lib/aclocal/libcurl.m4
+  rm -f /dst/bin/curl-config /dst/bin/wcurl /dst/lib/aclocal/libcurl.m4
 }
