@@ -38,7 +38,7 @@ apply() {
 }
 
 curl() {
-  COLUMNS=64 command curl -A pkg/1.0 -# --compressed "$@"
+  COLUMNS=64 command curl -A pkg/1.0 -# --compressed --http3 "$@"
 }
 
 die() {
