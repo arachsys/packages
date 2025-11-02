@@ -11,8 +11,8 @@ check() {
   url https://ftpmirror.gnu.org/gnu/automake/
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
 
-  url https://pkgconfig.freedesktop.org/releases/
-  match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
+  url https://distfiles.ariadne.space/pkgconf/
+  match pkgconf 2.5.1 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -24,29 +24,24 @@ prepare() {
   unpack -d tools/automake \
     https://ftpmirror.gnu.org/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/pkgconf \
-    https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
+    https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
 
   apply cosmetic.diff
   apply prune.diff
-  tree 84926569e2a9d0209b6332ebdfc3d00315a43f2c1d6b07339ef856164c7aeaa7
+  tree f1966ea14c45a4a2e979c16adc13bc4b8dfde06c2f18131ec95582b3c38e6c76
 }
 
 build() {
-  export PATH=$PATH:/src/tools/bin
+  export PATH=$PATH:/tmp/bin
 
-  cd /src/tools/autoconf
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools/automake
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools
-  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' bin/*
-  pkgconf/configure --version | head -n 1 | while read _ _ VERSION; do
-    sed "s/@VERSION@/$VERSION/g" pkgconf/pkg.m4.in >lib/aclocal/pkg.m4
+  for TOOL in autoconf automake pkgconf; do
+    cd /src/tools/$TOOL
+    auto-config --prefix=/tmp
+    make install
   done
+
+  ln -s pkgconf /tmp/bin/pkg-config
+  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' /tmp/bin/*
 
   cd /src
   bash bootstrap.sh

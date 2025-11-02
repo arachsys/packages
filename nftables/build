@@ -22,19 +22,19 @@ prepare() {
 
 build() {
   cd /src/libmnl
-  /src/libmnl/configure --prefix=/src/libs --disable-shared
+  /src/libmnl/configure --prefix=/tmp --disable-shared
   make install
 
   cd /src/libnftnl
-  /src/libnftnl/configure --prefix=/src/libs --disable-shared \
-    LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl"
+  /src/libnftnl/configure --prefix=/tmp --disable-shared \
+    LIBMNL_CFLAGS=-I/tmp/include LIBMNL_LIBS="-L/tmp/lib -lmnl"
   make install
 
   cd /src
   sed -i '/^SUBDIRS =/s/ \(examples\|files\)//g' Makefile.in
   auto-config --disable-shared --with-cli=readline --with-mini-gmp \
-    LIBMNL_CFLAGS=-I/src/libs/include LIBMNL_LIBS="-L/src/libs/lib -lmnl" \
-    LIBNFTNL_CFLAGS=-I/src/libs/include LIBNFTNL_LIBS="-L/src/libs/lib -lnftnl"
+    LIBMNL_CFLAGS=-I/tmp/include LIBMNL_LIBS="-L/tmp/lib -lmnl" \
+    LIBNFTNL_CFLAGS=-I/tmp/include LIBNFTNL_LIBS="-L/tmp/lib -lnftnl"
   make install DESTDIR=/dst
   rm -f -r /dst/lib/{include,lib*.a,lib*.la}
 }

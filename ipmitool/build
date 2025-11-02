@@ -13,8 +13,8 @@ check() {
   url https://ftpmirror.gnu.org/gnu/libtool/
   match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
 
-  url https://pkgconfig.freedesktop.org/releases/
-  match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
+  url https://distfiles.ariadne.space/pkgconf/
+  match pkgconf 2.5.1 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -31,33 +31,24 @@ prepare() {
   unpack -d tools/libtool \
     https://ftpmirror.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz
   unpack -d tools/pkgconf \
-    https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
+    https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
 
   apply console.diff
   apply lanplus.diff
-  tree f5ec6362bde6e2409eaa2de85f8e82a8f0c718411c5f27a9eff2b6ecd842d5f6
+  tree 2713daa2bc8efb763f67dd382854c71a2d018394410a321b8933053e7f57c102
 }
 
 build() {
-  export PATH=$PATH:/src/tools/bin
+  export PATH=$PATH:/tmp/bin
 
-  cd /src/tools/autoconf
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools/automake
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools/libtool
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools
-  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' bin/*
-  pkgconf/configure --version | head -n 1 | while read _ _ VERSION; do
-    sed "s/@VERSION@/$VERSION/g" pkgconf/pkg.m4.in >lib/aclocal/pkg.m4
+  for TOOL in autoconf automake libtool pkgconf; do
+    cd /src/tools/$TOOL
+    auto-config --prefix=/tmp
+    make install
   done
+
+  ln -s pkgconf /tmp/bin/pkg-config
+  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' /tmp/bin/*
 
   cd /src
   bash bootstrap
