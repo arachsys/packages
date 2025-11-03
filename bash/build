@@ -1,10 +1,10 @@
 check() {
-  url https://ftpmirror.gnu.org/gnu/bash/
+  url https://ftp.nluug.nl/pub/gnu/bash/
   match version 5.3 'bash-([0-9.]+)\.tar\.gz'
 }
 
 prepare() {
-  unpack https://ftpmirror.gnu.org/gnu/bash/bash-5.3.tar.gz
+  unpack https://ftp.nluug.nl/pub/gnu/bash/bash-5.3.tar.gz
   apply config.diff
   apply paths.diff
   apply prompt.diff

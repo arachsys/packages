@@ -1,10 +1,10 @@
 check() {
-  url https://ftpmirror.gnu.org/gnu/make/
+  url https://ftp.nluug.nl/pub/gnu/make/
   match version 4.4.1 'make-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftpmirror.gnu.org/gnu/make/make-4.4.1.tar.gz
+  unpack https://ftp.nluug.nl/pub/gnu/make/make-4.4.1.tar.gz
   apply paths.diff
   tree 3a25b31af4220a14f260a812ab504d549b931d61f2b3136b92d7f35d01cbb3b9
 }

@@ -1,10 +1,10 @@
 check() {
-  url https://ftpmirror.gnu.org/gnu/grep/
+  url https://ftp.nluug.nl/pub/gnu/grep/
   match version 3.12 'grep-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftpmirror.gnu.org/gnu/grep/grep-3.12.tar.xz
+  unpack https://ftp.nluug.nl/pub/gnu/grep/grep-3.12.tar.xz
   tree 06827e6bf3f76b4950133fca1252e5586d78e9e2aa8c6716dadfa566a24d7369
 }
 

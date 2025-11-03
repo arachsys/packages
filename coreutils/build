@@ -1,10 +1,10 @@
 check() {
-  url https://ftpmirror.gnu.org/gnu/coreutils/
+  url https://ftp.nluug.nl/pub/gnu/coreutils/
   match version 9.8 'coreutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftpmirror.gnu.org/gnu/coreutils/coreutils-9.8.tar.xz
+  unpack https://ftp.nluug.nl/pub/gnu/coreutils/coreutils-9.8.tar.xz
   apply fmt.diff
   tree d19e47f86fd3d6b689fd2d0a36bc2a36022285117a4d98ca638862c468037260
 }

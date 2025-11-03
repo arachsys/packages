@@ -1,10 +1,10 @@
 check() {
-  url https://ftpmirror.gnu.org/gnu/diffutils/
+  url https://ftp.nluug.nl/pub/gnu/diffutils/
   match version 3.12 'diffutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftpmirror.gnu.org/gnu/diffutils/diffutils-3.12.tar.xz
+  unpack https://ftp.nluug.nl/pub/gnu/diffutils/diffutils-3.12.tar.xz
   tree a6f74914ad0cc9af08ad71c054fa323a212a741826d6024c5329acac9fa13126
 }
 

@@ -1,10 +1,10 @@
 check() {
-  url https://ftpmirror.gnu.org/gnu/ncurses/
+  url https://ftp.nluug.nl/pub/gnu/ncurses/
   match version 6.5 'ncurses-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftpmirror.gnu.org/gnu/ncurses/ncurses-6.5.tar.gz
+  unpack https://ftp.nluug.nl/pub/gnu/ncurses/ncurses-6.5.tar.gz
   sed -i 's_/.terminfo_/.config/terminfo_g' include/{term_entry,tic}.h
   sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src
   tree e0c0912b340affa8bc9b945301b230ff5ea0b33843fdc83a95c97e6d90a71511

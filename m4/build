@@ -1,10 +1,10 @@
 check() {
-  url https://ftpmirror.gnu.org/gnu/m4/
+  url https://ftp.nluug.nl/pub/gnu/m4/
   match version 1.4.20 'm4-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftpmirror.gnu.org/gnu/m4/m4-1.4.20.tar.xz
+  unpack https://ftp.nluug.nl/pub/gnu/m4/m4-1.4.20.tar.xz
   tree b811f9a2ae914bb040a3ff037efe58cce85cbd1c5af1f4284bdcf4706116b072
 }
 
