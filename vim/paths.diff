@@ -182,3 +182,16 @@ index 626823c1..e7e0e490 100644
  #endif
  				(char_u *)0L} SCTX_INIT},
      {"perldll",     NULL,   P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,
+diff --git a/src/os_unix.h b/src/os_unix.h
+index 2125ae7b..e10c0a40 100644
+--- a/src/os_unix.h
++++ b/src/os_unix.h
+@@ -296,7 +296,7 @@ typedef struct dsc$descriptor   DESC;
+ #  ifdef VMS
+ #   define VIMINFO_FILE  "sys$login:.viminfo"
+ #  else
+-#   define VIMINFO_FILE "$HOME/.viminfo"
++#   define VIMINFO_FILE "$HOME/.cache/vim/viminfo"
+ #  endif
+ # endif
+ # if !defined(VIMINFO_FILE2) && defined(VMS)
