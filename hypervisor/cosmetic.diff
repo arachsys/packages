@@ -178,7 +178,7 @@ index 803ffc7e..2e91540b 100644
                          ));
                      }
 diff --git a/src/main.rs b/src/main.rs
-index 7bdcbfac..ba6f90d7 100644
+index 32dad8df..b5fbe2e5 100644
 --- a/src/main.rs
 +++ b/src/main.rs
 @@ -12,7 +12,7 @@ use std::sync::Mutex;
@@ -189,7 +189,7 @@ index 7bdcbfac..ba6f90d7 100644
 +use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ColorChoice};
  use event_monitor::event;
  use libc::EFD_NONBLOCK;
- use log::{LevelFilter, error, warn};
+ use log::{LevelFilter, error, info, warn};
 @@ -52,7 +52,7 @@ enum Error {
      CreateDebugEventFd(#[source] std::io::Error),
      #[error("Failed to create exit EventFd")]
@@ -199,7 +199,7 @@ index 7bdcbfac..ba6f90d7 100644
      CreateHypervisor(#[source] hypervisor::HypervisorError),
      #[error("Failed to start the VMM thread")]
      StartVmmThread(#[source] vmm::Error),
-@@ -191,7 +191,7 @@ fn get_cli_options_sorted(
+@@ -187,7 +187,7 @@ fn get_cli_options_sorted(
      [
          Arg::new("api-socket")
              .long("api-socket")
@@ -208,7 +208,7 @@ index 7bdcbfac..ba6f90d7 100644
              .num_args(1)
              .group("vmm-config"),
          Arg::new("balloon")
-@@ -206,14 +206,14 @@ fn get_cli_options_sorted(
+@@ -202,14 +202,14 @@ fn get_cli_options_sorted(
              .group("vm-config"), Arg::new("console")
              .long("console")
              .help(
@@ -225,7 +225,7 @@ index 7bdcbfac..ba6f90d7 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -224,13 +224,13 @@ fn get_cli_options_sorted(
+@@ -220,13 +220,13 @@ fn get_cli_options_sorted(
          #[cfg(target_arch = "x86_64")]
          Arg::new("debug-console")
              .long("debug-console")
@@ -241,7 +241,7 @@ index 7bdcbfac..ba6f90d7 100644
              .num_args(1)
              .group("vmm-config"),
          #[cfg(feature = "dbus_api")]
-@@ -258,12 +258,12 @@ fn get_cli_options_sorted(
+@@ -254,12 +254,12 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("event-monitor")
              .long("event-monitor")
@@ -256,7 +256,7 @@ index 7bdcbfac..ba6f90d7 100644
              .num_args(1)
              .group("vm-payload"),
          Arg::new("fs")
-@@ -280,13 +280,13 @@ fn get_cli_options_sorted(
+@@ -276,13 +276,13 @@ fn get_cli_options_sorted(
          #[cfg(feature = "guest_debug")]
          Arg::new("gdb")
              .long("gdb")
@@ -272,7 +272,7 @@ index 7bdcbfac..ba6f90d7 100644
              .num_args(1)
              .group("vm-payload"),
          #[cfg(feature = "sev_snp")]
-@@ -308,17 +308,14 @@ fn get_cli_options_sorted(
+@@ -304,17 +304,14 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("kernel")
              .long("kernel")
@@ -292,7 +292,7 @@ index 7bdcbfac..ba6f90d7 100644
              )
              .action(ArgAction::SetTrue)
              .default_value("false")
-@@ -330,33 +327,31 @@ fn get_cli_options_sorted(
+@@ -326,33 +323,31 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("log-file")
              .long("log-file")
@@ -331,7 +331,7 @@ index 7bdcbfac..ba6f90d7 100644
              )
              .num_args(1..)
              .group("vm-config"),
-@@ -378,7 +373,7 @@ fn get_cli_options_sorted(
+@@ -374,7 +369,7 @@ fn get_cli_options_sorted(
          Arg::new("platform")
              .long("platform")
              .help(
@@ -340,7 +340,7 @@ index 7bdcbfac..ba6f90d7 100644
              )
              .num_args(1)
              .group("vm-config"),
-@@ -413,7 +408,7 @@ fn get_cli_options_sorted(
+@@ -409,7 +404,7 @@ fn get_cli_options_sorted(
          Arg::new("rng")
              .long("rng")
              .help(
@@ -349,7 +349,7 @@ index 7bdcbfac..ba6f90d7 100644
              )
              .default_value(default_rng)
              .group("vm-config"),
-@@ -424,7 +419,7 @@ fn get_cli_options_sorted(
+@@ -420,7 +415,7 @@ fn get_cli_options_sorted(
              .default_value("true"),
          Arg::new("serial")
              .long("serial")
@@ -358,7 +358,7 @@ index 7bdcbfac..ba6f90d7 100644
              .default_value("null")
              .group("vm-config"),
          Arg::new("tpm")
-@@ -439,8 +434,9 @@ fn get_cli_options_sorted(
+@@ -435,8 +430,9 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("v")
              .short('v')
@@ -369,7 +369,7 @@ index 7bdcbfac..ba6f90d7 100644
              .group("logging"),
          Arg::new("vdpa")
              .long("vdpa")
-@@ -484,7 +480,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -480,7 +476,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          // 'BUILD_VERSION' is set by the build script 'build.rs' at
          // compile time
          .author(env!("CARGO_PKG_AUTHORS"))
@@ -379,7 +379,7 @@ index 7bdcbfac..ba6f90d7 100644
          .arg_required_else_help(true)
          .groups(groups)
          .args(args)
-@@ -561,11 +558,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
+@@ -557,11 +554,7 @@ fn start_vmm(cmd_arguments: ArgMatches) -> Result<Option<String>, Error> {
          // handler safe functions (writing to stderr) and manipulating signals.
          unsafe {
              signal_hook::low_level::register(signal_hook::consts::SIGSYS, || {
@@ -393,10 +393,10 @@ index 7bdcbfac..ba6f90d7 100644
              })
          }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 366b369e..6a75e701 100644
+index 6ecdd3c8..c90d2b71 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -661,8 +661,8 @@ impl CpusConfig {
+@@ -665,8 +665,8 @@ impl CpusConfig {
  }
  
  impl PciSegmentConfig {
@@ -407,7 +407,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -978,10 +978,10 @@ impl MemoryConfig {
+@@ -982,10 +982,10 @@ impl MemoryConfig {
  }
  
  impl RateLimiterGroupConfig {
@@ -421,7 +421,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1065,8 +1065,8 @@ impl RateLimiterGroupConfig {
+@@ -1069,8 +1069,8 @@ impl RateLimiterGroupConfig {
  }
  
  impl DiskConfig {
@@ -432,7 +432,7 @@ index 366b369e..6a75e701 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1292,13 +1292,13 @@ impl FromStr for VhostMode {
+@@ -1296,13 +1296,13 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
@@ -449,7 +449,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1541,8 +1541,8 @@ impl RngConfig {
+@@ -1548,8 +1548,8 @@ impl RngConfig {
  }
  
  impl BalloonConfig {
@@ -460,7 +460,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1578,9 +1578,9 @@ impl BalloonConfig {
+@@ -1585,9 +1585,9 @@ impl BalloonConfig {
  }
  
  impl FsConfig {
@@ -473,7 +473,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1650,9 +1650,9 @@ impl FsConfig {
+@@ -1657,9 +1657,9 @@ impl FsConfig {
  
  #[cfg(feature = "fw_cfg")]
  impl FwCfgConfig {
@@ -486,7 +486,7 @@ index 366b369e..6a75e701 100644
      pub fn parse(fw_cfg_config: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
          parser
-@@ -1745,9 +1745,9 @@ impl FwCfgItem {
+@@ -1752,9 +1752,9 @@ impl FwCfgItem {
  }
  
  impl PmemConfig {
@@ -499,7 +499,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1917,7 +1917,7 @@ impl DebugConsoleConfig {
+@@ -1924,7 +1924,7 @@ impl DebugConsoleConfig {
  }
  
  impl DeviceConfig {
@@ -508,7 +508,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1975,7 +1975,7 @@ impl DeviceConfig {
+@@ -1982,7 +1982,7 @@ impl DeviceConfig {
  
  impl UserDeviceConfig {
      pub const SYNTAX: &'static str =
@@ -517,7 +517,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2019,9 +2019,9 @@ impl UserDeviceConfig {
+@@ -2026,9 +2026,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -530,7 +530,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2080,8 +2080,8 @@ impl VdpaConfig {
+@@ -2087,8 +2087,8 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -541,7 +541,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2140,10 +2140,10 @@ impl VsockConfig {
+@@ -2147,10 +2147,10 @@ impl VsockConfig {
  }
  
  impl NumaConfig {
@@ -555,7 +555,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2251,13 +2251,9 @@ pub struct RestoreConfig {
+@@ -2246,13 +2246,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
@@ -572,7 +572,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2340,8 +2336,8 @@ impl RestoreConfig {
+@@ -2335,8 +2331,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {
@@ -583,7 +583,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2356,8 +2352,8 @@ impl TpmConfig {
+@@ -2351,8 +2347,8 @@ impl TpmConfig {
  }
  
  impl LandlockConfig {
@@ -594,7 +594,7 @@ index 366b369e..6a75e701 100644
  
      pub fn parse(landlock_rule: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2396,10 +2392,9 @@ impl LandlockConfig {
+@@ -2391,10 +2387,9 @@ impl LandlockConfig {
  
  #[cfg(feature = "ivshmem")]
  impl IvshmemConfig {

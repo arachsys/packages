@@ -1,94 +1,28 @@
-diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 6a75e701..96c2e09b 100644
---- a/vmm/src/config.rs
-+++ b/vmm/src/config.rs
-@@ -1333,12 +1333,10 @@ impl NetConfig {
-         let tap = parser.get("tap");
-         let ip = parser
-             .convert("ip")
--            .map_err(Error::ParseNetwork)?
--            .unwrap_or_else(default_netconfig_ip);
-+            .map_err(Error::ParseNetwork)?;
-         let mask = parser
-             .convert("mask")
--            .map_err(Error::ParseNetwork)?
--            .unwrap_or_else(default_netconfig_mask);
-+            .map_err(Error::ParseNetwork)?;
-         let mac = parser
-             .convert("mac")
-             .map_err(Error::ParseNetwork)?
-diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index 40a3d27c..7a5adb1c 100644
---- a/vmm/src/device_manager.rs
-+++ b/vmm/src/device_manager.rs
-@@ -2904,8 +2904,8 @@ impl DeviceManager {
-                     virtio_devices::Net::new(
-                         id.clone(),
-                         Some(tap_if_name),
--                        Some(net_cfg.ip),
--                        Some(net_cfg.mask),
-+                        net_cfg.ip,
-+                        net_cfg.mask,
-                         Some(net_cfg.mac),
-                         &mut net_cfg.host_mac,
-                         net_cfg.mtu,
-@@ -2955,8 +2955,8 @@ impl DeviceManager {
-                     virtio_devices::Net::new(
-                         id.clone(),
-                         None,
--                        Some(net_cfg.ip),
--                        Some(net_cfg.mask),
-+                        net_cfg.ip,
-+                        net_cfg.mask,
-                         Some(net_cfg.mac),
-                         &mut net_cfg.host_mac,
-                         net_cfg.mtu,
-diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index fbf63c24..5828dec3 100644
---- a/vmm/src/vm_config.rs
-+++ b/vmm/src/vm_config.rs
-@@ -2,7 +2,7 @@
- //
- // SPDX-License-Identifier: Apache-2.0
- //
--use std::net::{IpAddr, Ipv4Addr};
-+use std::net::IpAddr;
- use std::path::{Path, PathBuf};
- #[cfg(feature = "fw_cfg")]
- use std::str::FromStr;
-@@ -303,10 +303,10 @@ pub fn default_diskconfig_queue_size() -> u16 {
- pub struct NetConfig {
-     #[serde(default = "default_netconfig_tap")]
-     pub tap: Option<String>,
--    #[serde(default = "default_netconfig_ip")]
--    pub ip: IpAddr,
--    #[serde(default = "default_netconfig_mask")]
--    pub mask: IpAddr,
-+    #[serde(default)]
-+    pub ip: Option<IpAddr>,
-+    #[serde(default)]
-+    pub mask: Option<IpAddr>,
-     #[serde(default = "default_netconfig_mac")]
-     pub mac: MacAddr,
-     #[serde(default)]
-@@ -352,20 +352,6 @@ pub fn default_netconfig_tap() -> Option<String> {
-     None
- }
- 
--pub fn default_netconfig_ip() -> IpAddr {
--    warn!(
--        "Deprecation warning: No IP address provided. A default IP address is assigned. This behavior will be deprecated soon."
--    );
--    IpAddr::V4(Ipv4Addr::new(192, 168, 249, 1))
--}
--
--pub fn default_netconfig_mask() -> IpAddr {
--    warn!(
--        "Deprecation warning: No network mask provided. A default network mask is assigned. This behavior will be deprecated soon."
--    );
--    IpAddr::V4(Ipv4Addr::new(255, 255, 255, 0))
--}
--
- pub fn default_netconfig_mac() -> MacAddr {
-     MacAddr::local_random()
- }
+diff --git a/net_util/src/open_tap.rs b/net_util/src/open_tap.rs
+index 61e763ba..e9a7dee3 100644
+--- a/net_util/src/open_tap.rs
++++ b/net_util/src/open_tap.rs
+@@ -79,16 +79,16 @@ fn open_tap_rx_q_0(
+         None => Tap::new(num_rx_q).map_err(Error::TapOpen)?,
+     };
+     // Don't overwrite ip configuration of existing interfaces:
+-    if !tap_exists {
+-        if let Some(ip) = ip_addr {
++    if let Some(ip) = ip_addr {
++        if !tap_exists {
+             tap.set_ip_addr(ip, netmask)
+                 .map_err(Error::TapSetIpNetmask)?;
++        } else {
++            warn!(
++                "Tap {} already exists. IP configuration will not be overwritten.",
++                if_name.unwrap_or_default()
++            );
+         }
+-    } else {
+-        warn!(
+-            "Tap {} already exists. IP configuration will not be overwritten.",
+-            if_name.unwrap_or_default()
+-        );
+     }
+     if let Some(mac) = host_mac {
+         tap.set_mac_addr(*mac).map_err(Error::TapSetMac)?

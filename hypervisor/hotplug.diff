@@ -1,5 +1,5 @@
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index 7a581307..fbf63c24 100644
+index 70c35790..a9d2671c 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
 @@ -167,8 +167,8 @@ impl ApplyLandlock for MemoryZoneConfig {
