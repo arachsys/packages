@@ -7,7 +7,8 @@ check() {
 
 prepare() {
   unpack https://ftp.osuosl.org/pub/mutt/mutt-2.2.15.tar.gz
-  tree 1e9b2467d4d3c7d45e2b41267c949518c0e1d599d6f51c387ac12fed101b12bc
+  apply paths.diff
+  tree 279f4e73c9c106bce1641b15d0ce429bfacd8f7e7ddd465ac32bcab970685f46
 }
 
 build() {
