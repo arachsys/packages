@@ -15,10 +15,10 @@ action() {
     die "Cannot unpack sources: $2 already exists"
   fi
 
-  PKG=$(locate "$PKGDIR" "$1")
+  PKG=$(locate "$1")
   mkdir -p "$CACHEDIR" "$IMGDIR"
 
-  ROOT=$(mktemp -d "$IMGDIR/${1##*/}.XXXXXX")
+  ROOT=$(mktemp -d "$IMGDIR/root.XXXXXX")
   trap 'rm -f -r --one-file-system "$ROOT"' EXIT
   chmod 0755 "$ROOT"
 
@@ -28,11 +28,11 @@ action() {
 
   populate "$ROOT" build
   mkdir -p "$ROOT/pkg"
-  mapfile -t REQUIRED < <(sandbox pkg requirements "${PKG##*/}" "${@:3}")
+  mapfile -t REQUIRED < <(sandbox pkg requirements "$1" "${@:3}")
   populate "$ROOT" "${REQUIRED[@]}"
 
   mkdir -p "$ROOT/src" "$ROOT/var/cache"
-  sandbox pkg prepare "${PKG##*/}" "${@:3}" $FORCE
+  sandbox pkg prepare "$1" "${@:3}" $FORCE
 
   if [[ $2 != ?(-) ]]; then
     mv "$ROOT/src" "$2"

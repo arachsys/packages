@@ -143,12 +143,12 @@ hashtree() {
 }
 
 locate() {
-  if [[ $2 == ?(.|..)/* ]] && [[ -f $2/build ]]; then
-    printf '%s\n' "${2%%*(/)}"
-  elif [[ $2 != ?(.|..)/* ]] && [[ -f $1/$2/build ]]; then
-    printf '%s\n' "$1/${2%%*(/)}"
+  if [[ $1 == ?(.|..)/* ]] || [[ $1 == *//* ]] || [[ $1 == */ ]]; then
+    die "Invalid package name: $1"
+  elif [[ ! -f $PKGDIR/$1/build ]]; then
+    die "Package $1 not found"
   else
-    die "Package ${2%%*(/)} not found"
+    printf '%s\n' "$PKGDIR/$1"
   fi
 }
 
