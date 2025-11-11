@@ -1,0 +1,36 @@
+enable rpaths
+require perl
+
+check() {
+  url https://github.com/dovecot/core/tags
+  match version 2.4.2 'tags/([0-9.]+)\.tar'
+
+  url https://github.com/dovecot/pigeonhole/tags
+  match pigeonhole 2.4.2 'tags/([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack https://dovecot.org/releases/2.4/dovecot-2.4.2.tar.gz
+  unpack -d pigeonhole \
+    https://pigeonhole.dovecot.org/releases/2.4/dovecot-pigeonhole-2.4.2.tar.gz
+  apply paths.diff
+  apply users.diff
+  tree c9c9cc790df29473a12b5e46ef326f8177fade9ede2ffb6c2c22513463387ce2
+}
+
+build() {
+  auto-config --with-moduledir=/lib/dovecot/modules \
+    --with-rundir=/run/dovecot {ZLIB,ZSTD}_CFLAGS=-I/lib/include \
+    ZLIB_LIBS=-lz ZSTD_LIBS=-lzstd
+  make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
+    pkglibdir=/lib/dovecot/shared
+
+  cd /src/pigeonhole
+  auto-config --with-dovecot=/src --with-moduledir=/lib/dovecot/modules \
+    --with-rundir=/run/dovecot
+  make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
+    pkglibdir=/lib/dovecot/shared
+
+  rm -f -r /dst/bin/dovecot-sysreport /dst/bin/sieve-dump /dst/lib/aclocal \
+    /dst/lib/dovecot/**/{*.a,decode2test.sh} /dst/lib/include
+}
