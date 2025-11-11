@@ -1,0 +1,22 @@
+check() {
+  url https://www.ohse.de/uwe/uschedule/install.html
+  match version 0.7.1 'uschedule-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack -p 3 http://www.ohse.de/uwe/uschedule/uschedule-0.7.1.tar.gz
+  apply init.diff
+  apply regparm.diff
+  apply statedir.diff
+  apply tidy.diff
+  tree baed65647e80fd505a276650cc26b5a884e400178a89a55251778bb913849f0c
+}
+
+build() {
+  echo cc >src/conf-cc
+  make all
+  install -s -t /dst/bin -D command/uschedule!(conf|runtimelimit)
+  install -m 0644 -t /dst/lib/man/man1 -D doc/uschedule!(conf|runtimelimit).1
+  install -m 0644 -t /dst/lib/man/man8 -D doc/uschedule!(conf|runtimelimit).8
+  cp /pkg/uscheduleinit /dst/bin
+}
