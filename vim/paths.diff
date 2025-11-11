@@ -1,0 +1,197 @@
+diff --git a/runtime/autoload/dist/ft.vim b/runtime/autoload/dist/ft.vim
+index b0609727..5b6a5c0b 100644
+--- a/runtime/autoload/dist/ft.vim
++++ b/runtime/autoload/dist/ft.vim
+@@ -1100,7 +1100,7 @@ enddef
+ var ft_rules_udev_rules_pattern = '^\s*\cudev_rules\s*=\s*"\([^"]\{-1,}\)/*".*'
+ export def FTRules()
+   var path = expand('<amatch>:p')
+-  if path =~ '/\(etc/udev/\%(rules\.d/\)\=.*\.rules\|\%(usr/\)\=lib/udev/\%(rules\.d/\)\=.*\.rules\)$'
++  if path =~ '/\(etc/udev/\%(rules\.d/\)\=.*\.rules\|lib/udev/\%(rules\.d/\)\=.*\.rules\)$'
+     setf udevrules
+     return
+   endif
+@@ -1108,7 +1108,7 @@ export def FTRules()
+     setf conf  # Better than hog
+     return
+   endif
+-  if path =~ '^/\(etc\|usr/share\)/polkit-1/rules\.d'
++  if path =~ '^/\(etc\|lib\)/polkit-1/rules\.d'
+     setf javascript
+     return
+   endif
+diff --git a/runtime/autoload/dist/script.vim b/runtime/autoload/dist/script.vim
+index 5fb45ccc..38d2901f 100644
+--- a/runtime/autoload/dist/script.vim
++++ b/runtime/autoload/dist/script.vim
+@@ -22,8 +22,8 @@ enddef
+ def DetectFromHashBang(firstline: string)
+   var line1 = firstline
+ 
+-  # Check for a line like "#!/usr/bin/env {options} bash".  Turn it into
+-  # "#!/usr/bin/bash" to make matching easier.
++  # Check for a line like "#!/bin/env {options} bash".  Turn it into
++  # "#!/bin/bash" to make matching easier.
+   # Recognize only a few {options} that are commonly used.
+   if line1 =~ '^#!\s*\S*\<env\s'
+     line1 = substitute(line1, '\s\zs--split-string[ \t=]', '', '')
+@@ -35,9 +35,9 @@ def DetectFromHashBang(firstline: string)
+   # Get the program name.
+   # Only accept spaces in PC style paths: "#!c:/program files/perl [args]".
+   # If the word env is used, use the first word after the space:
+-  # "#!/usr/bin/env perl [path/args]"
++  # "#!/bin/env perl [path/args]"
+   # If there is no path use the first word: "#!perl [path/args]".
+-  # Otherwise get the last word after a slash: "#!/usr/bin/perl [path/args]".
++  # Otherwise get the last word after a slash: "#!/bin/perl [path/args]".
+   var name: string
+   if line1 =~ '^#!\s*\a:[/\\]'
+     name = substitute(line1, '^#!.*[/\\]\(\i\+\).*', '\1', '')
+diff --git a/runtime/filetype.vim b/runtime/filetype.vim
+index ede8dd47..928e6fe4 100644
+--- a/runtime/filetype.vim
++++ b/runtime/filetype.vim
+@@ -137,7 +137,7 @@ au BufNewFile,BufRead [mM]akefile.am,GNUmakefile.am	setf automake
+ au BufNewFile,BufRead *.am			setf elf
+ 
+ " ALSA configuration
+-au BufNewFile,BufRead .asoundrc,*/usr/share/alsa/alsa.conf,*/etc/asound.conf setf alsaconf
++au BufNewFile,BufRead .asoundrc,*/lib/alsa/alsa.conf,*/etc/asound.conf setf alsaconf
+ 
+ " Arc Macro Language
+ au BufNewFile,BufRead *.aml			setf aml
+@@ -1025,7 +1025,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
+ " GPG
+ au BufNewFile,BufRead */.gnupg/options		setf gpg
+ au BufNewFile,BufRead */.gnupg/gpg.conf		setf gpg
+-au BufNewFile,BufRead */usr/*/gnupg/options.skel setf gpg
++au BufNewFile,BufRead */lib/gnupg/options.skel setf gpg
+ if !empty($GNUPGHOME)
+   au BufNewFile,BufRead $GNUPGHOME/options	setf gpg
+   au BufNewFile,BufRead $GNUPGHOME/gpg.conf	setf gpg
+@@ -2795,8 +2795,8 @@ au BufNewFile,BufRead *.uc			setf uc
+ au BufNewFile,BufRead */etc/updatedb.conf	setf updatedb
+ 
+ " Upstart (init(8)) config files
+-au BufNewFile,BufRead */usr/share/upstart/*.conf	       setf upstart
+-au BufNewFile,BufRead */usr/share/upstart/*.override	       setf upstart
++au BufNewFile,BufRead */lib/upstart/*.conf	       setf upstart
++au BufNewFile,BufRead */lib/upstart/*.override	       setf upstart
+ au BufNewFile,BufRead */etc/init/*.conf,*/etc/init/*.override  setf upstart
+ au BufNewFile,BufRead */.init/*.conf,*/.init/*.override	       setf upstart
+ au BufNewFile,BufRead */.config/upstart/*.conf		       setf upstart
+@@ -3277,7 +3277,7 @@ au BufNewFile,BufRead neomuttrc*,Neomuttrc*		call s:StarSetf('neomuttrc')
+ au BufNewFile,BufRead nfs.conf,nfsmount.conf		setf dosini
+ 
+ " Nginx
+-au BufNewFile,BufRead */etc/nginx/*,*/usr/local/nginx/conf/*	call s:StarSetf('nginx')
++au BufNewFile,BufRead */etc/nginx/*,	call s:StarSetf('nginx')
+ 
+ " Nroff macros
+ au BufNewFile,BufRead tmac.*			call s:StarSetf('nroff')
+diff --git a/runtime/ftplugin/debchangelog.vim b/runtime/ftplugin/debchangelog.vim
+index aa657a9b..80c9b32b 100644
+--- a/runtime/ftplugin/debchangelog.vim
++++ b/runtime/ftplugin/debchangelog.vim
+@@ -358,12 +358,12 @@ except ImportError:
+     vim.command('echoerr \'python-launchpadlib >= 1.5.4 needs to be installed to use Launchpad bug completion\'')
+ EOF
+     else
+-      if ! filereadable('/usr/sbin/apt-listbugs')
++      if ! filereadable('/bin/apt-listbugs')
+         echoerr 'apt-listbugs not found, you should install it to use Closes bug completion'
+         return
+       endif
+       let pkgsrc = DebGetPkgSrcName(line('.'))
+-      let listbugs_output = system('/usr/sbin/apt-listbugs -s ' . g:debchangelog_listbugs_severities . ' list ' . pkgsrc . ' | grep "^ #" 2> /dev/null')
++      let listbugs_output = system('/bin/apt-listbugs -s ' . g:debchangelog_listbugs_severities . ' list ' . pkgsrc . ' | grep "^ #" 2> /dev/null')
+       let bug_lines = split(listbugs_output, '\n')
+     endif
+     let completions = []
+diff --git a/runtime/ftplugin/j.vim b/runtime/ftplugin/j.vim
+index 8335ea06..f8a13ba7 100644
+--- a/runtime/ftplugin/j.vim
++++ b/runtime/ftplugin/j.vim
+@@ -18,7 +18,7 @@ setlocal comments=:NB.
+ setlocal commentstring=NB.\ %s
+ setlocal formatoptions-=t
+ setlocal matchpairs=(:)
+-setlocal path-=/usr/include
++setlocal path-=/lib/include
+ 
+ " Includes. To make the shorthand form "require 'web/cgi'" work, double the
+ " last path component. Also strip off leading folder names like "~addons/".
+diff --git a/runtime/ftplugin/javascript.vim b/runtime/ftplugin/javascript.vim
+index 455b794c..72239722 100644
+--- a/runtime/ftplugin/javascript.vim
++++ b/runtime/ftplugin/javascript.vim
+@@ -51,7 +51,7 @@ setlocal suffixes+=.snap
+ 
+ " Remove irrelevant part of 'path'.
+ " User is expected to augment it with contextually-relevant paths
+-setlocal path-=/usr/include
++setlocal path-=/lib/include
+ 
+ " Matchit configuration
+ if exists("loaded_matchit")
+diff --git a/runtime/syntax/sh.vim b/runtime/syntax/sh.vim
+index 5cf49306..3266f0f1 100644
+--- a/runtime/syntax/sh.vim
++++ b/runtime/syntax/sh.vim
+@@ -93,8 +93,6 @@ elseif !exists("b:is_kornshell") && !exists("b:is_bash") && !exists("b:is_posix"
+         let s:shell = ""
+         if executable("/bin/sh")
+             let s:shell = resolve("/bin/sh")
+-        elseif executable("/usr/bin/sh")
+-            let s:shell = resolve("/usr/bin/sh")
+         endif
+         if s:shell =~ '\<ksh\>'
+             " The binary is too ambiguous (i.e. '/bin/ksh' or some such).
+diff --git a/runtime/termcap b/runtime/termcap
+index cb8355e2..9722af05 100644
+--- a/runtime/termcap
++++ b/runtime/termcap
+@@ -37,7 +37,7 @@ M3|sun-17|Sun 17-line window:\
+ 
+ v9|925a|tvi925a|TeleVideo Model 925:\
+ 	:al=\EE:am:bs:bt=\EI:bw:cd=\EY:ce=\ET:cl=^Z:cm=\E=%+ %+ :co#80:dc=\EW:\
+-	:dl=\ER:do=^V:ei=:ic=\EQ:if=/usr/share/lib/tabset/std:im=:kb=^H:kd=^V:\
++	:dl=\ER:do=^V:ei=:ic=\EQ:if=/lib/tabset/std:im=:kb=^H:kd=^V:\
+ 	:kh=^^:kl=^H:kn#12:kr=^L:ku=^K:li#24:nd=^L:pt:se=\EG0:sg#1:so=\EG4:\
+ 	:ue=\EG0:ug#1:ul:up=^K:us=\EG8:is=\El\
+ 	:vb=\Eb\200\200\200\200\200\200\200\200\200\200\200\200\200\200\Ed:\
+@@ -48,7 +48,7 @@ d0|vt100|vt100-am|vt100am|dec vt100:\
+ 	:le=^H:bs:am:cm=5\E[%i%d;%dH:nd=2\E[C:up=2\E[A:\
+ 	:ce=3\E[K:cd=50\E[J:so=2\E[7m:se=2\E[m:us=2\E[4m:ue=2\E[m:\
+ 	:md=2\E[1m:mr=2\E[7m:mb=2\E[5m:me=2\E[m:is=\E[1;24r\E[24;1H:\
+-	:rf=/usr/share/lib/tabset/vt100:\
++	:rf=/lib/tabset/vt100:\
+ 	:rs=\E>\E[?3l\E[?4l\E[?5l\E[?7h\E[?8h:ks=\E[?1h\E=:ke=\E[?1l\E>:\
+ 	:ku=\EOA:kd=\EOB:kr=\EOC:kl=\EOD:kb=^H:\
+ 	:ho=\E[H:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:pt:sr=5\EM:vt#3:xn:\
+diff --git a/src/optiondefs.h b/src/optiondefs.h
+index 626823c1..e7e0e490 100644
+--- a/src/optiondefs.h
++++ b/src/optiondefs.h
+@@ -1967,7 +1967,7 @@ static struct vimoption options[] =
+ #if defined(AMIGA) || defined(MSWIN)
+ 			    (char_u *)".,,",
+ #else
+-			    (char_u *)".,/usr/include,,",
++			    (char_u *)".,/lib/include,,",
+ #endif
+ 				(char_u *)0L} SCTX_INIT},
+     {"perldll",     NULL,   P_STRING|P_EXPAND|P_VI_DEF|P_SECURE,
+diff --git a/src/os_unix.h b/src/os_unix.h
+index 2125ae7b..e10c0a40 100644
+--- a/src/os_unix.h
++++ b/src/os_unix.h
+@@ -296,7 +296,7 @@ typedef struct dsc$descriptor   DESC;
+ #  ifdef VMS
+ #   define VIMINFO_FILE  "sys$login:.viminfo"
+ #  else
+-#   define VIMINFO_FILE "$HOME/.viminfo"
++#   define VIMINFO_FILE "$HOME/.cache/vim/viminfo"
+ #  endif
+ # endif
+ # if !defined(VIMINFO_FILE2) && defined(VMS)
