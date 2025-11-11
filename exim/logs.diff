@@ -1,0 +1,51 @@
+diff --git a/src/log.c b/src/log.c
+index c485fc28..f64e5b3e 100644
+--- a/src/log.c
++++ b/src/log.c
+@@ -529,6 +529,9 @@ switch (type)
+     break;
+ 
+   default:
++    if (!Ustrstr(file_path, "%s"))
++      break;
++
+     /* Remove any datestamp if this is the panic log. This is rare, so there's no
+     need to optimize getting the datestamp length. We remove one non-alphanumeric
+     char afterwards if at the start, otherwise one before. */
+diff --git a/src/readconf.c b/src/readconf.c
+index cec89f9b..3c6394d8 100644
+--- a/src/readconf.c
++++ b/src/readconf.c
+@@ -3607,10 +3607,8 @@ if (*log_file_path)
+     {
+     uschar *t;
+     if (sss[0] == 0 || Ustrcmp(sss, "syslog") == 0) continue;
+-    if (!(t = Ustrstr(sss, "%s")))
+-      log_write_die(0, LOG_MAIN, "log_file_path %q does not "
+-        "contain \"%%s\"", sss);
+-    *t = 'X';
++    if ((t = Ustrstr(sss, "%s")))
++      *t = 'X';
+     if ((t = Ustrchr(sss, '%')))
+       if ((t[1] != 'D' && t[1] != 'M') || Ustrchr(t+2, '%') != NULL)
+         log_write_die(0, LOG_MAIN, "log_file_path %q contains "
+diff --git a/src/tod.c b/src/tod.c
+index 9477df13..70837585 100644
+--- a/src/tod.c
++++ b/src/tod.c
+@@ -118,13 +118,13 @@ switch(type)
+ 
+ #else
+   case tod_log_datestamp_daily:
+-    snprintf(CS timebuf, sizeof(timebuf), "%04u%02u%02u",
++    snprintf(CS timebuf, sizeof(timebuf), "%04u-%02u-%02u",
+       1900 + (uint)t->tm_year, 1 + (uint)t->tm_mon, (uint)t->tm_mday);
+     break;
+ 
+   case tod_log_datestamp_monthly:
+ #ifndef COMPILE_UTILITY
+-    snprintf(CS timebuf, sizeof(timebuf), "%04u%02u",
++    snprintf(CS timebuf, sizeof(timebuf), "%04u-%02u",
+       1900 + (uint)t->tm_year, 1 + (uint)t->tm_mon);
+ #endif
+     break;

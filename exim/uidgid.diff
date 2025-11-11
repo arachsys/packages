@@ -1,0 +1,22 @@
+diff --git a/src/route.c b/src/route.c
+index 534198a8..829f2cc5 100644
+--- a/src/route.c
++++ b/src/route.c
+@@ -1193,6 +1193,8 @@ if (!cache_set)
+        s[Ustrspn(s+1, "0123456789")+1] == 0)
+     {
+     *return_uid = (uid_t)Uatoi(s);
++    if (*return_uid == -1)
++      *return_uid = getuid();
+     if (pw) *pw = NULL;
+     return TRUE;
+     }
+@@ -1278,6 +1280,8 @@ const struct group * gr;
+ if ((isdigit(*s) || *s == '-') && s[Ustrspn(s+1, "0123456789")+1] == 0)
+   {
+   *return_gid = (gid_t)Uatoi(s);
++  if (*return_gid == -1)
++    *return_gid = getgid();
+   return TRUE;
+   }
+ 

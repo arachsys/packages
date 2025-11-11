@@ -1,0 +1,13 @@
+diff --git a/src/transports/pipe.c b/src/transports/pipe.c
+index 68036ce0..ab5c0c1c 100644
+--- a/src/transports/pipe.c
++++ b/src/transports/pipe.c
+@@ -91,7 +91,7 @@ BOOL pipe_transport_entry(transport_instance *tblock, address_item *addr) {retur
+ /* Default private options block for the pipe transport. */
+ 
+ pipe_transport_options_block pipe_transport_option_defaults = {
+-  .path =	US"/bin:/usr/bin",
++  .path =	US"/bin",
+   .temp_errors = US mac_expanded_string(EX_TEMPFAIL) ":"
+ 		   mac_expanded_string(EX_CANTCREAT),
+   .umask =	022,
