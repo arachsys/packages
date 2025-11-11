@@ -1,0 +1,18 @@
+check() {
+  url https://sourceforge.net/p/joe-editor/mercurial/ref/default/tags/
+  match version 4.6 'joe-([0-9.]+)'
+}
+
+prepare() {
+  unpack https://downloads.sourceforge.net/joe-editor/joe-4.6.tar.gz
+  apply shell.diff
+  apply xdg.diff
+  tree 87bec235bbab87f8db2f467c8c87caa37a6ae73bcf4210656d87efba6e9cca4c
+}
+
+build() {
+  auto-config --sysconfdir='${prefix}/lib'
+  make install DESTDIR=/dst
+  rm -f -r /dst/bin/rjoe \
+    /dst/lib/{applications,joe/{jicerc.ru,*.zh_TW,lang,rjoerc,shell.csh}}
+}

@@ -1,0 +1,29 @@
+diff --git a/joe/ushell.c b/joe/ushell.c
+index d93a53c..21dd2dc 100644
+--- a/joe/ushell.c
++++ b/joe/ushell.c
+@@ -250,7 +250,6 @@ static int dobknd(BW *bw, int vt)
+ 	char *s;
+ 	const char *sh;
+ 	const char start_sh[] = ". " JOERC "shell.sh\n";
+-	const char start_csh[] = "source " JOERC "shell.csh\n";
+ 
+         if (!modify_logic(bw,bw->b))
+         	return -1;
+@@ -259,7 +258,6 @@ static int dobknd(BW *bw, int vt)
+ 
+         if (file_exists(sh) && zcmp(sh,"/bin/sh")) goto ok;
+         if (file_exists(sh="/bin/bash")) goto ok;
+-        if (file_exists(sh="/usr/bin/bash")) goto ok;
+         if (file_exists(sh="/bin/sh")) goto ok;
+ 
+         msgnw(bw->parent, joe_gettext(_("\"SHELL\" environment variable not defined or exported")));
+@@ -271,7 +269,7 @@ static int dobknd(BW *bw, int vt)
+ 	a = vaadd(a, s);
+ 	s = vsncpy(NULL, 0, sc("-i"));
+ 	a = vaadd(a, s);
+-	return cstart(bw, sh, a, NULL, NULL, 0, 0, (vt ? (zstr(sh, "csh") ? start_csh : start_sh) : NULL), vt);
++	return cstart(bw, sh, a, NULL, NULL, 0, 0, (vt ? start_sh : NULL), vt);
+ }
+ 
+ /* Start ANSI shell */
