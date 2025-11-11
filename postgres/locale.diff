@@ -1,0 +1,15 @@
+diff --git a/src/backend/commands/collationcmds.c b/src/backend/commands/collationcmds.c
+index 63ef9a08..83c311da 100644
+--- a/src/backend/commands/collationcmds.c
++++ b/src/backend/commands/collationcmds.c
+@@ -579,9 +579,7 @@ pg_collation_actual_version(PG_FUNCTION_ARGS)
+ 
+ 
+ /* will we use "locale -a" in pg_import_system_collations? */
+-#if !defined(WIN32)
+-#define READ_LOCALE_A_OUTPUT
+-#endif
++#undef READ_LOCALE_A_OUTPUT
+ 
+ /* will we use EnumSystemLocalesEx in pg_import_system_collations? */
+ #ifdef WIN32
