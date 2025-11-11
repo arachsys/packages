@@ -1,0 +1,62 @@
+require lua m4 pcre2 perl
+
+check() {
+  url https://www.lighttpd.net/
+  match version 1.4.82 'lighttpd-([0-9.]+).tar'
+
+  url https://ftpmirror.gnu.org/gnu/autoconf/
+  match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
+
+  url https://ftpmirror.gnu.org/gnu/automake/
+  match automake 1.18.1 'automake-([0-9.]+)\.tar'
+
+  url https://ftpmirror.gnu.org/gnu/libtool/
+  match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
+
+  url https://pkgconfig.freedesktop.org/releases/
+  match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
+}
+
+prepare() {
+  unpack lighttpd-1.4.82.tar.xz \
+    https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.82.tar.xz
+  unpack -d tools/autoconf \
+    https://ftpmirror.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
+  unpack -d tools/automake \
+    https://ftpmirror.gnu.org/gnu/automake/automake-1.18.1.tar.xz
+  unpack -d tools/libtool \
+    https://ftpmirror.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz
+  unpack -d tools/pkgconf \
+    https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
+  apply paths.diff
+  tree 392fbfc5a74b2f6d89035768129eadfffb5bc9aa2dd9820084dd2ad162c13fdb
+}
+
+build() {
+  export PATH=$PATH:/src/tools/bin
+
+  cd /src/tools/autoconf
+  auto-config --prefix=/src/tools
+  make install
+
+  cd /src/tools/automake
+  auto-config --prefix=/src/tools
+  make install
+
+  cd /src/tools/libtool
+  auto-config --prefix=/src/tools
+  make install
+
+  cd /src/tools
+  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' bin/*
+  pkgconf/configure --version | head -n 1 | while read _ _ VERSION; do
+    sed "s/@VERSION@/$VERSION/g" pkgconf/pkg.m4.in >lib/aclocal/pkg.m4
+  done
+
+  cd /src
+  bash autogen.sh
+  auto-config --libdir=/lib/lighttpd --with-pcre2 --with-openssl \
+    --with-zstd PCRE2_CFLAGS=-I/lib/include PCRE2_LIBS=-lpcre2-8
+  make install DESTDIR=/dst
+  rm -f /dst/bin/lighttpd-angel
+}

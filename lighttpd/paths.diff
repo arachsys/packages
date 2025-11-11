@@ -1,0 +1,13 @@
+diff --git a/src/chunk.c b/src/chunk.c
+index bff90b95..6e82a333 100644
+--- a/src/chunk.c
++++ b/src/chunk.c
+@@ -758,7 +758,7 @@ void chunkqueue_set_tempdirs_default (const array *tempdirs, off_t upload_temp_f
+     #ifdef _WIN32
+     if (NULL == env_tmpdir) env_tmpdir = getenv("TEMP");
+     #endif
+-    if (NULL == env_tmpdir) env_tmpdir = "/var/tmp";
++    if (NULL == env_tmpdir) env_tmpdir = "/tmp";
+ }
+ 
+ void chunkqueue_set_tempdirs(chunkqueue * const restrict cq, off_t upload_temp_file_size) {
