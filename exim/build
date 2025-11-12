@@ -9,11 +9,12 @@ prepare() {
   unpack https://downloads.exim.org/exim4/exim-4.99.tar.xz
   apply config.diff
   apply exepath.diff
+  apply libressl.diff
   apply logs.diff
   apply lsearch.diff
   apply paths.diff
   apply uidgid.diff
-  tree 82527ebc13c8918b37e4f1a8af54d3a05c007d6c18b8ddb6f10c6257de4ca6e9
+  tree be49e39fd78f582f2f15f52c8dc3747450bc307cbce544536fd4052b466f5582
 }
 
 build() {

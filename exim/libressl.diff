@@ -1,0 +1,26 @@
+diff --git a/src/miscmods/pdkim/crypt_ver.h b/src/miscmods/pdkim/crypt_ver.h
+index 56ae236c..d3a61d56 100644
+--- a/src/miscmods/pdkim/crypt_ver.h
++++ b/src/miscmods/pdkim/crypt_ver.h
+@@ -27,7 +27,7 @@
+ 
+ #ifdef USE_OPENSSL
+ # define SIGN_OPENSSL
+-# if !defined(LIBRESSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10101000L
++# if OPENSSL_VERSION_NUMBER >= 0x10101000L
+ #  define SIGN_HAVE_ED25519
+ # endif
+ #endif
+diff --git a/src/sha_ver.h b/src/sha_ver.h
+index 0d57db84..ecf44455 100644
+--- a/src/sha_ver.h
++++ b/src/sha_ver.h
+@@ -37,7 +37,7 @@
+ # ifdef USE_OPENSSL
+ #  define SHA_OPENSSL
+ #  include <openssl/ssl.h>
+-#  if (OPENSSL_VERSION_NUMBER >= 0x10101000L) && !defined(LIBRESSL_VERSION_NUMBER)
++#  if (OPENSSL_VERSION_NUMBER >= 0x10101000L)
+ #   define EXIM_HAVE_SHA3
+ #  endif
+ # endif
