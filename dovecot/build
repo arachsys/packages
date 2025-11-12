@@ -4,18 +4,13 @@ require perl
 check() {
   url https://github.com/dovecot/core/tags
   match version 2.4.2 'tags/([0-9.]+)\.tar'
-
-  url https://github.com/dovecot/pigeonhole/tags
-  match pigeonhole 2.4.2 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack https://dovecot.org/releases/2.4/dovecot-2.4.2.tar.gz
-  unpack -d pigeonhole \
-    https://pigeonhole.dovecot.org/releases/2.4/dovecot-pigeonhole-2.4.2.tar.gz
   apply paths.diff
   apply users.diff
-  tree c9c9cc790df29473a12b5e46ef326f8177fade9ede2ffb6c2c22513463387ce2
+  tree 74621b2d434f63adba2071dff26cd323bcc609b5ae76364eeaf2f1776350640d
 }
 
 build() {
@@ -25,12 +20,6 @@ build() {
   make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
     pkglibdir=/lib/dovecot/shared
 
-  cd /src/pigeonhole
-  auto-config --with-dovecot=/src --with-moduledir=/lib/dovecot/modules \
-    --with-rundir=/run/dovecot
-  make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
-    pkglibdir=/lib/dovecot/shared
-
-  rm -f -r /dst/bin/dovecot-sysreport /dst/bin/sieve-dump /dst/lib/aclocal \
-    /dst/lib/dovecot/**/{*.a,decode2test.sh} /dst/lib/include
+  rm -f -r /dst/bin/dovecot-sysreport /dst/lib/{aclocal,include} \
+    /dst/lib/dovecot/gdbserver /dst/lib/dovecot/**/*.{a,py,sh}
 }
