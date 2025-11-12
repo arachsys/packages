@@ -1,0 +1,22 @@
+diff --git a/src/lookups/lsearch.c b/src/lookups/lsearch.c
+index c85cda5d..a18b4f04 100644
+--- a/src/lookups/lsearch.c
++++ b/src/lookups/lsearch.c
+@@ -282,15 +282,14 @@ for (BOOL this_is_eol, last_was_eol = TRUE;
+ 
+     /* If this is not a physical line continuation, skip it entirely if it's
+     empty or starts with #. Otherwise, break the loop if it doesn't start with
+-    white space. Otherwise, replace leading white space with a single blank. */
++    white space. Otherwise, replace the first space with a newline. */
+ 
+     if (last_was_eol)
+       {
+       this_is_comment = (this_is_comment || (buffer[0] == 0 || buffer[0] == '#'));
+       if (this_is_comment) continue;
+       if (!isspace((uschar)buffer[0])) break;
+-      Uskip_whitespace(&s);
+-      *--s = ' ';
++      *s = '\n';
+       }
+     if (this_is_comment) continue;
+ 

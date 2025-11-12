@@ -10,9 +10,10 @@ prepare() {
   apply config.diff
   apply exepath.diff
   apply logs.diff
+  apply lsearch.diff
   apply paths.diff
   apply uidgid.diff
-  tree 0960ecbd89bfea1348fda1d6f8b5d725549848df6508e575129b1a8c5901116b
+  tree 82527ebc13c8918b37e4f1a8af54d3a05c007d6c18b8ddb6f10c6257de4ca6e9
 }
 
 build() {
