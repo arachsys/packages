@@ -3,13 +3,13 @@ require bison flex perl
 
 check() {
   url https://ftp.postgresql.org/pub/source/
-  match version 18.0 'v([0-9.]+)/'
+  match version 18.1 'v([0-9.]+)/'
 }
 
 prepare() {
-  unpack https://ftp.postgresql.org/pub/source/v18.0/postgresql-18.0.tar.bz2
+  unpack https://ftp.postgresql.org/pub/source/v18.1/postgresql-18.1.tar.bz2
   apply locale.diff
-  tree dc70d9f6b339c3064baca8212051fc750facaa544e206d73797c6f4d5be958c8
+  tree 4caaadf22c5e1299b23f32644780df5103683d62ed437518d5820bb53e803815
 }
 
 build() {
