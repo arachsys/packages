@@ -1,12 +1,12 @@
 check() {
   url https://api.github.com/repos/openwrt/libnl-tiny/branches/master
-  match version 2025-11-14 '"date": *"([0-9]{4}-[0-9]{2}-[0-9]{2})'
+  match version 2025-11-18 '"date": *"([0-9]{4}-[0-9]{2}-[0-9]{2})'
 }
 
 prepare() {
-  unpack libnl-tiny-2025-11-14.tar.gz \
-    https://github.com/openwrt/libnl-tiny/archive/2871f3f2.tar.gz
-  tree 97ced31c86bd9ed2b7c826d9911af61a7217d6b07b7e29490cad73c93bb55a8d
+  unpack libnl-tiny-2025-11-18.tar.gz \
+    https://github.com/openwrt/libnl-tiny/archive/567be110.tar.gz
+  tree f9a2371db28feca8e5bbc941a725fdbb876081986eb7fcfb85182ab5277b9912
 }
 
 build() {
