@@ -4,13 +4,13 @@ check() {
   url https://www.lighttpd.net/
   match version 1.4.82 'lighttpd-([0-9.]+).tar'
 
-  url https://ftpmirror.gnu.org/gnu/autoconf/
+  url https://ftp.nluug.nl/pub/gnu/autoconf/
   match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
 
-  url https://ftpmirror.gnu.org/gnu/automake/
+  url https://ftp.nluug.nl/pub/gnu/automake/
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
 
-  url https://ftpmirror.gnu.org/gnu/libtool/
+  url https://ftp.nluug.nl/pub/gnu/libtool/
   match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
 
   url https://pkgconfig.freedesktop.org/releases/
@@ -21,11 +21,11 @@ prepare() {
   unpack lighttpd-1.4.82.tar.xz \
     https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.82.tar.xz
   unpack -d tools/autoconf \
-    https://ftpmirror.gnu.org/gnu/autoconf/autoconf-2.72.tar.xz
+    https://ftp.nluug.nl/pub/gnu/autoconf/autoconf-2.72.tar.xz
   unpack -d tools/automake \
-    https://ftpmirror.gnu.org/gnu/automake/automake-1.18.1.tar.xz
+    https://ftp.nluug.nl/pub/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/libtool \
-    https://ftpmirror.gnu.org/gnu/libtool/libtool-2.5.4.tar.xz
+    https://ftp.nluug.nl/pub/gnu/libtool/libtool-2.5.4.tar.xz
   unpack -d tools/pkgconf \
     https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
   apply paths.diff
