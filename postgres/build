@@ -9,7 +9,8 @@ check() {
 prepare() {
   unpack https://ftp.postgresql.org/pub/source/v18.1/postgresql-18.1.tar.bz2
   apply locale.diff
-  tree 4caaadf22c5e1299b23f32644780df5103683d62ed437518d5820bb53e803815
+  apply paths.diff
+  tree 7fcf66f4660c538268975a2e32916c1b9763c7da50ad1336acaf84b1c3119993
 }
 
 build() {

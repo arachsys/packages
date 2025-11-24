@@ -1,0 +1,79 @@
+diff --git a/src/bin/psql/help.c b/src/bin/psql/help.c
+index 9c15cb67..a8d74a4b 100644
+--- a/src/bin/psql/help.c
++++ b/src/bin/psql/help.c
+@@ -70,7 +70,7 @@ usage(unsigned short int pager)
+ 		  "                           set psql variable NAME to VALUE\n"
+ 		  "                           (e.g., -v ON_ERROR_STOP=1)\n");
+ 	HELP0("  -V, --version            output version information, then exit\n");
+-	HELP0("  -X, --no-psqlrc          do not read startup file (~/.psqlrc)\n");
++	HELP0("  -X, --no-psqlrc          do not read startup file (~/.config/psql/psqlrc)\n");
+ 	HELP0("  -1 (\"one\"), --single-transaction\n"
+ 		  "                           execute as a single transaction (if non-interactive)\n");
+ 	HELP0("  -?, --help[=options]     show this help, then exit\n");
+@@ -559,7 +559,7 @@ helpVariables(unsigned short int pager)
+ 		  "    name of external pager program used for \\watch\n");
+ #endif
+ 	HELP0("  PSQLRC\n"
+-		  "    alternative location for the user's .psqlrc file\n");
++		  "    alternative location for the user's ~/.config/psql/psqlrc file\n");
+ 	HELP0("  SHELL\n"
+ 		  "    shell used by the \\! command\n");
+ 	HELP0("  TMPDIR\n"
+diff --git a/src/bin/psql/input.c b/src/bin/psql/input.c
+index d0156ac4..07312d0c 100644
+--- a/src/bin/psql/input.c
++++ b/src/bin/psql/input.c
+@@ -19,12 +19,6 @@
+ #include "settings.h"
+ #include "tab-complete.h"
+ 
+-#ifndef WIN32
+-#define PSQLHISTORY ".psql_history"
+-#else
+-#define PSQLHISTORY "psql_history"
+-#endif
+-
+ /* Runtime options for turning off readline and history */
+ /* (of course there is no runtime command for doing that :) */
+ #ifdef USE_READLINE
+@@ -377,12 +371,7 @@ initializeInput(int flags)
+ 				histfile = envhist;
+ 		}
+ 
+-		if (histfile == NULL)
+-		{
+-			if (get_home_path(home))
+-				psql_history = psprintf("%s/%s", home, PSQLHISTORY);
+-		}
+-		else
++		if (histfile != NULL)
+ 		{
+ 			psql_history = pg_strdup(histfile);
+ 			expand_tilde(&psql_history);
+diff --git a/src/bin/psql/startup.c b/src/bin/psql/startup.c
+index 249b6aa5..4fc46020 100644
+--- a/src/bin/psql/startup.c
++++ b/src/bin/psql/startup.c
+@@ -33,7 +33,7 @@ PsqlSettings pset;
+ 
+ #ifndef WIN32
+ #define SYSPSQLRC	"psqlrc"
+-#define PSQLRC		".psqlrc"
++#define PSQLRC		".config/psql/psqlrc"
+ #else
+ #define SYSPSQLRC	"psqlrc"
+ #define PSQLRC		"psqlrc.conf"
+diff --git a/src/interfaces/libpq/fe-connect.c b/src/interfaces/libpq/fe-connect.c
+index e7770da3..39123dd0 100644
+--- a/src/interfaces/libpq/fe-connect.c
++++ b/src/interfaces/libpq/fe-connect.c
+@@ -76,7 +76,7 @@ static int	ldapServiceLookup(const char *purl, PQconninfoOption *options,
+ #endif
+ 
+ #ifndef WIN32
+-#define PGPASSFILE ".pgpass"
++#define PGPASSFILE ".config/psql/pgpass"
+ #else
+ #define PGPASSFILE "pgpass.conf"
+ #endif
