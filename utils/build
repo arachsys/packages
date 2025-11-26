@@ -1,0 +1,17 @@
+enable setuid
+
+check() {
+  url https://api.github.com/repos/arachsys/arachsys-utils/branches/master
+  match snapshot 20251126 \
+    '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
+}
+
+prepare() {
+  unpack arachsys-utils-20251126-bcf46a86.tar.gz \
+    https://github.com/arachsys/arachsys-utils/archive/bcf46a86.tar.gz
+  tree f6adfdce84f18e24617ef1dc30b5d76cb1e2338f5234f60d5e7c37de860c8e36
+}
+
+build() {
+  make install DESTDIR=/dst
+}
