@@ -14,7 +14,8 @@ prepare() {
   apply home.diff
   apply mktemp.diff
   apply self.diff
-  tree 8602e6450c66e16d1daaec014985c391f2dd79b0ec08234565101334ab4ce191
+  apply shell.diff
+  tree de88e101b2df3e20e7b7a6aced89e51050f1b2321da686ae7981d5197702fbc5
 }
 
 build() {

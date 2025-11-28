@@ -1,0 +1,18 @@
+diff --git a/session.c b/session.c
+index 63a56875..ad0d725e 100644
+--- a/session.c
++++ b/session.c
+@@ -1537,6 +1537,13 @@ do_child(struct ssh *ssh, Session *s, const char *command)
+ 	shell = login_getcapstr(lc, "shell", (char *)shell, (char *)shell);
+ #endif
+ 
++	/*
++	 * For security, use /bin/sh instead of the user's shell if the
++	 * command is forced in /etc/ssh/sshd_config.
++	 */
++	if (options.adm_forced_command)
++		shell = _PATH_BSHELL;
++
+ 	/*
+ 	 * Close the connection descriptors; note that this is the child, and
+ 	 * the server will still have the socket open, and it is important
