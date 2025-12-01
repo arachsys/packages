@@ -2,15 +2,15 @@ require go
 
 check() {
   url https://api.github.com/repos/arachsys/tinyacme/branches/master
-  match snapshot 20220101 \
+  match snapshot 20251201 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack tinyacme-20220101-60926804.tar.gz \
-    https://github.com/arachsys/tinyacme/archive/60926804.tar.gz
+  unpack tinyacme-20251201-eec530fe.tar.gz \
+    https://github.com/arachsys/tinyacme/archive/eec530fe.tar.gz
   go mod vendor
-  tree 61299f2580e604b77a978d024e97993e310b116c1300427d3e9356c5b19c5f98
+  tree 3871f43a04d172627e0cfba3a17ede49508fb6ff2393214d6723412bd20d4e55
 }
 
 build() {
