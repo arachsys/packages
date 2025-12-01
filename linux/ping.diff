@@ -1,8 +1,8 @@
 diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index 76e38092..5483604d 100644
+index 3109c5ec..fe59c4e9 100644
 --- a/net/ipv4/af_inet.c
 +++ b/net/ipv4/af_inet.c
-@@ -1791,11 +1791,11 @@ static __net_init int inet_init_net(struct net *net)
+@@ -1789,11 +1789,11 @@ static __net_init int inet_init_net(struct net *net)
  
  	seqlock_init(&net->ipv4.ping_group_range.lock);
  	/*

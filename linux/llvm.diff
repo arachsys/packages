@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 82bb9cdf..310a7ba7 100644
+index a082a1d7..52038182 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -442,6 +442,9 @@ HOST_LFS_CFLAGS := $(shell getconf LFS_CFLAGS 2>/dev/null)
