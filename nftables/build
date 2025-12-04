@@ -8,16 +8,16 @@ check() {
   match libmnl 1.0.5 'libmnl-([0-9.]+)\.tar'
 
   url https://www.netfilter.org/projects/libnftnl/downloads.html
-  match libnftnl 1.3.0 'libnftnl-([0-9.]+)\.tar'
+  match libnftnl 1.3.1 'libnftnl-([0-9.]+)\.tar'
 }
 
 prepare() {
   local NFP=https://www.netfilter.org/projects
   unpack $NFP/nftables/files/nftables-1.1.5.tar.xz
   unpack -d libmnl $NFP/libmnl/files/libmnl-1.0.5.tar.bz2
-  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.3.0.tar.xz
+  unpack -d libnftnl $NFP/libnftnl/files/libnftnl-1.3.1.tar.xz
   apply histfile.diff
-  tree 29b24c51cea3dbbaebbee04d728f44ebe993a8f3885319582aa976f66a75f149
+  tree 72387bb1ebb25c766debf5548a3caf56752d5b20c93f04855839a66b937f472f
 }
 
 build() {
