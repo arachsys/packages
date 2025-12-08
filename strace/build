@@ -1,15 +1,15 @@
 check() {
   url https://github.com/strace/strace/tags
-  match version 6.17 'tags/v([0-9.]+)\.tar'
+  match version 6.18 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://strace.io/files/6.17/strace-6.17.tar.xz
-  tree eaefb53f6d91e49150a8294f5b74a76270976414693dba89cb85024321a042a5
+  unpack https://strace.io/files/6.18/strace-6.18.tar.xz
+  tree 6b371af4dcde7fa872a2580e538de682f6dadf8cdf69b4583b2d77f20ef52fc0
 }
 
 build() {
-  auto-config --disable-bundled --disable-gcc-Werror --disable-mpers
+  auto-config --disable-gcc-Werror --disable-mpers
   make install DESTDIR=/dst
   rm -f /dst/bin/strace-{graph,log-merge}
 }
