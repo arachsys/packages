@@ -6,8 +6,9 @@ check() {
 prepare() {
   unpack https://downloads.sourceforge.net/joe-editor/joe-4.6.tar.gz
   apply shell.diff
+  apply utf8.diff
   apply xdg.diff
-  tree 87bec235bbab87f8db2f467c8c87caa37a6ae73bcf4210656d87efba6e9cca4c
+  tree 0371104af1fa884a0a4d9e8c2f1fb48938809f062b0bd83652f28b7a330ed0fb
 }
 
 build() {

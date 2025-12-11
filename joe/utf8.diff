@@ -1,0 +1,28 @@
+diff --git a/joe/charmap.c b/joe/charmap.c
+index 40091129..b72b94a1 100644
+--- a/joe/charmap.c
++++ b/joe/charmap.c
+@@ -1624,10 +1624,7 @@ void joe_locale()
+ 		}
+ 	}
+ 
+-	if (!sc)
+-		sc = "C";
+-
+-	s = zdup(sc);
++	s = zdup(sc ? sc : "C");
+ 
+ 	u = zdup(s);
+ 
+@@ -1654,9 +1651,9 @@ void joe_locale()
+ 	textdomain(PACKAGE);
+ 	/* printf("%s %s %s\n",PACKAGE,LOCALEDIR,joe_gettext("New File")); */
+ #endif
+-	codeset = zdup(nl_langinfo(CODESET));
++	codeset = sc ? zdup(nl_langinfo(CODESET)) : "UTF-8";
+ #else
+-	codeset = joe_getcodeset(u);
++	codeset = sc ? joe_getcodeset(u) : "UTF-8";
+ #endif
+ 
+ 	ascii_map = find_charmap("ascii");
