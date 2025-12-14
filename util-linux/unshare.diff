@@ -1,0 +1,108 @@
+diff --git a/sys-utils/unshare.c b/sys-utils/unshare.c
+index 05db627b..9a3a83e3 100644
+--- a/sys-utils/unshare.c
++++ b/sys-utils/unshare.c
+@@ -311,14 +311,11 @@ static pid_t fork_and_wait(int *fd)
+ static pid_t bind_ns_files_from_child(int *fd)
+ {
+ 	pid_t child, ppid = getpid();
+-	ino_t ino = get_mnt_ino(ppid);
+ 
+ 	child = fork_and_wait(fd);
+ 	if (child)
+ 		return child;
+ 
+-	if (get_mnt_ino(ppid) == ino)
+-		exit(EXIT_FAILURE);
+ 	bind_ns_files(ppid);
+ 	exit(EXIT_SUCCESS);
+ }
+@@ -800,6 +797,7 @@ static void __attribute__((__noreturn__)) usage(void)
+ 		"                           map count users from outeruid to inneruid (implies --user)\n"), out);
+ 	fputs(_(" --map-groups <innergid>:<outergid>:<count>\n"
+ 		"                           map count groups from outergid to innergid (implies --user)\n"), out);
++	fputs(_(" --owner <uid>:<gid>       set the user namespace owner (implies --user)\n"), out);
+ 	fputs(USAGE_SEPARATOR, out);
+ 	fputs(_(" -f, --fork                fork before launching <program>\n"), out);
+ 	fputs(_(" --kill-child[=<signame>]  when dying, kill the forked child (implies --fork)\n"
+@@ -835,6 +833,7 @@ int main(int argc, char *argv[])
+ 		OPT_MAPGROUPS,
+ 		OPT_MAPAUTO,
+ 		OPT_MAPSUBIDS,
++		OPT_OWNER,
+ 	};
+ 	static const struct option longopts[] = {
+ 		{ "help",          no_argument,       NULL, 'h'             },
+@@ -861,6 +860,7 @@ int main(int argc, char *argv[])
+ 		{ "map-current-user", no_argument,    NULL, 'c'             },
+ 		{ "map-auto",      no_argument,       NULL, OPT_MAPAUTO     },
+ 		{ "map-subids",    no_argument,       NULL, OPT_MAPSUBIDS   },
++		{ "owner",         required_argument, NULL, OPT_OWNER       },
+ 		{ "propagation",   required_argument, NULL, OPT_PROPAGATION },
+ 		{ "setgroups",     required_argument, NULL, OPT_SETGROUPS   },
+ 		{ "keep-caps",     no_argument,       NULL, OPT_KEEPCAPS    },
+@@ -877,8 +877,8 @@ int main(int argc, char *argv[])
+ 	int setgrpcmd = SETGROUPS_NONE;
+ 	int unshare_flags = 0;
+ 	int c, forkit = 0;
+-	uid_t mapuser = -1;
+-	gid_t mapgroup = -1;
++	uid_t mapuser = -1, owneruser = -1;
++	gid_t mapgroup = -1, ownergroup = -1;
+ 	struct map_range *usermap = NULL;
+ 	struct map_range *groupmap = NULL;
+ 	int kill_child_signo = 0; /* 0 means --kill-child was not used */
+@@ -1022,6 +1022,12 @@ int main(int argc, char *argv[])
+ 			insert_map_range(&usermap, read_subid_range(_PATH_SUBUID, real_euid, 1));
+ 			insert_map_range(&groupmap, read_subid_range(_PATH_SUBGID, real_euid, 1));
+ 			break;
++		case OPT_OWNER:
++			unshare_flags |= CLONE_NEWUSER;
++			if (sscanf(optarg, "%u:%u%n", &owneruser, &ownergroup,
++					&c) < 2 || optarg[c])
++				errx(EXIT_FAILURE, _("failed to parse owner"));
++			break;
+ 		case OPT_SETGROUPS:
+ 			setgrpcmd = setgroups_str2id(optarg);
+ 			break;
+@@ -1090,13 +1096,30 @@ int main(int argc, char *argv[])
+ 	/* clear any inherited settings */
+ 	signal(SIGCHLD, SIG_DFL);
+ 
+-	if (npersists && (unshare_flags & CLONE_NEWNS))
++	if (npersists && (unshare_flags & (CLONE_NEWNS | CLONE_NEWUSER)))
+ 		pid_bind = bind_ns_files_from_child(&fd_bind);
+ 
++	if (mapuser != (uid_t) -1 && owneruser != (uid_t) -1) {
++		add_single_map_range(&usermap, real_euid, mapuser);
++		mapuser = -1;
++	}
++
++	if (mapgroup != (uid_t) -1 && ownergroup != (uid_t) -1) {
++		add_single_map_range(&groupmap, real_egid, mapgroup);
++		mapgroup = -1;
++	}
++
+ 	if (usermap || groupmap)
+ 		pid_idmap = map_ids_from_child(&fd_idmap, mapuser, usermap,
+ 					       mapgroup, groupmap);
+ 
++	if (ownergroup != (gid_t) -1 && setgroups(0, NULL) != 0)
++		err(EXIT_FAILURE, _("setgroups failed"));
++	if (ownergroup != (gid_t) -1 && setgid(ownergroup) != 0)
++		err(EXIT_FAILURE, _("setgid() failed"));
++	if (owneruser != (uid_t) -1 && setuid(owneruser) != 0)
++		err(EXIT_FAILURE, _("setuid() failed"));
++
+ 	if (-1 == unshare(unshare_flags))
+ 		err(EXIT_FAILURE, _("unshare failed"));
+ 
+@@ -1145,7 +1168,7 @@ int main(int argc, char *argv[])
+ 
+ 	if (npersists && (pid || !forkit)) {
+ 		/* run in parent */
+-		if (pid_bind && (unshare_flags & CLONE_NEWNS))
++		if (pid_bind && (unshare_flags & (CLONE_NEWNS | CLONE_NEWUSER)))
+ 			sync_with_child(pid_bind, fd_bind);
+ 		else
+ 			/* simple way, just bind */
