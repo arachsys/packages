@@ -2,11 +2,11 @@ require sqlite
 
 check() {
   url https://downloads.exim.org/exim4/
-  match version 4.99 'exim-([0-9.]+)\.tar'
+  match version 4.99.1 'exim-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://downloads.exim.org/exim4/exim-4.99.tar.xz
+  unpack https://downloads.exim.org/exim4/exim-4.99.1.tar.xz
   apply config.diff
   apply exepath.diff
   apply libressl.diff
@@ -14,7 +14,7 @@ prepare() {
   apply lsearch.diff
   apply paths.diff
   apply uidgid.diff
-  tree be49e39fd78f582f2f15f52c8dc3747450bc307cbce544536fd4052b466f5582
+  tree a24f918ee399d44b50d2225709df11c454c8990fe984757bec9603a7ae5f06c8
 }
 
 build() {
