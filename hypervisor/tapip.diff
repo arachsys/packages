@@ -1,28 +1,29 @@
 diff --git a/net_util/src/open_tap.rs b/net_util/src/open_tap.rs
-index 61e763ba..e9a7dee3 100644
+index 39d4285d..9cf57318 100644
 --- a/net_util/src/open_tap.rs
 +++ b/net_util/src/open_tap.rs
-@@ -79,16 +79,16 @@ fn open_tap_rx_q_0(
+@@ -80,14 +80,16 @@ fn open_tap_rx_q_0(
          None => Tap::new(num_rx_q).map_err(Error::TapOpen)?,
      };
      // Don't overwrite ip configuration of existing interfaces:
--    if !tap_exists {
--        if let Some(ip) = ip_addr {
-+    if let Some(ip) = ip_addr {
-+        if !tap_exists {
-             tap.set_ip_addr(ip, netmask)
-                 .map_err(Error::TapSetIpNetmask)?;
-+        } else {
-+            warn!(
-+                "Tap {} already exists. IP configuration will not be overwritten.",
-+                if_name.unwrap_or_default()
-+            );
-         }
--    } else {
+-    if tap_exists {
 -        warn!(
 -            "Tap {} already exists. IP configuration will not be overwritten.",
 -            if_name.unwrap_or_default()
 -        );
+-    } else if let Some(ip) = ip_addr {
+-        tap.set_ip_addr(ip, netmask)
+-            .map_err(Error::TapSetIpNetmask)?;
++    if let Some(ip) = ip_addr {
++        if tap_exists {
++            warn!(
++                "Tap {} already exists. IP configuration will not be overwritten.",
++                if_name.unwrap_or_default()
++            );
++        } else {
++            tap.set_ip_addr(ip, netmask)
++                .map_err(Error::TapSetIpNetmask)?;
++        }
      }
      if let Some(mac) = host_mac {
-         tap.set_mac_addr(*mac).map_err(Error::TapSetMac)?
+         tap.set_mac_addr(*mac).map_err(Error::TapSetMac)?;

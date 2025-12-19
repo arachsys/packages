@@ -1,8 +1,8 @@
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index 70c35790..a9d2671c 100644
+index 9c28e536..787b4586 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
-@@ -167,8 +167,8 @@ impl ApplyLandlock for MemoryZoneConfig {
+@@ -171,8 +171,8 @@ impl ApplyLandlock for MemoryZoneConfig {
  
  #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize, Default)]
  pub enum HotplugMethod {
@@ -12,7 +12,7 @@ index 70c35790..a9d2671c 100644
      VirtioMem,
  }
  
-@@ -208,7 +208,7 @@ impl Default for MemoryConfig {
+@@ -216,7 +216,7 @@ impl Default for MemoryConfig {
          MemoryConfig {
              size: DEFAULT_MEMORY_MB << 20,
              mergeable: false,
