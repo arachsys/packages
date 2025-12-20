@@ -13,8 +13,8 @@ check() {
   url https://ftp.nluug.nl/pub/gnu/libtool/
   match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
 
-  url https://pkgconfig.freedesktop.org/releases/
-  match pkg-config 0.29.2 'pkg-config-([0-9.]+)\.tar'
+  url https://distfiles.ariadne.space/pkgconf/
+  match pkgconf 2.5.1 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -27,31 +27,22 @@ prepare() {
   unpack -d tools/libtool \
     https://ftp.nluug.nl/pub/gnu/libtool/libtool-2.5.4.tar.xz
   unpack -d tools/pkgconf \
-    https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz
+    https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
   apply paths.diff
-  tree 392fbfc5a74b2f6d89035768129eadfffb5bc9aa2dd9820084dd2ad162c13fdb
+  tree 74dedca1fb5dde3d36b92756d7df7a32164b117cd8c3498f4ad9e3ce6f96df1d
 }
 
 build() {
-  export PATH=$PATH:/src/tools/bin
+  export PATH=$PATH:/tmp/bin
 
-  cd /src/tools/autoconf
-  auto-config --prefix=/src/tools
-  make install
+  for TOOL in autoconf automake libtool pkgconf; do
+    cd /src/tools/$TOOL
+    auto-config --prefix=/tmp
+    make install
+   done
 
-  cd /src/tools/automake
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools/libtool
-  auto-config --prefix=/src/tools
-  make install
-
-  cd /src/tools
-  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' bin/*
-  pkgconf/configure --version | head -n 1 | while read _ _ VERSION; do
-    sed "s/@VERSION@/$VERSION/g" pkgconf/pkg.m4.in >lib/aclocal/pkg.m4
-  done
+  ln -s pkgconf /tmp/bin/pkg-config
+  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' /tmp/bin/*
 
   cd /src
   bash autogen.sh
