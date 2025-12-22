@@ -1,15 +1,15 @@
 check() {
   url https://www.lua.org/ftp/
-  match version 5.4.8 'lua-([0-9.]+)\.tar'
+  match version 5.5.0 'lua-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.lua.org/ftp/lua-5.4.8.tar.gz
+  unpack https://www.lua.org/ftp/lua-5.5.0.tar.gz
   apply paths.diff
-  tree a33738d934863f2c2277f442e1fae7818f5320084b8f0e20afab9f0d0c86cd3b
+  tree e7d5522c0e589f82fcaedf6ce1ac0f3b2001a9188723738df8144705bc8256c3
 }
 
 build() {
-  make linux-readline CC="cc -std=gnu99"
+  make linux CC=cc
   make install INSTALL_TOP=/dst
 }
