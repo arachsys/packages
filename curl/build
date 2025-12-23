@@ -11,10 +11,10 @@ check() {
   match nghttp2 1.68.0 'tags/v([0-9.]+)\.tar'
 
   url https://github.com/ngtcp2/ngtcp2/tags
-  match ngtcp2 1.18.0 'tags/v([0-9.]+)\.tar'
+  match ngtcp2 1.19.0 'tags/v([0-9.]+)\.tar'
 
   url https://github.com/ngtcp2/nghttp3/tags
-  match nghttp3 1.13.1 'tags/v([0-9.]+)\.tar'
+  match nghttp3 1.14.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -24,11 +24,11 @@ prepare() {
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.68.0/nghttp2-1.68.0.tar.xz
   unpack -d ngtcp2 \
-    https://github.com/ngtcp2/ngtcp2/releases/download/v1.18.0/ngtcp2-1.18.0.tar.xz
+    https://github.com/ngtcp2/ngtcp2/releases/download/v1.19.0/ngtcp2-1.19.0.tar.xz
   unpack -d nghttp3 \
-    https://github.com/ngtcp2/nghttp3/releases/download/v1.13.1/nghttp3-1.13.1.tar.xz
+    https://github.com/ngtcp2/nghttp3/releases/download/v1.14.0/nghttp3-1.14.0.tar.xz
   apply perl.diff
-  tree abd18730ec2695d3466a14d7613fd61c9df842527febd1dec15b61a105ffab69
+  tree 7c65633c937c77309b61716c7d390f82f60eb51c02ace8b3c1e7e8ed2d3a52b4
 }
 
 build() {
