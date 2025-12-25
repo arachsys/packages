@@ -1,8 +1,8 @@
 diff --git a/ruby.c b/ruby.c
-index 6859dab1..d088f578 100644
+index b00fc150..7011475c 100644
 --- a/ruby.c
 +++ b/ruby.c
-@@ -2054,7 +2054,7 @@ show_help(const char *progname, int help)
+@@ -2073,7 +2073,7 @@ show_help(const char *progname, int help)
                  tty = tty_enabled();
                  dup2(fd, 1);
                  dup2(fd, 2);
@@ -11,7 +11,7 @@ index 6859dab1..d088f578 100644
                  fflush(stdout);
                  dup2(oldout, 1);
                  dup2(olderr, 2);
-@@ -2064,7 +2064,7 @@ show_help(const char *progname, int help)
+@@ -2083,7 +2083,7 @@ show_help(const char *progname, int help)
  #endif
          }
      }

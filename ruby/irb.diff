@@ -1,17 +1,17 @@
-diff --git a/lib/irb/init.rb b/lib/irb/init.rb
-index d474bd41..9247ca00 100644
---- a/lib/irb/init.rb
-+++ b/lib/irb/init.rb
+diff --git a/.bundle/gems/irb-1.16.0/lib/irb/init.rb b/.bundle/gems/irb-1.16.0/lib/irb/init.rb
+index 720c4fec..0c9d2be4 100644
+--- a/.bundle/gems/irb-1.16.0/lib/irb/init.rb
++++ b/.bundle/gems/irb-1.16.0/lib/irb/init.rb
 @@ -93,7 +93,7 @@ module IRB # :nodoc:
      @CONF[:VERBOSE] = nil
  
      @CONF[:EVAL_HISTORY] = nil
--    @CONF[:SAVE_HISTORY] = 1000
-+    @CONF[:SAVE_HISTORY] = nil
+-    @CONF[:SAVE_HISTORY] = History::DEFAULT_ENTRY_LIMIT
++    @CONF[:SAVE_HISTORY] = false
  
      @CONF[:BACK_TRACE_LIMIT] = 16
  
-@@ -506,10 +506,10 @@ module IRB # :nodoc:
+@@ -508,10 +508,10 @@ module IRB # :nodoc:
          end
        end
        if home = ENV["HOME"]
