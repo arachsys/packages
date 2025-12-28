@@ -2,14 +2,14 @@ require go
 
 check() {
   url https://github.com/filosottile/age/tags
-  match version 1.2.1 'tags/v([0-9.]+)\.tar'
+  match version 1.3.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack age-1.2.1.tar.gz \
-    https://github.com/filosottile/age/archive/refs/tags/v1.2.1.tar.gz
+  unpack age-1.3.0.tar.gz \
+    https://github.com/filosottile/age/archive/refs/tags/v1.3.0.tar.gz
   go mod vendor
-  tree 655ef929686a1829f912d8c481abae20e463cfcafdb204d219406f0726190421
+  tree 6e737f7f85a085fd9b6588f382169e8573307d1d2f530dfb901460dab60d9495
 }
 
 build() {
