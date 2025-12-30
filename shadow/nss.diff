@@ -1,8 +1,8 @@
 diff --git a/lib/nss.c b/lib/nss.c
-index f1cf1351..a0fe1777 100644
+index f2112d08..7f505784 100644
 --- a/lib/nss.c
 +++ b/lib/nss.c
-@@ -20,6 +20,8 @@
+@@ -22,6 +22,8 @@
  #include "string/strtok/stpsep.h"
  
  
@@ -11,7 +11,7 @@ index f1cf1351..a0fe1777 100644
  #define NSSWITCH "/etc/nsswitch.conf"
  
  // NSS plugin handling for subids
-@@ -160,3 +162,12 @@ struct subid_nss_ops *get_subid_nss_handle() {
+@@ -162,3 +164,12 @@ struct subid_nss_ops *get_subid_nss_handle() {
  	nss_init(NULL);
  	return subid_nss;
  }

@@ -1,42 +1,28 @@
 diff --git a/lib/obscure.c b/lib/obscure.c
-index d508200f..e3a93852 100644
+index c572b96a..a9e1f703 100644
 --- a/lib/obscure.c
 +++ b/lib/obscure.c
-@@ -150,6 +150,9 @@ static /*@observer@*//*@null@*/const char *obscure_msg (
- 	}
+@@ -216,9 +216,7 @@ obscure_get_range(int *minlen, int *maxlen)
  
- 	result = getdef_str ("ENCRYPT_METHOD");
-+	if (NULL == result) {
-+		result = "BCRYPT";
-+	}
- 	if (NULL == result) {
- 	/* The traditional crypt() truncates passwords to 8 chars.  It is
- 	   possible to circumvent the above checks by choosing an easy
+ 	method = getdef_str ("ENCRYPT_METHOD");
+ 	if (NULL == method) {
+-		if (getdef_bool ("MD5_CRYPT_ENAB")) {
+-			return;
+-		}
++		return; /* BCRYPT is the default */
+ 	} else {
+ 		if (   streq(method, "MD5")
+ #ifdef USE_SHA_CRYPT
 diff --git a/lib/salt.c b/lib/salt.c
-index 753e9d45..2936addc 100644
+index 1efeb2ce..428feff9 100644
 --- a/lib/salt.c
 +++ b/lib/salt.c
-@@ -369,6 +369,9 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
- 		method = meth;
+@@ -370,7 +370,7 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
  	else {
  		method = getdef_str ("ENCRYPT_METHOD");
-+		if (NULL == method) {
-+			method = "BCRYPT";
-+		}
  		if (NULL == method) {
- 			method = getdef_bool ("MD5_CRYPT_ENAB") ? "MD5" : "DES";
+-			method = getdef_bool ("MD5_CRYPT_ENAB") ? "MD5" : "DES";
++			method = "BCRYPT";
  		}
-diff --git a/src/passwd.c b/src/passwd.c
-index cc79960a..0685cce6 100644
---- a/src/passwd.c
-+++ b/src/passwd.c
-@@ -238,6 +238,9 @@ static int new_password (const struct passwd *pw)
- 	 * for initial login passwords.
- 	 */
- 	method = getdef_str ("ENCRYPT_METHOD");
-+	if (NULL == method) {
-+		method = "BCRYPT";
-+	}
- 	if (NULL == method) {
- 		if (!getdef_bool ("MD5_CRYPT_ENAB")) {
- 			pass_max_len = getdef_num ("PASS_MAX_LEN", 8);
+ 	}
+ 

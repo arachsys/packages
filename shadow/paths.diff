@@ -13,7 +13,7 @@ index 03915981..eae0877c 100644
  	int i;
  
 diff --git a/lib/nscd.c b/lib/nscd.c
-index 451a5a36..d25fc989 100644
+index e2bb44e3..f74efc87 100644
 --- a/lib/nscd.c
 +++ b/lib/nscd.c
 @@ -20,7 +20,7 @@
@@ -26,16 +26,16 @@ index 451a5a36..d25fc989 100644
  	const char *spawnedEnv[] = {NULL};
  
 diff --git a/lib/setupenv.c b/lib/setupenv.c
-index 8aee2121..0b95a9fc 100644
+index 26322163..9673a6ce 100644
 --- a/lib/setupenv.c
 +++ b/lib/setupenv.c
-@@ -234,7 +234,7 @@ void setup_env (struct passwd *info)
+@@ -235,7 +235,7 @@ void setup_env (struct passwd *info)
  
  	if (NULL == cp) {
  		/* not specified, use a minimal default */
 -		addenv ((info->pw_uid == 0) ? "PATH=/sbin:/bin:/usr/sbin:/usr/bin" : "PATH=/bin:/usr/bin", NULL);
 +		addenv ("PATH=/bin", NULL);
- 	} else if (strchr (cp, '=')) {
+ 	} else if (strchr(cp, '=')) {
  		/* specified as name=value (PATH=...) */
  		addenv (cp, NULL);
 diff --git a/src/Makefile.am b/src/Makefile.am
@@ -52,7 +52,7 @@ index 69818150..8ea7a427 100644
  sgidperms = 2755
  
 diff --git a/src/Makefile.in b/src/Makefile.in
-index 1f07de96..2d3c6ec6 100644
+index 5e64cb74..a6283e0e 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
 @@ -626,7 +626,7 @@ EXTRA_DIST = \
@@ -65,23 +65,23 @@ index 1f07de96..2d3c6ec6 100644
  sgidperms = 2755
  AM_CPPFLAGS = \
 diff --git a/src/su.c b/src/su.c
-index 19e818b2..9b7c6894 100644
+index 583979c2..a594dbee 100644
 --- a/src/su.c
 +++ b/src/su.c
-@@ -950,7 +950,7 @@ static void set_environment (struct passwd *pw)
+@@ -951,7 +951,7 @@ static void set_environment (struct passwd *pw)
  
  	cp = getdef_str ((pw->pw_uid == 0) ? "ENV_SUPATH" : "ENV_PATH");
  	if (NULL == cp) {
 -		addenv ((pw->pw_uid == 0) ? "PATH=/sbin:/bin:/usr/sbin:/usr/bin" : "PATH=/bin:/usr/bin", NULL);
 +		addenv ("PATH=/bin", NULL);
- 	} else if (strchr (cp, '=') != NULL) {
+ 	} else if (strchr(cp, '=')) {
  		addenv (cp, NULL);
  	} else {
 diff --git a/src/useradd.c b/src/useradd.c
-index 36b9b8f8..72c0b66d 100644
+index 899efe3c..f0d3ba84 100644
 --- a/src/useradd.c
 +++ b/src/useradd.c
-@@ -1371,8 +1371,7 @@ static void process_flags (int argc, char **argv)
+@@ -1376,8 +1376,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
  				}
  				if (!streq(optarg, "")
  				     && '*'  != optarg[0]
@@ -91,7 +91,7 @@ index 36b9b8f8..72c0b66d 100644
  				     && (   stat(optarg, &st) != 0
  				         || S_ISDIR(st.st_mode)
  				         || access(optarg, X_OK) != 0)) {
-@@ -2025,7 +2024,7 @@ static void lastlog_reset (uid_t uid)
+@@ -2040,7 +2039,7 @@ static void lastlog_reset (uid_t uid)
  
  static void tallylog_reset (const char *user_name)
  {
@@ -101,10 +101,10 @@ index 36b9b8f8..72c0b66d 100644
  	pid_t childpid;
  	int failed;
 diff --git a/src/usermod.c b/src/usermod.c
-index a0f4d7dd..c5effb6d 100644
+index e8c9da66..6dd12906 100644
 --- a/src/usermod.c
 +++ b/src/usermod.c
-@@ -1173,8 +1173,7 @@ process_flags(int argc, char **argv)
+@@ -1185,8 +1185,7 @@ process_flags(int argc, char **argv, struct option_flags *flags)
  				}
  				if (!streq(optarg, "")
  				     && '*'  != optarg[0]
