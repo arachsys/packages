@@ -1,13 +1,13 @@
 check() {
   url https://ftp.nluug.nl/pub/gnu/ncurses/
-  match version 6.5 'ncurses-([0-9.]+)\.tar'
+  match version 6.6 'ncurses-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.nluug.nl/pub/gnu/ncurses/ncurses-6.5.tar.gz
+  unpack https://ftp.nluug.nl/pub/gnu/ncurses/ncurses-6.6.tar.gz
   sed -i 's_/.terminfo_/.config/terminfo_g' include/{term_entry,tic}.h
   sed -i 's_/usr/share/_/lib/_g' include/tic.h misc/terminfo.src
-  tree e0c0912b340affa8bc9b945301b230ff5ea0b33843fdc83a95c97e6d90a71511
+  tree 49de882496a68570e6caa9c08a4e7aa5c15c346ccd567c5b1bdefb5a23b4702d
 }
 
 build() {
