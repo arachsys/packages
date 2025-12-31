@@ -1,12 +1,12 @@
 check() {
   url https://fping.org/dist/
-  match version 5.4 'fping-([0-9.]+)\.tar'
+  match version 5.5 'fping-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://fping.org/dist/fping-5.4.tar.gz
+  unpack https://fping.org/dist/fping-5.5.tar.gz
   apply sigint.diff
-  tree cf9d24c2f99a821e76cdde6a72f8585cd736cab4099269cd6c10dc1e0d3eb818
+  tree debb1cca43c548e034f3e0edacbc2a21d48ca2d3b0c1c391f5c5c6f449bcf4b0
 }
 
 build() {
