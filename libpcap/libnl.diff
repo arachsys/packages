@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 61fcd037..667f35d6 100755
+index 4512c34d..987906fb 100755
 --- a/configure
 +++ b/configure
-@@ -7576,7 +7576,7 @@ fi
+@@ -7566,7 +7566,7 @@ fi
  			case "$with_libnl" in
  
  			yes|if_available)
@@ -11,7 +11,7 @@ index 61fcd037..667f35d6 100755
  				libnldir=
  				;;
  
-@@ -7588,14 +7588,14 @@ fi
+@@ -7578,14 +7578,14 @@ fi
  				;;
  			esac
  
@@ -30,7 +30,7 @@ index 61fcd037..667f35d6 100755
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
  
-@@ -7613,25 +7613,25 @@ return nl_socket_alloc ();
+@@ -7603,25 +7603,25 @@ return nl_socket_alloc ();
  _ACEOF
  if ac_fn_c_try_link "$LINENO"
  then :
@@ -66,10 +66,10 @@ index 61fcd037..667f35d6 100755
  printf "%s\n" "#define HAVE_LIBNL 1" >>confdefs.h
  
 diff --git a/configure.ac b/configure.ac
-index accb2589..5e9156f9 100644
+index 1fdecc13..b6a72a55 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1048,7 +1048,7 @@ linux)
+@@ -1038,7 +1038,7 @@ linux)
  			case "$with_libnl" in
  
  			yes|if_available)
@@ -78,7 +78,7 @@ index accb2589..5e9156f9 100644
  				libnldir=
  				;;
  
-@@ -1060,14 +1060,14 @@ linux)
+@@ -1050,14 +1050,14 @@ linux)
  				;;
  			esac
  
@@ -98,7 +98,7 @@ index accb2589..5e9156f9 100644
  				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
  				V_INCLS="$V_INCLS ${incdir}"
  			],[
-@@ -1079,7 +1079,7 @@ linux)
+@@ -1069,7 +1069,7 @@ linux)
  				if test x$with_libnl = xyes ; then
  					AC_MSG_ERROR([libnl support requested but libnl not found])
  				fi
@@ -107,3 +107,109 @@ index accb2589..5e9156f9 100644
  		fi
  	fi
  
+diff --git a/pcap-linux.c b/pcap-linux.c
+index 20802e43..f7bf7030 100644
+--- a/pcap-linux.c
++++ b/pcap-linux.c
+@@ -627,12 +627,11 @@ get_if_type(pcap_t *handle, int sock_fd, struct nl80211_state *state,
+ 		return PCAP_ERROR;
+ 	}
+ 
+-	genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ,
+-		    genl_family_get_id(state->nl80211), 0,
++	genlmsg_put(msg, 0, 0, genl_family_get_id(state->nl80211), 0,
+ 		    0, NL80211_CMD_GET_INTERFACE, 0);
+ 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
+ 
+-	err = nl_send_auto(state->nl_sock, msg);
++	err = nl_send_auto_complete(state->nl_sock, msg);
+ 	nlmsg_free(msg);
+ 	if (err < 0) {
+ 		if (err == -NLE_FAILURE) {
+@@ -650,7 +649,7 @@ get_if_type(pcap_t *handle, int sock_fd, struct nl80211_state *state,
+ 			 * available.
+ 			 */
+ 			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+-			    "%s: nl_send_auto failed getting interface type: %s",
++			    "%s: nl_send_auto_complete failed getting interface type: %s",
+ 			    device, nl_geterror(-err));
+ 			return PCAP_ERROR;
+ 		}
+@@ -716,8 +715,7 @@ add_mon_if(pcap_t *handle, int sock_fd, struct nl80211_state *state,
+ 		return PCAP_ERROR;
+ 	}
+ 
+-	genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ,
+-		    genl_family_get_id(state->nl80211), 0,
++	genlmsg_put(msg, 0, 0, genl_family_get_id(state->nl80211), 0,
+ 		    0, NL80211_CMD_NEW_INTERFACE, 0);
+ 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
+ DIAG_OFF_NARROWING
+@@ -725,7 +723,30 @@ DIAG_OFF_NARROWING
+ DIAG_ON_NARROWING
+ 	NLA_PUT_U32(msg, NL80211_ATTR_IFTYPE, NL80211_IFTYPE_MONITOR);
+ 
+-	err = nl_send_sync(state->nl_sock, msg); // calls nlmsg_free()
++	err = nl_send_auto_complete(state->nl_sock, msg);
++	nlmsg_free(msg);
++	if (err < 0) {
++		if (err == -NLE_FAILURE) {
++			/*
++			 * Device not available; our caller should just
++			 * keep trying.  (libnl 2.x maps ENFILE to
++			 * NLE_FAILURE; it can also map other errors
++			 * to that, but there's not much we can do
++			 * about that.)
++			 */
++			return 0;
++		} else {
++			/*
++			 * Real failure, not just "that device is not
++			 * available.
++			 */
++			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
++			    "%s: nl_send_auto_complete failed adding %s interface: %s",
++			    device, mondevice, nl_geterror(-err));
++			return PCAP_ERROR;
++		}
++	}
++	err = nl_wait_for_ack(state->nl_sock);
+ 	if (err < 0) {
+ 		switch (err) {
+ 
+@@ -755,7 +776,7 @@ DIAG_ON_NARROWING
+ 			 * error message from libnl.
+ 			 */
+ 			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+-			    "%s: nl_send_sync failed adding %s interface: %s",
++			    "%s: nl_wait_for_ack failed adding %s interface: %s",
+ 			    device, mondevice, nl_geterror(-err));
+ 			return PCAP_ERROR;
+ 		}
+@@ -807,15 +828,22 @@ del_mon_if(pcap_t *handle, int sock_fd, struct nl80211_state *state,
+ 		return PCAP_ERROR;
+ 	}
+ 
+-	genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ,
+-		    genl_family_get_id(state->nl80211), 0,
++	genlmsg_put(msg, 0, 0, genl_family_get_id(state->nl80211), 0,
+ 		    0, NL80211_CMD_DEL_INTERFACE, 0);
+ 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
+ 
+-	err = nl_send_sync(state->nl_sock, msg); // calls nlmsg_free()
++	err = nl_send_auto_complete(state->nl_sock, msg);
++	nlmsg_free(msg);
++	if (err < 0) {
++		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
++		    "%s: nl_send_auto_complete failed deleting %s interface: %s",
++		    device, mondevice, nl_geterror(-err));
++		return PCAP_ERROR;
++	}
++	err = nl_wait_for_ack(state->nl_sock);
+ 	if (err < 0) {
+ 		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+-		    "%s: nl_send_sync failed deleting %s interface: %s",
++		    "%s: nl_wait_for_ack failed deleting %s interface: %s",
+ 		    device, mondevice, nl_geterror(-err));
+ 		return PCAP_ERROR;
+ 	}
