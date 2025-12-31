@@ -2,17 +2,17 @@ require go
 
 check() {
   url https://github.com/zyedidia/micro/tags
-  match version 2.0.14 'tags/v([0-9.]+)\.tar'
+  match version 2.0.15 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack micro-2.0.14.tar.gz \
-    https://github.com/zyedidia/micro/archive/refs/tags/v2.0.14.tar.gz
+  unpack micro-2.0.15.tar.gz \
+    https://github.com/zyedidia/micro/archive/refs/tags/v2.0.15.tar.gz
   go mod vendor
-  tree 3b964f2e5dfb50fecc9d99a2362abf47fa8ac0e74723c58b46fe544b3375cfdf
+  tree c88dfac20fa0647e6eafc3461c8368ba03c6429aae96348742ccce90afe698c9
 }
 
 build() {
-  make build {HASH,VERSION}=2.0.14 DATE=$(date +%F)
+  make build {HASH,VERSION}=2.0.15 DATE=$(date +%F)
   install -D micro /dst/bin/micro
 }
