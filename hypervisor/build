@@ -11,11 +11,10 @@ prepare() {
   apply cosmetic.diff
   apply hotplug.diff
   apply tapip.diff
-  tree de6d7115d07b4accfae9abab9ca2b674f0bf59dd4c2b316e8a6f5fcc83684f58
+  tree f0133c0df7731c0269ca02fc083a57e483acd7c8e817e4d9d090de7647a9addc
 }
 
 build() {
-  cargo build --bin=cloud-hypervisor --bin=ch-remote  --release
-  install -s -D target/release/cloud-hypervisor /dst/bin/hyper
-  install -s -D target/release/ch-remote /dst/bin/hyper-remote
+  cargo build --bin=cloud-hypervisor --release
+  install -s -D target/release/cloud-hypervisor /dst/bin/hypervisor
 }
