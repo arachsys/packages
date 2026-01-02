@@ -7,9 +7,9 @@ check() {
 }
 
 prepare() {
-  unpack arachsys-utils-20260102-fbdb71e2.tar.gz \
-    https://github.com/arachsys/arachsys-utils/archive/fbdb71e2.tar.gz
-  tree 28b89d7b954e0eddeb560c4af11426cac27def89afd42232201e03b95b196adb
+  unpack arachsys-utils-20260102-2db353f7.tar.gz \
+    https://github.com/arachsys/arachsys-utils/archive/2db353f7.tar.gz
+  tree 253396ff0671bcfc57a5c9cb4f544e1b95fd8e20f52f1fb779f4a9267c172450
 }
 
 build() {
