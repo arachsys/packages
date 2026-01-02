@@ -2,7 +2,7 @@ check() {
   url https://github.com/arachsys/libelf/tags
   match version 0.194 'tags/v([0-9.]+)\.tar'
 
-  url https://sourceware.org/git/elfutils.git/tags
+  url https://sourceware.org/git/\?p=elfutils.git
   match 'upstream elfutils' 0.194 'elfutils-([0-9.]+)'
 }
 
