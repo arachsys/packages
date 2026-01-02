@@ -2,14 +2,14 @@ enable setuid
 
 check() {
   url https://api.github.com/repos/arachsys/arachsys-utils/branches/master
-  match snapshot 20260101 \
+  match snapshot 20260102 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack arachsys-utils-20260101-a2482129.tar.gz \
-    https://github.com/arachsys/arachsys-utils/archive/a2482129.tar.gz
-  tree 8fbda5c4c6c32a933823ec6bd3f85a476c07e96d35dbf5592bb283f54ee331c7
+  unpack arachsys-utils-20260102-fbdb71e2.tar.gz \
+    https://github.com/arachsys/arachsys-utils/archive/fbdb71e2.tar.gz
+  tree 28b89d7b954e0eddeb560c4af11426cac27def89afd42232201e03b95b196adb
 }
 
 build() {
