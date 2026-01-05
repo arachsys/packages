@@ -1,13 +1,13 @@
 check() {
   url https://github.com/libarchive/libarchive/tags
-  match version 3.8.4 'v([0-9.]+)\.tar'
+  match version 3.8.5 'v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack libarchive-3.8.4.tar.xz \
-    https://github.com/libarchive/libarchive/releases/download/v3.8.4/libarchive-3.8.4.tar.xz
+  unpack libarchive-3.8.5.tar.xz \
+    https://github.com/libarchive/libarchive/releases/download/v3.8.5/libarchive-3.8.5.tar.xz
   apply cosmetic.diff
-  tree 03884604a6f5f20e5b1c759ac8a929e28f372e77dffeb929a4de30540eb96e9f
+  tree c1b3b74f2d2bed6befbf0b0419a00a9f39bff459f5220e56aaca246f2dd1d1b1
 }
 
 build() {
