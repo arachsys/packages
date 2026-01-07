@@ -7,10 +7,11 @@ check() {
 
 prepare() {
   unpack https://github.com/shadow-maint/shadow/releases/download/4.19.0/shadow-4.19.0.tar.xz
-  apply bcrypt.diff
+  apply backups.diff
+  apply defaults.diff
   apply nss.diff
   apply paths.diff
-  tree 3d49e35cc97ab85027101f096a3f5f6d0b9b80a25a1ed216a2a4e3801e02e8f7
+  tree 8d12a4645f942e225c1a6bd710fdd9e6e8a4a7a033a16ec849f32c8c6ee477af
 }
 
 build() {

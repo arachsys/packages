@@ -1,0 +1,112 @@
+diff --git a/lib/getdef.c b/lib/getdef.c
+index 930b350b..e3a6f35b 100644
+--- a/lib/getdef.c
++++ b/lib/getdef.c
+@@ -209,12 +209,17 @@ static void def_load (void);
+ 
+ 
+ /*
+- * getdef_bool - get boolean value from table of definitions.
++ * getdef_bool[_dflt] - get boolean value from table of definitions.
+  *
+- * Return TRUE if specified item is defined as "yes", else FALSE.
++ * Return TRUE if specified item is defined as "yes", else FALSE or dflt.
+  */
+ 
+ bool getdef_bool (const char *item)
++{
++	return getdef_bool_dflt(item, false);
++}
++
++bool getdef_bool_dflt (const char *item, bool dflt)
+ {
+ 	struct itemdef *d;
+ 
+@@ -224,7 +229,7 @@ bool getdef_bool (const char *item)
+ 
+ 	d = def_find (item, NULL);
+ 	if ((NULL == d) || (NULL == d->value)) {
+-		return false;
++		return dflt;
+ 	}
+ 
+ 	return strcaseeq(d->value, "yes");
+diff --git a/lib/getdef.h b/lib/getdef.h
+index e687a2ee..bb8d4a2c 100644
+--- a/lib/getdef.h
++++ b/lib/getdef.h
+@@ -17,6 +17,7 @@
+ 
+ /* getdef.c */
+ extern bool getdef_bool (const char *);
++extern bool getdef_bool_dflt (const char *, bool);
+ extern long getdef_long (const char *, long);
+ extern int getdef_num (const char *, int);
+ extern unsigned long getdef_ulong (const char *, unsigned long);
+diff --git a/lib/limits.c b/lib/limits.c
+index 4c7ac6ab..6f3be7cb 100644
+--- a/lib/limits.c
++++ b/lib/limits.c
+@@ -451,7 +451,7 @@ void setup_limits (const struct passwd *info)
+ {
+ 	char *cp;
+ 
+-	if (getdef_bool ("USERGROUPS_ENAB")) {
++	if (getdef_bool_dflt ("USERGROUPS_ENAB", true)) {
+ 		setup_usergroups (info);
+ 	}
+ 
+diff --git a/lib/obscure.c b/lib/obscure.c
+index c572b96a..a9e1f703 100644
+--- a/lib/obscure.c
++++ b/lib/obscure.c
+@@ -216,9 +216,7 @@ obscure_get_range(int *minlen, int *maxlen)
+ 
+ 	method = getdef_str ("ENCRYPT_METHOD");
+ 	if (NULL == method) {
+-		if (getdef_bool ("MD5_CRYPT_ENAB")) {
+-			return;
+-		}
++		return; /* BCRYPT is the default */
+ 	} else {
+ 		if (   streq(method, "MD5")
+ #ifdef USE_SHA_CRYPT
+diff --git a/lib/salt.c b/lib/salt.c
+index 1efeb2ce..428feff9 100644
+--- a/lib/salt.c
++++ b/lib/salt.c
+@@ -370,7 +370,7 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
+ 	else {
+ 		method = getdef_str ("ENCRYPT_METHOD");
+ 		if (NULL == method) {
+-			method = getdef_bool ("MD5_CRYPT_ENAB") ? "MD5" : "DES";
++			method = "BCRYPT";
+ 		}
+ 	}
+ 
+diff --git a/src/useradd.c b/src/useradd.c
+index 899efe3c..dde49c66 100644
+--- a/src/useradd.c
++++ b/src/useradd.c
+@@ -1433,7 +1433,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
+ 
+ 	if (!gflg && !Nflg && !Uflg) {
+ 		/* Get the settings from login.defs */
+-		Uflg = getdef_bool ("USERGROUPS_ENAB");
++		Uflg = getdef_bool_dflt ("USERGROUPS_ENAB", true);
+ 	}
+ 
+ 	/*
+diff --git a/src/userdel.c b/src/userdel.c
+index f0212764..80396a51 100644
+--- a/src/userdel.c
++++ b/src/userdel.c
+@@ -226,7 +226,7 @@ static void update_groups (bool process_selinux)
+ 			 user_name, ngrp->gr_name));
+ 	}
+ 
+-	if (getdef_bool ("USERGROUPS_ENAB")) {
++	if (getdef_bool_dflt ("USERGROUPS_ENAB", true)) {
+ 		remove_usergroup (process_selinux);
+ 	}
+ 

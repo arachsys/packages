@@ -1,0 +1,71 @@
+diff --git a/lib/commonio.c b/lib/commonio.c
+index 2c6a1a20..e59b154d 100644
+--- a/lib/commonio.c
++++ b/lib/commonio.c
+@@ -272,6 +272,7 @@ static /*@null@*/ /*@dependent@*/FILE *fopen_set_perms (
+ }
+ 
+ 
++#ifdef WITH_BACKUPS
+ static int create_backup (const char *backup, FILE * fp)
+ {
+ 	struct stat sb;
+@@ -317,6 +318,7 @@ static int create_backup (const char *backup, FILE * fp)
+ 	(void) utime (backup, &ub);
+ 	return 0;
+ }
++#endif
+ 
+ 
+ static void free_linked_list (struct commonio_db *db)
+@@ -897,6 +899,7 @@ commonio_close(struct commonio_db *db, MAYBE_UNUSED bool process_selinux)
+ 			goto fail;
+ 		}
+ 
++#ifdef WITH_BACKUPS
+ 		/*
+ 		 * Create backup file.
+ 		 */
+@@ -915,6 +918,7 @@ commonio_close(struct commonio_db *db, MAYBE_UNUSED bool process_selinux)
+ 		if (create_backup (buf, db->fp) != 0) {
+ 			errors = true;
+ 		}
++#endif
+ 
+ 		if (fclose (db->fp) != 0) {
+ 			errors = true;
+diff --git a/src/useradd.c b/src/useradd.c
+index f0d3ba84..9b422fd8 100644
+--- a/src/useradd.c
++++ b/src/useradd.c
+@@ -688,6 +688,7 @@ set_defaults(void)
+ 		goto err_free_def;
+ 	}
+ 
++#ifdef WITH_BACKUPS
+ 	/*
+ 	 * Rename the current default file to its backup name.
+ 	 */
+@@ -700,6 +701,7 @@ set_defaults(void)
+ 		unlink (new_file);
+ 		goto err_free_def;
+ 	}
++#endif
+ 
+ 	/*
+ 	 * Rename the new default file to its correct name.
+diff --git a/src/vipw.c b/src/vipw.c
+index a3d2d7f4..59a4b443 100644
+--- a/src/vipw.c
++++ b/src/vipw.c
+@@ -441,8 +441,10 @@ vipwedit (const char *file, int (*file_lock) (void), int (*file_unlock) (bool))
+ #ifdef WITH_TCB
+ 	}
+ #endif				/* WITH_TCB */
++#ifdef WITH_BACKUPS
+ 	unlink (filebackup);
+ 	link (file, filebackup);
++#endif
+ 	if (rename (to_rename, file) == -1) {
+ 		fprintf (stderr,
+ 		         _("%s: can't restore %s: %s (your changes are in %s)\n"),
