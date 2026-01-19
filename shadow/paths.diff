@@ -64,6 +64,62 @@ index 5e64cb74..a6283e0e 100644
  suidperms = 4755
  sgidperms = 2755
  AM_CPPFLAGS = \
+diff --git a/src/groupadd.c b/src/groupadd.c
+index fab8111b..f4d89de9 100644
+--- a/src/groupadd.c
++++ b/src/groupadd.c
+@@ -636,11 +636,6 @@ int main (int argc, char **argv)
+ 
+ 	check_perms ();
+ 
+-	if (run_parts ("/etc/shadow-maint/groupadd-pre.d", group_name,
+-			Prog)) {
+-		exit(1);
+-	}
+-
+ #ifdef SHADOWGRP
+ 	is_shadow_grp = sgr_file_present ();
+ #endif
+@@ -659,11 +654,6 @@ int main (int argc, char **argv)
+ 
+ 	grp_update ();
+ 	close_files (&flags);
+-	if (run_parts ("/etc/shadow-maint/groupadd-post.d", group_name,
+-			Prog)) {
+-		exit(1);
+-	}
+-
+ 
+ 	nscd_flush_cache ("group");
+ 	sssd_flush_cache (SSSD_DB_GROUP);
+diff --git a/src/groupdel.c b/src/groupdel.c
+index 5b4bb8d1..a16f60d2 100644
+--- a/src/groupdel.c
++++ b/src/groupdel.c
+@@ -457,11 +457,6 @@ int main (int argc, char **argv)
+ 		group_busy (group_id);
+ 	}
+ 
+-	if (run_parts ("/etc/shadow-maint/groupdel-pre.d", group_name,
+-			Prog)) {
+-		exit(1);
+-	}
+-
+ 	/*
+ 	 * Do the hard stuff - open the files, delete the group entries,
+ 	 * then close and update the files.
+@@ -472,11 +467,6 @@ int main (int argc, char **argv)
+ 
+ 	close_files (&flags);
+ 
+-	if (run_parts ("/etc/shadow-maint/groupdel-post.d", group_name,
+-			Prog)) {
+-		exit(1);
+-	}
+-
+ 	nscd_flush_cache ("group");
+ 	sssd_flush_cache (SSSD_DB_GROUP);
+ 
 diff --git a/src/su.c b/src/su.c
 index 583979c2..a594dbee 100644
 --- a/src/su.c
@@ -78,10 +134,90 @@ index 583979c2..a594dbee 100644
  		addenv (cp, NULL);
  	} else {
 diff --git a/src/useradd.c b/src/useradd.c
-index 899efe3c..f0d3ba84 100644
+index 19fff02a..a8b4c0c4 100644
 --- a/src/useradd.c
 +++ b/src/useradd.c
-@@ -1376,8 +1376,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
+@@ -82,9 +82,6 @@
+ #ifndef SKEL_DIR
+ #define SKEL_DIR "/etc/skel"
+ #endif
+-#ifndef USRSKELDIR
+-#define USRSKELDIR "/usr/etc/skel"
+-#endif
+ #ifndef USER_DEFAULTS_FILE
+ #define USER_DEFAULTS_FILE "/etc/default/useradd"
+ #define NEW_USER_FILE "/etc/default/nuaddXXXXXX"
+@@ -112,7 +109,9 @@ static const char *def_gname = "other";
+ static const char *def_home = "/home";
+ static const char *def_shell = "/bin/bash";
+ static const char *def_template = SKEL_DIR;
++#ifdef USRSKELDIR
+ static const char *def_usrtemplate = USRSKELDIR;
++#endif
+ static const char *def_create_mail_spool = "yes";
+ static const char *def_log_init = "yes";
+ 
+@@ -443,6 +442,7 @@ get_defaults(const struct option_flags *flags)
+ 				def_template = xstrdup(ccp);
+ 		}
+ 
++#ifdef USRSKELDIR
+ 		/*
+ 		 * Default Usr Skeleton information
+ 		 */
+@@ -456,6 +456,8 @@ get_defaults(const struct option_flags *flags)
+ 				def_usrtemplate = xstrdup(ccp);
+ 			}
+ 		}
++#endif
++
+ 		/*
+ 		 * Create by default user mail spool or not ?
+ 		 */
+@@ -498,7 +500,9 @@ static void show_defaults (void)
+ 	printf ("EXPIRE=%s\n", def_expire);
+ 	printf ("SHELL=%s\n", def_shell);
+ 	printf ("SKEL=%s\n", def_template);
++#ifdef USRSKELDIR
+ 	printf ("USRSKEL=%s\n", def_usrtemplate);
++#endif
+ 	printf ("CREATE_MAIL_SPOOL=%s\n", def_create_mail_spool);
+ 	printf ("LOG_INIT=%s\n", def_log_init);
+ }
+@@ -521,7 +525,9 @@ set_defaults(void)
+ 	bool  out_expire = false;
+ 	bool  out_shell = false;
+ 	bool  out_skel = false;
++#ifdef USRSKELDIR
+ 	bool  out_usrskel = false;
++#endif
+ 	bool  out_create_mail_spool = false;
+ 	bool  out_log_init = false;
+ 	char  buf[1024];
+@@ -629,9 +635,11 @@ set_defaults(void)
+ 		} else if (!out_skel && streq(buf, DSKEL)) {
+ 			fprintf(ofp, DSKEL "=%s\n", def_template);
+ 			out_skel = true;
++#ifdef USRSKELDIR
+ 		} else if (!out_usrskel && streq(buf, DUSRSKEL)) {
+ 			fprintf(ofp, DUSRSKEL "=%s\n", def_usrtemplate);
+ 			out_usrskel = true;
++#endif
+ 		} else if (!out_create_mail_spool
+ 			   && streq(buf, DCREATE_MAIL_SPOOL))
+ 		{
+@@ -668,8 +676,10 @@ set_defaults(void)
+ 		fprintf (ofp, DSHELL "=%s\n", def_shell);
+ 	if (!out_skel)
+ 		fprintf (ofp, DSKEL "=%s\n", def_template);
++#ifdef USRSKELDIR
+ 	if (!out_usrskel)
+ 		fprintf (ofp, DUSRSKEL "=%s\n", def_usrtemplate);
++#endif
+ 
+ 	if (!out_create_mail_spool)
+ 		fprintf (ofp, DCREATE_MAIL_SPOOL "=%s\n", def_create_mail_spool);
+@@ -1378,8 +1388,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
  				}
  				if (!streq(optarg, "")
  				     && '*'  != optarg[0]
@@ -91,7 +227,7 @@ index 899efe3c..f0d3ba84 100644
  				     && (   stat(optarg, &st) != 0
  				         || S_ISDIR(st.st_mode)
  				         || access(optarg, X_OK) != 0)) {
-@@ -2040,7 +2039,7 @@ static void lastlog_reset (uid_t uid)
+@@ -2042,7 +2051,7 @@ static void lastlog_reset (uid_t uid)
  
  static void tallylog_reset (const char *user_name)
  {
@@ -100,8 +236,68 @@ index 899efe3c..f0d3ba84 100644
  	const char *pname;
  	pid_t childpid;
  	int failed;
+@@ -2497,11 +2506,6 @@ int main (int argc, char **argv)
+ 	    (!user_id || (user_id <= uid_max && user_id >= uid_min));
+ #endif				/* ENABLE_SUBIDS */
+ 
+-	if (run_parts ("/etc/shadow-maint/useradd-pre.d", user_name,
+-			"useradd")) {
+-		exit(1);
+-	}
+-
+ #ifdef ACCT_TOOLS_SETUID
+ #ifdef USE_PAM
+ 	{
+@@ -2688,8 +2692,10 @@ int main (int argc, char **argv)
+ 		if (home_added) {
+ 			copy_tree (def_template, prefix_user_home, false, true,
+ 			           (uid_t)-1, user_id, (gid_t)-1, user_gid);
++#ifdef USRSKELDIR
+ 			copy_tree (def_usrtemplate, prefix_user_home, false, true,
+ 			           (uid_t)-1, user_id, (gid_t)-1, user_gid);
++#endif
+ 		} else {
+ 			fprintf (stderr,
+ 			         _("%s: warning: the home directory %s already exists.\n"
+@@ -2704,10 +2710,5 @@ int main (int argc, char **argv)
+ 		create_mail (&flags);
+ 	}
+ 
+-	if (run_parts ("/etc/shadow-maint/useradd-post.d", user_name,
+-			"useradd")) {
+-		exit(1);
+-	}
+-
+ 	return E_SUCCESS;
+ }
+diff --git a/src/userdel.c b/src/userdel.c
+index 80396a51..62eaf39f 100644
+--- a/src/userdel.c
++++ b/src/userdel.c
+@@ -1053,10 +1053,6 @@ int main (int argc, char **argv)
+ 	{
+ 		const struct passwd *pwd;
+ 
+-		if (run_parts ("/etc/shadow-maint/userdel-pre.d", user_name,
+-				"userdel")) {
+-			exit(1);
+-		}
+ 		pw_open(O_RDONLY);
+ 		pwd = pw_locate (user_name); /* we care only about local users */
+ 		if (NULL == pwd) {
+@@ -1230,10 +1226,6 @@ int main (int argc, char **argv)
+ 		user_cancel (user_name);
+ 	close_files (&flags);
+ 
+-	if (run_parts ("/etc/shadow-maint/userdel-post.d", user_name, "userdel")) {
+-		exit(1);
+-	}
+-
+ #ifdef WITH_TCB
+ 	if (remove_tcbdir (user_name, user_id)) {
+ 		errors = true;
 diff --git a/src/usermod.c b/src/usermod.c
-index e8c9da66..6dd12906 100644
+index e26f0110..51f7a0e3 100644
 --- a/src/usermod.c
 +++ b/src/usermod.c
 @@ -1185,8 +1185,7 @@ process_flags(int argc, char **argv, struct option_flags *flags)
