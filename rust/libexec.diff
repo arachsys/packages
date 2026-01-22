@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
-index 2ece53eb..a4ac51a3 100644
+index 4dd465ed..58b2976b 100644
 --- a/src/bootstrap/bootstrap.py
 +++ b/src/bootstrap/bootstrap.py
-@@ -723,7 +723,7 @@ class RustBuild(object):
+@@ -724,7 +724,7 @@ class RustBuild(object):
                  self.fix_bin_or_dylib("{}/bin/rustc".format(bin_root))
                  self.fix_bin_or_dylib("{}/bin/rustdoc".format(bin_root))
                  self.fix_bin_or_dylib(
@@ -12,10 +12,10 @@ index 2ece53eb..a4ac51a3 100644
                  lib_dir = "{}/lib".format(bin_root)
                  rustlib_bin_dir = "{}/rustlib/{}/bin".format(lib_dir, self.build)
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 2453d442..83429476 100644
+index 40149ee0..1775c83b 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
-@@ -490,7 +490,7 @@ impl Step for Rustc {
+@@ -535,7 +535,7 @@ impl Step for Rustc {
                  tool::RustAnalyzerProcMacroSrv::from_compilers(compilers),
                  builder.kind,
              ) {
@@ -25,10 +25,10 @@ index 2453d442..83429476 100644
              }
  
 diff --git a/src/bootstrap/src/core/build_steps/tool.rs b/src/bootstrap/src/core/build_steps/tool.rs
-index dcc4898c..d69e7587 100644
+index a90687c5..8c608b46 100644
 --- a/src/bootstrap/src/core/build_steps/tool.rs
 +++ b/src/bootstrap/src/core/build_steps/tool.rs
-@@ -1124,7 +1124,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -1118,7 +1118,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -38,10 +38,10 @@ index dcc4898c..d69e7587 100644
          builder.copy_link(
              &tool_result.tool_path,
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index 2f3c8055..fe68e8e7 100644
+index d950dc1a..de099948 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
-@@ -200,7 +200,7 @@ impl Config {
+@@ -202,7 +202,7 @@ impl Config {
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustc"));
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustdoc"));
                  self.fix_bin_or_dylib(
@@ -51,10 +51,10 @@ index 2f3c8055..fe68e8e7 100644
                  let lib_dir = bin_root.join("lib");
                  for lib in t!(fs::read_dir(&lib_dir), lib_dir.display().to_string()) {
 diff --git a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs b/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
-index c0a5009a..eec7cb1c 100644
+index f244c973..1460c942 100644
 --- a/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
 +++ b/src/tools/rust-analyzer/crates/project-model/src/sysroot.rs
-@@ -166,7 +166,7 @@ impl Sysroot {
+@@ -206,7 +206,7 @@ impl Sysroot {
      pub fn discover_proc_macro_srv(&self) -> Option<anyhow::Result<AbsPathBuf>> {
          let root = self.root()?;
          Some(
