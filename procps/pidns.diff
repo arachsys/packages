@@ -1,31 +1,32 @@
 diff --git a/library/include/readproc.h b/library/include/readproc.h
-index 33c630e..51ee9db 100644
+index 5fcc2209..eaa3d2be 100644
 --- a/library/include/readproc.h
 +++ b/library/include/readproc.h
-@@ -219,6 +219,7 @@ typedef struct PROCTAB {
+@@ -228,6 +228,7 @@ typedef struct PROCTAB {
      int         nuid;   // cannot really sentinel-terminate unsigned short[]
      int         i;  // generic
      int         hide_kernel;  // getenv LIBPROC_HIDE_KERNEL was set
 +    unsigned long filter_pidns;  // restrict to this PID namespace
      unsigned    flags;
-     unsigned    u;  // generic
-     void *      vp; // generic
+ } PROCTAB;
+ 
 diff --git a/library/readproc.c b/library/readproc.c
-index 1cb059b..dcdbf5b 100644
+index a7f79051..0bf73bbc 100644
 --- a/library/readproc.c
 +++ b/library/readproc.c
-@@ -1239,6 +1239,10 @@ static proc_t *simple_readproc(PROCTAB *restrict const PT, proc_t *restrict cons
-            free_acquired(p);
-            return NULL;
-         }
-+        if (PT->filter_pidns && p->ns.ns[PROCPS_NS_PID] != PT->filter_pidns) {
-+           free_acquired(p);
-+           return NULL;
-+        }
-         return p;
+@@ -1259,6 +1259,11 @@ static proc_t *simple_readproc(PROCTAB *restrict const PT, proc_t *restrict cons
+         goto next_proc;
      }
-     errno = ENOMEM;
-@@ -1535,12 +1539,15 @@ PROCTAB *openproc(unsigned flags, ...) {
+ 
++    if (PT->filter_pidns && p->ns.ns[PROCPS_NS_PID] != PT->filter_pidns) {
++        free_acquired(p);
++        goto next_proc;
++    }
++
+     if (flags & PROC_FILLIO) {                  // read /proc/#/io
+         if (file2str(PT->pidfd, "io", &ub) != -1)
+             io2proc(ub.buf, p);
+@@ -1669,12 +1674,15 @@ PROCTAB *openproc(unsigned flags, ...) {
      struct stat sbuf;
      static __thread int did_stat;
      static __thread int hide_kernel = -1;
@@ -42,9 +43,9 @@ index 1cb059b..dcdbf5b 100644
      if (!did_stat){
          task_dir_missing = stat("/proc/self/task", &sbuf);
          did_stat = 1;
-@@ -1577,6 +1584,14 @@ PROCTAB *openproc(unsigned flags, ...) {
-             PT->flags |= PROC_FILLSTAT;
-     }
+@@ -1709,6 +1717,14 @@ PROCTAB *openproc(unsigned flags, ...) {
+     if (hide_kernel > 0)
+         PT->hide_kernel = 1;
  
 +    if (hide_pidns > 0) {
 +        struct procps_ns self;
@@ -56,4 +57,4 @@ index 1cb059b..dcdbf5b 100644
 +
      if (!src_buffer
      && !(src_buffer = malloc(MAX_BUFSZ))) {
-         closedir(PT->procfs);
+         if (PT->procfs) closedir(PT->procfs);

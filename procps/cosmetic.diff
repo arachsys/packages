@@ -1,5 +1,5 @@
 diff --git a/src/pmap.c b/src/pmap.c
-index 658b250..d0b724f 100644
+index b824284a..ede2055c 100644
 --- a/src/pmap.c
 +++ b/src/pmap.c
 @@ -125,9 +125,11 @@ usage(FILE * out)
@@ -14,7 +14,7 @@ index 658b250..d0b724f 100644
  	fputs(_(" -d, --device                show the device format\n"), out);
  	fputs(_(" -q, --quiet                 do not display header and footer\n"), out);
  	fputs(_(" -p, --show-path             show path in the mapping\n"), out);
-@@ -147,8 +149,10 @@ static unsigned long range_high = ~0ul;
+@@ -148,8 +150,10 @@ static unsigned long range_high = ~0ul;
  static int c_option = 0;
  static int C_option = 0;
  static int d_option = 0;
@@ -25,7 +25,7 @@ index 658b250..d0b724f 100644
  static int q_option = 0;
  static int x_option = 0;
  static int X_option = 0;
-@@ -917,7 +921,7 @@ static int config_read (char *rc_filename)
+@@ -938,7 +942,7 @@ static int config_read (char *rc_filename)
  	return 1;
  }
  
@@ -34,7 +34,7 @@ index 658b250..d0b724f 100644
  static int config_create (const char *rc_filename)
  {
  	FILE *f;
-@@ -982,7 +986,7 @@ static int config_create (const char *rc_filename)
+@@ -1003,7 +1007,7 @@ static int config_create (const char *rc_filename)
  
  	return 1;
  }
@@ -43,16 +43,16 @@ index 658b250..d0b724f 100644
  
  /* returns rc filename based on the program_invocation_short_name */
  static char *get_default_rc_filename(void)
-@@ -1043,7 +1047,7 @@ int main(int argc, char **argv)
+@@ -1066,7 +1070,7 @@ int main(int argc, char **argv)
  	if (argc < 2)
  		usage(stderr);
  
--	while ((c = getopt_long(argc, argv, "xXrdqA:hVcC:nN:p", longopts, NULL)) != -1)
-+	while ((c = getopt_long(argc, argv, "xXrdqA:hVcC:p", longopts, NULL)) != -1)
+-	while ((c = getopt_long(argc, argv, "xXrdqA:hVcC:nN:pk", longopts, NULL)) != -1)
++	while ((c = getopt_long(argc, argv, "xXrdqA:hVcC:pk", longopts, NULL)) != -1)
  		switch (c) {
  		case 'x':
  			x_option = 1;
-@@ -1075,6 +1079,7 @@ int main(int argc, char **argv)
+@@ -1098,6 +1102,7 @@ int main(int argc, char **argv)
  			C_option = 1;
  			rc_filename = optarg;
  			break;
@@ -60,7 +60,7 @@ index 658b250..d0b724f 100644
  		case 'n':
  			n_option = 1;
  			break;
-@@ -1082,6 +1087,7 @@ int main(int argc, char **argv)
+@@ -1105,6 +1110,7 @@ int main(int argc, char **argv)
  			N_option = 1;
  			rc_filename = optarg;
  			break;
@@ -68,32 +68,32 @@ index 658b250..d0b724f 100644
  		case 'p':
  			map_desc_showpath = 1;
  			break;
-@@ -1098,9 +1104,10 @@ int main(int argc, char **argv)
+@@ -1124,9 +1130,10 @@ int main(int argc, char **argv)
  	argc -= optind;
  	argv += optind;
  
 -	if (c_option + C_option + d_option + n_option + N_option + x_option + !!X_option > 1)
--		xerrx(EXIT_FAILURE, _("options -c, -C, -d, -n, -N, -x, -X are mutually exclusive"));
+-		errx(EXIT_FAILURE, _("options -c, -C, -d, -n, -N, -x, -X are mutually exclusive"));
 +	if (c_option + C_option + d_option + x_option + !!X_option > 1)
-+		xerrx(EXIT_FAILURE, _("options -c, -C, -d, -x, -X are mutually exclusive"));
++		errx(EXIT_FAILURE, _("options -c, -C, -d, -x, -X are mutually exclusive"));
  
 +#if 0
  	if ((n_option || N_option) && (q_option || map_desc_showpath))
- 		xerrx(EXIT_FAILURE, _("options -p, -q are mutually exclusive with -n, -N"));
+ 		errx(EXIT_FAILURE, _("options -p, -q are mutually exclusive with -n, -N"));
  
-@@ -1130,6 +1137,7 @@ int main(int argc, char **argv)
- 			xerrx(EXIT_FAILURE, _("couldn't create ~/.%src"), program_invocation_short_name);
+@@ -1156,6 +1163,7 @@ int main(int argc, char **argv)
+ 			errx(EXIT_FAILURE, _("couldn't create ~/.%src"), program_invocation_short_name);
  		}
  	}
 +#endif
  
  	if (argc < 1)
- 		xerrx(EXIT_FAILURE, _("argument missing"));
+ 		errx(EXIT_FAILURE, _("argument missing"));
 diff --git a/src/top/top.c b/src/top/top.c
-index b09f659..7d910d0 100644
+index b29f7c89..cb958e4a 100644
 --- a/src/top/top.c
 +++ b/src/top/top.c
-@@ -5476,7 +5476,7 @@ static void write_rcfile (void) {
+@@ -5661,7 +5661,7 @@ static void write_rcfile (void) {
        show_msg(fmtmk(N_fmt(FAIL_rc_open_fmt), Rc_name, strerror(errno)));
        return;
     }
@@ -103,10 +103,10 @@ index b09f659..7d910d0 100644
        , RCF_VERSION_ID
        , Rc.mode_altscr, Rc.mode_irixps
 diff --git a/src/top/top.h b/src/top/top.h
-index d633f3e..79adc3d 100644
+index ef97f16d..f68e316f 100644
 --- a/src/top/top.h
 +++ b/src/top/top.h
-@@ -526,7 +526,7 @@ typedef struct WIN_t {
+@@ -557,7 +557,7 @@ typedef struct WIN_t {
          /* Configuration files support */
  #define SYS_RCRESTRICT  "/etc/toprc"
  #define SYS_RCDEFAULTS  "/etc/topdefaultrc"
@@ -116,13 +116,25 @@ index d633f3e..79adc3d 100644
  #define RCF_PLUS_J      "klmnopqrstuvwxyz"
          // this next guy must never, ever change
 diff --git a/src/top/top_nls.c b/src/top/top_nls.c
-index cdeada6..cdd62c3 100644
+index 6b19f080..9a7ba8e2 100644
 --- a/src/top/top_nls.c
 +++ b/src/top/top_nls.c
-@@ -414,26 +414,26 @@ static void build_norm_nlstab (void) {
+@@ -400,37 +400,33 @@ static void build_norm_nlstab (void) {
+    Norm_nlstab[EXIT_signals_fmt] = _(""
+       "\tsignal %d (%s) was caught by %s, please\n"
+       "\tsend bug reports to <procps@freelists.org>\n");
+-/* Translation Hint:
+-   . The following help text has been right-justified as an English only
+-   . exercise. There is absolutely no requirement that your translations
+-   . need conform to such a convention.
+-   . */
++/* Rewritten from an awkward and clumsy right-justified text upstream. */
+    Norm_nlstab[HELP_cmdline_fmt] = _("\n"
+       "Usage:\n"
        " %s [options]\n"
        "\n"
        "Options:\n"
+-      " -A, --apply-defaults            if present, ignore config file(s)\n"
 -      " -b, --batch-mode                run in non-interactive batch mode\n"
 -      " -c, --cmdline-toggle            reverse last remembered 'c' state\n"
 -      " -d, --delay =SECS [.TENTHS]     iterative delay as SECS [.TENTHS]\n"
@@ -140,6 +152,7 @@ index cdeada6..cdd62c3 100644
 -      " -u, --filter-only-euser =USER   show only processes owned by USER\n"
 -      " -w, --width [=COLUMNS]          change print width [,use COLUMNS]\n"
 -      " -1, --single-cpu-toggle         reverse last remembered '1' state\n"
++      " -A, --apply-defaults           ignore any configuration files\n"
 +      " -b, --batch-mode               run in non-interactive batch mode\n"
 +      " -c, --cmdline-toggle           reverse last remembered 'c' state\n"
 +      " -d, --delay SECS[.TENTHS]      delay time between updates\n"
@@ -160,8 +173,8 @@ index cdeada6..cdd62c3 100644
        "\n"
 -      " -h, --help                      display this help text, then exit\n"
 -      " -V, --version                   output version information & exit\n"
-+      " -h, --help                     display this help and exit\n"
-+      " -V, --version                  display version information and exit\n"
++      " -h, --help                      display this help and exit\n"
++      " -V, --version                   display version information and exit\n"
        "\n"
        "For more details see top(1).");
     Norm_nlstab[BAD_delayint_fmt] = _("bad delay interval '%s'");
