@@ -1,12 +1,12 @@
 check() {
   url https://github.com/LMDB/lmdb/tags
-  match version 0.9.34 'LMDB_([0-9.]+)\.tar'
+  match version 0.9.35 'LMDB_([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack -p 3 lmdb-0.9.34.tar.gz \
-    https://github.com/LMDB/lmdb/archive/refs/tags/LMDB_0.9.34.tar.gz
-  tree 2158e54e74e17ac265b781546b1bce3793ba1817e8a50545d45e9c7ccd73c64a
+  unpack -p 3 lmdb-0.9.35.tar.gz \
+    https://github.com/LMDB/lmdb/archive/refs/tags/LMDB_0.9.35.tar.gz
+  tree 585f8a1f60cb90949af16139ce8f733e7f3c3889a4193fd1376ba1603159dfce
 }
 
 build() {
