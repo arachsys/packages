@@ -1,21 +1,22 @@
 diff --git a/scripts/kconfig/mconf-cfg.sh b/scripts/kconfig/mconf-cfg.sh
-index 1bc304dc..372472f7 100755
+index 1bc304dc..f3071087 100755
 --- a/scripts/kconfig/mconf-cfg.sh
 +++ b/scripts/kconfig/mconf-cfg.sh
-@@ -6,6 +6,12 @@ set -eu
- cflags=$1
- libs=$2
- 
+@@ -26,6 +26,13 @@ fi
+ # Check the default paths in case pkg-config is not installed.
+ # (Even if it is installed, some distributions such as openSUSE cannot
+ # find ncurses by pkg-config.)
++
 +if echo '#include <ncurses.h>' | ${HOSTCC} -E - >/dev/null 2>&1; then
-+	true > ${cflags}
++	echo -D_GNU_SOURCE > ${cflags}
 +	echo -lncurses > ${libs}
 +	exit 0
 +fi
 +
- PKG="ncursesw"
- PKG2="ncurses"
- 
-@@ -38,14 +44,6 @@ if [ -f /usr/include/ncurses/ncurses.h ]; then
+ if [ -f /usr/include/ncursesw/ncurses.h ]; then
+ 	echo -D_GNU_SOURCE -I/usr/include/ncursesw > ${cflags}
+ 	echo -lncursesw > ${libs}
+@@ -38,14 +45,6 @@ if [ -f /usr/include/ncurses/ncurses.h ]; then
  	exit 0
  fi
  
@@ -31,19 +32,20 @@ index 1bc304dc..372472f7 100755
  echo >&2 "* Unable to find the ncurses package."
  echo >&2 "* Install ncurses (ncurses-devel or libncurses-dev"
 diff --git a/scripts/kconfig/nconf-cfg.sh b/scripts/kconfig/nconf-cfg.sh
-index a20290b1..ffe5c707 100755
+index 4d08453f..99c288b7 100755
 --- a/scripts/kconfig/nconf-cfg.sh
 +++ b/scripts/kconfig/nconf-cfg.sh
-@@ -6,6 +6,12 @@ set -eu
- cflags=$1
- libs=$2
- 
+@@ -27,6 +27,13 @@ fi
+ # Check the default paths in case pkg-config is not installed.
+ # (Even if it is installed, some distributions such as openSUSE cannot
+ # find ncurses by pkg-config.)
++
 +if echo '#include <ncurses.h>' | ${HOSTCC} -E - >/dev/null 2>&1; then
-+	true > ${cflags}
-+	echo -lncurses -lmenu -lpanel > ${libs}
++	echo -D_GNU_SOURCE > ${cflags}
++	echo -lmenu -lpanel -lncurses > ${libs}
 +	exit 0
 +fi
 +
- PKG="ncursesw menuw panelw"
- PKG2="ncurses menu panel"
- 
+ if [ -f /usr/include/ncursesw/ncurses.h ]; then
+ 	echo -D_GNU_SOURCE -I/usr/include/ncursesw > ${cflags}
+ 	echo -lmenuw -lpanelw -lncursesw > ${libs}
