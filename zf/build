@@ -2,14 +2,14 @@ require go
 
 check() {
   url https://api.github.com/repos/arachsys/zf/branches/master
-  match snapshot 20240825 \
+  match snapshot 20260201 \
     '"date": *"([0-9]{4})-([0-9]{2})-([0-9]{2})' '\1\2\3'
 }
 
 prepare() {
-  unpack zf-20240825-77a04c17.tar.gz \
-    https://github.com/arachsys/zf/archive/77a04c17.tar.gz
-  tree a5f48fbebc951a6e54b18d9f48cb5540fdede54c7f526ab4db8822d704b46887
+  unpack zf-20260201-0c84531f.tar.gz \
+    https://github.com/arachsys/zf/archive/0c84531f.tar.gz
+  tree 0818fc2f14a641aef7d4da0f0e04426211757b9e0c73da42576906b2a291ab33
 }
 
 build() {
