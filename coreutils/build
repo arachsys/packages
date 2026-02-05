@@ -1,16 +1,17 @@
 check() {
   url https://ftp.nluug.nl/pub/gnu/coreutils/
-  match version 9.9 'coreutils-([0-9.]+)\.tar'
+  match version 9.10 'coreutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.nluug.nl/pub/gnu/coreutils/coreutils-9.9.tar.xz
+  unpack https://ftp.nluug.nl/pub/gnu/coreutils/coreutils-9.10.tar.xz
   apply fmt.diff
-  tree 15012b73dee290466eb47ae6b00c9b53d83357b7b7802b61208cb7c38ed93399
+  tree 60f2ad104ef0b8b2a2d105d1e440cbb89e8b0c0dd7c4ae0cd38bac6ba51caf4a
 }
 
 build() {
   FORCE_UNSAFE_CONFIGURE=1 auto-config --enable-install-program=hostname \
-    --enable-no-install-program=hostid,kill,pinky,uptime,users,who
-  make install DESTDIR=/dst run_help2man=/src/man/dummy-man
+    --enable-no-install-program=hostid,kill,pinky,uptime,users,who \
+    --disable-manual-url
+  make install DESTDIR=/dst
 }

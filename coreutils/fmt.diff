@@ -1,8 +1,8 @@
 diff --git a/src/fmt.c b/src/fmt.c
-index 4b97385..53311dd 100644
+index bb141205..e2506ff8 100644
 --- a/src/fmt.c
 +++ b/src/fmt.c
-@@ -42,7 +42,7 @@
+@@ -39,7 +39,7 @@
     "best".  Adjust to taste, subject to the caveats given.  */
  
  /* Default longest permitted line length (max_width).  */
@@ -11,18 +11,21 @@ index 4b97385..53311dd 100644
  
  /* Prefer lines to be LEEWAY % shorter than the maximum width, giving
     room for optimization.  */
-@@ -288,8 +288,8 @@ The option -WIDTH is an abbreviated form of --width=DIGITS.\n\
+@@ -293,11 +293,11 @@ The option -WIDTH is an abbreviated form of --width=DIGITS.\n\
+ "));
+       oputs (_("\
+   -u, --uniform-spacing\n\
+-         one space between words, two after sentences\n\
++         one space between words and after sentences\n\
+ "));
+       oputs (_("\
+   -w, --width=WIDTH\n\
+-         maximum line width (default of 75 columns)\n\
++         maximum line width (default of 76 columns)\n\
+ "));
+       /* Tell xgettext that the "% o" below is not a printf-style
           format string:  xgettext:no-c-format */
-       fputs (_("\
-   -t, --tagged-paragraph    indentation of first line different from second\n\
--  -u, --uniform-spacing     one space between words, two after sentences\n\
--  -w, --width=WIDTH         maximum line width (default of 75 columns)\n\
-+  -u, --uniform-spacing     one space between words and after sentences\n\
-+  -w, --width=WIDTH         maximum line width (default of 76 columns)\n\
-   -g, --goal=WIDTH          goal width (default of 93% of width)\n\
- "), stdout);
-       fputs (HELP_OPTION_DESCRIPTION, stdout);
-@@ -672,8 +672,8 @@ same_para (int c)
+@@ -685,8 +685,8 @@ same_para (int c)
  /* Read a line from input file F, given first non-blank character C
     after the prefix, and the following indent, and break it into words.
     A word is a maximal non-empty string of non-white characters.  A word
@@ -33,7 +36,7 @@ index 4b97385..53311dd 100644
  
     Return the first non-blank character of the next line.  */
  
-@@ -712,11 +712,9 @@ get_line (FILE *f, int c)
+@@ -725,11 +725,9 @@ get_line (FILE *f, int c)
        start = in_column;
        c = get_space (f, c);
        word_limit->space = in_column - start;
