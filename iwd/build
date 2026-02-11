@@ -1,10 +1,10 @@
 check() {
   url https://mirrors.edge.kernel.org/pub/linux/network/wireless/
-  match version 3.10 'iwd-([0-9.]+)\.tar'
+  match version 3.11 'iwd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-3.10.tar.xz
+  unpack https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-3.11.tar.xz
   apply bridge.diff
   apply clang.diff
   apply defaults.diff
@@ -12,12 +12,12 @@ prepare() {
   apply paths.diff
   apply slaac.diff
   apply syslog.diff
-  tree b6e83749db9d70ad970e43b0e1d33db7eabca3a2f90c679d708da965f12df0e3
+  tree ce86bca75fac144c8c364079281ef4c7c429f2f8992aa46b1549c66bde9f8d47
 }
 
 build() {
   auto-config --disable-dbus-policy --disable-systemd-service \
-    --with-dbus-busdir=/lib/dbus/system-services \
+    --with-dbus-busdir=/lib/dbus/system-services PKG_CONFIG=/bin/true \
     READLINE_CFLAGS=-I/lib/include READLINE_LIBS=-lreadline
   make install DESTDIR=/dst
   mv /dst/{lib,bin}/iwd
