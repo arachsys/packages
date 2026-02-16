@@ -4,13 +4,13 @@ check() {
   url https://codeberg.org/ipmitool/ipmitool/tags
   match version 1.8.19 'archive/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
 
-  url https://ftp.nluug.nl/pub/gnu/autoconf/
+  url https://ftp.gnu.org.uk/gnu/autoconf/
   match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
 
-  url https://ftp.nluug.nl/pub/gnu/automake/
+  url https://ftp.gnu.org.uk/gnu/automake/
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
 
-  url https://ftp.nluug.nl/pub/gnu/libtool/
+  url https://ftp.gnu.org.uk/gnu/libtool/
   match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
 
   url https://distfiles.ariadne.space/pkgconf/
@@ -25,11 +25,11 @@ prepare() {
   gunzip enterprise-numbers.gz
 
   unpack -d tools/autoconf \
-    https://ftp.nluug.nl/pub/gnu/autoconf/autoconf-2.72.tar.xz
+    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.72.tar.xz
   unpack -d tools/automake \
-    https://ftp.nluug.nl/pub/gnu/automake/automake-1.18.1.tar.xz
+    https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/libtool \
-    https://ftp.nluug.nl/pub/gnu/libtool/libtool-2.5.4.tar.xz
+    https://ftp.gnu.org.uk/gnu/libtool/libtool-2.5.4.tar.xz
   unpack -d tools/pkgconf \
     https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
 

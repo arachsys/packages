@@ -5,10 +5,10 @@ check() {
   url https://github.com/traviscross/mtr/tags
   match version 0.96 'v([0-9.]+)\.tar'
 
-  url https://ftp.nluug.nl/pub/gnu/autoconf/
+  url https://ftp.gnu.org.uk/gnu/autoconf/
   match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
 
-  url https://ftp.nluug.nl/pub/gnu/automake/
+  url https://ftp.gnu.org.uk/gnu/automake/
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
 
   url https://distfiles.ariadne.space/pkgconf/
@@ -20,9 +20,9 @@ prepare() {
     https://github.com/traviscross/mtr/archive/refs/tags/v0.96.tar.gz
 
   unpack -d tools/autoconf \
-    https://ftp.nluug.nl/pub/gnu/autoconf/autoconf-2.72.tar.xz
+    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.72.tar.xz
   unpack -d tools/automake \
-    https://ftp.nluug.nl/pub/gnu/automake/automake-1.18.1.tar.xz
+    https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/pkgconf \
     https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
 

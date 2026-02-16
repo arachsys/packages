@@ -1,10 +1,10 @@
 check() {
-  url https://ftp.nluug.nl/pub/gnu/readline/
+  url https://ftp.gnu.org.uk/gnu/readline/
   match version 8.3 'readline-([0-9.]+)\.tar\.gz'
 }
 
 prepare() {
-  unpack https://ftp.nluug.nl/pub/gnu/readline/readline-8.3.tar.gz
+  unpack https://ftp.gnu.org.uk/gnu/readline/readline-8.3.tar.gz
   apply config.diff
   apply rpath.diff
   tree d0167a237954399646b0474f350c6134b0f29b5f936c31e40ba8455cce2eec09

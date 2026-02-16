@@ -1,10 +1,10 @@
 check() {
-  url https://ftp.nluug.nl/pub/gnu/findutils/
+  url https://ftp.gnu.org.uk/gnu/findutils/
   match version 4.10.0 'findutils-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.nluug.nl/pub/gnu/findutils/findutils-4.10.0.tar.xz
+  unpack https://ftp.gnu.org.uk/gnu/findutils/findutils-4.10.0.tar.xz
   apply paths.diff
   tree e4f7b1352f80272166d3034160ecd3ad3fb3f71267e0ff95c28b6f6d8b5a4c91
 }

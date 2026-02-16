@@ -1,12 +1,12 @@
 require m4
 
 check() {
-  url https://ftp.nluug.nl/pub/gnu/bison/
+  url https://ftp.gnu.org.uk/gnu/bison/
   match version 3.8.2 'bison-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.nluug.nl/pub/gnu/bison/bison-3.8.2.tar.xz
+  unpack https://ftp.gnu.org.uk/gnu/bison/bison-3.8.2.tar.xz
   tree 1b9552aecffe99f13275fab634b4ce41a723d97166858f9c48c5cb49c281854c
 }
 

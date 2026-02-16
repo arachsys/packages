@@ -1,10 +1,10 @@
 check() {
-  url https://ftp.nluug.nl/pub/gnu/sed/
+  url https://ftp.gnu.org.uk/gnu/sed/
   match version 4.9 'sed-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.nluug.nl/pub/gnu/sed/sed-4.9.tar.xz
+  unpack https://ftp.gnu.org.uk/gnu/sed/sed-4.9.tar.xz
   tree 159b7acaa4dd45f480efb3cef3afd0a6c91b1441dc92f2836271920a7e40ff96
 }
 
