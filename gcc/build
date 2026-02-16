@@ -32,15 +32,12 @@ prepare() {
 
   ln -s bu/{bfd,binutils,gas,gprof,ld,libctf,libsframe,opcodes} .
 
-  apply isl.diff
-  apply musl.diff
   apply no-toollib.diff
   apply paths.diff
   apply pure64.diff
   apply relro.diff
-  apply rpath.diff
 
-  tree 9b05b375d267be9b40df19c7a57093e651e9e25f20b202e9cf97a26edcbaafb0
+  tree 4ece03c80d6be7686f979ccce1b708c65947c28de2c963bf3ef660f8220f1918
 }
 
 build() {
