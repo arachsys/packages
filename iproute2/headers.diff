@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index 50545ef6..510d0f21 100644
+index 20992362..357cf5a8 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -66,7 +66,7 @@ CCOPTS = -O2 -pipe
@@ -11,26 +11,15 @@ index 50545ef6..510d0f21 100644
  YACCFLAGS = -d -t -v
  
  SUBDIRS=lib ip tc bridge misc netem genl man
-diff --git a/lib/utils_math.c b/lib/utils_math.c
-index a7e74744..92e739ab 100644
---- a/lib/utils_math.c
-+++ b/lib/utils_math.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0+
+diff --git a/misc/nstat.c b/misc/nstat.c
+index 4a9f3326..d96b7583 100644
+--- a/misc/nstat.c
++++ b/misc/nstat.c
+@@ -23,6 +23,7 @@
+ #include <signal.h>
+ #include <math.h>
+ #include <getopt.h>
++#include <linux/types.h>
  
-+#include <limits.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-diff --git a/tc/tc_core.c b/tc/tc_core.c
-index a422e02c..5b18717c 100644
---- a/tc/tc_core.c
-+++ b/tc/tc_core.c
-@@ -5,6 +5,7 @@
-  * Authors:	Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
-  */
- 
-+#include <limits.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <stdint.h>
+ #include "json_print.h"
+ #include "version.h"
