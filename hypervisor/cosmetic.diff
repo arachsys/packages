@@ -1,5 +1,5 @@
 diff --git a/cloud-hypervisor/src/main.rs b/cloud-hypervisor/src/main.rs
-index d08293b6..efde84a0 100644
+index 1d78b400..acf2a0e0 100644
 --- a/cloud-hypervisor/src/main.rs
 +++ b/cloud-hypervisor/src/main.rs
 @@ -12,7 +12,7 @@ use std::sync::Mutex;
@@ -46,14 +46,7 @@ index d08293b6..efde84a0 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -221,13 +221,13 @@ fn get_cli_options_sorted(
-         #[cfg(target_arch = "x86_64")]
-         Arg::new("debug-console")
-             .long("debug-console")
--            .help("Debug console: off|pty|tty|file=</path/to/a/file>,iobase=<port in hex>")
-+            .help("Debug console parameters: off|pty|tty|file=<path>,iobase=<port>")
-             .default_value("off,iobase=0xe9")
-             .group("vm-config"),
+@@ -227,7 +227,7 @@ fn get_cli_options_sorted(
          #[cfg(feature = "dbus_api")]
          Arg::new("dbus-service-name")
              .long("dbus-service-name")
@@ -62,6 +55,15 @@ index d08293b6..efde84a0 100644
              .num_args(1)
              .group("vmm-config"),
          #[cfg(feature = "dbus_api")]
+@@ -240,7 +240,7 @@ fn get_cli_options_sorted(
+         #[cfg(target_arch = "x86_64")]
+         Arg::new("debug-console")
+             .long("debug-console")
+-            .help("Debug console: off|pty|tty|file=</path/to/a/file>,iobase=<port in hex>")
++            .help("Debug console parameters: off|pty|tty|file=<path>,iobase=<port>")
+             .default_value("off,iobase=0xe9")
+             .group("vm-config"),
+         Arg::new("device")
 @@ -255,12 +255,12 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("event-monitor")
@@ -214,10 +216,10 @@ index d08293b6..efde84a0 100644
              })
          }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 78d6f9f1..43101851 100644
+index a4339c27..222dbae4 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -680,8 +680,8 @@ impl CpusConfig {
+@@ -684,8 +684,8 @@ impl CpusConfig {
  }
  
  impl PciSegmentConfig {
@@ -228,7 +230,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -998,10 +998,10 @@ impl MemoryConfig {
+@@ -1002,10 +1002,10 @@ impl MemoryConfig {
  }
  
  impl RateLimiterGroupConfig {
@@ -242,7 +244,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1085,8 +1085,8 @@ impl RateLimiterGroupConfig {
+@@ -1089,8 +1089,8 @@ impl RateLimiterGroupConfig {
  }
  
  impl DiskConfig {
@@ -253,14 +255,14 @@ index 78d6f9f1..43101851 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1312,13 +1312,13 @@ impl FromStr for VhostMode {
+@@ -1348,13 +1348,13 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
 -    pub const SYNTAX: &'static str = "Network parameters \
--    \"tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,fd=<fd1,fd2...>,iommu=on|off,\
+-    \"tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,fd=<[fd1,fd2,...]>,iommu=on|off,\
 +    pub const SYNTAX: &'static str = "Network parameters: \
-+    tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,fd=<fd1>,<fd2>...,iommu=on|off,\
++    tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,fd=<[fd1,fd2,...]>,iommu=on|off,\
      num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,id=<device_id>,\
      vhost_user=<vhost_user_enable>,socket=<vhost_user_socket_path>,vhost_mode=client|server,\
      bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
@@ -270,7 +272,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1564,8 +1564,8 @@ impl RngConfig {
+@@ -1607,8 +1607,8 @@ impl RngConfig {
  }
  
  impl BalloonConfig {
@@ -281,7 +283,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1600,9 +1600,9 @@ impl BalloonConfig {
+@@ -1643,9 +1643,9 @@ impl BalloonConfig {
  }
  
  impl FsConfig {
@@ -294,7 +296,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1672,9 +1672,9 @@ impl FsConfig {
+@@ -1718,9 +1718,9 @@ impl FsConfig {
  
  #[cfg(feature = "fw_cfg")]
  impl FwCfgConfig {
@@ -307,7 +309,7 @@ index 78d6f9f1..43101851 100644
      pub fn parse(fw_cfg_config: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
          parser
-@@ -1767,9 +1767,9 @@ impl FwCfgItem {
+@@ -1813,9 +1813,9 @@ impl FwCfgItem {
  }
  
  impl PmemConfig {
@@ -320,7 +322,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1939,7 +1939,7 @@ impl DebugConsoleConfig {
+@@ -1985,7 +1985,7 @@ impl DebugConsoleConfig {
  }
  
  impl DeviceConfig {
@@ -329,7 +331,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1997,7 +1997,7 @@ impl DeviceConfig {
+@@ -2043,7 +2043,7 @@ impl DeviceConfig {
  
  impl UserDeviceConfig {
      pub const SYNTAX: &'static str =
@@ -338,7 +340,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2041,9 +2041,9 @@ impl UserDeviceConfig {
+@@ -2087,9 +2087,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -351,7 +353,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2102,8 +2102,8 @@ impl VdpaConfig {
+@@ -2148,8 +2148,8 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -362,7 +364,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2162,10 +2162,10 @@ impl VsockConfig {
+@@ -2208,11 +2208,11 @@ impl VsockConfig {
  }
  
  impl NumaConfig {
@@ -370,13 +372,14 @@ index 78d6f9f1..43101851 100644
 -        \"guest_numa_id=<node_id>,cpus=<cpus_id>,distances=<list_of_distances_to_destination_nodes>,\
 +    pub const SYNTAX: &'static str = "NUMA parameters: \
 +        guest_numa_id=<node_id>,cpus=<cpus_id>,distances=<list_of_distances_to_destination_nodes>,\
+         device_id=<device_id>,\
          memory_zones=<list_of_memory_zones>,\
 -        pci_segments=<list_of_pci_segments>\"";
 +        pci_segments=<list_of_pci_segments>";
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2261,13 +2261,9 @@ pub struct RestoreConfig {
+@@ -2372,13 +2372,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
@@ -393,7 +396,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2350,8 +2346,8 @@ impl RestoreConfig {
+@@ -2461,8 +2457,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {
@@ -404,7 +407,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2366,8 +2362,8 @@ impl TpmConfig {
+@@ -2477,8 +2473,8 @@ impl TpmConfig {
  }
  
  impl LandlockConfig {
@@ -415,7 +418,7 @@ index 78d6f9f1..43101851 100644
  
      pub fn parse(landlock_rule: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2406,10 +2402,9 @@ impl LandlockConfig {
+@@ -2517,10 +2513,9 @@ impl LandlockConfig {
  
  #[cfg(feature = "ivshmem")]
  impl IvshmemConfig {

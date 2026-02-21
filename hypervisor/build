@@ -2,16 +2,16 @@ require rust
 
 check() {
   url https://github.com/cloud-hypervisor/cloud-hypervisor/tags
-  match version 50.0 'tags/v([0-9.]+)\.tar'
+  match version 51.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack cloud-hypervisor-50.0.tar.xz \
-    https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v50.0/cloud-hypervisor-v50.0.tar.xz
+  unpack cloud-hypervisor-51.0.tar.xz \
+    https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v51.0/cloud-hypervisor-v51.0.tar.xz
   apply cosmetic.diff
   apply hotplug.diff
   apply tapip.diff
-  tree f0133c0df7731c0269ca02fc083a57e483acd7c8e817e4d9d090de7647a9addc
+  tree 4386a5ac0d73f124938a1c14ea38cdde42883e9101bf50c6cc80d6df9a5177f5
 }
 
 build() {
