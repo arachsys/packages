@@ -10,8 +10,9 @@ prepare() {
     https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v51.1/cloud-hypervisor-v51.1.tar.xz
   apply cosmetic.diff
   apply hotplug.diff
+  apply rawimg.diff
   apply tapip.diff
-  tree 15ed7a4db9ac70724625d3bfb2c94bf6a10e4d02955bc27d7afdab433bb53727
+  tree 438a248bea9faa8dca8f4da67f4d0d3c6c3411a8e6e2fe1d93795d29033193c4
 }
 
 build() {
