@@ -8,7 +8,7 @@ prepare() {
   apply config.diff
   apply paths.diff
   apply prompt.diff
-  tree 4aacfb3a58d7e2d97de5cd723173873f491e87f6b4bf6761ca6c797a559f38a5
+  tree 9dafd754ec47eda3ee08f56112aef33efcc869281b38dbedb2f85f85eeed7e78
 }
 
 build() {
