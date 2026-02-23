@@ -7,7 +7,8 @@ check() {
   match gcc 15.2.0 'gcc-([0-9.]+)/'
 
   url https://ftp.gnu.org.uk/gnu/binutils/
-  match binutils 2.45.1 'binutils-([0-9.]+)\.tar'
+  # binutils 2.46.0 blocked until gcc 16.1.0 for combined tree
+  match binutils 2.45.1 'binutils-(2\.45(\.[0-9.]+)?)\.tar'
 
   url https://ftp.gnu.org.uk/gnu/gmp/
   match gmp 6.3.0 'gmp-([0-9.]+)\.tar'
