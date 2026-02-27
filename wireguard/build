@@ -1,14 +1,14 @@
 check() {
   url https://github.com/wireguard/wireguard-tools/tags
-  match version 1.0.20250521 'v([0-9.]+)\.tar'
+  match version 1.0.20260223 'v([0-9.]+)\.tar'
 }
 
 prepare() {
 
-  unpack wireguard-tools-1.0.20250521.tar.gz \
-    https://github.com/wireguard/wireguard-tools/archive/refs/tags/v1.0.20250521.tar.gz
+  unpack wireguard-tools-1.0.20260223.tar.gz \
+    https://github.com/wireguard/wireguard-tools/archive/refs/tags/v1.0.20260223.tar.gz
   find -xtype l -delete
-  tree 2140caa0153c74cf3e386aefc221100bd908506d69471958561d5adb2631fde2
+  tree adde3070415205c1c2f7f26ab13f69d592a7ba7b7bc2e3b9a17e883770e2eb91
 }
 
 build() {
