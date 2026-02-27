@@ -1,5 +1,5 @@
 diff --git a/magic/Magdir/clojure b/magic/Magdir/clojure
-index 1f1cddf..0a1e62b 100644
+index 1f1cddf9..0a1e62bb 100644
 --- a/magic/Magdir/clojure
 +++ b/magic/Magdir/clojure
 @@ -3,18 +3,30 @@
@@ -34,7 +34,7 @@ index 1f1cddf..0a1e62b 100644
  !:mime	text/x-clojure
  0	string/W	#!\ /usr/bin/env\ clojure	Clojure script text executable
 diff --git a/magic/Magdir/commands b/magic/Magdir/commands
-index 6ad87fd..9c72995 100644
+index 4ce97766..3465caf1 100644
 --- a/magic/Magdir/commands
 +++ b/magic/Magdir/commands
 @@ -37,6 +37,8 @@
@@ -46,50 +46,16 @@ index 6ad87fd..9c72995 100644
  0	string/fwt	#!\ /usr/bin/env\ zsh	Paul Falstad's zsh script text executable
  !:mime	text/x-shellscript
  
-@@ -87,27 +89,41 @@
+@@ -114,6 +116,8 @@
  !:mime	text/x-shellscript
- 0	string/fwb	#!\ /usr/local/bin/bash	Bourne-Again shell script executable (binary data)
- !:mime	text/x-shellscript
-+0	string/fwt	#!\ /bin/env\ bash	Bourne-Again shell script text executable
-+!:mime	text/x-shellscript
- 0	string/fwt	#!\ /usr/bin/env\ bash	Bourne-Again shell script text executable
- !:mime	text/x-shellscript
- 
- # Fish shell magic
- # From: Benjamin Lowry <ben@ben.gmbh>
--0	string/fwt	#!\ /usr/local/bin/fish		fish shell script text executable
-+0	string/fwt	#!\ /bin/fish		fish shell script text executable
- !:mime	text/x-shellscript
- 0	string/fwt	#!\ /usr/bin/fish		fish shell script text executable
- !:mime	text/x-shellscript
-+0	string/fwt	#!\ /usr/local/bin/fish		fish shell script text executable
-+!:mime	text/x-shellscript
-+0	string/fwt	#!\ /bin/env\ fish		fish shell script text executable
-+!:mime	text/x-shellscript
  0	string/fwt	#!\ /usr/bin/env\ fish		fish shell script text executable
  !:mime	text/x-shellscript
++0	string/fwt	#!\ /bin/env\ fish		fish shell script text executable
++!:mime	text/x-shellscript
  
-+0	search/1/fwt	#!\ /bin/tclsh	Tcl/Tk script text executable
-+!:mime  text/x-tcl
  0	search/1/fwt	#!\ /usr/bin/tclsh	Tcl/Tk script text executable
- !:mime  text/x-tcl
- 
-+0	search/1/fwt	#!\ /bin/texlua	LuaTex script text executable
-+!:mime	text/x-luatex
- 0	search/1/fwt	#!\ /usr/bin/texlua	LuaTex script text executable
- !:mime	text/x-luatex
- 
-+0	search/1/fwt	#!\ /bin/luatex	LuaTex script text executable
-+!:mime	text/x-luatex
- 0	search/1/fwt	#!\ /usr/bin/luatex	LuaTex script text executable
- !:mime	text/x-luatex
- 
-+0	search/1/fwt	#!\ /bin/stap	Systemtap script text executable
-+!:mime  text/x-systemtap
- 0	search/1/fwt	#!\ /usr/bin/stap	Systemtap script text executable
- !:mime  text/x-systemtap
- 
-@@ -120,6 +136,8 @@
+ !:mime	text/x-tcl
+@@ -149,6 +153,8 @@
  !:mime	text/x-execline
  0	string/fwt	#!\ /usr/bin/execlineb		execline script text executable
  !:mime	text/x-execline
@@ -98,9 +64,9 @@ index 6ad87fd..9c72995 100644
  0	string/fwt	#!\ /usr/bin/env\ execlineb		execline script text executable
  !:mime	text/x-execline
  
-@@ -142,6 +160,9 @@
+@@ -174,6 +180,9 @@
  0	search/1/w	#!\ /usr/bin/php	PHP script text executable
- !:strength + 10
+ !:strength + 55
  !:mime	text/x-php
 +0	search/1/w	#!\ /bin/php	PHP script text executable
 +!:strength + 10
@@ -108,26 +74,26 @@ index 6ad87fd..9c72995 100644
  # Smarty compiled template, https://www.smarty.net/
  # Elan Ruusamae <glen@delfi.ee>
  0	string	=<?php
-@@ -183,6 +204,7 @@
+@@ -215,6 +224,7 @@
  # Type: Pdmenu
- # URL:  https://packages.debian.org/pdmenu
+ # URL:	https://packages.debian.org/pdmenu
  # From: Edward Betts <edward@debian.org>
 +0	string		#!/bin/pdmenu	Pdmenu configuration file text
  0	string		#!/usr/bin/pdmenu	Pdmenu configuration file text
  
  # From Danny Weldon
-@@ -196,6 +218,9 @@
- >0x10  byte        x       version %d
- >>0x11 byte        x      \b.%d
+@@ -228,6 +238,9 @@
+ >0x10  byte	   x	   version %d
+ >>0x11 byte	   x	  \b.%d
  
 +0	string/fwt	#!\ /bin/env\ runghc	GHC script executable
  0	string/fwt	#!\ /usr/bin/env\ runghc	GHC script executable
 +0	string/fwt	#!\ /bin/env\ runhaskell	Haskell script executable
  0	string/fwt	#!\ /usr/bin/env\ runhaskell	Haskell script executable
-+0	string/fwt	#!\ /bin/env\ julia	Julia script executable
- 0	string/fwt	#!\ /usr/bin/env\ julia	Julia script executable
++0	string/fwt	#!\ /bin/env\ julia Julia script executable
+ 0	string/fwt	#!\ /usr/bin/env\ julia Julia script executable
 diff --git a/magic/Magdir/javascript b/magic/Magdir/javascript
-index 90a09cc..a856ec6 100644
+index 85d4a70b..0d1a6b2e 100644
 --- a/magic/Magdir/javascript
 +++ b/magic/Magdir/javascript
 @@ -11,8 +11,12 @@
@@ -144,7 +110,7 @@ index 90a09cc..a856ec6 100644
  !:mime application/javascript
  
 diff --git a/magic/Magdir/lua b/magic/Magdir/lua
-index ab17374..a6ddd46 100644
+index 859862a3..4ab70789 100644
 --- a/magic/Magdir/lua
 +++ b/magic/Magdir/lua
 @@ -6,10 +6,16 @@
@@ -165,7 +131,7 @@ index ab17374..a6ddd46 100644
  !:mime	text/x-lua
  0	search/1	#!\ /usr/bin/env\ lua	Lua script text executable
 diff --git a/magic/Magdir/perl b/magic/Magdir/perl
-index 4a3756a..837e1e2 100644
+index 4a3756a4..837e1e29 100644
 --- a/magic/Magdir/perl
 +++ b/magic/Magdir/perl
 @@ -23,6 +23,10 @@
@@ -180,30 +146,30 @@ index 4a3756a..837e1e2 100644
  !:mime	text/x-perl
  0	string	#!\ /usr/bin/env\ perl	Perl script text executable
 diff --git a/magic/Magdir/python b/magic/Magdir/python
-index 00d90d1..f6b81b2 100644
+index ede1b5ba..679b88d5 100644
 --- a/magic/Magdir/python
 +++ b/magic/Magdir/python
-@@ -229,12 +229,18 @@
+@@ -247,12 +247,18 @@
  !:mime application/x-bytecode.python
  >>>0		use		pyc-pep552
  
 +0	search/1/w	#!\040/bin/python	Python script text executable
-+!:strength + 15
++!:strength + 30
 +!:mime text/x-script.python
  0	search/1/w	#!\040/usr/bin/python	Python script text executable
- !:strength + 15
+ !:strength + 30
  !:mime text/x-script.python
  0	search/1/w	#!\040/usr/local/bin/python	Python script text executable
- !:strength + 15
+ !:strength + 30
  !:mime text/x-script.python
 +0	search/10/w	#!\040/bin/env\040python	Python script text executable
-+!:strength + 15
++!:strength + 30
 +!:mime text/x-script.python
  0	search/10/w	#!\040/usr/bin/env\040python	Python script text executable
- !:strength + 15
+ !:strength + 30
  !:mime text/x-script.python
 diff --git a/magic/Magdir/ruby b/magic/Magdir/ruby
-index 9e67a3e..2c5b32d 100644
+index 9e67a3e2..2c5b32db 100644
 --- a/magic/Magdir/ruby
 +++ b/magic/Magdir/ruby
 @@ -6,12 +6,21 @@
@@ -229,7 +195,7 @@ index 9e67a3e..2c5b32d 100644
  !:strength + 15
  !:mime text/x-ruby
 diff --git a/magic/Magdir/tcl b/magic/Magdir/tcl
-index edc3ec4..ca614e3 100644
+index edc3ec42..ca614e37 100644
 --- a/magic/Magdir/tcl
 +++ b/magic/Magdir/tcl
 @@ -4,18 +4,30 @@
@@ -264,25 +230,42 @@ index edc3ec4..ca614e3 100644
  !:mime	text/x-tcl
  0	search/1	#!\ /usr/bin/env\ wish	Tcl/Tk script text executable
 diff --git a/magic/Magdir/varied.script b/magic/Magdir/varied.script
-index 74b1b22..0637712 100644
+index a6e2d95e..e52fadea 100644
 --- a/magic/Magdir/varied.script
 +++ b/magic/Magdir/varied.script
-@@ -12,10 +12,18 @@
+@@ -15,19 +15,35 @@
  
  
  # using env
-+0	string/wt	#!\ /bin/env		a
-+>15	string/T	>\0			%s script text executable
-+!:strength / 6
++0	regex/t		#![[:space:]]*/bin/env[[:space:]]*	a
++>&0	string/T	>\0			%s script text executable
++!:strength / 2
 +
- 0	string/wt	#!\ /usr/bin/env		a
- >15	string/T	>\0			%s script text executable
- !:strength / 6
+ 0	regex/t		#![[:space:]]*/usr/bin/env[[:space:]]*	a
+ >&0	string/T	>\0			%s script text executable
+ !:strength / 2
  
-+0	string/wb	#!\ /bin/env		a
-+>15	string/T	>\0			%s script executable (binary data)
-+!:strength / 6
++0	regex/b		#![[:space:]]*/bin/env[[:space:]]*	a
++>&0	string/T	>\0			%s script executable (binary data)
++!:strength / 2
 +
- 0	string/wb	#!\ /usr/bin/env		a
- >15	string/T	>\0			%s script executable (binary data)
- !:strength / 6
+ 0	regex/b		#![[:space:]]*/usr/bin/env[[:space:]]*	a
+ >&0	string/T	>\0			%s script executable (binary data)
+ !:strength / 2
+ 
+ # using env
++0	regex/t		#![[:space:]]*/bin/env[[:space:]]*-[Si0]	a
++>&0	string/T	>\0			%s script text executable
++!:strength / 2
++
+ 0	regex/t		#![[:space:]]*/usr/bin/env[[:space:]]*-[Si0]	a
+ >&0	string/T	>\0			%s script text executable
+ !:strength / 2
+ 
++0	regex/b		#![[:space:]]*/bin/env[[:space:]]*-[Si0]	a
++>&0	string/T	>\0			%s script executable (binary data)
++!:strength / 2
++
+ 0	regex/b		#![[:space:]]*/usr/bin/env[[:space:]]*-[Si0]	a
+ >&0	string/T	>\0			%s script executable (binary data)
+ !:strength / 2
