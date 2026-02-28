@@ -1,5 +1,5 @@
 diff --git a/clang/lib/Driver/ToolChains/Linux.h b/clang/lib/Driver/ToolChains/Linux.h
-index 2eb2d057..5db1d39d 100644
+index 97bad77c..282902ac 100644
 --- a/clang/lib/Driver/ToolChains/Linux.h
 +++ b/clang/lib/Driver/ToolChains/Linux.h
 @@ -10,6 +10,7 @@
@@ -10,7 +10,7 @@ index 2eb2d057..5db1d39d 100644
  #include "clang/Driver/ToolChain.h"
  
  namespace clang {
-@@ -63,6 +64,11 @@ public:
+@@ -70,6 +71,11 @@ public:
  
    const char *getDefaultLinker() const override;
  

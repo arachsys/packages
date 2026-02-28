@@ -1,5 +1,5 @@
 diff --git a/cmake/Modules/GNUInstallDirs.cmake b/cmake/Modules/GNUInstallDirs.cmake
-index ff9c11a9..984d732a 100644
+index f677c27f..0fcf11e7 100644
 --- a/cmake/Modules/GNUInstallDirs.cmake
 +++ b/cmake/Modules/GNUInstallDirs.cmake
 @@ -89,7 +89,7 @@ where ``<dir>`` is one of:
@@ -11,7 +11,7 @@ index ff9c11a9..984d732a 100644
  ``DATAROOTDIR``
    read-only architecture-independent data root (``share``)
  ``DATADIR``
-@@ -401,7 +401,7 @@ set(_GNUInstallDirs_SHAREDSTATEDIR_DEFAULT "com")
+@@ -403,7 +403,7 @@ set(_GNUInstallDirs_SHAREDSTATEDIR_DEFAULT "com")
  set(_GNUInstallDirs_LOCALSTATEDIR_DEFAULT "var")
  set(_GNUInstallDirs_LIBDIR_DEFAULT "lib")
  set(_GNUInstallDirs_INCLUDEDIR_DEFAULT "include")
@@ -20,7 +20,7 @@ index ff9c11a9..984d732a 100644
  set(_GNUInstallDirs_DATAROOTDIR_DEFAULT "share")
  
  # Define the special defaults handling
-@@ -628,10 +628,6 @@ function(GNUInstallDirs_get_absolute_install_dir absvar var)
+@@ -630,10 +630,6 @@ function(GNUInstallDirs_get_absolute_install_dir absvar var)
    endif()
  
    if(NOT IS_ABSOLUTE "${${var}}")
@@ -31,7 +31,7 @@ index ff9c11a9..984d732a 100644
      if("${GGAID_dir}" STREQUAL "SYSCONFDIR" OR "${GGAID_dir}" STREQUAL "LOCALSTATEDIR" OR "${GGAID_dir}" STREQUAL "RUNSTATEDIR")
        _GNUInstallDirs_special_absolute(${absvar} "${${var}}" "${CMAKE_INSTALL_PREFIX}")
        # If the CMAKE_INSTALL_PREFIX was not special, the output
-@@ -644,11 +640,6 @@ function(GNUInstallDirs_get_absolute_install_dir absvar var)
+@@ -646,11 +642,6 @@ function(GNUInstallDirs_get_absolute_install_dir absvar var)
            set(${absvar} "${CMAKE_INSTALL_PREFIX}/${${var}}")
          endif()
        endif()

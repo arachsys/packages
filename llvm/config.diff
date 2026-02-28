@@ -1,26 +1,26 @@
 diff --git a/lldb/source/Host/common/Editline.cpp b/lldb/source/Host/common/Editline.cpp
-index 5ed30fbb..c93bc4d2 100644
+index 39b0a649..6942769f 100644
 --- a/lldb/source/Host/common/Editline.cpp
 +++ b/lldb/source/Host/common/Editline.cpp
-@@ -223,14 +223,10 @@ private:
-       FileSystem::Instance().GetHomeDirectory(lldb_history_file);
-       llvm::sys::path::append(lldb_history_file, ".lldb");
+@@ -214,14 +214,10 @@ private:
+     if (m_path.empty() && m_history && !m_prefix.empty()) {
+       FileSpec lldb_dir = HostInfo::GetUserLLDBDir();
  
 -      // LLDB stores its history in ~/.lldb/. If for some reason this directory
 -      // isn't writable or cannot be created, history won't be available.
--      if (!llvm::sys::fs::create_directory(lldb_history_file)) {
+-      if (!llvm::sys::fs::create_directory(lldb_dir.GetPath())) {
 -#if LLDB_EDITLINE_USE_WCHAR
 -        std::string filename = m_prefix + "-widehistory";
 -#else
-+      // LLDB stores its history in ~/.local/state/lldb/. If this directory doesn't
-+      // already exist, assume the user doesn't want to persist history.
-+      if (llvm::sys::fs::is_directory(lldb_history_file)) {
++      // LLDB stores its history in ~/.local/state/lldb/. If this directory
++      // doesn't already exist, assume we shouldn't persist history.
++      if (llvm::sys::fs::is_directory(lldb_dir.GetPath())) {
          std::string filename = m_prefix + "-history";
 -#endif
-         llvm::sys::path::append(lldb_history_file, filename);
-         m_path = std::string(lldb_history_file.str());
-       }
-@@ -1279,10 +1275,7 @@ void Editline::ConfigureEditor(bool multiline) {
+         FileSpec lldb_history_file =
+             lldb_dir.CopyByAppendingPathComponent(filename);
+         m_path = lldb_history_file.GetPath();
+@@ -1273,10 +1269,7 @@ void Editline::ConfigureEditor(bool multiline) {
    ApplyTerminalSizeChange();
  
    if (m_history_sp && m_history_sp->IsValid()) {
@@ -33,19 +33,19 @@ index 5ed30fbb..c93bc4d2 100644
    }
    el_set(m_editline, EL_CLIENTDATA, this);
 diff --git a/lldb/source/Interpreter/CommandInterpreter.cpp b/lldb/source/Interpreter/CommandInterpreter.cpp
-index 00c34724..094a1e59 100644
+index 7be7ce00..1fe5e5d8 100644
 --- a/lldb/source/Interpreter/CommandInterpreter.cpp
 +++ b/lldb/source/Interpreter/CommandInterpreter.cpp
-@@ -2480,7 +2480,7 @@ int CommandInterpreter::GetOptionArgumentPosition(const char *in_string) {
+@@ -2592,7 +2592,7 @@ int CommandInterpreter::GetOptionArgumentPosition(const char *in_string) {
+ }
  
- static void GetHomeInitFile(llvm::SmallVectorImpl<char> &init_file,
-                             llvm::StringRef suffix = {}) {
+ static void GetHomeInitFile(FileSpec &init_file, llvm::StringRef suffix = {}) {
 -  std::string init_file_name = ".lldbinit";
 +  std::string init_file_name = ".config/lldb/init";
    if (!suffix.empty()) {
      init_file_name.append("-");
      init_file_name.append(suffix.str());
-@@ -2503,7 +2503,7 @@ static void GetHomeREPLInitFile(llvm::SmallVectorImpl<char> &init_file,
+@@ -2612,7 +2612,7 @@ static void GetHomeREPLInitFile(FileSpec &init_file, LanguageType language) {
    }
  
    std::string init_file_name =
