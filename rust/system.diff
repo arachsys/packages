@@ -19,10 +19,10 @@ index 2d84e78f..0f4d75ea 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
-index 02940a80..d5a6de33 100644
+index 11f2a28b..4a8b16f3 100644
 --- a/src/bootstrap/src/core/build_steps/compile.rs
 +++ b/src/bootstrap/src/core/build_steps/compile.rs
-@@ -375,54 +375,7 @@ fn copy_self_contained_objects(
+@@ -382,54 +382,7 @@ fn copy_self_contained_objects(
      t!(fs::create_dir_all(&libdir_self_contained));
      let mut target_deps = vec![];
  
@@ -79,7 +79,7 @@ index 02940a80..d5a6de33 100644
              panic!(
                  "Target {:?} does not have a \"wasi-root\" key in bootstrap.toml \
 diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
-index 50d81540..3818e081 100644
+index 67f4eb37..bd7d848f 100644
 --- a/src/bootstrap/src/core/sanity.rs
 +++ b/src/bootstrap/src/core/sanity.rs
 @@ -12,7 +12,7 @@
@@ -91,7 +91,7 @@ index 50d81540..3818e081 100644
  
  #[cfg(not(test))]
  use crate::builder::Builder;
-@@ -367,22 +367,6 @@ than building it.
+@@ -363,22 +363,6 @@ than building it.
              continue;
          }
  
@@ -115,7 +115,7 @@ index 50d81540..3818e081 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index a31eb0c1..b941b0b1 100644
+index 857c0539..fadc2035 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
 @@ -261,6 +261,7 @@ pub struct Build {

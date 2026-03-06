@@ -1,5 +1,5 @@
 diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
-index 4dd465ed..58b2976b 100644
+index 2e16f2cf..08cb600d 100644
 --- a/src/bootstrap/bootstrap.py
 +++ b/src/bootstrap/bootstrap.py
 @@ -724,7 +724,7 @@ class RustBuild(object):
@@ -12,10 +12,10 @@ index 4dd465ed..58b2976b 100644
                  lib_dir = "{}/lib".format(bin_root)
                  rustlib_bin_dir = "{}/rustlib/{}/bin".format(lib_dir, self.build)
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 40149ee0..1775c83b 100644
+index cfcb144e..63fa61b6 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
-@@ -535,7 +535,7 @@ impl Step for Rustc {
+@@ -538,7 +538,7 @@ impl Step for Rustc {
                  tool::RustAnalyzerProcMacroSrv::from_compilers(compilers),
                  builder.kind,
              ) {
@@ -38,7 +38,7 @@ index a90687c5..8c608b46 100644
          builder.copy_link(
              &tool_result.tool_path,
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index d950dc1a..de099948 100644
+index 074404b4..72d9c015 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
 @@ -202,7 +202,7 @@ impl Config {
