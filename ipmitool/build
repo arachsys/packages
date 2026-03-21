@@ -5,7 +5,7 @@ check() {
   match version 1.8.19 'archive/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
 
   url https://ftp.gnu.org.uk/gnu/autoconf/
-  match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
+  match autoconf 2.73 'autoconf-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org.uk/gnu/automake/
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
@@ -25,7 +25,7 @@ prepare() {
   gunzip enterprise-numbers.gz
 
   unpack -d tools/autoconf \
-    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.72.tar.xz
+    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.73.tar.xz
   unpack -d tools/automake \
     https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/libtool \
@@ -35,7 +35,7 @@ prepare() {
 
   apply console.diff
   apply lanplus.diff
-  tree 2713daa2bc8efb763f67dd382854c71a2d018394410a321b8933053e7f57c102
+  tree 5ed6dc4e3e5c2b2b8a823669b8077315a9f7fea16de6688f09f5d0770fc30d24
 }
 
 build() {
