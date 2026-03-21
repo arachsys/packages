@@ -6,7 +6,7 @@ check() {
   match version 0.96 'v([0-9.]+)\.tar'
 
   url https://ftp.gnu.org.uk/gnu/autoconf/
-  match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
+  match autoconf 2.73 'autoconf-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org.uk/gnu/automake/
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
@@ -20,7 +20,7 @@ prepare() {
     https://github.com/traviscross/mtr/archive/refs/tags/v0.96.tar.gz
 
   unpack -d tools/autoconf \
-    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.72.tar.xz
+    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.73.tar.xz
   unpack -d tools/automake \
     https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/pkgconf \
@@ -28,7 +28,7 @@ prepare() {
 
   apply cosmetic.diff
   apply prune.diff
-  tree f1966ea14c45a4a2e979c16adc13bc4b8dfde06c2f18131ec95582b3c38e6c76
+  tree b5f362635df506497279728e8698289fa632a8469dacc50b91a606059a949094
 }
 
 build() {
