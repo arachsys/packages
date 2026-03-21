@@ -5,7 +5,7 @@ check() {
   match version 1.4.82 'lighttpd-([0-9.]+).tar'
 
   url https://ftp.gnu.org.uk/gnu/autoconf/
-  match autoconf 2.72 'autoconf-([0-9.]+)\.tar'
+  match autoconf 2.73 'autoconf-([0-9.]+)\.tar'
 
   url https://ftp.gnu.org.uk/gnu/automake/
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
@@ -21,7 +21,7 @@ prepare() {
   unpack lighttpd-1.4.82.tar.xz \
     https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.82.tar.xz
   unpack -d tools/autoconf \
-    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.72.tar.xz
+    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.73.tar.xz
   unpack -d tools/automake \
     https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/libtool \
@@ -29,7 +29,7 @@ prepare() {
   unpack -d tools/pkgconf \
     https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
   apply paths.diff
-  tree 74dedca1fb5dde3d36b92756d7df7a32164b117cd8c3498f4ad9e3ce6f96df1d
+  tree 21ccc2cdf7e2b3d02a83e02b75115fdc0bbe24a79cf0f85aa65217064a4a1976
 }
 
 build() {
