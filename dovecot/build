@@ -3,18 +3,18 @@ require perl
 
 check() {
   url https://github.com/dovecot/core/tags
-  match version 2.4.2 'tags/([0-9.]+)\.tar'
+  match version 2.4.3 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dovecot.org/releases/2.4/dovecot-2.4.2.tar.gz
+  unpack https://dovecot.org/releases/2.4/dovecot-2.4.3.tar.gz
   apply paths.diff
   apply users.diff
-  tree 74621b2d434f63adba2071dff26cd323bcc609b5ae76364eeaf2f1776350640d
+  tree 1f1c63e9250ead1cd9ed0f8a558a1e7e2cf8e06e1e77fd4ae85bced81f638d18
 }
 
 build() {
-  auto-config --with-moduledir=/lib/dovecot/modules \
+  auto-config --without-lua --with-moduledir=/lib/dovecot/modules \
     --with-rundir=/run/dovecot {ZLIB,ZSTD}_CFLAGS=-I/lib/include \
     ZLIB_LIBS=-lz ZSTD_LIBS=-lzstd
   make install DESTDIR=/dst pkgsysconfdir=/etc/mail \
