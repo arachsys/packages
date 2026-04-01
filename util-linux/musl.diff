@@ -1,0 +1,14 @@
+diff --git a/sys-utils/nsenter.c b/sys-utils/nsenter.c
+index e10ba9cf..9ece434c 100644
+--- a/sys-utils/nsenter.c
++++ b/sys-utils/nsenter.c
+@@ -32,6 +32,9 @@
+ #ifndef NS_GET_USERNS
+ # define NS_GET_USERNS           _IO(0xb7, 0x1)
+ #endif
++#ifndef AT_HANDLE_FID
++# define AT_HANDLE_FID           0x200
++#endif
+ 
+ #ifdef HAVE_LIBSELINUX
+ # include <selinux/selinux.h>

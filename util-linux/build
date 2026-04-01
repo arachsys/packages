@@ -2,16 +2,16 @@ enable setuid setgid
 
 check() {
   url https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/refs/
-  match version 2.41.3 '>v([0-9.]+)<'
+  match version 2.42 '>v([0-9.]+)<'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.41/util-linux-2.41.3.tar.xz
+  unpack https://www.kernel.org/pub/linux/utils/util-linux/v2.42/util-linux-2.42.tar.xz
   apply logger.diff
+  apply musl.diff
   apply paths.diff
   apply sulogin.diff
-  # apply unshare.diff
-  tree ec31c0b062efc1d83dd6fd7cf47e6365e4dc0f7bb2e2637a963885ef180e650b
+  tree 85b08ae6528e3e6840e7601dfc47fc027561bb8beab345cd0579b61bf7ea869b
 }
 
 build() {
