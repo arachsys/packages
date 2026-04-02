@@ -1,5 +1,5 @@
 diff --git a/hostfile.c b/hostfile.c
-index f7fa332e..eeee7bc8 100644
+index aa3a4c50..1e7e3540 100644
 --- a/hostfile.c
 +++ b/hostfile.c
 @@ -654,7 +654,7 @@ hostfile_replace_entries(const char *filename, const char *host, const char *ip,
@@ -12,10 +12,10 @@ index f7fa332e..eeee7bc8 100644
  		r = SSH_ERR_ALLOC_FAIL;
  		goto fail;
 diff --git a/misc.c b/misc.c
-index 6e4a1fcc..c6d61af6 100644
+index 34477eaa..f739604a 100644
 --- a/misc.c
 +++ b/misc.c
-@@ -1871,11 +1871,11 @@ mktemp_proto(char *s, size_t len)
+@@ -1918,11 +1918,11 @@ mktemp_proto(char *s, size_t len)
  	int r;
  
  	if ((tmpdir = getenv("TMPDIR")) != NULL) {
@@ -30,10 +30,10 @@ index 6e4a1fcc..c6d61af6 100644
  		fatal_f("template string too short");
  }
 diff --git a/moduli.c b/moduli.c
-index 999a9098..1832e658 100644
+index e8ef9633..8f3a1743 100644
 --- a/moduli.c
 +++ b/moduli.c
-@@ -409,7 +409,7 @@ write_checkpoint(char *cpfile, u_int32_t lineno)
+@@ -409,7 +409,7 @@ write_checkpoint(char *cpfile, uint32_t lineno)
  	char tmp[PATH_MAX];
  	int r, writeok, closeok;
  
@@ -43,10 +43,10 @@ index 999a9098..1832e658 100644
  		logit("write_checkpoint: temp pathname too long");
  		return;
 diff --git a/session.c b/session.c
-index 4732b381..8ef64515 100644
+index eb87b9ca..cb8576c6 100644
 --- a/session.c
 +++ b/session.c
-@@ -244,7 +244,7 @@ prepare_auth_info_file(struct passwd *pw, struct sshbuf *info)
+@@ -245,7 +245,7 @@ prepare_auth_info_file(struct passwd *pw, struct sshbuf *info)
  		return;
  
  	temporarily_use_uid(pw);
@@ -56,7 +56,7 @@ index 4732b381..8ef64515 100644
  		error_f("mkstemp: %s", strerror(errno));
  		goto out;
 diff --git a/ssh-keygen.c b/ssh-keygen.c
-index 12fc0ce8..0d80ebc3 100644
+index 7e1b430d..bb18ddea 100644
 --- a/ssh-keygen.c
 +++ b/ssh-keygen.c
 @@ -1046,9 +1046,9 @@ do_gen_all_hostkeys(struct passwd *pw)

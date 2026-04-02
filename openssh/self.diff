@@ -1,8 +1,8 @@
 diff --git a/sshd.c b/sshd.c
-index 3c76b60b..71d55331 100644
+index 74d25fc7..31a912a4 100644
 --- a/sshd.c
 +++ b/sshd.c
-@@ -1461,7 +1461,10 @@ main(int ac, char **av)
+@@ -1452,7 +1452,10 @@ main(int ac, char **av)
  		}
  	}
  	if (!test_flag && !inetd_flag && !do_dump_cfg && !path_absolute(av[0]))

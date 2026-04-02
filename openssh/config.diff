@@ -1,8 +1,8 @@
 diff --git a/auth-rhosts.c b/auth-rhosts.c
-index d5d2c7a1..ff3671bf 100644
+index 031186f2..1a09f68e 100644
 --- a/auth-rhosts.c
 +++ b/auth-rhosts.c
-@@ -193,7 +193,11 @@ auth_rhosts2(struct passwd *pw, const char *client_user, const char *hostname,
+@@ -191,7 +191,11 @@ auth_rhosts2(struct passwd *pw, const char *client_user, const char *hostname,
  {
  	char *path = NULL;
  	struct stat st;
@@ -15,7 +15,7 @@ index d5d2c7a1..ff3671bf 100644
  	u_int rhosts_file_index;
  	int r;
  
-@@ -309,7 +313,8 @@ auth_rhosts2(struct passwd *pw, const char *client_user, const char *hostname,
+@@ -307,7 +311,8 @@ auth_rhosts2(struct passwd *pw, const char *client_user, const char *hostname,
  		 */
  		if (options.ignore_rhosts == IGNORE_RHOSTS_YES ||
  		    (options.ignore_rhosts == IGNORE_RHOSTS_SHOSTS &&
@@ -26,10 +26,10 @@ index d5d2c7a1..ff3671bf 100644
  			    "ignore %.100s.", rhosts_files[rhosts_file_index]);
  			free(path);
 diff --git a/hostfile.c b/hostfile.c
-index c5669c70..7f6b5ea7 100644
+index 033b2910..aa3a4c50 100644
 --- a/hostfile.c
 +++ b/hostfile.c
-@@ -475,13 +475,14 @@ write_host_entry(FILE *f, const char *host, const char *ip,
+@@ -503,13 +503,14 @@ write_host_entry(FILE *f, const char *host, const char *ip,
  void
  hostfile_create_user_ssh_dir(const char *filename, int notify)
  {
@@ -45,7 +45,7 @@ index c5669c70..7f6b5ea7 100644
  	dotsshdir = tilde_expand_filename("~/" _PATH_SSH_USER_DIR, getuid());
  	if (strlen(dotsshdir) > len || strncmp(filename, dotsshdir, len) != 0)
  		goto out; /* not ~/.ssh prefixed */
-@@ -493,7 +494,11 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
+@@ -521,7 +522,11 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
  #ifdef WITH_SELINUX
  		ssh_selinux_setfscreatecon(dotsshdir);
  #endif
@@ -58,7 +58,7 @@ index c5669c70..7f6b5ea7 100644
  			error("Could not create directory '%.200s' (%s).",
  			    dotsshdir, strerror(errno));
  		else if (notify)
-@@ -503,6 +508,7 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
+@@ -531,6 +536,7 @@ hostfile_create_user_ssh_dir(const char *filename, int notify)
  #endif
  	}
   out:
@@ -67,10 +67,10 @@ index c5669c70..7f6b5ea7 100644
  }
  
 diff --git a/pathnames.h b/pathnames.h
-index 1158bec9..38b569d9 100644
+index c981e9cb..31a4e68c 100644
 --- a/pathnames.h
 +++ b/pathnames.h
-@@ -65,7 +65,8 @@
+@@ -63,7 +63,8 @@
   * The directory in user's home directory in which the files reside. The
   * directory should be world-readable (though not all files are).
   */

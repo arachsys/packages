@@ -1,8 +1,8 @@
 diff --git a/misc.c b/misc.c
-index dd0bd032..9b123641 100644
+index ed3e9d31..34477eaa 100644
 --- a/misc.c
 +++ b/misc.c
-@@ -1199,6 +1199,7 @@ int
+@@ -1263,6 +1263,7 @@ int
  tilde_expand(const char *filename, uid_t uid, char **retp)
  {
  	char *ocopy = NULL, *copy, *s = NULL;
@@ -10,7 +10,7 @@ index dd0bd032..9b123641 100644
  	const char *path = NULL, *user = NULL;
  	struct passwd *pw;
  	size_t len;
-@@ -1236,15 +1237,19 @@ tilde_expand(const char *filename, uid_t uid, char **retp)
+@@ -1300,15 +1301,19 @@ tilde_expand(const char *filename, uid_t uid, char **retp)
  			error_f("No such user %s", user);
  			goto out;
  		}
@@ -36,10 +36,10 @@ index dd0bd032..9b123641 100644
  		error_f("xasprintf failed");
  		goto out;
 diff --git a/ssh-add.c b/ssh-add.c
-index 0035cb84..84373e90 100644
+index 1e9eddf9..04be5f41 100644
 --- a/ssh-add.c
 +++ b/ssh-add.c
-@@ -1027,8 +1027,8 @@ main(int argc, char **argv)
+@@ -1032,8 +1032,8 @@ main(int argc, char **argv)
  		}
  
  		for (i = 0; default_files[i]; i++) {
@@ -51,10 +51,10 @@ index 0035cb84..84373e90 100644
  				continue;
  			if (do_file(agent_fd, deleting, key_only, cert_only,
 diff --git a/ssh-keygen.c b/ssh-keygen.c
-index 89c3ed28..139d49cc 100644
+index 584d5a89..7e1b430d 100644
 --- a/ssh-keygen.c
 +++ b/ssh-keygen.c
-@@ -299,7 +299,7 @@ ask_filename(struct passwd *pw, const char *prompt)
+@@ -278,7 +278,7 @@ ask_filename(struct passwd *pw, const char *prompt)
  		}
  	}
  	snprintf(identity_file, sizeof(identity_file),
@@ -64,10 +64,10 @@ index 89c3ed28..139d49cc 100644
  	fflush(stdout);
  	if (fgets(buf, sizeof(buf), stdin) == NULL)
 diff --git a/ssh.c b/ssh.c
-index dc4886d0..1d9fbc30 100644
+index 531f28eb..4b1928c2 100644
 --- a/ssh.c
 +++ b/ssh.c
-@@ -576,8 +576,8 @@ process_config_files(const char *host_name, struct passwd *pw,
+@@ -577,8 +577,8 @@ process_config_files(const char *host_name, struct passwd *pw,
  			fatal("Can't open user config file %.100s: "
  			    "%.100s", config, strerror(errno));
  	} else {
@@ -78,7 +78,7 @@ index dc4886d0..1d9fbc30 100644
  		if (r > 0 && (size_t)r < sizeof(buf))
  			(void)read_config_file(buf, pw, host, host_name, cmd,
  			    &options, SSHCONF_CHECKPERM | SSHCONF_USERCONF |
-@@ -1443,7 +1443,7 @@ main(int ac, char **av)
+@@ -1429,7 +1429,7 @@ main(int ac, char **av)
  	    options.host_key_alias : options.host_arg);
  	cinfo->host_arg = xstrdup(options.host_arg);
  	cinfo->remhost = xstrdup(host);
