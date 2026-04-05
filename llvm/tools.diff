@@ -91,6 +91,16 @@ index 1c61a3c8..66d4ed60 100644
 -    DESTINATION "${CMAKE_INSTALL_BINDIR}"
 -    COMPONENT clang-format)
 -endif()
+diff --git a/lldb/tools/CMakeLists.txt b/lldb/tools/CMakeLists.txt
+index 4b54c1a5..4a0d2f69 100644
+--- a/lldb/tools/CMakeLists.txt
++++ b/lldb/tools/CMakeLists.txt
+@@ -28,5 +28,3 @@ endif()
+ if (LLDB_CAN_USE_LLDB_SERVER)
+   add_lldb_tool_subdirectory(lldb-server)
+ endif()
+-
+-add_lldb_tool_subdirectory(yaml2macho-core)
 diff --git a/llvm/cmake/modules/AddLLVM.cmake b/llvm/cmake/modules/AddLLVM.cmake
 index d938214f..b72021ad 100644
 --- a/llvm/cmake/modules/AddLLVM.cmake

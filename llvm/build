@@ -22,7 +22,7 @@ prepare() {
   apply sanitizer.diff
   apply ssp.diff
   apply tools.diff
-  tree 0882c6c5eb9f6731b357974f6bee1d8759ecf7386572d6510aa70b06eabe11b8
+  tree 686825b7fae27a6c5c2c4a985b9089c760bab7d24d50247c07cfb3eaf0333320
 }
 
 build() {
