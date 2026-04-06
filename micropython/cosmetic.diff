@@ -1,5 +1,5 @@
 diff --git a/mpy-cross/main.c b/mpy-cross/main.c
-index 38190671..c144bb8b 100644
+index c9109788..7f88fdbf 100644
 --- a/mpy-cross/main.c
 +++ b/mpy-cross/main.c
 @@ -132,35 +132,44 @@ static int compile_and_save(const char *file, const char *output_file, const cha
@@ -30,12 +30,12 @@ index 38190671..c144bb8b 100644
 +        "  -march=<arch> set the native emitter architecture:\n"
          "                x86, x64, armv6, armv6m, armv7m, armv7em, armv7emsp,\n"
          "                armv7emdp, xtensa, xtensawin, rv32imc, rv64imc, host, debug\n"
--        "-march-flags=<flags> : set architecture-specific flags (can be either a dec/hex/bin value or a string)\n"
--        "                       supported flags for rv32imc: zba\n"
+-        "-march-flags=<flags> : set architecture-specific flags (can be either a dec/hex/bin value or a comma-separated flags string)\n"
+-        "                       supported flags for rv32imc: zba, zcmp\n"
 +        "  -march-flags=<flags>\n"
 +        "                set architecture-specific flags: either a dec/hex/bin\n"
-+        "                value or a string\n"
-+        "                supported flags for rv32imc: zba\n"
++        "                value or a comma-separated flags string\n"
++        "                supported flags for rv32imc: zba, zcmp\n"
 +        "  -msmall-int-bits=<n>\n"
 +        "                set the maximum bits used to encode a small-int\n"
          "\n"
