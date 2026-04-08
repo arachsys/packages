@@ -1,0 +1,14 @@
+diff --git a/Lib/test/support/__init__.py b/Lib/test/support/__init__.py
+index 6635ec34..d1e18743 100644
+--- a/Lib/test/support/__init__.py
++++ b/Lib/test/support/__init__.py
+@@ -3215,6 +3215,9 @@ def linked_to_musl():
+     # musl platforms should add support in that module if possible.
+     import platform
+     lib, version = platform.libc_ver()
++    if lib == 'libc':
++        _linked_to_musl = (0, 0, 0)
++        return _linked_to_musl
+     if lib != 'musl':
+         _linked_to_musl = False
+         return _linked_to_musl
