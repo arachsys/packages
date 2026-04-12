@@ -1,5 +1,5 @@
 diff --git a/rc/filetype/c-family.kak b/rc/filetype/c-family.kak
-index 0677b11..6b2486a 100644
+index 0677b11e..6b2486ae 100644
 --- a/rc/filetype/c-family.kak
 +++ b/rc/filetype/c-family.kak
 @@ -204,7 +204,7 @@ evaluate-commands %sh{
@@ -21,30 +21,22 @@ index 0677b11..6b2486a 100644
  }
  
 diff --git a/rc/tools/git.kak b/rc/tools/git.kak
-index bbe8d65..af661c5 100644
+index a61ccca2..09336f71 100644
 --- a/rc/tools/git.kak
 +++ b/rc/tools/git.kak
-@@ -464,16 +464,14 @@ define-command -params 1.. \
- 
-     commit() {
-         # Handle case where message needs not to be edited
--        if grep -E -q -e "-m|-F|-C|--message=.*|--file=.*|--reuse-message=.*|--no-edit|--fixup.*|--squash.*"; then
-+        if grep -E -q -e "-m|-F|-C|--message=.*|--file=.*|--reuse-message=.*|--no-edit|--fixup.*|--squash.*" <<< "$@"; then
-             if git commit "$@" > /dev/null 2>&1; then
-                 echo 'echo -markup "{Information}Commit succeeded"'
-             else
-                 echo 'fail Commit failed'
-             fi
-             exit
--        fi <<-EOF
--			$@
+@@ -813,9 +813,7 @@ define-command -params 1.. \
+         num_inserted=0
+         num_deleted=0
+         for selection_desc in $kak_selections_desc; do {
+-            IFS=' .,' read anchor_line _ cursor_line _ <<-EOF
+-                $selection_desc
 -		EOF
-+        fi
- 
-         # fails, and generate COMMIT_EDITMSG
-         GIT_EDITOR='' EDITOR='' git commit "$@" > /dev/null 2>&1
++            IFS=' .,' read anchor_line _ cursor_line _ <<< "$selection_desc"
+             if [ $anchor_line -lt $cursor_line ]; then
+                 min_line=$anchor_line
+                 max_line=$cursor_line
 diff --git a/rc/tools/patch.kak b/rc/tools/patch.kak
-index a481ff4..208a1e6 100644
+index 4ac50f24..a1475500 100644
 --- a/rc/tools/patch.kak
 +++ b/rc/tools/patch.kak
 @@ -41,9 +41,7 @@ define-command patch -params .. -docstring %{
