@@ -10,7 +10,7 @@ prepare() {
   unpack https://dovecot.org/releases/2.4/dovecot-2.4.3.tar.gz
   apply paths.diff
   apply users.diff
-  tree 1f1c63e9250ead1cd9ed0f8a558a1e7e2cf8e06e1e77fd4ae85bced81f638d18
+  tree fd0474a47501a92681a351af028fe8f7c27a4181d286f0a9c8d281a37d9cfc9d
 }
 
 build() {

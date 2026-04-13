@@ -15,18 +15,6 @@ index bd9d5316..16483f79 100644
  	.default_process_limit = 100,
  	.default_client_limit = 1000,
  	.default_idle_kill_interval = 60,
-@@ -8099,9 +8099,9 @@ static const struct master_settings master_default_settings = {
- 
- 	.version_ignore = FALSE,
- 
--	.first_valid_uid = 500,
-+	.first_valid_uid = 1000,
- 	.last_valid_uid = SET_UINT_UNLIMITED,
--	.first_valid_gid = 1,
-+	.first_valid_gid = 1000,
- 	.last_valid_gid = SET_UINT_UNLIMITED,
- 
- 	.services = ARRAY_INIT
 diff --git a/src/master/master-settings.c b/src/master/master-settings.c
 index f3d54b6e..a581b950 100644
 --- a/src/master/master-settings.c
@@ -44,15 +32,3 @@ index f3d54b6e..a581b950 100644
  	.default_process_limit = 100,
  	.default_client_limit = 1000,
  	.default_idle_kill_interval = 60,
-@@ -235,9 +235,9 @@ static const struct master_settings master_default_settings = {
- 
- 	.version_ignore = FALSE,
- 
--	.first_valid_uid = 500,
-+	.first_valid_uid = 1000,
- 	.last_valid_uid = SET_UINT_UNLIMITED,
--	.first_valid_gid = 1,
-+	.first_valid_gid = 1000,
- 	.last_valid_gid = SET_UINT_UNLIMITED,
- 
- 	.services = ARRAY_INIT
