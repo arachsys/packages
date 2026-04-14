@@ -1,10 +1,10 @@
 check() {
-  url http://ftp.astron.com/pub/file/
+  url https://astron.com/pub/file/
   match version 5.47 'file-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack http://ftp.astron.com/pub/file/file-5.47.tar.gz
+  unpack https://astron.com/pub/file/file-5.47.tar.gz
   apply paths.diff
   tree 4e9517e8e0381d0107c366a7ac666226499d70e575a382c192b90fff941c23cb
 }
