@@ -3,6 +3,9 @@ require bison
 check() {
   url https://github.com/arachsys/openntpd/tags
   match version 7.8.0 'openntpd-([0-9.]+)\.tar'
+
+  url https://www.openbsd.org/
+  match 'upstream openbsd' 7.8 'OpenBSD ([0-9.]+)'
 }
 
 prepare() {
