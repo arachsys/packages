@@ -1,8 +1,8 @@
 diff --git a/libdm/Makefile.in b/libdm/Makefile.in
-index 6ae0075f..94b3359e 100644
+index 34e17a3f..441170cf 100644
 --- a/libdm/Makefile.in
 +++ b/libdm/Makefile.in
-@@ -41,9 +41,7 @@ SOURCES =\
+@@ -47,9 +47,7 @@ SOURCES =\
  
  INCLUDES = -I$(srcdir)/$(interface)
  
@@ -13,24 +13,24 @@ index 6ae0075f..94b3359e 100644
  ifeq ("@SHARED_LINK@", "yes")
  LIB_SHARED = $(interface)/libdevmapper.$(LIB_SUFFIX)
 diff --git a/libdm/dm-tools/Makefile.in b/libdm/dm-tools/Makefile.in
-index 5da892de..b9c0dfd0 100644
+index 00d0fb16..f93cd010 100644
 --- a/libdm/dm-tools/Makefile.in
 +++ b/libdm/dm-tools/Makefile.in
-@@ -61,10 +61,10 @@ LIBDM_LIBS = -L$(interfacebuilddir) -ldevmapper
- LIBDM_SHARED = $(interfacebuilddir)/libdevmapper.so
- LIBDM_STATIC = $(interfacebuilddir)/libdevmapper.a
+@@ -64,10 +64,10 @@ LIBDM_STATIC = $(interfacebuilddir)/libdevmapper.a
  
--dmsetup: dmsetup.o $(LIBDM_SHARED)
-+dmsetup: dmsetup.o $(LIBDM_STATIC)
+ DMSETUP_OBJS = dmsetup.o dmvdostats.o
+ 
+-dmsetup: $(DMSETUP_OBJS) $(LIBDM_SHARED)
++dmsetup: $(DMSETUP_OBJS) $(LIBDM_STATIC)
  	$(SHOW) "    [CC] $@"
  	$(Q) $(CC) $(CFLAGS) $(LDFLAGS) $(EXTRA_EXEC_LDFLAGS) $(ELDFLAGS) \
--	      -o $@ $< $(LIBDM_LIBS) $(LIBS)
-+	      -o $@ $< $(LIBDM_STATIC) $(LIBS)
+-	      -o $@ $(DMSETUP_OBJS) $(LIBDM_LIBS) $(LIBS)
++	      -o $@ $(DMSETUP_OBJS) $(LIBDM_STATIC) $(LIBS)
  
- dmsetup.static: dmsetup.o $(LIBDM_STATIC)
+ dmsetup.static: $(DMSETUP_OBJS) $(LIBDM_STATIC)
  	$(SHOW) "    [CC] $@"
-@@ -82,10 +82,10 @@ install_dmsetup_static: dmsetup.static
- 	$(Q) $(LN_S) -f $(<F) $(staticdir)/dmstats.static
+@@ -87,10 +87,10 @@ install_dmsetup_static: dmsetup.static
+ 	$(Q) $(LN_S) -f $(<F) $(staticdir)/dmvdostats.static
  
  
 -dmfilemapd: dmfilemapd.o $(LIBDM_SHARED)
