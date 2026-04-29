@@ -2,7 +2,7 @@ require python
 
 check() {
   url https://curl.haxx.se/download/
-  match curl 8.19.0 'curl-([0-9.]+)\.tar'
+  match curl 8.20.0 'curl-([0-9.]+)\.tar'
 
   url https://github.com/rockdaboot/libpsl/tags
   match libpsl 0.21.5 'tags/([0-9.]+)\.tar'
@@ -18,7 +18,7 @@ check() {
 }
 
 prepare() {
-  unpack https://curl.haxx.se/download/curl-8.19.0.tar.xz
+  unpack https://curl.haxx.se/download/curl-8.20.0.tar.xz
   unpack -d libpsl \
     https://github.com/rockdaboot/libpsl/releases/download/0.21.5/libpsl-0.21.5.tar.gz
   unpack -d nghttp2 \
@@ -27,7 +27,7 @@ prepare() {
     https://github.com/ngtcp2/ngtcp2/releases/download/v1.22.1/ngtcp2-1.22.1.tar.xz
   unpack -d nghttp3 \
     https://github.com/ngtcp2/nghttp3/releases/download/v1.15.0/nghttp3-1.15.0.tar.xz
-  tree 0bf0d2f07d43b8d27c0718bcb305191c1b094ed7df26a3777d16fc6008aa4d1d
+  tree e2b792583c83b0494415d917f32b2aafc5c9124d2e72cd05c23fbd7de99fc0e1
 }
 
 build() {
