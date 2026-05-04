@@ -8,9 +8,9 @@ check() {
 prepare() {
   unpack typst-0.14.2.tar.gz \
     https://github.com/typst/typst/archive/refs/tags/v0.14.2.tar.gz
-  cargo vendor >>.cargo/config.toml
+  cargo vendor --config http.multiplexing=false >>.cargo/config.toml
   apply libressl.diff
-  tree fec9ec68ae55f35527e272511bae5ef5a9ea9c05b224158f0ec3a4344e84b420
+  tree 2a6f15b33cfe9810ed491865fb6edca976ba8633174ff7ea72f8732244753ae1
 }
 
 build() {
