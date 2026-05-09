@@ -1,5 +1,5 @@
 diff --git a/src/chartype.h b/src/chartype.h
-index bcdb293..2f16c99 100644
+index bcdb293a..2f16c99e 100644
 --- a/src/chartype.h
 +++ b/src/chartype.h
 @@ -39,7 +39,8 @@
