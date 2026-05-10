@@ -2,12 +2,12 @@ require libffi sqlite
 
 check() {
   url https://www.python.org/downloads/source/
-  match version 3.14.4 'Python-([0-9.]+)\.tar'
+  match version 3.14.5 'Python-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack python-3.14.4.tar.xz \
-    https://www.python.org/ftp/python/3.14.4/Python-3.14.4.tar.xz
+  unpack python-3.14.5.tar.xz \
+    https://www.python.org/ftp/python/3.14.5/Python-3.14.5.tar.xz
   curl -L -O https://pypi.debian.net/wheel/wheel-0.45.1-py3-none-any.whl
   apply checked.diff
   apply getpath.diff
@@ -16,7 +16,7 @@ prepare() {
   apply musl.diff
   apply paths.diff
   sed -i '1s_^#!.*_#!/bin/python3_' Misc/python-config.in **/*.py
-  tree d92ae3525e8ba6230a87a3afe45134ff64da9fd80504f7997056c699dc6fcf6b
+  tree 9bc986f8186b5f00892f878b59fb469eebabcec43310783281d267517a413ff4
 }
 
 build() {
