@@ -3,14 +3,14 @@ require perl
 
 check() {
   url https://github.com/dovecot/core/tags
-  match version 2.4.3 'tags/([0-9.]+)\.tar'
+  match version 2.4.4 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dovecot.org/releases/2.4/dovecot-2.4.3.tar.gz
+  unpack https://dovecot.org/releases/2.4/dovecot-2.4.4.tar.gz
   apply paths.diff
   apply users.diff
-  tree fd0474a47501a92681a351af028fe8f7c27a4181d286f0a9c8d281a37d9cfc9d
+  tree 972170f34b929ac45401a477cc027c1d690cfc88395457c1a1c0bb32cbc0f970
 }
 
 build() {
