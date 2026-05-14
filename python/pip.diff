@@ -1,0 +1,34 @@
+diff --git a/pip/_internal/cli/cmdoptions.py b/pip/_internal/cli/cmdoptions.py
+index a1613013..105d2b4f 100644
+--- a/pip/_internal/cli/cmdoptions.py
++++ b/pip/_internal/cli/cmdoptions.py
+@@ -1100,7 +1100,7 @@ disable_pip_version_check: Callable[..., Option] = partial(
+     "--disable-pip-version-check",
+     dest="disable_pip_version_check",
+     action="store_true",
+-    default=False,
++    default=True,
+     help="Don't periodically check PyPI to determine whether a new version "
+     "of pip is available for download. Implied with --no-index.",
+ )
+diff --git a/pip/_vendor/urllib3/__init__.py b/pip/_vendor/urllib3/__init__.py
+index 3fe782c8..d41df802 100644
+--- a/pip/_vendor/urllib3/__init__.py
++++ b/pip/_vendor/urllib3/__init__.py
+@@ -31,14 +31,8 @@ try:
+ except ImportError:
+     pass
+ else:
+-    if not ssl.OPENSSL_VERSION.startswith("OpenSSL "):  # Defensive:
+-        warnings.warn(
+-            "urllib3 v2 only supports OpenSSL 1.1.1+, currently "
+-            f"the 'ssl' module is compiled with {ssl.OPENSSL_VERSION!r}. "
+-            "See: https://github.com/urllib3/urllib3/issues/3020",
+-            exceptions.NotOpenSSLWarning,
+-        )
+-    elif ssl.OPENSSL_VERSION_INFO < (1, 1, 1):  # Defensive:
++    if ssl.OPENSSL_VERSION.startswith("OpenSSL ") \
++            and ssl.OPENSSL_VERSION_INFO < (1, 1, 1):  # Defensive:
+         raise ImportError(
+             "urllib3 v2 only supports OpenSSL 1.1.1+, currently "
+             f"the 'ssl' module is compiled with {ssl.OPENSSL_VERSION!r}. "

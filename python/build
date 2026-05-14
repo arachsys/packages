@@ -27,12 +27,12 @@ build() {
   make clean && make && make install DESTDIR=/dst
 
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m venv /tmp/venv
+  apply -d /tmp/venv/lib/python/site-packages /pkg/pip.diff
   LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/pip --disable-pip-version-check \
     install wheel-*.whl
   LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/python -m wheel \
     unpack -d /tmp /dst/lib/python/ensurepip/_bundled/pip-*.whl
-  sed -i '/^disable_pip_version_check/,/^)/s/default=False/default=True/' \
-    /tmp/pip-*/pip/_internal/cli/cmdoptions.py
+  apply -d /tmp/pip-* /pkg/pip.diff
   LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/python -m wheel \
     pack -d /dst/lib/python/ensurepip/_bundled /tmp/pip-*
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m ensurepip
