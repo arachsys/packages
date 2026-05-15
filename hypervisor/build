@@ -11,9 +11,10 @@ prepare() {
   apply cosmetic.diff
   apply discard.diff
   apply hotplug.diff
+  apply mmio.diff
   apply rawimg.diff
   apply tapip.diff
-  tree d4e8f63fa8f372c8a244a2ffc9038a2910a7178882e9f3c5a8e7a4f8ccf45ae4
+  tree b467606280c35eb5f35acc34f22df45c0a85a00b77ca731b18f78891307a5f63
 }
 
 build() {
