@@ -6,6 +6,7 @@ check() {
 prepare() {
   unpack https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.0.7.tar.xz
   apply ifb.diff
+  apply kvm.diff
   apply llvm.diff
   apply ncurses.diff
   apply ping.diff
