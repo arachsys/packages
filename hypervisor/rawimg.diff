@@ -1,23 +1,30 @@
 diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index a7d3254c..d5aebff0 100644
+index e6902a4c..cb5d2116 100644
 --- a/vmm/src/device_manager.rs
 +++ b/vmm/src/device_manager.rs
-@@ -2675,37 +2675,21 @@ impl DeviceManager {
-                 )
-                 .map_err(DeviceManagerError::Disk)?;
+@@ -2726,44 +2726,17 @@ impl DeviceManager {
+             .map_err(DeviceManagerError::Disk)?;
  
--            let detected_image_type =
--                detect_image_type(&mut file).map_err(DeviceManagerError::DetectImageType)?;
+             let detected_image_type = opened.image_type;
 -            let mut disable_sector0_writes = false;
  
              if disk_cfg.image_type == ImageType::Unknown {
+-                warn!(
+-                    "DEPRECATION: auto-detection of disk image type is deprecated and will be \
+-                    removed in a future release. Please specify image type explicitly."
+-                );
+-
 -                warn!(
 -                    "No image_type specified - detected as {detected_image_type}. \
 -                    Configuration updated to persist type across reboots and migrations."
 -                );
 -
--                if detected_image_type == ImageType::Raw {
--                    warn!("Autodetected raw image type. Disabling sector 0 writes.");
+-                if detected_image_type == ImageType::Raw
+-                    || detected_image_type == ImageType::FixedVhd
+-                {
+-                    warn!(
+-                        "Autodetected {detected_image_type} image type. Disabling sector 0 writes."
+-                    );
 -                    disable_sector0_writes = true;
 -                } else {
 -                    warn!(
@@ -25,16 +32,13 @@ index a7d3254c..d5aebff0 100644
 -                        to specify image_type for non-raw files."
 -                    );
 -                }
-+                // Always access as raw image unless otherwise specified
-+                disk_cfg.image_type = ImageType::Raw;
-+            }
- 
+-
 -                if detected_image_type == ImageType::Qcow2 && disk_cfg.backing_files {
 -                    warn!("QCOW2 image type autodetected. Disabling backing files");
 -                    disk_cfg.backing_files = false;
-+            if disk_cfg.image_type != ImageType::Raw {
-+                let detected_image_type =
-+                    detect_image_type(&mut file).map_err(DeviceManagerError::DetectImageType)?;
++                // Always access as raw image unless otherwise specified
++                disk_cfg.image_type = ImageType::Raw;
++            } else if disk_cfg.image_type != ImageType::Raw {
 +                if disk_cfg.image_type != detected_image_type {
 +                    return Err(DeviceManagerError::DiskImageTypeMismatch {
 +                        specified: disk_cfg.image_type,
@@ -51,12 +55,12 @@ index a7d3254c..d5aebff0 100644
              }
  
              if disk_cfg.image_type != ImageType::Qcow2 && disk_cfg.backing_files {
-@@ -2855,7 +2839,7 @@ impl DeviceManager {
+@@ -2833,7 +2806,7 @@ impl DeviceManager {
                      .map_err(DeviceManagerError::RestoreGetState)?,
                  queue_affinity,
                  disk_cfg.sparse,
 -                disable_sector0_writes,
 +                false,
+                 disk_cfg.lock_granularity,
              )
              .map_err(DeviceManagerError::CreateVirtioBlock)?;
- 
