@@ -1,10 +1,10 @@
 check() {
-  url https://www.nano-editor.org/dist/latest/
+  url https://ftp.gnu.org.uk/gnu/nano/
   match version 9.0 'nano-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.nano-editor.org/dist/v9/nano-9.0.tar.xz
+  unpack https://ftp.gnu.org.uk/gnu/nano/nano-9.0.tar.xz
   tree 613eeac6ff696ee9256b379cad4901ca8a037236c2723b12b1797cd4ab081c8b
 }
 
