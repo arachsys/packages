@@ -1,7 +1,7 @@
-diff --git a/.bundle/gems/rdoc-7.0.3/lib/rdoc.rb b/.bundle/gems/rdoc-7.0.3/lib/rdoc.rb
+diff --git a/.bundle/gems/rdoc-7.0.4/lib/rdoc.rb b/.bundle/gems/rdoc-7.0.4/lib/rdoc.rb
 index b42059c7..af5d30fc 100644
---- a/.bundle/gems/rdoc-7.0.3/lib/rdoc.rb
-+++ b/.bundle/gems/rdoc-7.0.3/lib/rdoc.rb
+--- a/.bundle/gems/rdoc-7.0.4/lib/rdoc.rb
++++ b/.bundle/gems/rdoc-7.0.4/lib/rdoc.rb
 @@ -141,7 +141,7 @@ module RDoc
        require 'fileutils'
        begin
@@ -12,10 +12,10 @@ index b42059c7..af5d30fc 100644
            FileUtils.mkdir_p xdg_data_home
          end
 diff --git a/configure b/configure
-index f1a11fea..7a8ee7a8 100755
+index cdef7b44..65537045 100755
 --- a/configure
 +++ b/configure
-@@ -34461,10 +34461,10 @@ case "$target_os" in #(
+@@ -34458,10 +34458,10 @@ case "$target_os" in #(
       ;;
  esac
  
@@ -30,10 +30,10 @@ index f1a11fea..7a8ee7a8 100755
  # Check whether --with-rubyarchprefix was given.
  if test ${with_rubyarchprefix+y}
 diff --git a/configure.ac b/configure.ac
-index 2bbce78f..c2d23264 100644
+index b4dc31c2..39b3e8e5 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4422,10 +4422,10 @@ AS_CASE(["$target_os"],
+@@ -4419,10 +4419,10 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
