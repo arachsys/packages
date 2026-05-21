@@ -1,5 +1,5 @@
 diff --git a/rc/filetype/diff.kak b/rc/filetype/diff.kak
-index bd24c6d9..791c802a 100644
+index 08d71bc1..7c8f548a 100644
 --- a/rc/filetype/diff.kak
 +++ b/rc/filetype/diff.kak
 @@ -4,7 +4,6 @@ hook global BufCreate .*\.(diff|patch) %{
@@ -10,9 +10,9 @@ index bd24c6d9..791c802a 100644
  }
  
  hook -group diff-highlight global WinSetOption filetype=diff %{
-@@ -21,94 +20,6 @@ add-highlighter shared/diff/ regex "^@@[^\n]*@@" 0:cyan,default
+@@ -21,94 +20,6 @@ add-highlighter shared/diff/ regex "^@@\N*@@" 0:cyan,default
  # If any trailing whitespace was introduced in diff, show it with red background
- add-highlighter shared/diff/ regex "^\+[^\n]*?(\h+)\n" 1:default,red
+ add-highlighter shared/diff/ regex "^\+\N*?(\h+)\n" 1:default,red
  
 -define-command diff-jump -params .. -docstring %{
 -        diff-jump [<switches>] [<directory>]: edit the diff's source file at the cursor position.
@@ -58,7 +58,7 @@ index bd24c6d9..791c802a 100644
 -                my $diff_column = %reg{c};
 -                $file_column = $diff_column - 1; # Account for [ +-] diff prefix.
 -                # If the cursor was on a hunk header, go to the section header if possible.
--                if ($diff_line_text =~ m{^(@@ -\d+(?:,\d+)? \+\d+(?:,\d+) @@ )([^\n]*)}) {
+-                if ($diff_line_text =~ m{^(@@ -\d+(?:,\d+)? \+\d+(?:,\d+) @@ )(\N*)}) {
 -                    my $hunk_header_prefix = $1;
 -                    my $hunk_header_from_userdiff = $2;
 -                    open FILE, "<", $file or fail "failed to open file: $!: $file";
@@ -106,7 +106,7 @@ index bd24c6d9..791c802a 100644
  
  define-command \
 diff --git a/rc/filetype/mail.kak b/rc/filetype/mail.kak
-index b6ef616f..c069f325 100644
+index a6a8840d..4c1d4177 100644
 --- a/rc/filetype/mail.kak
 +++ b/rc/filetype/mail.kak
 @@ -4,10 +4,6 @@ hook global BufCreate .+\.eml %{

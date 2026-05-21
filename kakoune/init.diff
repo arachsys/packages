@@ -1,8 +1,8 @@
 diff --git a/src/window.hh b/src/window.hh
-index 65253c8..319a367 100644
+index 4cfa1edc..5578f0d9 100644
 --- a/src/window.hh
 +++ b/src/window.hh
-@@ -70,7 +70,7 @@ private:
+@@ -71,7 +71,7 @@ private:
  
      Highlighters m_builtin_highlighters;
      bool m_resize_hook_pending = false;
@@ -11,7 +11,7 @@ index 65253c8..319a367 100644
  
      struct Setup
      {
-@@ -82,7 +82,7 @@ private:
+@@ -83,7 +83,7 @@ private:
          Vector<BasicSelection, MemoryDomain::Display> selections;
      };
      Setup build_setup(const Context& context) const;

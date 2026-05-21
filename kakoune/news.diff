@@ -1,8 +1,8 @@
 diff --git a/src/main.cc b/src/main.cc
-index c584a487..114dea06 100644
+index 465befa9..997f3f86 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -44,6 +44,8 @@ extern const char* version;
+@@ -47,6 +47,8 @@ extern const char* version;
  namespace
  {
  
@@ -11,7 +11,7 @@ index c584a487..114dea06 100644
  struct {
      unsigned int version;
      StringView notes;
-@@ -108,6 +110,8 @@ void show_startup_info(Client* local_client, int last_version)
+@@ -104,6 +106,8 @@ void show_startup_info(Client* local_client, int last_version)
                                   std::move(info), {}, InfoStyle::Prompt);
  }
  
@@ -20,9 +20,9 @@ index c584a487..114dea06 100644
  inline void write_stdout(StringView str) { try { write(STDOUT_FILENO, str); } catch (runtime_error&) {} }
  inline void write_stderr(StringView str) { try { write(STDERR_FILENO, str); } catch (runtime_error&) {} }
  
-@@ -815,8 +819,10 @@ int run_server(StringView session, StringView server_init,
+@@ -817,8 +821,10 @@ int run_server(StringView session, StringView server_init,
                      local_client->context().faces()["Error"]
-                 });
+                 }, -1, StatusStyle::Status);
  
 +#ifdef SHOW_STARTUP_INFO
              if (flags & ServerFlags::StartupInfo and local_client)

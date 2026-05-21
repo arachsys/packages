@@ -1,8 +1,8 @@
 diff --git a/Makefile b/Makefile
-index 4ca2533..c0bfdd8 100644
+index f91354f4..504cfc99 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -36,10 +36,10 @@ PREFIX = /usr/local
+@@ -40,10 +40,10 @@ PREFIX = /usr/local
  DESTDIR = # root dir
  
  bindir = $(DESTDIR)$(PREFIX)/bin
@@ -16,12 +16,12 @@ index 4ca2533..c0bfdd8 100644
 +mandir = $(DESTDIR)$(PREFIX)/lib/man/man1
  
  # Both Cygwin and MSYS2 have "_NT" in their uname.
- os != uname | sed 's/.*_NT.*/Windows/'
+ os = $(shell uname | sed 's/.*_NT.*/Windows/')
 diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
-index 30cbdbd..d4c49ba 100644
+index d975b4b0..f715f28e 100644
 --- a/doc/pages/options.asciidoc
 +++ b/doc/pages/options.asciidoc
-@@ -255,7 +255,7 @@ are exclusively available to built-in options.
+@@ -265,7 +265,7 @@ are exclusively available to built-in options.
      actions should hook on this option changing for activation/deactivation
  
  *path* `str-list`::
@@ -31,7 +31,7 @@ index 30cbdbd..d4c49ba 100644
      `%/` represents the current buffer directory
  
 diff --git a/rc/tools/man.kak b/rc/tools/man.kak
-index 2fcc981..9d807ab 100644
+index 2fcc9814..9d807ab3 100644
 --- a/rc/tools/man.kak
 +++ b/rc/tools/man.kak
 @@ -63,7 +63,7 @@ define-command -hidden -params ..3 man-impl %{ evaluate-commands %sh{
@@ -44,7 +44,7 @@ index 2fcc981..9d807ab 100644
              sed 's,^.*/\(.*\)\.\([1-8][a-zA-Z]*\).*$,\1(\2),'
      } \
 diff --git a/share/kak/kakrc b/share/kak/kakrc
-index c421892..fbb4c8b 100644
+index c4218926..fbb4c8bf 100644
 --- a/share/kak/kakrc
 +++ b/share/kak/kakrc
 @@ -40,11 +40,9 @@ evaluate-commands %sh{
@@ -62,10 +62,10 @@ index c421892..fbb4c8b 100644
      fi
  }
 diff --git a/src/main.cc b/src/main.cc
-index e3a590b..54bf165 100644
+index 96972ca1..c68d854f 100644
 --- a/src/main.cc
 +++ b/src/main.cc
-@@ -202,12 +202,12 @@ String runtime_directory()
+@@ -117,12 +117,12 @@ String runtime_directory()
          return runtime_directory;
  
      char relpath[PATH_MAX+1];
@@ -80,7 +80,7 @@ index e3a590b..54bf165 100644
  }
  
  String config_directory()
-@@ -563,7 +563,7 @@ void register_options()
+@@ -492,7 +492,7 @@ void register_options()
                        Regex{});
      reg.declare_option("filetype", "buffer filetype", ""_str);
      reg.declare_option("path", "path to consider when trying to find a file",
@@ -89,7 +89,7 @@ index e3a590b..54bf165 100644
      reg.declare_option("completers", "insert mode completers to execute.",
                         InsertCompleterDescList({
                             InsertCompleterDesc{ InsertCompleterDesc::Filename, {} },
-@@ -1292,7 +1292,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
+@@ -1243,7 +1243,7 @@ asm(".pushsection \".debug_gdb_scripts\", \"MS\"," PROGBITS ",1" R"(
  .byte 4
  .ascii "kakoune-inline-gdb.py\n"
  .ascii "import os.path\n"
@@ -99,7 +99,7 @@ index e3a590b..54bf165 100644
  .ascii "import kakoune\n"
  .ascii "gdb.printing.register_pretty_printer(gdb.current_objfile(), kakoune.build_pretty_printer())\n\0"
 diff --git a/src/shell_manager.cc b/src/shell_manager.cc
-index e505fde..e790312 100644
+index ee382e13..a75b090a 100644
 --- a/src/shell_manager.cc
 +++ b/src/shell_manager.cc
 @@ -22,6 +22,7 @@
