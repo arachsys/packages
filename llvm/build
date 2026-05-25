@@ -5,14 +5,14 @@ check() {
   match llvm 22.1.6 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
-  match cmake 4.3.2 'tags/v([0-9.]+)\.tar'
+  match cmake 4.3.3 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack llvm-22.1.6.tar.gz \
     https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-22.1.6.tar.gz
   unpack -d cmake \
-    https://github.com/Kitware/CMake/releases/download/v4.3.2/cmake-4.3.2.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v4.3.3/cmake-4.3.3.tar.gz
   apply cmake.diff
   apply config.diff
   apply distro.diff
@@ -22,7 +22,7 @@ prepare() {
   apply sanitizer.diff
   apply ssp.diff
   apply tools.diff
-  tree 98d4a9bfdbebc3cacf2b9138d46bbc70c2ee79c5e1a119f3e56cb1d9b0447133
+  tree cd43dcbbd37b85d1a6904526da80f641b4e451366cd08d84d744fefad25731d1
 }
 
 build() {
