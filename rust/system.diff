@@ -19,7 +19,7 @@ index 2d84e78f..0f4d75ea 100644
      new(&[
          (LinkOutputKind::DynamicNoPicExe, &["crtend.o", "crtn.o"]),
 diff --git a/src/bootstrap/src/core/build_steps/compile.rs b/src/bootstrap/src/core/build_steps/compile.rs
-index 11f2a28b..4a8b16f3 100644
+index 46d05b9d..3d3dd027 100644
 --- a/src/bootstrap/src/core/build_steps/compile.rs
 +++ b/src/bootstrap/src/core/build_steps/compile.rs
 @@ -382,54 +382,7 @@ fn copy_self_contained_objects(
@@ -79,7 +79,7 @@ index 11f2a28b..4a8b16f3 100644
              panic!(
                  "Target {:?} does not have a \"wasi-root\" key in bootstrap.toml \
 diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
-index 67f4eb37..bd7d848f 100644
+index c4a6b68a..f84fd443 100644
 --- a/src/bootstrap/src/core/sanity.rs
 +++ b/src/bootstrap/src/core/sanity.rs
 @@ -12,7 +12,7 @@
@@ -91,7 +91,7 @@ index 67f4eb37..bd7d848f 100644
  
  #[cfg(not(test))]
  use crate::builder::Builder;
-@@ -363,22 +363,6 @@ than building it.
+@@ -364,22 +364,6 @@ than building it.
              continue;
          }
  
@@ -115,10 +115,10 @@ index 67f4eb37..bd7d848f 100644
              // There are three builds of cmake on windows: MSVC, MinGW, and
              // Cygwin. The Cygwin build does not have generators for Visual
 diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 857c0539..fadc2035 100644
+index 6af11d9a..b670b7dc 100644
 --- a/src/bootstrap/src/lib.rs
 +++ b/src/bootstrap/src/lib.rs
-@@ -261,6 +261,7 @@ pub struct Build {
+@@ -269,6 +269,7 @@ pub struct Build {
      step_graph: std::cell::RefCell<crate::utils::step_graph::StepGraph>,
  }
  

@@ -1,14 +1,15 @@
 diff --git a/src/tools/cargo/src/cargo/sources/directory.rs b/src/tools/cargo/src/cargo/sources/directory.rs
-index a692a019..5629ec34 100644
+index c1f0e6cf..63031c6b 100644
 --- a/src/tools/cargo/src/cargo/sources/directory.rs
 +++ b/src/tools/cargo/src/cargo/sources/directory.rs
-@@ -1,4 +1,5 @@
+@@ -1,5 +1,6 @@
+ use std::cell::{Cell, RefCell};
  use std::collections::HashMap;
 +use std::env;
  use std::fmt::{self, Debug, Formatter};
  use std::path::{Path, PathBuf};
- use std::task::Poll;
-@@ -230,6 +231,10 @@ impl<'gctx> Source for DirectorySource<'gctx> {
+ 
+@@ -236,6 +237,10 @@ impl<'gctx> Source for DirectorySource<'gctx> {
              anyhow::bail!("failed to find entry for `{}` in directory source", id);
          };
  
