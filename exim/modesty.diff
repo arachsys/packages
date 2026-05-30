@@ -1,0 +1,32 @@
+diff --git a/src/globals.c b/src/globals.c
+index 3eda9762..09388cf9 100644
+--- a/src/globals.c
++++ b/src/globals.c
+@@ -1201,13 +1201,13 @@ uschar *received_header_text   = US
+      "${if def:sender_rcvhost {from $sender_rcvhost\n\t}"
+        "{${if def:sender_ident {from ${quote_local_part:$sender_ident} }}"
+          "${if def:sender_helo_name {(helo=$sender_helo_name)\n\t}}}}"
+-     "by $primary_hostname "
+-     "${if def:received_protocol {with $received_protocol }}"
++     "by $primary_hostname"
++     "${if def:received_protocol { with $received_protocol}}"
+ #ifndef DISABLE_TLS
+      "${if def:tls_in_ver        { ($tls_in_ver)}}"
+-     "${if def:tls_in_cipher_std { tls $tls_in_cipher_std\n\t}}"
++     "${if def:tls_in_cipher_std { tls $tls_in_cipher_std}}"
+ #endif
+-     "(Exim $version_number)\n\t"
++     "\n\t"
+      "${if def:sender_address {(envelope-from <$sender_address>)\n\t}}"
+      "id $message_exim_id"
+      "${if def:received_for {\n\tfor $received_for}}"
+@@ -1341,8 +1341,7 @@ int     smtp_accept_queue_per_connection = 10;
+ int     smtp_accept_reserve    = 0;
+ uschar *smtp_active_hostname   = NULL;
+ int	smtp_backlog_monitor   = 0;
+-uschar *smtp_banner            = US"$smtp_active_hostname ESMTP "
+-                             "Exim $version_number $tod_full"
++uschar *smtp_banner            = US"$smtp_active_hostname ESMTP"
+                              "\0<---------------Space to patch smtp_banner->";
+ int     smtp_ch_index          = 0;
+ uschar *smtp_cmd_argument      = NULL;

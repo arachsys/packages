@@ -12,9 +12,10 @@ prepare() {
   apply libressl.diff
   apply logs.diff
   apply lsearch.diff
+  apply modesty.diff
   apply paths.diff
   apply uidgid.diff
-  tree 749df82435fcca39d1b869a1a267c04d7412d27bce499f2ed345a42350bb26df
+  tree 1a7fb4e47b6f638821e71e93fc1f466b9079ef6da65dc9b27d1a7f9de766a5f3
 }
 
 build() {
