@@ -7,11 +7,12 @@ prepare() {
   unpack https://musl.libc.org/releases/musl-1.2.6.tar.gz
   apply clang.diff
   apply iconv.diff
+  apply localhost.diff
   apply nodata.diff
   apply paths.diff
   apply qsort.diff
   apply usage.diff
-  tree 6ff4d95518790464a40536c0cadc5fbcdaa80c2d3893787ad62d6b49a055827b
+  tree 8aa4ba6d3425fa1611370114c7e69f88c9845d422262254be9c7a204060b8a31
 }
 
 build() {

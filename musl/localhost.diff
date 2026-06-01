@@ -1,0 +1,39 @@
+diff --git a/src/network/getnameinfo.c b/src/network/getnameinfo.c
+index 133c15b3..663b2b2a 100644
+--- a/src/network/getnameinfo.c
++++ b/src/network/getnameinfo.c
+@@ -48,7 +48,14 @@ static void reverse_hosts(char *buf, const unsigned char *a, unsigned scopeid, i
+ 	unsigned char _buf[1032], atmp[16];
+ 	struct address iplit;
+ 	FILE _f, *f = __fopen_rb_ca("/etc/hosts", &_f, _buf, sizeof _buf);
+-	if (!f) return;
++	if (!f) {
++		if (family == AF_INET && !memcmp(a, "\x7f\0\0\1", 4))
++			strcpy(buf, "localhost");
++		if (family == AF_INET6 &&
++		    !memcmp(a, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\1", 16))
++			strcpy(buf, "localhost");
++		return;
++	}
+ 	if (family == AF_INET) {
+ 		memcpy(atmp+12, a, 4);
+ 		memcpy(atmp, "\0\0\0\0\0\0\0\0\0\0\xff\xff", 12);
+diff --git a/src/network/lookup_name.c b/src/network/lookup_name.c
+index a15e84b9..ebc7b1ce 100644
+--- a/src/network/lookup_name.c
++++ b/src/network/lookup_name.c
+@@ -57,7 +57,13 @@ static int name_from_hosts(struct address buf[static MAXADDRS], char canon[stati
+ 	case ENOENT:
+ 	case ENOTDIR:
+ 	case EACCES:
+-		return 0;
++		if (strcmp(name, "localhost") || MAXADDRS < 2)
++			return 0;
++		if (name_from_numeric(buf + cnt, "::1", family) == 1)
++			cnt++;
++		if (name_from_numeric(buf + cnt, "127.0.0.1", family) == 1)
++			cnt++;
++		return cnt ? cnt : EAI_NODATA;
+ 	default:
+ 		return EAI_SYSTEM;
+ 	}
