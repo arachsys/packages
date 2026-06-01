@@ -42,3 +42,16 @@ index 00d0fb16..f93cd010 100644
  
  dmfilemapd.static: dmfilemapd.o $(LIBDM_STATIC)
  	$(SHOW) "    [CC] $@"
+diff --git a/make.tmpl.in b/make.tmpl.in
+index 4fcb9737..89e39c47 100644
+--- a/make.tmpl.in
++++ b/make.tmpl.in
+@@ -409,7 +409,7 @@ endif
+ INTERNAL_LIBS = \
+ 	$(top_builddir)/libdaemon/client/libdaemonclient.a
+ 
+-LIBS += -L$(top_builddir)/libdm/ioctl -ldevmapper -Wl,-rpath-link,$(top_builddir)/libdm/ioctl
++LIBS += $(top_builddir)/libdm/ioctl/libdevmapper.a
+ LVMINTERNAL_LIBS = $(top_builddir)/lib/liblvm-internal.a $(INTERNAL_LIBS)
+ 
+ all: $(SUBDIRS) $(TARGETS)

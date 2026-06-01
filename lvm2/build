@@ -14,7 +14,7 @@ prepare() {
   apply static.diff
   apply stdio.diff
   apply tidy.diff
-  tree e2eced4f185e53c3f6edf1854485a7f8cc44009f0defc802e2e3adcb6e769d71
+  tree 02d33657c0eb98609ba583002632d07a191a0bad9a79cc3e348cabe153726112
 }
 
 build() {
@@ -25,6 +25,7 @@ build() {
   sed -i 's:/lib/lvm2/lvresize_fs_helper:/lib/lvm2/lvresize-fs-helper:' \
     include/configure.h
   make install DESTDIR=/dst
-  rm -f -r /dst/bin/{blkdeactivate,fsadm,lvm_import_vdo,lvmdump} /dst/lib
+  rm -f /dst/bin/{blkdeactivate,fsadm,lvm_import_vdo,lvmdump,lvmpersist}
+  rm -f -r /dst/lib
   find /dst/bin -type l -delete
 }
