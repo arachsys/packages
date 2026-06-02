@@ -9,9 +9,9 @@ prepare() {
 }
 
 build() {
-  auto-config --with-regex=pcre2
+  auto-config --libexecdir='${prefix}/bin' --with-regex=pcre2
   sed -i '/#define LESSHISTFILE/s/".*"/"-"/' defines.h
   make install DESTDIR=/dst
-  rm -f /dst/bin/lesskey /dst/lib/man/man1/lesskey.1
+  rm -f /dst/bin/less{key,-osc8-open} /dst/lib/man/man1/lesskey.1
   ln -s less /dst/bin/more
 }
