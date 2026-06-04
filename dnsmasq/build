@@ -1,12 +1,12 @@
 check() {
   url https://thekelleys.org.uk/dnsmasq/
-  match version 2.92 'dnsmasq-([0-9.]+)\.tar'
+  match version 2.93 'dnsmasq-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://thekelleys.org.uk/dnsmasq/dnsmasq-2.92rel2.tar.xz
+  unpack https://thekelleys.org.uk/dnsmasq/dnsmasq-2.93.tar.xz
   apply dhcp6.diff
-  tree 700fd27251b035f34f675e731b26b68be8b3c82eee51eda39f8e2099eeb9cd1d
+  tree c4559ff146fb1aedd4d537c2a09f755e89922e510a9c446837ccdadcbd47263c
 }
 
 build() {
