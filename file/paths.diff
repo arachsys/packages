@@ -93,24 +93,24 @@ index 4ce97766..3465caf1 100644
 +0	string/fwt	#!\ /bin/env\ julia Julia script executable
  0	string/fwt	#!\ /usr/bin/env\ julia Julia script executable
 diff --git a/magic/Magdir/javascript b/magic/Magdir/javascript
-index 85d4a70b..0d1a6b2e 100644
+index d63f0c13..620ccfd0 100644
 --- a/magic/Magdir/javascript
 +++ b/magic/Magdir/javascript
 @@ -11,8 +11,12 @@
- !:mime application/javascript
+ !:mime text/javascript
  0	string/tw	#!/usr/bin/nodejs	Node.js script executable
- !:mime application/javascript
+ !:mime text/javascript
 +0	string/t		#!/bin/env\ node	Node.js script executable
-+!:mime application/javascript
++!:mime text/javascript
  0	string/t		#!/usr/bin/env\ node	Node.js script executable
- !:mime application/javascript
+ !:mime text/javascript
 +0	string/t		#!/bin/env\ nodejs	Node.js script executable
-+!:mime application/javascript
++!:mime text/javascript
  0	string/t		#!/usr/bin/env\ nodejs	Node.js script executable
- !:mime application/javascript
+ !:mime text/javascript
  
 diff --git a/magic/Magdir/lua b/magic/Magdir/lua
-index 859862a3..4ab70789 100644
+index a077ceaa..7cbae3a1 100644
 --- a/magic/Magdir/lua
 +++ b/magic/Magdir/lua
 @@ -6,10 +6,16 @@
@@ -169,7 +169,7 @@ index ede1b5ba..679b88d5 100644
  !:strength + 30
  !:mime text/x-script.python
 diff --git a/magic/Magdir/ruby b/magic/Magdir/ruby
-index 9e67a3e2..2c5b32db 100644
+index 59a93e24..e73aeed1 100644
 --- a/magic/Magdir/ruby
 +++ b/magic/Magdir/ruby
 @@ -6,12 +6,21 @@
