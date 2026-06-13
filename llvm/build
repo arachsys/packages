@@ -114,11 +114,11 @@ build() {
 
   for TARGET in wasm32 wasm64; do
     if /src/build/bin/clang -print-targets | grep -q -F $TARGET; then
-      mkdir -p /src/build-$TARGET /dst/lib/clang/lib/$TARGET-wasi
+      mkdir -p /src/build-$TARGET /dst/lib/clang/lib/$TARGET
       cd /src/build-$TARGET
       /src/cmake/bin/cmake -W no-dev \
         -DCMAKE_{ASM,C,CXX}_COMPILER=/src/build/bin/clang \
-        -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET-wasi \
+        -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$TARGET \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_C_COMPILER_WORKS=Yes \
         -DLLVM_CMAKE_DIR=../build \
@@ -127,7 +127,7 @@ build() {
         ../compiler-rt/lib/builtins
       make builtins
       cp lib/*/libclang_rt.builtins-$TARGET.a \
-        /dst/lib/clang/lib/$TARGET-wasi/libclang_rt.builtins.a
+        /dst/lib/clang/lib/$TARGET/libclang_rt.builtins.a
     fi
   done
 
