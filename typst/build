@@ -2,15 +2,14 @@ require rust
 
 check() {
   url https://github.com/typst/typst/tags
-  match version 0.14.2 'tags/v([0-9.]+)\.tar'
+  match version 0.15.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack typst-0.14.2.tar.gz \
-    https://github.com/typst/typst/archive/refs/tags/v0.14.2.tar.gz
+  unpack typst-0.15.0.tar.gz \
+    https://github.com/typst/typst/archive/refs/tags/v0.15.0.tar.gz
   cargo vendor >>.cargo/config.toml
-  apply libressl.diff
-  tree 8099850de9da08797635ce9ece2d60ca1f4700d3534dfa5110d6f20e3ff7e012
+  tree 5617ceae732d7087266264b5548d613993ba2f4abf04f9641aea86bff967bb1f
 }
 
 build() {
