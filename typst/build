@@ -9,7 +9,8 @@ prepare() {
   unpack typst-0.15.0.tar.gz \
     https://github.com/typst/typst/archive/refs/tags/v0.15.0.tar.gz
   cargo vendor >>.cargo/config.toml
-  tree 5617ceae732d7087266264b5548d613993ba2f4abf04f9641aea86bff967bb1f
+  apply cosmetic.diff
+  tree a5fdd0cb14652aaaa6124f0e8e583885c98b9a02854d737772a393a324e2bc07
 }
 
 build() {
