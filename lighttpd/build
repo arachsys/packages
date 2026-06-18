@@ -2,7 +2,7 @@ require lua m4 pcre2 perl
 
 check() {
   url https://www.lighttpd.net/
-  match version 1.4.83 'lighttpd-([0-9.]+).tar'
+  match version 1.4.84 'lighttpd-([0-9.]+).tar'
 
   url https://ftp.gnu.org.uk/gnu/autoconf/
   match autoconf 2.73 'autoconf-([0-9.]+)\.tar'
@@ -18,8 +18,8 @@ check() {
 }
 
 prepare() {
-  unpack lighttpd-1.4.83.tar.xz \
-    https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.83.tar.xz
+  unpack lighttpd-1.4.84.tar.xz \
+    https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.84.tar.xz
   unpack -d tools/autoconf \
     https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.73.tar.xz
   unpack -d tools/automake \
@@ -29,7 +29,7 @@ prepare() {
   unpack -d tools/pkgconf \
     https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
   apply paths.diff
-  tree c04e559c966245b15896f96f8e773087f50ce750dad8cbdd6e085ec36a984090
+  tree bd1c6ffd62279f80cc68eae73a29148d3dcead626eafb942b24f1159d13835f6
 }
 
 build() {
