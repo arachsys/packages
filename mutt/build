@@ -2,13 +2,13 @@ require lmdb perl
 
 check() {
   url https://gitlab.com/muttmua/mutt/-/tags
-  match version 2.3.3 'mutt-([0-9.]+) signed'
+  match version 2.4.0 'mutt-([0-9.]+) signed'
 }
 
 prepare() {
-  unpack https://ftp.osuosl.org/pub/mutt/mutt-2.3.3.tar.gz
+  unpack https://ftp.osuosl.org/pub/mutt/mutt-2.4.0.tar.gz
   apply paths.diff
-  tree 80873d0c3562a182c696d473b942076e31a58163cb2ab607eb87808192841719
+  tree 480ccbe6efb974c6981b56fc3dac9382e6d9cf72b9229fd6b76f29b1204696d2
 }
 
 build() {
