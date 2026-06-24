@@ -14,7 +14,7 @@ check() {
   match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
 
   url https://distfiles.ariadne.space/pkgconf/
-  match pkgconf 2.5.1 'pkgconf-([0-9.]+)\.tar'
+  match pkgconf 2.9.90 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -31,11 +31,11 @@ prepare() {
   unpack -d tools/libtool \
     https://ftp.gnu.org.uk/gnu/libtool/libtool-2.5.4.tar.xz
   unpack -d tools/pkgconf \
-    https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
+    https://distfiles.ariadne.space/pkgconf/pkgconf-2.9.90.tar.xz
 
   apply console.diff
   apply lanplus.diff
-  tree 5ed6dc4e3e5c2b2b8a823669b8077315a9f7fea16de6688f09f5d0770fc30d24
+  tree 5dc4a26ca78e4c60f520346711d8eaf2ae093970d16dfae291b2101092f72f59
 }
 
 build() {
