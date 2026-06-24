@@ -1,0 +1,49 @@
+diff --git a/lib/ipmi_mc.c b/lib/ipmi_mc.c
+index d283af82..8c8abbaa 100644
+--- a/lib/ipmi_mc.c
++++ b/lib/ipmi_mc.c
+@@ -700,7 +700,7 @@ parsed_guid_t
+ ipmi_guid2str(char *str, const void *data, ipmi_guid_mode_t mode)
+ {
+ 	parsed_guid_t guid;
+-	guid = ipmi_parse_guid(data, mode);
++	guid = ipmi_parse_guid((void *) data, mode);
+ 
+ 	if (GUID_DUMP == guid.mode) {
+ 		sprintf(str, "%s", buf2str(data, sizeof(ipmi_guid_t)));
+diff --git a/lib/ipmi_sel.c b/lib/ipmi_sel.c
+index 9a97af31..08ad8de4 100644
+--- a/lib/ipmi_sel.c
++++ b/lib/ipmi_sel.c
+@@ -813,8 +813,8 @@ char * get_dell_evt_desc(struct ipmi_intf * intf, struct sel_event_record * rec)
+ 											{
+ 						                        str = desc+strlen(desc);
+ 												*str++ = ',';
+-												str = '\0';
+-						              					count = 0;
++												*str = '\0';
++												count = 0;
+ 											}
+ 											switch(i) /* Which type of memory config is present.. */
+ 											{
+diff --git a/lib/ipmi_strings.c b/lib/ipmi_strings.c
+index c4a4ec23..1cb906eb 100644
+--- a/lib/ipmi_strings.c
++++ b/lib/ipmi_strings.c
+@@ -1515,7 +1515,6 @@ int oem_info_list_load(oem_valstr_list_t **list)
+ 		 */
+ 		in = fopen(IANADIR PATH_SEPARATOR IANA_PEN_REGISTRY, "r");
+ 		if (!in) {
+-			lperror(LOG_ERR, "IANA PEN registry open failed");
+ 			return -1;
+ 		}
+ 	}
+@@ -1734,7 +1733,7 @@ void ipmi_oem_info_init()
+ 	}
+ 
+ 	if ((count = oem_info_list_load(&oemlist)) < 1) {
+-		lprintf(LOG_WARN, "Failed to load entries from IANA PEN Registry");
++		lprintf(LOG_INFO, "Failed to load entries from IANA PEN Registry");
+ 		count = 0;
+ 	}
+ 

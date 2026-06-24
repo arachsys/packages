@@ -1,60 +1,23 @@
-require m4 perl
-
 check() {
   url https://codeberg.org/ipmitool/ipmitool/tags
   match version 1.8.19 'archive/IPMITOOL_([0-9]+)_([0-9]+)_([0-9]+)\.tar' '\1.\2.\3'
-
-  url https://ftp.gnu.org.uk/gnu/autoconf/
-  match autoconf 2.73 'autoconf-([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org.uk/gnu/automake/
-  match automake 1.18.1 'automake-([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org.uk/gnu/libtool/
-  match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
-
-  url https://distfiles.ariadne.space/pkgconf/
-  match pkgconf 2.9.90 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack ipmitool-20240628.tar.gz \
-    https://codeberg.org/ipmitool/ipmitool/archive/eb1df8d6.tar.gz
-  curl -o enterprise-numbers.gz -L \
-    https://ftp.openbsd.org/pub/OpenBSD/distfiles/enterprise-numbers.20220204.gz
-  gunzip enterprise-numbers.gz
-
-  unpack -d tools/autoconf \
-    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.73.tar.xz
-  unpack -d tools/automake \
-    https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
-  unpack -d tools/libtool \
-    https://ftp.gnu.org.uk/gnu/libtool/libtool-2.5.4.tar.xz
-  unpack -d tools/pkgconf \
-    https://distfiles.ariadne.space/pkgconf/pkgconf-2.9.90.tar.xz
-
+  unpack ipmitool-20260330.tar.gz \
+    https://codeberg.org/ipmitool/ipmitool/archive/d62a996c.tar.gz
   apply console.diff
   apply lanplus.diff
-  tree 5dc4a26ca78e4c60f520346711d8eaf2ae093970d16dfae291b2101092f72f59
+  apply warnings.diff
+  tree 7d79b665f296b52c4e613b8647c6b18511689a179861ce085f401d1d542088ff
 }
 
 build() {
-  export PATH=$PATH:/tmp/bin
+  cp /pkg/config.h include/config.h
 
-  for TOOL in autoconf automake libtool pkgconf; do
-    cd /src/tools/$TOOL
-    auto-config --prefix=/tmp
-    make install
-  done
+  cc -DHAVE_CONFIG_H -DVERSION=\"1.8.19\" -I include -O2 -Wno-format \
+    -Wno-pointer-sign -o ipmitool src/ipmitool.c src/ipmishell.c lib/*.c \
+    src/plugins/{lan/,lanplus/,open/,}/*.c -lcrypto -lreadline
 
-  ln -s pkgconf /tmp/bin/pkg-config
-  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' /tmp/bin/*
-
-  cd /src
-  bash bootstrap
-  auto-config --disable-intf-{bmc,free,imb,lipmi,serial} \
-    IANADIR=/lib/ipmitool IANAUSERDIR=.local/lib/ipmitool
-  make install DESTDIR=/dst
-  rm -f /dst/bin/ipmievd /dst/lib/man/*/ipmievd.*
-  rm -f /dst/lib/ipmitool/oem_ibm_sel_map
+  install -s -t /dst/bin -D ipmitool
 }
