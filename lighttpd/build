@@ -1,53 +1,62 @@
-require lua m4 pcre2 perl
+require lua
 
 check() {
   url https://www.lighttpd.net/
   match version 1.4.84 'lighttpd-([0-9.]+).tar'
-
-  url https://ftp.gnu.org.uk/gnu/autoconf/
-  match autoconf 2.73 'autoconf-([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org.uk/gnu/automake/
-  match automake 1.18.1 'automake-([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org.uk/gnu/libtool/
-  match libtool 2.5.4 'libtool-([0-9.]+)\.tar'
-
-  url https://distfiles.ariadne.space/pkgconf/
-  match pkgconf 2.9.90 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack lighttpd-1.4.84.tar.xz \
     https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.84.tar.xz
-  unpack -d tools/autoconf \
-    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.73.tar.xz
-  unpack -d tools/automake \
-    https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
-  unpack -d tools/libtool \
-    https://ftp.gnu.org.uk/gnu/libtool/libtool-2.5.4.tar.xz
-  unpack -d tools/pkgconf \
-    https://distfiles.ariadne.space/pkgconf/pkgconf-2.9.90.tar.xz
   apply paths.diff
-  tree 3831497c1beb15a9d75a2cecb05433ca38b6f19a5e018de9b53dcc399b928179
+  tree a791e0fb9cc3fd794c962d8f10166806b5b5935735925fc641e4318850810a6e
 }
 
 build() {
-  export PATH=$PATH:/tmp/bin
+  cp /pkg/config.h src
+  cd src
 
-  for TOOL in autoconf automake libtool pkgconf; do
-    cd /src/tools/$TOOL
-    auto-config --prefix=/tmp
-    make install
-   done
+  cc -O2 -o lemon lemon.c
+  $PWD/lemon -q configparser.y
 
-  ln -s pkgconf /tmp/bin/pkg-config
-  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' /tmp/bin/*
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -Wl,--export-dynamic -o lighttpd \
+    !(lemon|lempar|lighttpd-angel|mod_*|vector|*_win32).c ls-hpack/*.c \
+    mod_{access,alias,evhost,expire,fastcgi,indexfile,redirect,rewrite}.c \
+    mod_{scgi,setenv,simple_vhost,staticfile}.c -lcrypto -lpcre2-8
 
-  cd /src
-  bash autogen.sh
-  auto-config --libdir=/lib/lighttpd --with-pcre2 --with-openssl \
-    --with-zstd PCRE2_CFLAGS=-I/lib/include PCRE2_LIBS=-lpcre2-8
-  make install DESTDIR=/dst
-  rm -f /dst/bin/lighttpd-angel
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_accesslog.so -o mod_accesslog.so mod_accesslog.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_auth.so -o mod_auth.so mod_auth{,_api}.c -lcrypto
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_authn_file.so -o mod_authn_file.so mod_authn_file.c -lcrypto
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_cgi.so -o mod_cgi.so mod_cgi.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_deflate.so -o mod_deflate.so mod_deflate.c -lz -lzstd
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_dirlisting.so -o mod_dirlisting.so mod_dirlisting.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_extforward.so -o mod_extforward.so mod_extforward.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_openssl.so -o mod_openssl.so mod_openssl.c -lssl
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_magnet.so -o mod_magnet.so mod_magnet{,_cache}.c -llua
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_proxy.so -o mod_proxy.so mod_proxy.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_sockproxy.so -o mod_sockproxy.so mod_sockproxy.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_ssi.so -o mod_ssi.so mod_ssi.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_status.so -o mod_status.so mod_status.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_userdir.so -o mod_userdir.so mod_userdir.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_webdav.so -o mod_webdav.so mod_webdav.c
+  cc -DHAVE_CONFIG_H -I . -O2 -Wall -fPIC -shared -Wl,-soname \
+    -Wl,mod_wstunnel.so -o mod_wstunnel.so mod_wstunnel.c
+
+  install -s -t /dst/bin -D lighttpd
+  install -s -t /dst/lib/lighttpd -D mod_*.so
 }
