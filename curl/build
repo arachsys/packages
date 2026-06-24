@@ -5,7 +5,7 @@ check() {
   match curl 8.21.0 'curl-([0-9.]+)\.tar'
 
   url https://github.com/rockdaboot/libpsl/tags
-  match libpsl 0.21.5 'tags/([0-9.]+)\.tar'
+  match libpsl 0.22.0 'tags/([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
   match nghttp2 1.69.0 'tags/v([0-9.]+)\.tar'
@@ -20,19 +20,20 @@ check() {
 prepare() {
   unpack https://curl.haxx.se/download/curl-8.21.0.tar.xz
   unpack -d libpsl \
-    https://github.com/rockdaboot/libpsl/releases/download/0.21.5/libpsl-0.21.5.tar.gz
+    https://github.com/rockdaboot/libpsl/releases/download/0.22.0/libpsl-0.22.0.tar.gz
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.69.0/nghttp2-1.69.0.tar.xz
   unpack -d ngtcp2 \
     https://github.com/ngtcp2/ngtcp2/releases/download/v1.23.0/ngtcp2-1.23.0.tar.xz
   unpack -d nghttp3 \
     https://github.com/ngtcp2/nghttp3/releases/download/v1.16.0/nghttp3-1.16.0.tar.xz
-  tree 9b7a713095b398a85873213184b7390ae1b1ec4ae587b7dbfb91a35b55d7a437
+  tree 1d94257660143ec40352259549f4ec30f770e185dac2229868175e20892a7027
 }
 
 build() {
   cd /src/libpsl
-  auto-config --prefix=/tmp --disable-shared --enable-builtin --with-pic
+  PKG_CONFIG=/bin/true auto-config --prefix=/tmp --disable-shared \
+    --enable-builtin --with-pic
   make install
 
   cd /src/nghttp2
