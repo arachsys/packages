@@ -12,7 +12,7 @@ check() {
   match automake 1.18.1 'automake-([0-9.]+)\.tar'
 
   url https://distfiles.ariadne.space/pkgconf/
-  match pkgconf 2.5.1 'pkgconf-([0-9.]+)\.tar'
+  match pkgconf 2.9.90 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -24,11 +24,11 @@ prepare() {
   unpack -d tools/automake \
     https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
   unpack -d tools/pkgconf \
-    https://distfiles.ariadne.space/pkgconf/pkgconf-2.5.1.tar.xz
+    https://distfiles.ariadne.space/pkgconf/pkgconf-2.9.90.tar.xz
 
   apply cosmetic.diff
   apply prune.diff
-  tree b5f362635df506497279728e8698289fa632a8469dacc50b91a606059a949094
+  tree 1e93a74078bbe4f240a4bbd27e5b97150cd0e75d558efa2c70f6b1de4a304121
 }
 
 build() {
