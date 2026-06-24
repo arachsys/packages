@@ -1,0 +1,20 @@
+#define _GNU_SOURCE
+
+#define PACKAGE_NAME "mtr"
+#define PACKAGE_VERSION "0.96"
+
+#define ENABLE_BRAILLE 1
+#define ENABLE_IPV6 1
+#define HAVE_CURSES 1
+#define HAVE_CURSESW 1
+#define HAVE_GETOPT 1
+#define HAVE_IPINFO 1
+#define HAVE_LINUX_ERRQUEUE_H 1
+#define HAVE_NCURSES_H 1
+#define HAVE_NETINET_IN_H 1
+#define HAVE_SOCKLEN_T 1
+#define HAVE_STDIO_EXT_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_TIME_T 1
+#define HAVE_VALUES_H 1
+#define HAVE___FPENDING 1

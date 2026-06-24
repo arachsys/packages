@@ -1,51 +1,28 @@
 enable setuid
-require m4 perl
 
 check() {
   url https://github.com/traviscross/mtr/tags
   match version 0.96 'v([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org.uk/gnu/autoconf/
-  match autoconf 2.73 'autoconf-([0-9.]+)\.tar'
-
-  url https://ftp.gnu.org.uk/gnu/automake/
-  match automake 1.18.1 'automake-([0-9.]+)\.tar'
-
-  url https://distfiles.ariadne.space/pkgconf/
-  match pkgconf 2.9.90 'pkgconf-([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack mtr-0.96.tar.gz \
     https://github.com/traviscross/mtr/archive/refs/tags/v0.96.tar.gz
-
-  unpack -d tools/autoconf \
-    https://ftp.gnu.org.uk/gnu/autoconf/autoconf-2.73.tar.xz
-  unpack -d tools/automake \
-    https://ftp.gnu.org.uk/gnu/automake/automake-1.18.1.tar.xz
-  unpack -d tools/pkgconf \
-    https://distfiles.ariadne.space/pkgconf/pkgconf-2.9.90.tar.xz
-
   apply cosmetic.diff
   apply prune.diff
-  tree 1e93a74078bbe4f240a4bbd27e5b97150cd0e75d558efa2c70f6b1de4a304121
+  tree aefa0e6d0a30f8d6f1a6467278e628dc3dc88e79ca5f2166b924898a2d307cef
 }
 
 build() {
-  export PATH=$PATH:/tmp/bin
+  cp /pkg/config.h config.h
 
-  for TOOL in autoconf automake pkgconf; do
-    cd /src/tools/$TOOL
-    auto-config --prefix=/tmp
-    make install
-  done
+  cc -I . -O2 -Wall -Wno-pointer-sign -o mtr \
+    ui/!(gtk).c packet/cmdparse.c packet/sockaddr.c \
+    portability/error.c -lncursesw
 
-  ln -s pkgconf /tmp/bin/pkg-config
-  sed -i '1s:^\(#! *\)/usr/bin/:\1/bin/:' /tmp/bin/*
+  cc -I . -O2 -Wall -Wno-pointer-sign -o mtr-packet \
+    packet/!(*_cygwin).c portability/error.c
 
-  cd /src
-  bash bootstrap.sh
-  auto-config
-  make install DESTDIR=/dst
-  rm -f -r /dst/lib/bash-completion
+  install -s -t /dst/bin -D mtr mtr-packet
+  chmod u+s /dst/bin/mtr-packet
 }
