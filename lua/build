@@ -10,6 +10,6 @@ prepare() {
 }
 
 build() {
-  make linux CC=cc
+  make linux CC=cc MYCFLAGS=-fPIC
   make install INSTALL_TOP=/dst
 }
