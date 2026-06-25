@@ -16,12 +16,12 @@ prepare() {
 build() {
   cp /pkg/config.h config.h
 
-  cc -I . -O2 -Wall -Wno-pointer-sign -o mtr \
-    ui/!(gtk).c packet/cmdparse.c packet/sockaddr.c \
+  cc -DPACKAGE_VERSION=\"0.96\" -I . -O2 -Wall -Wno-pointer-sign \
+    -o mtr ui/!(gtk).c packet/cmdparse.c packet/sockaddr.c \
     portability/error.c -lncursesw
 
-  cc -I . -O2 -Wall -Wno-pointer-sign -o mtr-packet \
-    packet/!(*_cygwin).c portability/error.c
+  cc -DPACKAGE_VERSION=\"0.96\" -I . -O2 -Wall -Wno-pointer-sign \
+    -o mtr-packet packet/!(*_cygwin).c portability/error.c
 
   install -s -t /dst/bin -D mtr mtr-packet
   chmod u+s /dst/bin/mtr-packet

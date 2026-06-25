@@ -1,7 +1,6 @@
 #define _GNU_SOURCE
 
 #define PACKAGE_NAME "mtr"
-#define PACKAGE_VERSION "0.96"
 
 #define ENABLE_BRAILLE 1
 #define ENABLE_IPV6 1
