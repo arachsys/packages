@@ -1,9 +1,6 @@
 #define _GNU_SOURCE
 
 #define PACKAGE_NAME "lighttpd"
-#define PACKAGE_VERSION "1.4.84"
-#define LIGHTTPD_VERSION_ID 0x010454
-
 #define LIBRARY_DIR "/lib/lighttpd"
 
 #define HAVE_CHROOT 1
