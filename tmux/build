@@ -2,12 +2,12 @@ require bison libevent
 
 check() {
   url https://github.com/tmux/tmux/tags
-  match version 3.6b 'tags/([0-9.]+[a-z]?)\.tar'
+  match version 3.7 'tags/([0-9.]+[a-z]?)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/tmux/tmux/releases/download/3.6b/tmux-3.6b.tar.gz
-  tree f3de7026c68c5535c558029d0477872fe3b3a773fb9cb5230e1673bbf0ed9654
+  unpack https://github.com/tmux/tmux/releases/download/3.7/tmux-3.7.tar.gz
+  tree a6108ba3b715d0f2f85d9bcb86f5efa81a669f31539070ec0d722acd1a950cd0
 }
 
 build() {
