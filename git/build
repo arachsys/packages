@@ -1,13 +1,13 @@
 check() {
   url https://www.kernel.org/pub/software/scm/git/
-  match version 2.54.0 'git-([0-9.]+)\.tar'
+  match version 2.55.0 'git-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/software/scm/git/git-2.54.0.tar.xz
+  unpack https://www.kernel.org/pub/software/scm/git/git-2.55.0.tar.xz
   apply filter-branch.diff
   apply usage.diff
-  tree b333db7b13a0c8732a0bb947256c6507298e46ddd586f85c88ed8c701ccac1aa
+  tree 4e8b608ecf5e472e5a55f7d7b88c2ec4914e8d15ea7c0fad32b411f14f4eb60f
 }
 
 build() {
@@ -15,7 +15,7 @@ build() {
     gitwebdir=/lib/gitweb htmldir=/lib/doc/git infodir=/lib/info \
     mandir=/lib/man template_dir=/lib/git/templates \
     CURL_LDFLAGS=-lcurl USE_CURL_FOR_IMAP_SEND=1 USE_LIBPCRE=1 \
-    NO_{BASH_COMPLETION,EXPAT,GETTEXT,PERL,PYTHON,REGEX,TCLTK}=1
+    NO_{BASH_COMPLETION,EXPAT,GETTEXT,PERL,PYTHON,REGEX,RUST,TCLTK}=1
   grep -l -r -F -Z 'fatal: git was built without support for' /dst \
     | xargs -r -t -0 rm --
   rm -r /dst/lib/git/templates
