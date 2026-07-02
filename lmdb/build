@@ -1,19 +1,18 @@
 check() {
   url https://github.com/LMDB/lmdb/tags
-  match version 0.9.35 'LMDB_([0-9.]+)\.tar'
+  match version 1.0.0 'LMDB_([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack -p 3 lmdb-0.9.35.tar.gz \
-    https://github.com/LMDB/lmdb/archive/refs/tags/LMDB_0.9.35.tar.gz
-  tree 585f8a1f60cb90949af16139ce8f733e7f3c3889a4193fd1376ba1603159dfce
+  unpack -p 3 lmdb-1.0.0.tar.gz \
+    https://github.com/LMDB/lmdb/archive/refs/tags/LMDB_1.0.0.tar.gz
+  tree 669a939a44b5f3a7a4ffc76a68c28c270ed99c937bbfbfeb4cecc6661f092c4b
 }
 
 build() {
-  make CC=cc liblmdb.a liblmdb.so
-  mkdir -p /dst/lib/include
+  make CC=cc all
+  mkdir -p /dst/lib/{include,shared,static}
   cp lmdb.h /dst/lib/include/lmdb.h
-  cp liblmdb.a /dst/lib/liblmdb.a
-  cp liblmdb.so /dst/lib/liblmdb.so.0
-  ln -s liblmdb.so.0 /dst/lib/liblmdb.so
+  cp liblmdb.a /dst/lib/static/liblmdb.a
+  cp -P liblmdb.so liblmdb.so.* /dst/lib/shared
 }
