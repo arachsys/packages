@@ -1,13 +1,13 @@
 check() {
   url https://github.com/libevent/libevent/tags
-  match version 2.1.12 'releases/tag/release-([0-9.]+)-stable'
+  match version 2.1.13 'releases/tag/release-([0-9.]+)-stable'
 }
 
 prepare() {
-  unpack libevent-2.1.12.tar.gz \
-    https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+  unpack libevent-2.1.13.tar.gz \
+    https://github.com/libevent/libevent/releases/download/release-2.1.13-stable/libevent-2.1.13-stable.tar.gz
   apply libressl.diff
-  tree 3be65d98e315f36d87bdd5f70ccadab7aab52cd76591ca6dc441dab87f581d74
+  tree 0c203b20ee251eb25b9ad9771e72ea826856fcbdeb08d7a7b1e5cfe9bbe06219
 }
 
 build() {
