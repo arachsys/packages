@@ -27,6 +27,7 @@ build() {
     --with-{site,vendor}{archdir,archhdrdir,dir,hdrdir}=no \
     $([[ $CHOST == @(aarch64|amd64|x86_64)* ]] && echo LIBS=-lunwind)
   make install DESTDIR=/dst
+  rm -f /dst/bin/{bundle,bundler,minitest,syntax_suggest,test-unit,typeprof}
   rm -f /dst/bin/*.lock /dst/lib/include/rb_mjit_min_header-*.h
   image - requires libffi
 }
