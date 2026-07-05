@@ -1,0 +1,22 @@
+require rust sqlite
+
+check() {
+  url https://index.crates.io/ar/ti/arti
+  match version 2.5.0 '"name":\s*"arti",\s*"vers":\s*"([0-9.]+)"'
+}
+
+prepare() {
+  unpack arti-2.5.0.tar.gz \
+    https://crates.io/api/v1/crates/arti/2.5.0/download
+  mkdir -p .cargo && cargo vendor --locked >>.cargo/config.toml
+  apply cosmetic.diff
+  apply paths.diff
+  tree 2884c8f8a0faceff5f733cb230b8ea63a32bacf4d5874e603637bda84ab101dc
+}
+
+build() {
+  OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
+    cargo build -p arti -F hsc,onion-service-service --release
+  install -t /dst/bin -D target/release/arti
+  image - requires sqlite
+}

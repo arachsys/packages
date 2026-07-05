@@ -1,0 +1,165 @@
+diff --git a/src/cfg.rs b/src/cfg.rs
+index 13128c35..29499c88 100644
+--- a/src/cfg.rs
++++ b/src/cfg.rs
+@@ -107,7 +107,7 @@ pub(crate) struct ApplicationConfig {
+     /// If true, then we do not exit when we are running as `root`.
+     ///
+     /// This has no effect on Windows.
+-    #[deftly(tor_config(default))]
++    #[deftly(tor_config(default = "true"))]
+     pub(crate) allow_running_as_root: bool,
+ 
+     /// If true, then we do not bootstrap a [`TorClient`](arti_client::TorClient) on startup.
+diff --git a/src/lib.rs b/src/lib.rs
+index 48457dc2..bc054d86 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -148,7 +148,7 @@ use tor_config::mistrust::BuilderExt as _;
+ use tor_rtcompat::ToplevelRuntime;
+ 
+ use anyhow::{Context, Error, Result};
+-use clap::{Arg, ArgAction, Command, value_parser};
++use clap::{Arg, ArgAction, ColorChoice, Command, value_parser};
+ #[allow(unused_imports)]
+ use tracing::{error, info, instrument, warn};
+ 
+@@ -246,7 +246,7 @@ where
+     // We describe a default here, rather than using `default()`, because the
+     // correct behavior is different depending on whether the filename is given
+     // explicitly or not.
+-    let mut config_file_help = "Specify which config file(s) to read.".to_string();
++    let mut config_file_help = "Specify config file(s).".to_string();
+     if let Ok(default) = default_config_files() {
+         // If we couldn't resolve the default config file, then too bad.  If something
+         // actually tries to use it, it will produce an error, but don't fail here
+@@ -299,7 +299,7 @@ where
+                     .value_name("KEY=VALUE")
+                     .action(ArgAction::Append)
+                     .global(true)
+-                    .help("Override config file parameters, using TOML-like syntax."),
++                    .help("Set config parameters using TOML-like syntax"),
+             )
+             .arg(
+                 Arg::new("loglevel")
+@@ -308,19 +308,19 @@ where
+                     .global(true)
+                     .action(ArgAction::Set)
+                     .value_name("LEVEL")
+-                    .help("Override the log level (usually one of 'trace', 'debug', 'info', 'warn', 'error')."),
++                    .help("Set log level: 'trace', 'debug', 'info', 'warn', 'error'"),
+             )
+             .arg(
+                 Arg::new("disable-fs-permission-checks")
+                     .long("disable-fs-permission-checks")
+                     .global(true)
+                     .action(ArgAction::SetTrue)
+-                    .help("Don't check permissions on the files we use."),
++                    .help("Don't check file permissions"),
+             )
+             .subcommand(
+                 Command::new("proxy")
+                     .about(
+-                        "Run Arti in proxy mode, proxying connections through the Tor network.",
++                        "Run in proxy mode",
+                     )
+                     .arg(
+                         // TODO: Allow a proxy-port alias for this too, once http-connect is stable.
+@@ -329,7 +329,7 @@ where
+                             .action(ArgAction::Set)
+                             .value_name("PORT")
+                             .value_parser(clap::value_parser!(u16))
+-                            .help(r#"Localhost port to listen on for SOCKS connections (0 means "disabled"; overrides addresses in the config if specified)."#)
++                            .help(r#"Set local SOCKS listener port (0 to disable)"#)
+                     )
+                     .arg(
+                         Arg::new("dns-port")
+@@ -337,7 +337,7 @@ where
+                             .action(ArgAction::Set)
+                             .value_name("PORT")
+                             .value_parser(clap::value_parser!(u16))
+-                            .help(r#"Localhost port to listen on for DNS requests (0 means "disabled"; overrides addresses in the config if specified)."#)
++                            .help(r#"Set local DNS listener port (0 to disable)"#)
+                     )
+             )
+             .subcommand_required(true)
+@@ -369,7 +369,8 @@ where
+         .version(env!("CARGO_PKG_VERSION"))
+         .long_version(long_version)
+         .author("The Tor Project Developers")
+-        .about("A Rust Tor implementation.");
++        .about("A Rust Tor implementation")
++        .color(ColorChoice::Never);
+ 
+     // Tracing doesn't log anything when there is no subscriber set.  But we want to see
+     // logging messages from config parsing etc.  We can't set the global default subscriber
+diff --git a/src/subcommands/hsc.rs b/src/subcommands/hsc.rs
+index 8d389180..78682155 100644
+--- a/src/subcommands/hsc.rs
++++ b/src/subcommands/hsc.rs
+@@ -23,7 +23,7 @@ use std::str::FromStr;
+ /// The hsc subcommands the arti CLI will be augmented with.
+ #[derive(Parser, Debug)]
+ pub(crate) enum HscSubcommands {
+-    /// Run state management commands for an Arti hidden service client.
++    /// Manage hidden service client state.
+     #[command(subcommand)]
+     Hsc(HscSubcommand),
+ }
+@@ -37,7 +37,7 @@ pub(crate) enum HscSubcommand {
+     ///
+     // TODO: use a clap deprecation attribute when clap supports it:
+     // <https://github.com/clap-rs/clap/issues/3321>
+-    #[command(arg_required_else_help = true)]
++    #[command(arg_required_else_help = true, hide = true)]
+     GetKey(GetKeyArgs),
+     /// Key management subcommands.
+     #[command(subcommand)]
+diff --git a/src/subcommands/hss.rs b/src/subcommands/hss.rs
+index c8726388..4a846c73 100644
+--- a/src/subcommands/hss.rs
++++ b/src/subcommands/hss.rs
+@@ -21,7 +21,7 @@ use crate::{ArtiConfig, Result, TorClient};
+ /// The hss subcommands the arti CLI will be augmented with.
+ #[derive(Parser, Debug)]
+ pub(crate) enum HssSubcommands {
+-    /// Run state management commands for an Arti hidden service.
++    /// Manage hidden service state.
+     Hss(Hss),
+ }
+ 
+@@ -108,7 +108,7 @@ enum KeyType {
+ /// The arguments shared by all [`HssSubcommand`]s.
+ #[derive(Debug, Clone, Args)]
+ pub(crate) struct CommonArgs {
+-    /// The nickname of the service
++    /// The nickname of the service to manage
+     #[arg(short, long)]
+     nickname: HsNickname,
+ }
+diff --git a/vendor/arti-client/src/config.rs b/vendor/arti-client/src/config.rs
+index dd840f11..30c26e1e 100644
+--- a/vendor/arti-client/src/config.rs
++++ b/vendor/arti-client/src/config.rs
+@@ -819,7 +819,7 @@ pub fn default_config_files() -> Result<Vec<ConfigurationSource>, CfgPathError>
+     // the base path resolver includes the 'ARTI_CONFIG' variable
+     let path_resolver = tor_config_path::arti_client_base_resolver();
+ 
+-    ["${ARTI_CONFIG}/arti.toml", "${ARTI_CONFIG}/arti.d/"]
++    ["${ARTI_CONFIG}/arti.toml"]
+         .into_iter()
+         .map(|f| {
+             let path = CfgPath::new(f.into()).path(&path_resolver)?;
+diff --git a/vendor/clap_builder/src/builder/command.rs b/vendor/clap_builder/src/builder/command.rs
+index 67c9556a..30477a47 100644
+--- a/vendor/clap_builder/src/builder/command.rs
++++ b/vendor/clap_builder/src/builder/command.rs
+@@ -4838,7 +4838,7 @@ impl Command {
+ 
+         if !self.is_set(AppSettings::DisableHelpSubcommand) {
+             debug!("Command::_check_help_and_version: Building help subcommand");
+-            let help_about = "Print this message or the help of the given subcommand(s)";
++            let help_about = "Print this message or help for a subcommand";
+ 
+             let mut help_subcmd = if expand_help_tree {
+                 // Slow code path to recursively clone all other subcommand subtrees under help
