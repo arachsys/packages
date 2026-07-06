@@ -3,11 +3,11 @@ require libedit
 
 check() {
   url https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/
-  match version 10.3p1 'openssh-([0-9.]+p[0-9]+)\.tar'
+  match version 10.4p1 'openssh-([0-9.]+p[0-9]+)\.tar'
 }
 
 prepare() {
-  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-10.3p1.tar.gz
+  unpack https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-10.4p1.tar.gz
   apply agent.diff
   apply chroot.diff
   apply config.diff
@@ -15,7 +15,7 @@ prepare() {
   apply mktemp.diff
   apply self.diff
   apply shell.diff
-  tree 3a2c7ac820973c48f04f8f94a9fdbeb425a1ef6b9b6d805211ed6b7cbd5cb81b
+  tree 530fb38730e6120e8961c4123424737b86c1e5b3980f8654be1e0e0091025eba
 }
 
 build() {
