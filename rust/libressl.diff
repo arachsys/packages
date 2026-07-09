@@ -62,47 +62,6 @@ index 4007a265..2e40d75a 100644
  due to this version mismatch.
  
  "
-diff --git a/vendor/openssl-sys-0.9.111/build/main.rs b/vendor/openssl-sys-0.9.111/build/main.rs
-index cbbeb961..b103630e 100644
---- a/vendor/openssl-sys-0.9.111/build/main.rs
-+++ b/vendor/openssl-sys-0.9.111/build/main.rs
-@@ -161,6 +161,7 @@ fn main() {
-     println!("cargo:rustc-check-cfg=cfg(libressl400)");
-     println!("cargo:rustc-check-cfg=cfg(libressl410)");
-     println!("cargo:rustc-check-cfg=cfg(libressl420)");
-+    println!("cargo:rustc-check-cfg=cfg(libressl430)");
- 
-     println!("cargo:rustc-check-cfg=cfg(ossl101)");
-     println!("cargo:rustc-check-cfg=cfg(ossl102)");
-@@ -434,6 +435,7 @@ See rust-openssl documentation for more information:
-             (4, 1, 0) => ('4', '1', '0'),
-             (4, 1, _) => ('4', '1', 'x'),
-             (4, 2, _) => ('4', '2', 'x'),
-+            (4, 3, _) => ('4', '3', 'x'),
-             _ => version_error(),
-         };
- 
-diff --git a/vendor/openssl-sys-0.9.112/build/main.rs b/vendor/openssl-sys-0.9.112/build/main.rs
-index 3f9eae06..549c9dde 100644
---- a/vendor/openssl-sys-0.9.112/build/main.rs
-+++ b/vendor/openssl-sys-0.9.112/build/main.rs
-@@ -425,6 +425,7 @@ See rust-openssl documentation for more information:
-             (4, 1, 0) => ('4', '1', '0'),
-             (4, 1, _) => ('4', '1', 'x'),
-             (4, 2, _) => ('4', '2', 'x'),
-+            (4, 3, _) => ('4', '3', 'x'),
-             _ => version_error(),
-         };
- 
-@@ -461,7 +462,7 @@ fn version_error() -> ! {
-         "
- 
- This crate is only compatible with OpenSSL (version 1.1.0, 1.1.1, or 3.x), or LibreSSL 3.5.0
--through 4.2.x, but a different version of OpenSSL was found. The build is now aborting
-+through 4.3.x, but a different version of OpenSSL was found. The build is now aborting
- due to this version mismatch.
- 
- "
 diff --git a/vendor/openssl-sys-0.9.92/build/main.rs b/vendor/openssl-sys-0.9.92/build/main.rs
 index 21ccf3d0..fd02e9c6 100644
 --- a/vendor/openssl-sys-0.9.92/build/main.rs
