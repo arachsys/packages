@@ -2,14 +2,14 @@ require lua
 
 check() {
   url https://www.lighttpd.net/
-  match version 1.4.84 'lighttpd-([0-9.]+).tar'
+  match version 1.4.85 'lighttpd-([0-9.]+).tar'
 }
 
 prepare() {
-  unpack lighttpd-1.4.84.tar.xz \
-    https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.84.tar.xz
+  unpack lighttpd-1.4.85.tar.xz \
+    https://download.lighttpd.net/lighttpd/releases-1.4.x/lighttpd-1.4.85.tar.xz
   apply paths.diff
-  tree a791e0fb9cc3fd794c962d8f10166806b5b5935735925fc641e4318850810a6e
+  tree 1553cc4726aab50e0ffe61ff3020d70afc49d42c41da1dcf0e37a3ead08b78ab
 }
 
 build() {
@@ -19,7 +19,7 @@ build() {
   cc -O2 -o lemon lemon.c
   $PWD/lemon -q configparser.y
 
-  LIGHTTPD_VERSION=1.4.84
+  LIGHTTPD_VERSION=1.4.85
   IFS=. read -r MAJOR MINOR PATCH <<< "$LIGHTTPD_VERSION"
   set -- -DHAVE_CONFIG_H -DPACKAGE_VERSION=\"$LIGHTTPD_VERSION\" \
     -DLIGHTTPD_VERSION_ID=$((65536*10#$MAJOR+ 256*10#$MINOR + 10#$PATCH))
