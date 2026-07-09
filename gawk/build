@@ -1,11 +1,11 @@
 check() {
   url https://ftp.gnu.org.uk/gnu/gawk/
-  match version 5.4.0 'gawk-([0-9.]+)\.tar'
+  match version 5.4.1 'gawk-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org.uk/gnu/gawk/gawk-5.4.0.tar.xz
-  tree fab7e8c6251a96dbf4f99c6cff0e858206a5fd02fddb7ff16ec8937f96425529
+  unpack https://ftp.gnu.org.uk/gnu/gawk/gawk-5.4.1.tar.xz
+  tree c6717261b131d1e80922daca49ccee5a2445b75fc1164a21cd182a9c4fbd38e6
 }
 
 build() {
