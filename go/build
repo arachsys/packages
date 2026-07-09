@@ -3,14 +3,14 @@ require go
 
 check() {
   url https://golang.org/dl/
-  match version 1.26.4 'go([0-9.]+)\.src\.tar'
+  match version 1.26.5 'go([0-9.]+)\.src\.tar'
 }
 
 prepare() {
-  unpack https://golang.org/dl/go1.26.4.src.tar.gz
+  unpack https://golang.org/dl/go1.26.5.src.tar.gz
   apply fmt.diff
   apply paths.diff
-  tree 32250296b26ecec9a2ced6c6902fd4113f91ab992ba3be8fd2c2a39e528ede09
+  tree 84feec05860b6d5f8e7bfa34ce92c3d5853324f0dd355c86c21a999d6570cb3b
 }
 
 build() {
