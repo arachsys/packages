@@ -1,5 +1,5 @@
 diff --git a/net_util/src/open_tap.rs b/net_util/src/open_tap.rs
-index a5168d22..fe13ca4f 100644
+index 6cc8b2a3..d5cdf951 100644
 --- a/net_util/src/open_tap.rs
 +++ b/net_util/src/open_tap.rs
 @@ -80,14 +80,16 @@ fn open_tap_rx_q_0(

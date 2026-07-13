@@ -1,8 +1,8 @@
 diff --git a/vmm/src/device_manager.rs b/vmm/src/device_manager.rs
-index e6902a4c..cb5d2116 100644
+index 416132e6..13ec09d9 100644
 --- a/vmm/src/device_manager.rs
 +++ b/vmm/src/device_manager.rs
-@@ -2726,44 +2726,17 @@ impl DeviceManager {
+@@ -2750,44 +2750,17 @@ impl DeviceManager {
              .map_err(DeviceManagerError::Disk)?;
  
              let detected_image_type = opened.image_type;
@@ -55,7 +55,7 @@ index e6902a4c..cb5d2116 100644
              }
  
              if disk_cfg.image_type != ImageType::Qcow2 && disk_cfg.backing_files {
-@@ -2833,7 +2806,7 @@ impl DeviceManager {
+@@ -2857,7 +2830,7 @@ impl DeviceManager {
                      .map_err(DeviceManagerError::RestoreGetState)?,
                  queue_affinity,
                  disk_cfg.sparse,

@@ -1,26 +1,40 @@
 diff --git a/cloud-hypervisor/src/main.rs b/cloud-hypervisor/src/main.rs
-index 5de2e4c2..a9be2447 100644
+index 0c9b3d12..0158ee3a 100644
 --- a/cloud-hypervisor/src/main.rs
 +++ b/cloud-hypervisor/src/main.rs
-@@ -12,7 +12,7 @@ use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
+@@ -15,7 +15,7 @@ use std::path::PathBuf;
  use std::sync::mpsc::channel;
- use std::{env, io};
+ use std::{any, cmp, env, io, num, process, str, thread};
  
 -use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
 +use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ColorChoice};
  use event_monitor::event;
  use libc::EFD_NONBLOCK;
  use log::{LevelFilter, error, info, warn};
-@@ -55,7 +55,7 @@ enum Error {
-     CreateDebugEventFd(#[source] std::io::Error),
+@@ -70,11 +70,8 @@ fn handle_sigsys(info: &libc::siginfo_t) {
+         let tid = libc::syscall(libc::SYS_gettid) as i64;
+         let info = &*(info as *const libc::siginfo_t as *const SeccompSiginfo);
+         eprintln!(
+-            concat!(
+-                "\n==== Possible seccomp violation ====\n",
+-                "Syscall number: {} (arch: {:#x}, tid: {}, thread: {})\n",
+-                "Try running with `strace -ff` to identify the cause and open an issue: ",
+-                "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/new",
++            concat!("Possible seccomp violation:\n",
++                "Syscall: {} (arch: {:#x}, tid: {}, thread: {})",
+             ),
+             info.si_syscall, info.si_arch, tid, thread_name,
+         );
+@@ -96,7 +93,7 @@ enum Error {
+     CreateDebugEventFd(#[source] io::Error),
      #[error("Failed to create exit EventFd")]
-     CreateExitEventFd(#[source] std::io::Error),
+     CreateExitEventFd(#[source] io::Error),
 -    #[error("Failed to open hypervisor interface (is hypervisor interface available?)")]
 +    #[error("Failed to open hypervisor interface")]
      CreateHypervisor(#[source] hypervisor::HypervisorError),
      #[error("Failed to start the VMM thread")]
      StartVmmThread(#[source] vmm::Error),
-@@ -151,7 +151,7 @@ fn get_cli_options_sorted(
+@@ -192,7 +189,7 @@ fn get_cli_options_sorted(
      [
          Arg::new("api-socket")
              .long("api-socket")
@@ -29,7 +43,7 @@ index 5de2e4c2..a9be2447 100644
              .num_args(1)
              .group("vmm-config"),
          Arg::new("balloon")
-@@ -161,7 +161,7 @@ fn get_cli_options_sorted(
+@@ -202,7 +199,7 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("cmdline")
              .long("cmdline")
@@ -38,7 +52,7 @@ index 5de2e4c2..a9be2447 100644
              .num_args(1)
              .group("vm-config"),
          Arg::new("console")
-@@ -172,7 +172,7 @@ fn get_cli_options_sorted(
+@@ -213,7 +210,7 @@ fn get_cli_options_sorted(
          Arg::new("cpus")
              .long("cpus")
              .help(
@@ -47,7 +61,7 @@ index 5de2e4c2..a9be2447 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -184,26 +184,26 @@ fn get_cli_options_sorted(
+@@ -225,26 +222,26 @@ fn get_cli_options_sorted(
          #[cfg(feature = "dbus_api")]
          Arg::new("dbus-object-path")
              .long("dbus-object-path")
@@ -78,7 +92,7 @@ index 5de2e4c2..a9be2447 100644
              .default_value("off,iobase=0xe9")
              .group("vm-config"),
          Arg::new("device")
-@@ -220,12 +220,12 @@ fn get_cli_options_sorted(
+@@ -261,12 +258,12 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("event-monitor")
              .long("event-monitor")
@@ -93,7 +107,7 @@ index 5de2e4c2..a9be2447 100644
              .num_args(1)
              .group("vm-payload"),
          Arg::new("fs")
-@@ -243,7 +243,7 @@ fn get_cli_options_sorted(
+@@ -284,7 +281,7 @@ fn get_cli_options_sorted(
          #[cfg(feature = "guest_debug")]
          Arg::new("gdb")
              .long("gdb")
@@ -102,7 +116,7 @@ index 5de2e4c2..a9be2447 100644
              .num_args(1)
              .group("vmm-config"),
          Arg::new("generic-vhost-user")
-@@ -255,18 +255,18 @@ fn get_cli_options_sorted(
+@@ -296,18 +293,18 @@ fn get_cli_options_sorted(
          #[cfg(feature = "igvm")]
          Arg::new("igvm")
              .long("igvm")
@@ -124,7 +138,7 @@ index 5de2e4c2..a9be2447 100644
              .num_args(1)
              .group("vm-config"),
          #[cfg(feature = "ivshmem")]
-@@ -277,16 +277,13 @@ fn get_cli_options_sorted(
+@@ -318,16 +315,13 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("kernel")
              .long("kernel")
@@ -143,7 +157,7 @@ index 5de2e4c2..a9be2447 100644
              .action(ArgAction::SetTrue)
              .default_value("false")
              .group("vm-config"),
-@@ -298,39 +295,39 @@ fn get_cli_options_sorted(
+@@ -339,16 +333,14 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("log-file")
              .long("log-file")
@@ -153,11 +167,17 @@ index 5de2e4c2..a9be2447 100644
              .group("logging"),
          Arg::new("log-format")
              .long("log-format")
--            .help("Log format. Available tokens: {boottime}, {wallclock}, {pid}, {tid}, {thread}, {level}, {location}, {msg}")
-+            .help("Set log format: supports tokens {boottime}, {wallclock}, {pid}, {tid}, {thread}, {level}, {location}, {msg}")
+             .help(
+-                "Log format. Common tokens: {boottime}, {wallclock}, {glog}, \
+-                 {localglog}, {thread}, {level}, {location}, {msg}. See \
+-                 docs/logging.md for the full list (per-field date/time tokens, \
+-                 local-time variants, glog level letter).",
++                "Set log format: supports tokens: {boottime}, {wallclock}, {glog}, \
++                 {localglog}, {thread}, {level}, {location}, {msg}, and more",
+             )
              .num_args(1)
              .default_value(logger::DEFAULT_FORMAT)
-             .group("logging"),
+@@ -356,27 +348,27 @@ fn get_cli_options_sorted(
          Arg::new("memory")
              .long("memory")
              .help(
@@ -169,8 +189,8 @@ index 5de2e4c2..a9be2447 100644
                       hotplug_method=acpi|virtio-mem,\
                       hotplug_size=<hotpluggable_memory_size>,\
                       hotplugged_size=<hotplugged_memory_size>,\
--                     prefault=on|off,thp=on|off\"",
-+                     prefault=on|off,thp=on|off",
+-                     prefault=on|off,reserve=on|off,thp=on|off\"",
++                     prefault=on|off,reserve=on|off,thp=on|off",
              )
              .default_value(default_memory)
              .group("vm-config"),
@@ -186,12 +206,12 @@ index 5de2e4c2..a9be2447 100644
                       host_numa_node=<node_id>,\
                       id=<zone_identifier>,hotplug_size=<hotpluggable_memory_size>,\
                       hotplugged_size=<hotplugged_memory_size>,\
--                     prefault=on|off\"",
-+                     prefault=on|off",
+-                     prefault=on|off,reserve=on|off\"",
++                     prefault=on|off,reserve=on|off",
              )
              .num_args(1..)
              .action(ArgAction::Append)
-@@ -343,7 +340,7 @@ fn get_cli_options_sorted(
+@@ -389,7 +381,7 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("no-shutdown")
              .long("no-shutdown")
@@ -200,7 +220,7 @@ index 5de2e4c2..a9be2447 100644
              .num_args(0)
              .action(ArgAction::SetTrue)
              .group("vmm-config"),
-@@ -373,7 +370,7 @@ fn get_cli_options_sorted(
+@@ -419,7 +411,7 @@ fn get_cli_options_sorted(
          #[cfg(feature = "pvmemcontrol")]
          Arg::new("pvmemcontrol")
              .long("pvmemcontrol")
@@ -209,15 +229,15 @@ index 5de2e4c2..a9be2447 100644
              .num_args(0)
              .action(ArgAction::SetTrue)
              .group("vm-config"),
-@@ -401,6 +398,7 @@ fn get_cli_options_sorted(
+@@ -453,6 +445,7 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("seccomp")
              .long("seccomp")
 +            .help("Enable/disable seccomp")
              .num_args(1)
-             .value_parser(["true", "false", "log"])
+             .value_parser(["true", "false", "log", "errno"])
              .default_value("true"),
-@@ -422,8 +420,9 @@ fn get_cli_options_sorted(
+@@ -474,8 +467,9 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("v")
              .short('v')
@@ -228,7 +248,7 @@ index 5de2e4c2..a9be2447 100644
              .group("logging"),
          Arg::new("vdpa")
              .long("vdpa")
-@@ -470,7 +469,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -522,7 +516,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          // 'BUILD_VERSION' is set by the build script 'build.rs' at
          // compile time
          .author(env!("CARGO_PKG_AUTHORS"))
@@ -238,24 +258,11 @@ index 5de2e4c2..a9be2447 100644
          .arg_required_else_help(true)
          .groups(groups)
          .args(args)
-@@ -551,11 +551,7 @@ fn start_vmm(
-         // handler safe functions (writing to stderr) and manipulating signals.
-         unsafe {
-             signal_hook::low_level::register(signal_hook::consts::SIGSYS, || {
--                eprintln!(
--                    "\n==== Possible seccomp violation ====\n\
--                Try running with `strace -ff` to identify the cause and open an issue: \
--                https://github.com/cloud-hypervisor/cloud-hypervisor/issues/new"
--                );
-+                eprintln!("Possible seccomp violation");
-                 signal_hook::low_level::emulate_default_handler(SIGSYS).unwrap();
-             })
-         }
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 00bf251f..d08689a6 100644
+index 900fd317..eb5e9134 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -770,8 +770,8 @@ impl CpusConfig {
+@@ -808,8 +808,8 @@ impl CpusConfig {
  }
  
  impl PciSegmentConfig {
@@ -266,7 +273,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -830,8 +830,8 @@ impl PciSegmentConfig {
+@@ -868,8 +868,8 @@ impl PciSegmentConfig {
  impl PlatformConfig {
      pub fn syntax() -> &'static str {
          static SYNTAX: LazyLock<String> = LazyLock::new(|| {
@@ -274,10 +281,10 @@ index 00bf251f..d08689a6 100644
 -            \"num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,\
 +            let mut syntax = "Set platform parameters: \
 +            num_pci_segments=<num_pci_segments>,iommu_segments=<list_of_segments>,\
-             iommu_address_width=<bits>,serial_number=<dmi_device_serial_number>,\
-             uuid=<dmi_device_uuid>,oem_strings=<list_of_strings>,iommufd=on|off,\
-             vfio_p2p_dma=on|off"
-@@ -845,8 +845,6 @@ impl PlatformConfig {
+             iommu_address_width=<bits>,iommufd=on|off,iommufd_fd=<fd>,vfio_p2p_dma=on|off,\
+             system_manufacturer=<dmi_system_manufacturer>,\
+             system_product_name=<dmi_system_product_name>,system_version=<dmi_system_version>,\
+@@ -886,8 +886,6 @@ impl PlatformConfig {
                  syntax.push_str(",sev_snp=on|off");
              }
  
@@ -286,7 +293,7 @@ index 00bf251f..d08689a6 100644
              syntax
          });
  
-@@ -1137,10 +1135,10 @@ impl MemoryConfig {
+@@ -1276,10 +1274,10 @@ impl MemoryConfig {
  }
  
  impl RateLimiterGroupConfig {
@@ -300,7 +307,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1281,8 +1279,8 @@ impl PciDeviceCommonConfig {
+@@ -1426,8 +1424,8 @@ impl PciDeviceCommonConfig {
  }
  
  impl DiskConfig {
@@ -311,7 +318,7 @@ index 00bf251f..d08689a6 100644
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1533,14 +1531,14 @@ impl FromStr for VhostMode {
+@@ -1680,14 +1678,14 @@ impl FromStr for VhostMode {
  }
  
  impl NetConfig {
@@ -329,7 +336,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1753,9 +1751,9 @@ impl NetConfig {
+@@ -1902,9 +1900,9 @@ impl NetConfig {
  }
  
  impl RngConfig {
@@ -341,32 +348,35 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(rng: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1781,8 +1779,8 @@ impl RngConfig {
+@@ -1952,9 +1950,9 @@ impl RtcConfig {
  }
  
  impl BalloonConfig {
 -    pub const SYNTAX: &'static str = "Balloon parameters \"size=<balloon_size>,deflate_on_oom=on|off,\
--        free_page_reporting=on|off\"";
 +    pub const SYNTAX: &'static str = "Add balloon device: size=<balloon_size>,deflate_on_oom=on|off,\
-+        free_page_reporting=on|off";
+         free_page_reporting=on|off,iommu=on|off,id=<device_id>,pci_segment=<segment_id>,\
+-        pci_device_id=<pci_slot>\"";
++        pci_device_id=<pci_slot>";
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1817,10 +1815,10 @@ impl BalloonConfig {
+@@ -1997,11 +1995,11 @@ impl BalloonConfig {
  }
  
  impl GenericVhostUserConfig {
 -    pub const SYNTAX: &'static str = "generic vhost-user parameters \
--    \"virtio_id=<ID number for virtio device type (FS, block, net, etc) or symbolic name>,\
+-    \"device_type=<ID number for virtio device type (FS, block, net, etc) or symbolic name>,\
 +    pub const SYNTAX: &'static str = "Add generic vhost-user device: \
-+    virtio_id=<device_type>,\
++    device_type=<device_type>,\
      socket=<socket_path>,\
 -    queue_sizes=<list of queue sizes>,\
+-    id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>\"";
 +    queue_sizes=<list_of_queue_sizes>,\
-     id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>\"";
++    id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>";
  
      pub fn parse(vhost_user: &str) -> Result<Self> {
-@@ -1943,10 +1941,10 @@ impl GenericVhostUserConfig {
+         let mut parser = OptionParser::new();
+@@ -2125,10 +2123,10 @@ impl GenericVhostUserConfig {
  }
  
  impl FsConfig {
@@ -380,7 +390,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2002,9 +2000,9 @@ impl FsConfig {
+@@ -2186,9 +2184,9 @@ impl FsConfig {
  
  #[cfg(feature = "fw_cfg")]
  impl FwCfgConfig {
@@ -393,7 +403,7 @@ index 00bf251f..d08689a6 100644
      pub fn parse(fw_cfg_config: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
          parser
-@@ -2101,10 +2099,10 @@ impl FwCfgItem {
+@@ -2285,10 +2283,10 @@ impl FwCfgItem {
  }
  
  impl PmemConfig {
@@ -407,14 +417,14 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2269,11 +2267,11 @@ impl DebugConsoleConfig {
+@@ -2453,11 +2451,11 @@ impl DebugConsoleConfig {
  }
  
  impl DeviceConfig {
 -    pub const SYNTAX: &'static str = "Direct device assignment parameters \
--    \"path=<device_path>,iommu=on|off,id=<device_id>,\
+-    \"path=<device_path>,fd=<vfio_cdev_fd>,iommu=on|off,id=<device_id>,\
 +    pub const SYNTAX: &'static str = "Assign pass-through device to guest: \
-+    path=<device_path>,iommu=on|off,id=<device_id>,\
++    path=<device_path>,fd=<vfio_cdev_fd>,iommu=on|off,id=<device_id>,\
      pci_segment=<segment_id>,pci_device_id=<pci_slot>,\
      x_nv_gpudirect_clique=<clique_id>,\
 -    x_exclude_mmap_bars=[<bar>...]\"";
@@ -422,7 +432,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2327,8 +2325,8 @@ impl DeviceConfig {
+@@ -2526,8 +2524,8 @@ impl DeviceConfig {
  }
  
  impl UserDeviceConfig {
@@ -433,7 +443,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2354,9 +2352,9 @@ impl UserDeviceConfig {
+@@ -2553,9 +2551,9 @@ impl UserDeviceConfig {
  }
  
  impl VdpaConfig {
@@ -446,7 +456,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2389,9 +2387,9 @@ impl VdpaConfig {
+@@ -2588,9 +2586,9 @@ impl VdpaConfig {
  }
  
  impl VsockConfig {
@@ -459,7 +469,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2424,11 +2422,11 @@ impl VsockConfig {
+@@ -2623,11 +2621,11 @@ impl VsockConfig {
  }
  
  impl NumaConfig {
@@ -474,7 +484,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2619,15 +2617,9 @@ pub struct RestoreConfig {
+@@ -2816,15 +2814,9 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
@@ -493,7 +503,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2731,8 +2723,8 @@ impl RestoreConfig {
+@@ -2928,8 +2920,8 @@ impl RestoreConfig {
  }
  
  impl TpmConfig {
@@ -504,7 +514,7 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2747,8 +2739,8 @@ impl TpmConfig {
+@@ -2944,8 +2936,8 @@ impl TpmConfig {
  }
  
  impl LandlockConfig {
@@ -515,25 +525,27 @@ index 00bf251f..d08689a6 100644
  
      pub fn parse(landlock_rule: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2787,10 +2779,9 @@ impl LandlockConfig {
+@@ -2984,11 +2976,10 @@ impl LandlockConfig {
  
  #[cfg(feature = "ivshmem")]
  impl IvshmemConfig {
 -    pub const SYNTAX: &'static str = "Ivshmem device. Specify the backend file path and size \
--    for the shared memory: \"path=</path/to/a/file>, size=<file_size>\" \
+-    for the shared memory: \"path=</path/to/a/file>,size=<file_size>,id=<device_id>,\
+-    pci_segment=<segment_id>,pci_device_id=<pci_slot>\" \
 -    \nThe <file_size> must be a power of 2 (e.g., 2M, 4M, etc.), as it represents the size \
 -    of the memory region mapped to the guest. Default size is 128M.";
 +    pub const SYNTAX: &'static str = "Add inter-VM shared memory device: \
-+    path=<path>,size=<size>\
++    path=<path>,size=<size>,id=<device_id>,\
++    pci_segment=<segment_id>,pci_device_id=<pci_slot>\
 +    \n<size> must be a power of 2 [default: 128M]";
      pub fn parse(ivshmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
          parser.add("path").add("size");
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index 6fefc8f0..b0727680 100644
+index 04102478..ac6336bc 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
-@@ -581,7 +581,7 @@ pub struct SerialConfig {
+@@ -685,7 +685,7 @@ pub struct SerialConfig {
  }
  
  impl SerialConfig {
@@ -542,7 +554,7 @@ index 6fefc8f0..b0727680 100644
  }
  
  impl Default for SerialConfig {
-@@ -612,7 +612,7 @@ pub struct ConsoleConfig {
+@@ -716,7 +716,7 @@ pub struct ConsoleConfig {
  }
  
  impl ConsoleConfig {
