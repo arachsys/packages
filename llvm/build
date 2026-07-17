@@ -111,6 +111,7 @@ build() {
   cp -R include/llvm ../llvm/include/llvm{,-c} /dst/lib/llvm/include/
   cp -R ../clang/include/clang{,-c} /dst/lib/clang/include/
   ln -s lld /dst/bin/llvm-ld
+  ln -s lld /dst/bin/ld.lld
 
   for TARGET in wasm32 wasm64; do
     if /src/build/bin/clang -print-targets | grep -q -F $TARGET; then
