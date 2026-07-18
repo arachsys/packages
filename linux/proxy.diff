@@ -1,10 +1,10 @@
 diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index bddfa389..f6f5318f 100644
+index 5d921601..a1ec644e 100644
 --- a/net/core/neighbour.c
 +++ b/net/core/neighbour.c
-@@ -472,7 +472,8 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
+@@ -471,7 +471,8 @@ static int __neigh_ifdown(struct neigh_table *tbl, struct net_device *dev,
  	}
- 	write_unlock_bh(&tbl->lock);
+ 	spin_unlock_bh(&tbl->lock);
  
 -	pneigh_ifdown(tbl, dev, skip_perm);
 +	if (!skip_perm)

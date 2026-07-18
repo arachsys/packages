@@ -1,8 +1,8 @@
 diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index cb0a89da..bade05f2 100644
+index e02a38da..479e57be 100644
 --- a/arch/x86/kvm/svm/svm.c
 +++ b/arch/x86/kvm/svm/svm.c
-@@ -428,12 +428,12 @@ static bool __kvm_is_svm_supported(void)
+@@ -487,12 +487,12 @@ static bool __kvm_is_svm_supported(void)
  
  	if (c->x86_vendor != X86_VENDOR_AMD &&
  	    c->x86_vendor != X86_VENDOR_HYGON) {
@@ -18,10 +18,10 @@ index cb0a89da..bade05f2 100644
  	}
  
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 8b24e682..d6e2d6eb 100644
+index b9103de0..c2fc2c82 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2923,7 +2923,7 @@ static bool __kvm_is_vmx_supported(void)
+@@ -2890,7 +2890,7 @@ static bool __kvm_is_vmx_supported(void)
  	int cpu = smp_processor_id();
  
  	if (!(cpuid_ecx(1) & feature_bit(VMX))) {
