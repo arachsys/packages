@@ -13,9 +13,9 @@ prepare() {
   apply libressl.diff   # must patch vendor/openssl{,-sys}-*
   apply system.diff
   apply target.diff
-  apply verify.diff
+  apply vendor.diff
   apply version.diff
-  tree 9750d6c3d6b4b5d9194eddc515138af33b7985bed002d01cf00d75beeedbec60
+  tree 4d6238999f258e4fefdda5e60ec83c9aab2eb96ddd160cc5d978246e20110a59
 }
 
 build() {
