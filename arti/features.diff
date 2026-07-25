@@ -1,0 +1,22 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index b91eb90c..5fe6c23a 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -76,14 +76,16 @@ default = [
+     "harden",
+     "compression",
+     "bridge-client",
++    "hsc",
+     "pt-client",
+     "onion-service-client",
++    "onion-service-service",
+     "vanguards",
+     "flowctl-cc",
+ ]
+ default-runtime = [
+     "tokio",
+-    "native-tls",
++    "rustls",
+ ]
+ derive-deftly = []
+ dns-proxy = ["hickory-proto"]
