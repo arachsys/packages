@@ -11,10 +11,10 @@ check() {
   match nghttp2 1.69.0 'tags/v([0-9.]+)\.tar'
 
   url https://github.com/ngtcp2/ngtcp2/tags
-  match ngtcp2 1.24.0 'tags/v([0-9.]+)\.tar'
+  match ngtcp2 1.25.0 'tags/v([0-9.]+)\.tar'
 
   url https://github.com/ngtcp2/nghttp3/tags
-  match nghttp3 1.17.0 'tags/v([0-9.]+)\.tar'
+  match nghttp3 1.18.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -24,10 +24,10 @@ prepare() {
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.69.0/nghttp2-1.69.0.tar.xz
   unpack -d ngtcp2 \
-    https://github.com/ngtcp2/ngtcp2/releases/download/v1.24.0/ngtcp2-1.24.0.tar.xz
+    https://github.com/ngtcp2/ngtcp2/releases/download/v1.25.0/ngtcp2-1.25.0.tar.xz
   unpack -d nghttp3 \
-    https://github.com/ngtcp2/nghttp3/releases/download/v1.17.0/nghttp3-1.17.0.tar.xz
-  tree e601664082a84d7763898a7d0861811c97d9481fb6451dce479ed9077072b41a
+    https://github.com/ngtcp2/nghttp3/releases/download/v1.18.0/nghttp3-1.18.0.tar.xz
+  tree 1f128bed85a0634aef53d151084865e75c81c3a7eed3a38c50e58ffc9ad7d343
 }
 
 build() {
