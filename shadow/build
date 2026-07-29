@@ -2,16 +2,17 @@ enable setuid setgid
 
 check() {
   url https://github.com/shadow-maint/shadow/tags
-  match version 4.19.4 'tags/([0-9.]+)\.tar'
+  match version 4.20.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/shadow-maint/shadow/releases/download/4.19.4/shadow-4.19.4.tar.xz
+  unpack https://github.com/shadow-maint/shadow/releases/download/4.20.0/shadow-4.20.0.tar.xz
   apply backups.diff
   apply defaults.diff
+  apply musl.diff
   apply nss.diff
   apply paths.diff
-  tree 68fcc4bfbb3bda7961fbd285d2b7402f49a36e6a6a9167717e0b6448f73acf85
+  tree 296abd256eb85f4fb57b394e4cc37237a5947625d073b930e6ca94b292919014
 }
 
 build() {
@@ -23,8 +24,8 @@ build() {
       -e 's:^\(#define _WTMP_FILE\).*:\1 "/dev/null":' \
       -i config.h
   make install DESTDIR=/dst
-  chgrp shadow /dst/bin/{chage,expiry}
-  chmod u-s,g+s /dst/bin/{chage,expiry}
+  chgrp shadow /dst/bin/chage
+  chmod u-s,g+s /dst/bin/chage
   rm -f /dst/bin/{chfn,faillog,groups,lastlog,logoutd}
   rm -f /dst/lib/man/man*/{chfn,faillog,groups,lastlog,logoutd}.*
   rm -f -r /dst/lib/include /dst/lib/*.a

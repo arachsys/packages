@@ -1,8 +1,8 @@
 diff --git a/lib/getdef.c b/lib/getdef.c
-index 930b350b..e3a6f35b 100644
+index 4616b65e..793ee326 100644
 --- a/lib/getdef.c
 +++ b/lib/getdef.c
-@@ -209,12 +209,17 @@ static void def_load (void);
+@@ -214,12 +214,17 @@ static void def_load (void);
  
  
  /*
@@ -22,7 +22,7 @@ index 930b350b..e3a6f35b 100644
  {
  	struct itemdef *d;
  
-@@ -224,7 +229,7 @@ bool getdef_bool (const char *item)
+@@ -229,7 +234,7 @@ bool getdef_bool (const char *item)
  
  	d = def_find (item, NULL);
  	if ((NULL == d) || (NULL == d->value)) {
@@ -44,10 +44,10 @@ index e687a2ee..bb8d4a2c 100644
  extern int getdef_num (const char *, int);
  extern unsigned long getdef_ulong (const char *, unsigned long);
 diff --git a/lib/limits.c b/lib/limits.c
-index 4c7ac6ab..6f3be7cb 100644
+index 3fabe54d..4ebb395a 100644
 --- a/lib/limits.c
 +++ b/lib/limits.c
-@@ -451,7 +451,7 @@ void setup_limits (const struct passwd *info)
+@@ -447,7 +447,7 @@ void setup_limits (const struct passwd *info)
  {
  	char *cp;
  
@@ -56,39 +56,24 @@ index 4c7ac6ab..6f3be7cb 100644
  		setup_usergroups (info);
  	}
  
-diff --git a/lib/obscure.c b/lib/obscure.c
-index c572b96a..a9e1f703 100644
---- a/lib/obscure.c
-+++ b/lib/obscure.c
-@@ -216,9 +216,7 @@ obscure_get_range(int *minlen, int *maxlen)
- 
- 	method = getdef_str ("ENCRYPT_METHOD");
- 	if (NULL == method) {
--		if (getdef_bool ("MD5_CRYPT_ENAB")) {
--			return;
--		}
-+		return; /* BCRYPT is the default */
- 	} else {
- 		if (   streq(method, "MD5")
- #ifdef USE_SHA_CRYPT
 diff --git a/lib/salt.c b/lib/salt.c
-index 1efeb2ce..428feff9 100644
+index f80a9911..af1acf7e 100644
 --- a/lib/salt.c
 +++ b/lib/salt.c
-@@ -370,7 +370,7 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
- 	else {
- 		method = getdef_str ("ENCRYPT_METHOD");
- 		if (NULL == method) {
--			method = getdef_bool ("MD5_CRYPT_ENAB") ? "MD5" : "DES";
-+			method = "BCRYPT";
- 		}
- 	}
+@@ -353,7 +353,7 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
  
+ 	bzero(result, GENSALT_SETTING_SIZE);
+ 
+-	method = meth ?: getdef_str("ENCRYPT_METHOD") ?: "SHA512";
++	method = meth ?: getdef_str("ENCRYPT_METHOD") ?: "BCRYPT";
+ 
+ 	if (streq(method, "SHA256")) {
+ 		MAGNUM(result, '5');
 diff --git a/src/useradd.c b/src/useradd.c
-index 899efe3c..dde49c66 100644
+index db4e93bf..36c07b1f 100644
 --- a/src/useradd.c
 +++ b/src/useradd.c
-@@ -1433,7 +1433,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
+@@ -1434,7 +1434,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
  
  	if (!gflg && !Nflg && !Uflg) {
  		/* Get the settings from login.defs */
@@ -98,11 +83,11 @@ index 899efe3c..dde49c66 100644
  
  	/*
 diff --git a/src/userdel.c b/src/userdel.c
-index f0212764..80396a51 100644
+index 20f28281..d38110db 100644
 --- a/src/userdel.c
 +++ b/src/userdel.c
-@@ -226,7 +226,7 @@ static void update_groups (bool process_selinux)
- 			 user_name, ngrp->gr_name));
+@@ -221,7 +221,7 @@ static void update_groups (bool process_selinux)
+ 			user_name, ngrp->gr_name);
  	}
  
 -	if (getdef_bool ("USERGROUPS_ENAB")) {

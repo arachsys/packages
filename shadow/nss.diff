@@ -1,5 +1,5 @@
 diff --git a/lib/nss.c b/lib/nss.c
-index f2112d08..7f505784 100644
+index 583f0b65..6f150d0d 100644
 --- a/lib/nss.c
 +++ b/lib/nss.c
 @@ -22,6 +22,8 @@
@@ -11,7 +11,7 @@ index f2112d08..7f505784 100644
  #define NSSWITCH "/etc/nsswitch.conf"
  
  // NSS plugin handling for subids
-@@ -162,3 +164,12 @@ struct subid_nss_ops *get_subid_nss_handle() {
+@@ -166,3 +168,12 @@ struct subid_nss_ops *get_subid_nss_handle() {
  	nss_init(NULL);
  	return subid_nss;
  }

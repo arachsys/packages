@@ -1,19 +1,18 @@
 diff --git a/lib/btrfs.c b/lib/btrfs.c
-index 03915981..eae0877c 100644
+index 15b6b315..3c22b35f 100644
 --- a/lib/btrfs.c
 +++ b/lib/btrfs.c
-@@ -14,8 +14,7 @@ static bool path_exists(const char *p)
+@@ -10,7 +10,7 @@
+ #include "prototypes.h"
  
- static const char *btrfs_cmd(void)
- {
--	const char *const btrfs_paths[] = {"/sbin/btrfs",
--		"/bin/btrfs", "/usr/sbin/btrfs", "/usr/bin/btrfs", NULL};
-+	const char *const btrfs_paths[] = {"/bin/btrfs", NULL};
- 	const char *p;
- 	int i;
  
+-#define PATH_ENV  "/usr/bin/env"
++#define PATH_ENV  "/bin/env"
+ 
+ 
+ static int run_btrfs_subvolume_cmd(const char *subcmd, const char *arg1, const char *arg2)
 diff --git a/lib/nscd.c b/lib/nscd.c
-index e2bb44e3..f74efc87 100644
+index 732164ce..4f25cbe0 100644
 --- a/lib/nscd.c
 +++ b/lib/nscd.c
 @@ -20,7 +20,7 @@
@@ -26,10 +25,10 @@ index e2bb44e3..f74efc87 100644
  	const char *spawnedEnv[] = {NULL};
  
 diff --git a/lib/setupenv.c b/lib/setupenv.c
-index 26322163..9673a6ce 100644
+index efa0f2d8..620c42a5 100644
 --- a/lib/setupenv.c
 +++ b/lib/setupenv.c
-@@ -235,7 +235,7 @@ void setup_env (struct passwd *info)
+@@ -157,7 +157,7 @@ void setup_env (struct passwd *info)
  
  	if (NULL == cp) {
  		/* not specified, use a minimal default */
@@ -38,8 +37,21 @@ index 26322163..9673a6ce 100644
  	} else if (strchr(cp, '=')) {
  		/* specified as name=value (PATH=...) */
  		addenv (cp, NULL);
+diff --git a/lib/sssd.c b/lib/sssd.c
+index cc5d4a46..79059593 100644
+--- a/lib/sssd.c
++++ b/lib/sssd.c
+@@ -26,7 +26,7 @@ sssd_flush_cache(int dbflags)
+ 	int          status, code, rv;
+ 	char         *p;
+ 	char         *sss_cache_args = NULL;
+-	const char   *cmd = "/usr/sbin/sss_cache";
++	const char   *cmd = "/bin/sss_cache";
+ 	const char   *spawnedArgs[] = {"sss_cache", NULL, NULL};
+ 	const char   *spawnedEnv[] = {NULL};
+ 	struct stat  sb;
 diff --git a/src/Makefile.am b/src/Makefile.am
-index 69818150..8ea7a427 100644
+index c935e05b..793aec44 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -3,7 +3,7 @@ EXTRA_DIST = \
@@ -52,10 +64,10 @@ index 69818150..8ea7a427 100644
  sgidperms = 2755
  
 diff --git a/src/Makefile.in b/src/Makefile.in
-index 5e64cb74..a6283e0e 100644
+index ee8702fa..c688b456 100644
 --- a/src/Makefile.in
 +++ b/src/Makefile.in
-@@ -626,7 +626,7 @@ EXTRA_DIST = \
+@@ -606,7 +606,7 @@ EXTRA_DIST = \
  	.indent.pro
  
  ubindir = ${prefix}/bin
@@ -65,12 +77,12 @@ index 5e64cb74..a6283e0e 100644
  sgidperms = 2755
  AM_CPPFLAGS = \
 diff --git a/src/groupadd.c b/src/groupadd.c
-index fab8111b..f4d89de9 100644
+index 483d2822..7fdbe1b3 100644
 --- a/src/groupadd.c
 +++ b/src/groupadd.c
-@@ -636,11 +636,6 @@ int main (int argc, char **argv)
- 
- 	check_perms ();
+@@ -564,11 +564,6 @@ int main (int argc, char **argv)
+ 	 */
+ 	process_flags (argc, argv, &flags);
  
 -	if (run_parts ("/etc/shadow-maint/groupadd-pre.d", group_name,
 -			Prog)) {
@@ -80,7 +92,7 @@ index fab8111b..f4d89de9 100644
  #ifdef SHADOWGRP
  	is_shadow_grp = sgr_file_present ();
  #endif
-@@ -659,11 +654,6 @@ int main (int argc, char **argv)
+@@ -587,11 +582,6 @@ int main (int argc, char **argv)
  
  	grp_update ();
  	close_files (&flags);
@@ -93,10 +105,10 @@ index fab8111b..f4d89de9 100644
  	nscd_flush_cache ("group");
  	sssd_flush_cache (SSSD_DB_GROUP);
 diff --git a/src/groupdel.c b/src/groupdel.c
-index 5b4bb8d1..a16f60d2 100644
+index 19d67fc3..ba5adac8 100644
 --- a/src/groupdel.c
 +++ b/src/groupdel.c
-@@ -457,11 +457,6 @@ int main (int argc, char **argv)
+@@ -395,11 +395,6 @@ int main (int argc, char **argv)
  		group_busy (group_id);
  	}
  
@@ -108,7 +120,7 @@ index 5b4bb8d1..a16f60d2 100644
  	/*
  	 * Do the hard stuff - open the files, delete the group entries,
  	 * then close and update the files.
-@@ -472,11 +467,6 @@ int main (int argc, char **argv)
+@@ -410,11 +405,6 @@ int main (int argc, char **argv)
  
  	close_files (&flags);
  
@@ -121,10 +133,10 @@ index 5b4bb8d1..a16f60d2 100644
  	sssd_flush_cache (SSSD_DB_GROUP);
  
 diff --git a/src/su.c b/src/su.c
-index 583979c2..a594dbee 100644
+index cc74ab3a..6b9b6739 100644
 --- a/src/su.c
 +++ b/src/su.c
-@@ -951,7 +951,7 @@ static void set_environment (struct passwd *pw)
+@@ -928,7 +928,7 @@ static void set_environment (struct passwd *pw)
  
  	cp = getdef_str ((pw->pw_uid == 0) ? "ENV_SUPATH" : "ENV_PATH");
  	if (NULL == cp) {
@@ -134,7 +146,7 @@ index 583979c2..a594dbee 100644
  		addenv (cp, NULL);
  	} else {
 diff --git a/src/useradd.c b/src/useradd.c
-index 19fff02a..a8b4c0c4 100644
+index 36c07b1f..9eda4712 100644
 --- a/src/useradd.c
 +++ b/src/useradd.c
 @@ -82,9 +82,6 @@
@@ -155,9 +167,9 @@ index 19fff02a..a8b4c0c4 100644
  static const char *def_usrtemplate = USRSKELDIR;
 +#endif
  static const char *def_create_mail_spool = "yes";
- static const char *def_log_init = "yes";
- 
-@@ -443,6 +442,7 @@ get_defaults(const struct option_flags *flags)
+ static const char *def_btrfs_subvolume_home = "no";
+ static const char *def_btrfs_subvolume_system = "no";
+@@ -440,6 +439,7 @@ get_defaults(const struct option_flags *flags)
  				def_template = xstrdup(ccp);
  		}
  
@@ -165,16 +177,15 @@ index 19fff02a..a8b4c0c4 100644
  		/*
  		 * Default Usr Skeleton information
  		 */
-@@ -456,6 +456,8 @@ get_defaults(const struct option_flags *flags)
+@@ -453,6 +453,7 @@ get_defaults(const struct option_flags *flags)
  				def_usrtemplate = xstrdup(ccp);
  			}
  		}
 +#endif
-+
+ 
  		/*
  		 * Create by default user mail spool or not ?
- 		 */
-@@ -498,7 +500,9 @@ static void show_defaults (void)
+@@ -514,7 +515,9 @@ static void show_defaults (void)
  	printf ("EXPIRE=%s\n", def_expire);
  	printf ("SHELL=%s\n", def_shell);
  	printf ("SKEL=%s\n", def_template);
@@ -182,9 +193,9 @@ index 19fff02a..a8b4c0c4 100644
  	printf ("USRSKEL=%s\n", def_usrtemplate);
 +#endif
  	printf ("CREATE_MAIL_SPOOL=%s\n", def_create_mail_spool);
- 	printf ("LOG_INIT=%s\n", def_log_init);
- }
-@@ -521,7 +525,9 @@ set_defaults(void)
+ 	printf ("BTRFS_SUBVOLUME_HOME=%s\n", def_btrfs_subvolume_home);
+ 	printf ("BTRFS_SUBVOLUME_SYSTEM=%s\n", def_btrfs_subvolume_system);
+@@ -539,7 +542,9 @@ set_defaults(void)
  	bool  out_expire = false;
  	bool  out_shell = false;
  	bool  out_skel = false;
@@ -192,9 +203,9 @@ index 19fff02a..a8b4c0c4 100644
  	bool  out_usrskel = false;
 +#endif
  	bool  out_create_mail_spool = false;
- 	bool  out_log_init = false;
- 	char  buf[1024];
-@@ -629,9 +635,11 @@ set_defaults(void)
+ 	bool  out_btrfs_subvolume_home = false;
+ 	bool  out_btrfs_subvolume_system = false;
+@@ -642,9 +647,11 @@ set_defaults(void)
  		} else if (!out_skel && streq(buf, DSKEL)) {
  			fprintf(ofp, DSKEL "=%s\n", def_template);
  			out_skel = true;
@@ -206,7 +217,7 @@ index 19fff02a..a8b4c0c4 100644
  		} else if (!out_create_mail_spool
  			   && streq(buf, DCREATE_MAIL_SPOOL))
  		{
-@@ -668,8 +676,10 @@ set_defaults(void)
+@@ -691,8 +698,10 @@ set_defaults(void)
  		fprintf (ofp, DSHELL "=%s\n", def_shell);
  	if (!out_skel)
  		fprintf (ofp, DSKEL "=%s\n", def_template);
@@ -217,7 +228,7 @@ index 19fff02a..a8b4c0c4 100644
  
  	if (!out_create_mail_spool)
  		fprintf (ofp, DCREATE_MAIL_SPOOL "=%s\n", def_create_mail_spool);
-@@ -1378,8 +1388,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
+@@ -1378,8 +1387,7 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
  				}
  				if (!streq(optarg, "")
  				     && '*'  != optarg[0]
@@ -227,7 +238,7 @@ index 19fff02a..a8b4c0c4 100644
  				     && (   stat(optarg, &st) != 0
  				         || S_ISDIR(st.st_mode)
  				         || access(optarg, X_OK) != 0)) {
-@@ -2042,7 +2051,7 @@ static void lastlog_reset (uid_t uid)
+@@ -2011,7 +2019,7 @@ static void lastlog_reset (uid_t uid)
  
  static void tallylog_reset (const char *user_name)
  {
@@ -236,30 +247,30 @@ index 19fff02a..a8b4c0c4 100644
  	const char *pname;
  	pid_t childpid;
  	int failed;
-@@ -2497,11 +2506,6 @@ int main (int argc, char **argv)
- 	    (!user_id || (user_id <= uid_max && user_id >= uid_min));
- #endif				/* ENABLE_SUBIDS */
+@@ -2506,11 +2514,6 @@ int main (int argc, char **argv)
+ 	process_flags (argc, argv, &flags);
+ 	process_selinux = !flags.chroot && !flags.prefix;
  
 -	if (run_parts ("/etc/shadow-maint/useradd-pre.d", user_name,
 -			"useradd")) {
 -		exit(1);
 -	}
 -
- #ifdef ACCT_TOOLS_SETUID
- #ifdef USE_PAM
- 	{
-@@ -2688,8 +2692,10 @@ int main (int argc, char **argv)
+ 	/*
+ 	 * See if we are messing with the defaults file, or creating
+ 	 * a new user.
+@@ -2662,8 +2665,10 @@ int main (int argc, char **argv)
  		if (home_added) {
- 			copy_tree (def_template, prefix_user_home, false, true,
+ 			copy_tree (def_template, prefix_user_home, false,
  			           (uid_t)-1, user_id, (gid_t)-1, user_gid);
 +#ifdef USRSKELDIR
- 			copy_tree (def_usrtemplate, prefix_user_home, false, true,
+ 			copy_tree (def_usrtemplate, prefix_user_home, false,
  			           (uid_t)-1, user_id, (gid_t)-1, user_gid);
 +#endif
  		} else {
- 			fprintf (stderr,
- 			         _("%s: warning: the home directory %s already exists.\n"
-@@ -2704,10 +2710,5 @@ int main (int argc, char **argv)
+ 			eprintf(_("%s: warning: the home directory %s already exists.\n"
+ 			          "%s: Not copying any file from skel directory into it.\n"),
+@@ -2677,10 +2682,5 @@ int main (int argc, char **argv)
  		create_mail (&flags);
  	}
  
@@ -271,10 +282,10 @@ index 19fff02a..a8b4c0c4 100644
  	return E_SUCCESS;
  }
 diff --git a/src/userdel.c b/src/userdel.c
-index 80396a51..62eaf39f 100644
+index d38110db..12be607e 100644
 --- a/src/userdel.c
 +++ b/src/userdel.c
-@@ -1053,10 +1053,6 @@ int main (int argc, char **argv)
+@@ -965,10 +965,6 @@ int main (int argc, char **argv)
  	{
  		const struct passwd *pwd;
  
@@ -285,7 +296,7 @@ index 80396a51..62eaf39f 100644
  		pw_open(O_RDONLY);
  		pwd = pw_locate (user_name); /* we care only about local users */
  		if (NULL == pwd) {
-@@ -1230,10 +1226,6 @@ int main (int argc, char **argv)
+@@ -1136,10 +1132,6 @@ int main (int argc, char **argv)
  		user_cancel (user_name);
  	close_files (&flags);
  
@@ -297,10 +308,10 @@ index 80396a51..62eaf39f 100644
  	if (remove_tcbdir (user_name, user_id)) {
  		errors = true;
 diff --git a/src/usermod.c b/src/usermod.c
-index e26f0110..51f7a0e3 100644
+index bd9dc82c..27f3690d 100644
 --- a/src/usermod.c
 +++ b/src/usermod.c
-@@ -1185,8 +1185,7 @@ process_flags(int argc, char **argv, struct option_flags *flags)
+@@ -1189,8 +1189,7 @@ process_flags(int argc, char **argv, struct option_flags *flags)
  				}
  				if (!streq(optarg, "")
  				     && '*'  != optarg[0]

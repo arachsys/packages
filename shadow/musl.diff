@@ -1,0 +1,24 @@
+diff --git a/lib/find_new_sub_gids.c b/lib/find_new_sub_gids.c
+index 3971ce92..de514d6b 100644
+--- a/lib/find_new_sub_gids.c
++++ b/lib/find_new_sub_gids.c
+@@ -8,6 +8,7 @@
+ 
+ #ifdef ENABLE_SUBIDS
+ 
++#include <stdint.h>
+ #include <stdio.h>
+ #include <errno.h>
+ 
+diff --git a/lib/find_new_sub_uids.c b/lib/find_new_sub_uids.c
+index 65f68154..f0b43283 100644
+--- a/lib/find_new_sub_uids.c
++++ b/lib/find_new_sub_uids.c
+@@ -8,6 +8,7 @@
+ 
+ #ifdef ENABLE_SUBIDS
+ 
++#include <stdint.h>
+ #include <stdio.h>
+ #include <errno.h>
+ 
