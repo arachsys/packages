@@ -1,5 +1,5 @@
 diff --git a/libdm/Makefile.in b/libdm/Makefile.in
-index 34e17a3f..441170cf 100644
+index b2b8bce9..c50544fa 100644
 --- a/libdm/Makefile.in
 +++ b/libdm/Makefile.in
 @@ -47,9 +47,7 @@ SOURCES =\
@@ -13,7 +13,7 @@ index 34e17a3f..441170cf 100644
  ifeq ("@SHARED_LINK@", "yes")
  LIB_SHARED = $(interface)/libdevmapper.$(LIB_SUFFIX)
 diff --git a/libdm/dm-tools/Makefile.in b/libdm/dm-tools/Makefile.in
-index 00d0fb16..f93cd010 100644
+index 84f8c1c2..8091dc86 100644
 --- a/libdm/dm-tools/Makefile.in
 +++ b/libdm/dm-tools/Makefile.in
 @@ -64,10 +64,10 @@ LIBDM_STATIC = $(interfacebuilddir)/libdevmapper.a
@@ -43,14 +43,14 @@ index 00d0fb16..f93cd010 100644
  dmfilemapd.static: dmfilemapd.o $(LIBDM_STATIC)
  	$(SHOW) "    [CC] $@"
 diff --git a/make.tmpl.in b/make.tmpl.in
-index 4fcb9737..89e39c47 100644
+index 982eaee0..dfe3ffd3 100644
 --- a/make.tmpl.in
 +++ b/make.tmpl.in
-@@ -409,7 +409,7 @@ endif
+@@ -418,7 +418,7 @@ endif
  INTERNAL_LIBS = \
  	$(top_builddir)/libdaemon/client/libdaemonclient.a
  
--LIBS += -L$(top_builddir)/libdm/ioctl -ldevmapper -Wl,-rpath-link,$(top_builddir)/libdm/ioctl
+-LIBS += -L$(top_builddir)/libdm/ioctl -l$(LIBDM_NAME) -Wl,-rpath-link,$(top_builddir)/libdm/ioctl
 +LIBS += $(top_builddir)/libdm/ioctl/libdevmapper.a
  LVMINTERNAL_LIBS = $(top_builddir)/lib/liblvm-internal.a $(INTERNAL_LIBS)
  
