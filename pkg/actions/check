@@ -49,7 +49,10 @@ helper() {
   check() { :; }
 
   match() {
-    PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
+    for URL in "${CHECK[@]}"; do
+      curl -f -m 30 -s -L -- "$URL" && break
+      warn "$PKGNAME: $URL is down"
+    done | PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
       while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
         print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
           substr($0, RSTART, RLENGTH));
@@ -60,18 +63,15 @@ helper() {
     elif [[ $VERSION != $2 ]]; then
       echo "$PKGNAME: $1 $VERSION available"
     fi
-  }
+  } 2>&1
 
   url() {
-    exec < <(
-      if ! curl -f -m 30 -s -L -- "$1"; then
-        die "$PKGNAME: failed to get $1"
-      fi
-    )
+    CHECK=( "$@" )
   }
 
   cd /pkg
   setup /pkg "${@:2}"
+  declare -a -g CHECK=()
   PKGNAME=$1 check </dev/null
 }
 
