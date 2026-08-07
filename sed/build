@@ -1,10 +1,10 @@
 check() {
-  url https://ftp.gnu.org.uk/gnu/sed/
+  url https://ftp.gnu.org{,.uk}{,.uk}/gnu/sed/
   match version 4.10 'sed-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org.uk/gnu/sed/sed-4.10.tar.xz
+  unpack https://ftp.gnu.org/gnu/sed/sed-4.10.tar.xz
   tree e49a6d7b87592716c7061cafc6c06e010d211a2b50924821756024a5b859f79e
 }
 
