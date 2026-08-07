@@ -2,18 +2,18 @@ require libnl-tiny
 
 check() {
   url https://w1.fi/releases/
-  match version 2.11 'hostapd-([0-9.]+)\.tar'
+  match version 2.12 'hostapd-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://w1.fi/releases/hostapd-2.11.tar.gz
+  unpack https://w1.fi/releases/hostapd-2.12.tar.gz
   apply libnl.diff
   apply tidy.diff
-  tree 2e0a5c43787df4e5f771054f3c2e2722d334096c7438a3ee483a8812cb081ed4
+  tree 31bd88370c987c360a6c2c8e65b17823894433e17edd8492175f7d13b7604c9e
 }
 
 build() {
   cp /pkg/config hostapd/.config
-  make -C hostapd hostapd
+  make -C hostapd hostapd PKG_CONFIG=false
   install -s -D hostapd/hostapd /dst/bin/hostapd
 }

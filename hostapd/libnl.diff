@@ -1,13 +1,13 @@
-diff --git b/src/drivers/drivers.mak a/src/drivers/drivers.mak
-index a03d4a0..c8c7693 100644
---- b/src/drivers/drivers.mak
-+++ a/src/drivers/drivers.mak
-@@ -192,7 +192,7 @@ ifdef CONFIG_LIBNL32
+diff --git a/src/drivers/drivers.mak b/src/drivers/drivers.mak
+index 160b5378..5153586f 100644
+--- a/src/drivers/drivers.mak
++++ b/src/drivers/drivers.mak
+@@ -172,7 +172,7 @@ ifdef CONFIG_LIBNL32
    endif
  else
    ifdef CONFIG_LIBNL_TINY
 -    DRV_LIBS += -lnl-tiny
 +    DRV_LIBS += -l:libnl-tiny.a
+     DRV_CFLAGS += $(shell $(PKG_CONFIG) --cflags libnl-tiny)
+     DRV_CFLAGS += -D_GNU_SOURCE
    else
-     ifndef CONFIG_OSX
-       DRV_LIBS += -lnl

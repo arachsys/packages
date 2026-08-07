@@ -1,30 +1,34 @@
 diff --git a/hostapd/main.c b/hostapd/main.c
-index 58cc86a0..47a338f1 100644
+index de78a046..a4f760b6 100644
 --- a/hostapd/main.c
 +++ b/hostapd/main.c
-@@ -553,9 +553,7 @@ static void show_version(void)
+@@ -604,9 +604,7 @@ static void show_version(void)
  {
  	fprintf(stderr,
  		"hostapd v%s\n"
 -		"User space daemon for IEEE 802.11 AP management,\n"
 -		"IEEE 802.1X/WPA/WPA2/EAP/RADIUS Authenticator\n"
--		"Copyright (c) 2002-2024, Jouni Malinen <j@w1.fi> "
-+		"Copyright (C) 2002-2024, Jouni Malinen <j@w1.fi> "
+-		"Copyright (c) 2002-2026, Jouni Malinen <j@w1.fi> "
++		"Copyright (C) 2002-2026, Jouni Malinen <j@w1.fi> "
  		"and contributors\n",
  		VERSION_STR);
  }
-@@ -566,36 +564,35 @@ static void usage(void)
+@@ -617,42 +615,41 @@ static void usage(void)
  	show_version();
  	fprintf(stderr,
  		"\n"
 -		"usage: hostapd [-hdBKtvq] [-P <PID file>] [-e <entropy file>] "
-+		"Usage: hostapd [-hdBKtvq] [-P <PID file>] [-e <entropy file>] "
++		"Usage: hostapd [-hdBKtvq] [-P <pid-file>] [-e <entropy-file>] "
  		"\\\n"
 -		"         [-g <global ctrl_iface>] [-G <group>]\\\n"
 -		"         [-i <comma-separated list of interface names>]\\\n"
++		"         [-g <global-ctrl>] [-G <group>]\\\n"
++		"         [-i <comma-separated-list-of-interfaces>]\\\n"
+ #ifdef CONFIG_PROCESS_COORDINATION
+-		"        [-z<process coordination directory>] \\\n"
++		"        [-z <process-coordination-directory>] \\\n"
+ #endif /* CONFIG_PROCESS_COORDINATION */
 -		"         <configuration file(s)>\n"
-+		"         [-g <global-ctrl>] [-G <group>] \\\n"
-+		"         [-i <comma-separated-list-of-interfaces>] \\\n"
 +		"         <config-file>...\n"
  		"\n"
 -		"options:\n"
@@ -40,10 +44,10 @@ index 58cc86a0..47a338f1 100644
 +		"  -h   show this usage\n"
 +		"  -d   show more debug messages (-dd for even more)\n"
 +		"  -B   run daemon in the background\n"
-+		"  -e   entropy file\n"
++		"  -e   read and write entropy file\n"
 +		"  -g   global control interface path\n"
 +		"  -G   group for control interfaces\n"
-+		"  -P   PID file\n"
++		"  -P   write pid file\n"
 +		"  -K   include key data in debug messages\n"
  #ifdef CONFIG_DEBUG_FILE
 -		"   -f   log output to debug file instead of stdout\n"
@@ -55,7 +59,7 @@ index 58cc86a0..47a338f1 100644
 +		"  -T   record to Linux tracing in addition to logging\n"
  #endif /* CONFIG_DEBUG_LINUX_TRACING */
 -		"   -i   list of interface names to use\n"
-+		"  -i   comma-separated list of interface names\n"
++		"  -i   select interfaces\n"
  #ifdef CONFIG_DEBUG_SYSLOG
 -		"   -s   log output to syslog instead of stdout\n"
 +		"  -s   log output to syslog instead of stdout\n"
@@ -63,11 +67,15 @@ index 58cc86a0..47a338f1 100644
 -		"   -S   start all the interfaces synchronously\n"
 -		"   -t   include timestamps in some debug messages\n"
 -		"   -v   show hostapd version\n"
--		"   -q   show less debug messages (-qq for even less)\n");
 +		"  -S   start all the interfaces synchronously\n"
 +		"  -t   include timestamps in some debug messages\n"
-+		"  -v   show version\n"
-+		"  -q   show fewer debug messages (-qq for even fewer)\n");
++		"  -v   show hostapd version\n"
+ #ifdef CONFIG_PROCESS_COORDINATION
+-		"   -z   process coordination directory\n"
++		"  -z   set process coordination directory\n"
+ #endif /* CONFIG_PROCESS_COORDINATION */
+-		"   -q   show less debug messages (-qq for even less)\n");
++		"   -q   show fewer debug messages (-qq for even fewer)\n");
  
  	exit(1);
  }
