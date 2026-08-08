@@ -2,8 +2,8 @@ check() {
   url https://github.com/arachsys/libelf/tags
   match version 0.195 'tags/v([0-9.]+)\.tar'
 
-  url https://sourceware.org/git/\?p=elfutils.git
-  match 'upstream elfutils' 0.195 'elfutils-([0-9.]+)'
+  url https://sourceware.org/elfutils/ftp/
+  match 'upstream elfutils' 0.195 '([0-9.]+)/'
 }
 
 prepare() {
