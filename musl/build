@@ -1,6 +1,9 @@
 check() {
-  url https://musl.libc.org/releases.html
+  url https://musl.libc.org/
   match version 1.2.6 'musl-([0-9.]+)\.tar'
+
+  url https://musl.libc.org/
+  match cve 2026-40200 'CVE-([0-9]+-[0-9]+)'
 }
 
 prepare() {
