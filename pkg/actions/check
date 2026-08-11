@@ -49,29 +49,30 @@ helper() {
   check() { :; }
 
   match() {
-    for URL in "${CHECK[@]}"; do
-      curl -f -m 30 -s -L -- "$URL" && break
-      warn "$PKGNAME: $URL is down"
-    done | PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
-      while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
-        print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
-          substr($0, RSTART, RLENGTH));
-        $0 = substr($0, RSTART + RLENGTH);
-      }
-    }' | sort -V | tail -n 1 | if ! read VERSION; then
-      warn "$PKGNAME: $1 not found"
-    elif [[ $VERSION != $2 ]]; then
-      echo "$PKGNAME: $1 $VERSION available"
+    if [[ -n $CHECK ]]; then
+      PATTERN=$3 REPLACE=${4:-\\1} gawk -e '{
+        while (ENVIRON["PATTERN"] && match($0, ENVIRON["PATTERN"])) {
+          print gensub(ENVIRON["PATTERN"], ENVIRON["REPLACE"], 1,
+            substr($0, RSTART, RLENGTH));
+          $0 = substr($0, RSTART + RLENGTH);
+        }
+      }' <<< "$CHECK" | sort -V | tail -n 1 | if ! read VERSION; then
+        echo "$PKGNAME: $1 not found"
+      elif [[ $VERSION != $2 ]]; then
+        echo "$PKGNAME: $1 $VERSION available"
+      fi
     fi
-  } 2>&1
+  }
 
   url() {
-    CHECK=( "$@" )
+    for URL in "$@"; do
+      CHECK=$(curl -f -m 30 -s -L -- "$URL") && [[ -n $CHECK ]] && return
+    done
+    printf "$PKGNAME: %s is down\n" "$@"
   }
 
   cd /pkg
   setup /pkg "${@:2}"
-  declare -a -g CHECK=()
   PKGNAME=$1 check </dev/null
 }
 
