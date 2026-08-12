@@ -1,13 +1,13 @@
 check() {
   url https://sourceforge.net/projects/procps-ng/files/Production/
-  match version 4.0.6 'procps-ng-([0-9.]+)\.tar'
+  match version 4.0.7 'procps-ng-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.6.tar.xz
+  unpack https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.7.tar.xz
   apply cosmetic.diff
   apply pidns.diff
-  tree 32323f12e8eeb0fb3c12c04a7f8a431ade5ce3b22223b812bb22aa92af1bf882
+  tree 1a8cd9d750035ec8dc4c7d7da7b3e93dfe8baaa1b3d525105457098a2fbaee62
 }
 
 build() {
