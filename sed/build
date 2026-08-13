@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}{,.uk}/gnu/sed/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org{,.uk}/gnu/sed/
   match version 4.10 'sed-([0-9.]+)\.tar'
 }
 

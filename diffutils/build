@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/diffutils/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/diffutils/
   match version 3.12 'diffutils-([0-9.]+)\.tar'
 }
 

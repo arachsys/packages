@@ -1,7 +1,7 @@
 require m4
 
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/bison/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/bison/
   match version 3.8.2 'bison-([0-9.]+)\.tar'
 }
 

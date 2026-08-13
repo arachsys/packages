@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/bash/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/bash/
   match version 5.3 'bash-([0-9.]+)\.tar\.gz'
 }
 

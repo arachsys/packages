@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/m4/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/m4/
   match version 1.4.21 'm4-([0-9.]+)\.tar'
 }
 

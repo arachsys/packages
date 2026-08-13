@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/coreutils/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/coreutils/
   match version 9.11 'coreutils-([0-9.]+)\.tar'
 }
 

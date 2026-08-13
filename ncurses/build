@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/ncurses/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/ncurses/
   match version 6.6 'ncurses-([0-9.]+)\.tar'
 }
 

@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/readline/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/readline/
   match version 8.3 'readline-([0-9.]+)\.tar\.gz'
 }
 

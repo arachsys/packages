@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/make/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/make/
   match version 4.4.1 'make-([0-9.]+)\.tar'
 }
 

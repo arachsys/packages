@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/patch/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/patch/
   match version 2.8 'patch-([0-9.]+)\.tar'
 }
 

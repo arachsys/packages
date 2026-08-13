@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/gzip/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/gzip/
   match version 1.14 'gzip-([0-9.]+)\.tar'
 }
 

@@ -1,5 +1,5 @@
 check() {
-  url https://ftp.gnu.org{,.uk}/gnu/grep/
+  url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/grep/
   match version 3.12 'grep-([0-9.]+)\.tar'
 }
 
