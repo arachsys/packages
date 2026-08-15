@@ -5,7 +5,7 @@ check() {
   match curl 8.21.0 'curl-([0-9.]+)\.tar'
 
   url https://github.com/rockdaboot/libpsl/tags
-  match libpsl 0.23.2 'tags/([0-9.]+)\.tar'
+  match libpsl 0.23.3 'tags/([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
   match nghttp2 1.70.0 'tags/v([0-9.]+)\.tar'
@@ -20,14 +20,14 @@ check() {
 prepare() {
   unpack https://curl.haxx.se/download/curl-8.21.0.tar.xz
   unpack -d libpsl \
-    https://github.com/rockdaboot/libpsl/releases/download/0.23.2/libpsl-0.23.2.tar.gz
+    https://github.com/rockdaboot/libpsl/releases/download/0.23.3/libpsl-0.23.3.tar.gz
   unpack -d nghttp2 \
     https://github.com/nghttp2/nghttp2/releases/download/v1.70.0/nghttp2-1.70.0.tar.xz
   unpack -d ngtcp2 \
     https://github.com/ngtcp2/ngtcp2/releases/download/v1.25.0/ngtcp2-1.25.0.tar.xz
   unpack -d nghttp3 \
     https://github.com/ngtcp2/nghttp3/releases/download/v1.18.0/nghttp3-1.18.0.tar.xz
-  tree ca99f7083ac0208002b532a71b7016522aeb2015b62eebb85414c70da407372c
+  tree 90d2e6d4f40c6e727114abf4f55f075ea7a8d482ca618fc0a172cd5b9e535b72
 }
 
 build() {
