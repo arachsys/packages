@@ -1,11 +1,11 @@
 check() {
   url https://github.com/strace/strace/tags
-  match version 7.1 'tags/v([0-9.]+)\.tar'
+  match version 7.2 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://strace.io/files/7.1/strace-7.1.tar.xz
-  tree 8c0378d9a084bd11ec6ab5a3e7e49b49b054456823d211177852d18d8909c34d
+  unpack https://strace.io/files/7.2/strace-7.2.tar.xz
+  tree 9fa8bde0b77be4fa63026b569a3df5592e7550a091b5a965c6f1e524d4d12ec0
 }
 
 build() {
