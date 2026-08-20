@@ -2,7 +2,7 @@ require sqlite
 
 check() {
   url https://downloads.exim.org/exim4/
-  match version 4.99.5 'exim-([0-9.]+)\.tar'
+  match version 4.100 'exim-([0-9.]+)\.tar'
 }
 
 prepare() {
