@@ -1,5 +1,5 @@
 diff --git a/src/tools/cargo/src/cargo/ops/vendor.rs b/src/tools/cargo/src/cargo/ops/vendor.rs
-index 87080ff0..cfa6526b 100644
+index 41f35266..68495ee4 100644
 --- a/src/tools/cargo/src/cargo/ops/vendor.rs
 +++ b/src/tools/cargo/src/cargo/ops/vendor.rs
 @@ -18,6 +18,7 @@ use walkdir::WalkDir;
@@ -30,7 +30,7 @@ index 87080ff0..cfa6526b 100644
              "files": file_cksums,
          });
 diff --git a/src/tools/cargo/src/cargo/sources/directory.rs b/src/tools/cargo/src/cargo/sources/directory.rs
-index 4d49d581..d0023cf1 100644
+index b51a519a..cb109541 100644
 --- a/src/tools/cargo/src/cargo/sources/directory.rs
 +++ b/src/tools/cargo/src/cargo/sources/directory.rs
 @@ -1,5 +1,6 @@

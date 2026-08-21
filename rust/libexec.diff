@@ -1,5 +1,5 @@
 diff --git a/src/bootstrap/bootstrap.py b/src/bootstrap/bootstrap.py
-index ad256c2e..a8baa3dd 100644
+index fcec091f..92cf2914 100644
 --- a/src/bootstrap/bootstrap.py
 +++ b/src/bootstrap/bootstrap.py
 @@ -724,7 +724,7 @@ class RustBuild(object):
@@ -12,7 +12,7 @@ index ad256c2e..a8baa3dd 100644
                  lib_dir = "{}/lib".format(bin_root)
                  rustlib_bin_dir = "{}/rustlib/{}/bin".format(lib_dir, self.build)
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 360b8418..3c8371c0 100644
+index 114387d9..9a5930e7 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
 @@ -544,7 +544,7 @@ impl Step for Rustc {
@@ -25,10 +25,10 @@ index 360b8418..3c8371c0 100644
              }
  
 diff --git a/src/bootstrap/src/core/build_steps/tool.rs b/src/bootstrap/src/core/build_steps/tool.rs
-index ed5c2586..650464ac 100644
+index cb65c08e..312c97dd 100644
 --- a/src/bootstrap/src/core/build_steps/tool.rs
 +++ b/src/bootstrap/src/core/build_steps/tool.rs
-@@ -1124,7 +1124,7 @@ impl Step for RustAnalyzerProcMacroSrv {
+@@ -1131,7 +1131,7 @@ impl Step for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -38,7 +38,7 @@ index ed5c2586..650464ac 100644
          builder.copy_link(
              &tool_result.tool_path,
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index 3b304448..6c976bf7 100644
+index 2ed7d55b..06b1dfa1 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
 @@ -203,7 +203,7 @@ impl Config {
