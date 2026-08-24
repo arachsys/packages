@@ -1,13 +1,13 @@
 check() {
   url https://github.com/vim/vim/tags
-  match version '9.2.09??' 'v([0-9.]+)\.tar'
+  match version '9.2.10??' 'v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack vim-9.2.0901.tar.gz \
-    https://github.com/vim/vim/archive/refs/tags/v9.2.0901.tar.gz
+  unpack vim-9.2.1001.tar.gz \
+    https://github.com/vim/vim/archive/refs/tags/v9.2.1001.tar.gz
   apply paths.diff
-  tree d526e881d3f85faf2115402a8ff006694ac191d9b154b61e74e72dced2e9b837
+  tree 33bad5da64ce92bdb250911a0ad463961c0376fbc67dcce57bba0e851a5ff811
 }
 
 build() {
