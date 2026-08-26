@@ -1,8 +1,8 @@
 diff --git a/clang/lib/Driver/ToolChains/CommonArgs.cpp b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-index 10a1a412..9928b2ad 100644
+index 08c06951..ce106e26 100644
 --- a/clang/lib/Driver/ToolChains/CommonArgs.cpp
 +++ b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-@@ -1575,6 +1575,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
+@@ -1619,6 +1619,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
    if (TC.getTriple().isOSLinux() && !TC.getTriple().isAndroid() &&
        !TC.getTriple().isMusl())
      CmdArgs.push_back("-lresolv");
@@ -12,10 +12,10 @@ index 10a1a412..9928b2ad 100644
  
  static void
 diff --git a/compiler-rt/cmake/Modules/AddCompilerRT.cmake b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-index d658b700..16ef7ffb 100644
+index 2ae73dfb..980d6f17 100644
 --- a/compiler-rt/cmake/Modules/AddCompilerRT.cmake
 +++ b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
-@@ -557,7 +557,7 @@ endfunction()
+@@ -566,7 +566,7 @@ endfunction()
  
  macro(add_compiler_rt_resource_file target_name file_name component)
    set(src_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_name}")
@@ -25,10 +25,10 @@ index d658b700..16ef7ffb 100644
      DEPENDS ${src_file}
      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_file} ${dst_file}
 diff --git a/compiler-rt/cmake/config-ix.cmake b/compiler-rt/cmake/config-ix.cmake
-index 1f82ff3c..f7a574ef 100644
+index 083f1c98..31d53f8b 100644
 --- a/compiler-rt/cmake/config-ix.cmake
 +++ b/compiler-rt/cmake/config-ix.cmake
-@@ -955,7 +955,7 @@ if (GWP_ASAN_SUPPORTED_ARCH AND
+@@ -961,7 +961,7 @@ if (GWP_ASAN_SUPPORTED_ARCH AND
      COMPILER_RT_BUILD_GWP_ASAN AND
      COMPILER_RT_BUILD_SANITIZERS AND
      "gwp_asan" IN_LIST COMPILER_RT_SANITIZERS_TO_BUILD AND
@@ -51,7 +51,7 @@ index 37c386d2..fe6dbfc0 100644
  add_custom_target(dfsan_abilist ALL
    DEPENDS ${dfsan_abilist_filename})
 diff --git a/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp b/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
-index b73b84c2..6f654027 100644
+index b4047bdd..3f530f98 100644
 --- a/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
 +++ b/compiler-rt/lib/sanitizer_common/sanitizer_linux.cpp
 @@ -55,6 +55,10 @@
