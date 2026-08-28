@@ -3,17 +3,20 @@ require perl
 
 check() {
   url https://github.com/dovecot/core/tags
-  match version 2.4.4 'tags/([0-9.]+)\.tar'
+  match version 2.4.5 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://dovecot.org/releases/2.4/dovecot-2.4.4.tar.gz
+  unpack https://dovecot.org/releases/2.4/dovecot-2.4.5.tar.gz
   apply paths.diff
   apply users.diff
-  tree 972170f34b929ac45401a477cc027c1d690cfc88395457c1a1c0bb32cbc0f970
+  tree ca0eafb3176d2c6fe92915bb0dfd47d532b7317e43802c9601adb8fdf56c1ffb
 }
 
 build() {
+  echo 'int main(void) { return 0; }' >src/lib-dcrypt/test-crypto.c
+  echo 'int main(void) { return 0; }' >src/lib-json/test-json-generator.c
+
   auto-config --without-lua --with-moduledir=/lib/dovecot/modules \
     --with-rundir=/run/dovecot {ZLIB,ZSTD}_CFLAGS=-I/lib/include \
     ZLIB_LIBS=-lz ZSTD_LIBS=-lzstd
