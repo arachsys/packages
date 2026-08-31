@@ -1,11 +1,11 @@
 check() {
   url https://github.com/pcre2project/pcre2/tags
-  match version 10.47 'tags/pcre2-([0-9.]+)\.tar'
+  match version 10.48 'tags/pcre2-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/pcre2project/pcre2/releases/download/pcre2-10.47/pcre2-10.47.tar.gz
-  tree 663de61e3f725e5f34066f4929e7fc619d175cc9ca2fa7f39b3e9135dc13c1de
+  unpack https://github.com/pcre2project/pcre2/releases/download/pcre2-10.48/pcre2-10.48.tar.gz
+  tree b9e2f49dd4231fb62d13b1e7565c6fc08ce094322ceed01085ff3fd20cb0c0de
 }
 
 build() {
