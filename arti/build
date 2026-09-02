@@ -2,17 +2,17 @@ require rust sqlite
 
 check() {
   url https://index.crates.io/ar/ti/arti
-  match version 2.5.1 '"name":\s*"arti",\s*"vers":\s*"([0-9.]+)"'
+  match version 2.6.0 '"name":\s*"arti",\s*"vers":\s*"([0-9.]+)"'
 }
 
 prepare() {
-  unpack arti-2.5.1.tar.gz \
-    https://crates.io/api/v1/crates/arti/2.5.1/download
+  unpack arti-2.6.0.tar.gz \
+    https://crates.io/api/v1/crates/arti/2.6.0/download
   mkdir -p .cargo && cargo vendor --locked >>.cargo/config.toml
   apply cosmetic.diff
   apply features.diff
   apply paths.diff
-  tree 13e8160617a5eafb000c32ab203a8086918a07b03b12d304b8aae3bbecde1430
+  tree 3ab9d3cb2173a9e66dc1c0deb20eeac3df36b509a4cbce158510794c4cc68b8f
 }
 
 build() {
