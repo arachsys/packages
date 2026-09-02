@@ -1,0 +1,80 @@
+diff --git a/display.c b/display.c
+index 9aa8c7b5..edb525d3 100644
+--- a/display.c
++++ b/display.c
+@@ -783,7 +783,7 @@ _rl_optimize_redisplay (void)
+ 
+ /* Useful shorthand used by rl_redisplay, update_line, rl_move_cursor_relative */
+ #define INVIS_FIRST()	(local_prompt_invis_chars[0])
+-#define WRAP_OFFSET(line, offset)  ((line <= prompt_last_screen_line) ? local_prompt_invis_chars[line] : 0)
++#define WRAP_OFFSET(line, offset)  ((line <= prompt_last_screen_line && local_prompt_invis_chars) ? local_prompt_invis_chars[line] : 0)
+ 
+ #define W_OFFSET(line, offset) ((line) == 0 ? offset : 0)
+ #define VIS_LLEN(l)	((l) > _rl_vis_botlin ? 0 : (vis_lbreaks[l+1] - vis_lbreaks[l]))
+diff --git a/input.c b/input.c
+index e6a39e26..838692af 100644
+--- a/input.c
++++ b/input.c
+@@ -261,13 +261,16 @@ rl_gather_tyi (void)
+   input = 0;
+   tty = fileno (rl_instream);
+ 
+-  /* Move this up here to give it first shot, but it can't set chars_avail */
++  /* Move this up here to give it first shot, but it can't set chars_avail,
++     so we assume a single character is available. */
+   /* XXX - need rl_chars_available_hook? */
+   if (rl_input_available_hook)
+     {
+       result = (*rl_input_available_hook) ();
+       if (result == 0)
+         result = -1;
++      else
++        chars_avail = 1;
+     }
+ 
+ #if defined (HAVE_PSELECT) || defined (HAVE_SELECT)
+@@ -285,6 +288,7 @@ rl_gather_tyi (void)
+ #endif
+       if (result <= 0)
+ 	return 0;	/* Nothing to read. */
++      result = -1;	/* there is something, so check how many chars below */
+     }
+ #endif
+ 
+@@ -971,11 +975,11 @@ postproc_signal:
+ 	 call the application's signal event hook. */
+       if (rl_signal_event_hook)
+ 	(*rl_signal_event_hook) ();
+-#if defined (READLINE_CALLBACKS)
+-      else if (osig == SIGINT && (ostate & RL_STATE_CALLBACK) && (ostate & (RL_STATE_ISEARCH|RL_STATE_NSEARCH|RL_STATE_NUMERICARG)))
++      /* If the application's SIGINT handler returns, make sure we abort out of
++	 searches and numeric arguments because we've freed necessary state. */
++      if (osig == SIGINT && (ostate & (RL_STATE_ISEARCH|RL_STATE_NSEARCH|RL_STATE_NUMERICARG)))
+         /* just these cases for now */
+         _rl_abort_internal ();
+-#endif
+     }
+ }
+ 
+diff --git a/isearch.c b/isearch.c
+index 7b845c20..6cb1879d 100644
+--- a/isearch.c
++++ b/isearch.c
+@@ -889,12 +889,14 @@ opcode_dispatch:
+ int
+ _rl_isearch_cleanup (_rl_search_cxt *cxt, int r)
+ {
++  RL_UNSETSTATE(RL_STATE_ISEARCH);
++  if (cxt == 0)
++    return (r != 0);
++
++  _rl_iscxt = 0;
+   if (r >= 0)
+     _rl_isearch_fini (cxt);
+   _rl_scxt_dispose (cxt, 0);
+-  _rl_iscxt = 0;
+-
+-  RL_UNSETSTATE(RL_STATE_ISEARCH);
+ 
+   return (r != 0);
+ }

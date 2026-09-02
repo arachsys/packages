@@ -7,7 +7,8 @@ prepare() {
   unpack https://ftp.gnu.org/gnu/readline/readline-8.3.tar.gz
   apply config.diff
   apply rpath.diff
-  tree d0167a237954399646b0474f350c6134b0f29b5f936c31e40ba8455cce2eec09
+  apply upstream.diff
+  tree d79f86b69be8b729802c8338543a1b8cdca5e384610e7632127526eea837dc70
 }
 
 build() {
