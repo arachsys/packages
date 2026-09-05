@@ -1,8 +1,8 @@
 diff --git a/configure b/configure
-index 4512c34d..987906fb 100755
+index 0ff08c73..fffce53e 100755
 --- a/configure
 +++ b/configure
-@@ -7566,7 +7566,7 @@ fi
+@@ -7808,7 +7808,7 @@ fi
  			case "$with_libnl" in
  
  			yes|if_available)
@@ -11,7 +11,7 @@ index 4512c34d..987906fb 100755
  				libnldir=
  				;;
  
-@@ -7578,14 +7578,14 @@ fi
+@@ -7820,14 +7820,14 @@ fi
  				;;
  			esac
  
@@ -23,26 +23,28 @@ index 4512c34d..987906fb 100755
 +if test ${ac_cv_lib_nl_tiny_nl_socket_alloc+y}
  then :
    printf %s "(cached) " >&6
- else $as_nop
-   ac_check_lib_save_LIBS=$LIBS
+ else case e in #(
+   e) ac_check_lib_save_LIBS=$LIBS
 -LIBS="-lnl-3 ${incdir} ${libnldir} -lnl-genl-3 -lnl-3  $LIBS"
 +LIBS="-lnl-tiny ${incdir} ${libnldir} $LIBS"
  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
  /* end confdefs.h.  */
  
-@@ -7603,25 +7603,25 @@ return nl_socket_alloc ();
+@@ -7851,9 +7851,9 @@ return nl_socket_alloc ();
  _ACEOF
  if ac_fn_c_try_link "$LINENO"
  then :
 -  ac_cv_lib_nl_3_nl_socket_alloc=yes
 +  ac_cv_lib_nl_tiny_nl_socket_alloc=yes
- else $as_nop
--  ac_cv_lib_nl_3_nl_socket_alloc=no
-+  ac_cv_lib_nl_tiny_nl_socket_alloc=no
+ else case e in #(
+-  e) ac_cv_lib_nl_3_nl_socket_alloc=no ;;
++  e) ac_cv_lib_nl_tiny_nl_socket_alloc=no ;;
+ esac
  fi
  rm -f core conftest.err conftest.$ac_objext conftest.beam \
-     conftest$ac_exeext conftest.$ac_ext
- LIBS=$ac_check_lib_save_LIBS
+@@ -7861,17 +7861,17 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
+ LIBS=$ac_check_lib_save_LIBS ;;
+ esac
  fi
 -{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nl_3_nl_socket_alloc" >&5
 -printf "%s\n" "$ac_cv_lib_nl_3_nl_socket_alloc" >&6; }
@@ -54,7 +56,7 @@ index 4512c34d..987906fb 100755
  
  				#
 -				# Yes, we have libnl 3.x.
-+				# Yes, we have libnl-tiny.
++				# Yes, we have libnl-tiny
  				#
 -				ADDITIONAL_LIBS="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS"
 -				ADDITIONAL_LIBS_STATIC="${libnldir} -lnl-genl-3 -lnl-3 $ADDITIONAL_LIBS_STATIC"
@@ -66,7 +68,7 @@ index 4512c34d..987906fb 100755
  printf "%s\n" "#define HAVE_LIBNL 1" >>confdefs.h
  
 diff --git a/configure.ac b/configure.ac
-index 1fdecc13..b6a72a55 100644
+index 2fe7fbce..f2dfa8f7 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1038,7 +1038,7 @@ linux)
@@ -108,7 +110,7 @@ index 1fdecc13..b6a72a55 100644
  	fi
  
 diff --git a/pcap-linux.c b/pcap-linux.c
-index 20802e43..f7bf7030 100644
+index 7e04a041..b33f082f 100644
 --- a/pcap-linux.c
 +++ b/pcap-linux.c
 @@ -627,12 +627,11 @@ get_if_type(pcap_t *handle, int sock_fd, struct nl80211_state *state,
