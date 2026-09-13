@@ -1,0 +1,77 @@
+diff --git a/src/command_manager.cc b/src/command_manager.cc
+index 6789beea..666ff078 100644
+--- a/src/command_manager.cc
++++ b/src/command_manager.cc
+@@ -359,8 +359,8 @@ void expand_token(Token&& token, const Context& context, const ShellContext& she
+     case Token::Type::ShellExpand:
+     {
+         auto str = ShellManager::instance().eval(
+-            content, context, StringView{},
+-            ShellManager::Flags::WaitForStdout,
++            content, context, content,
++            ShellManager::Flags::WaitForStdout | ShellManager::Flags::ScriptOnStdin,
+             shell_context).first;
+ 
+         if (not str.empty() and str.back() == '\n')
+diff --git a/src/shell_manager.cc b/src/shell_manager.cc
+index 565f92c9..aa42035b 100644
+--- a/src/shell_manager.cc
++++ b/src/shell_manager.cc
+@@ -86,7 +86,7 @@ ShellManager::ShellManager(ConstArrayView<EnvVarDesc> builtin_env_vars)
+ namespace
+ {
+ 
+-Shell spawn_shell(const char* shell, StringView cmdline,
++Shell spawn_shell(const char* shell, Optional<StringView> cmdline,
+                   ConstArrayView<String> params,
+                   ConstArrayView<String> kak_env,
+                   bool open_stdin) noexcept
+@@ -98,10 +98,19 @@ Shell spawn_shell(const char* shell, StringView cmdline,
+         envptrs.push_back(env.c_str());
+     envptrs.push_back(nullptr);
+ 
+-    auto cmdlinezstr = cmdline.zstr();
+-    Vector<const char*> execparams = { "sh", "-c", cmdlinezstr };
+-    if (not params.empty())
+-        execparams.push_back(shell);
++    Vector<const char*> execparams = { "sh" };
++    if (cmdline)
++    {
++        execparams.push_back("-c");
++        execparams.push_back(cmdline->zstr());
++        if (not params.empty())
++            execparams.push_back(shell);
++    }
++    else if (not params.empty())
++    {
++        execparams.push_back("-s");
++        execparams.push_back("--");
++    }
+     for (auto& param : params)
+         execparams.push_back(param.c_str());
+     execparams.push_back(nullptr);
+@@ -297,7 +306,9 @@ std::pair<String, int> ShellManager::eval(
+     });
+ 
+     auto spawn_time = profile ? Clock::now() : Clock::time_point{};
+-    auto shell = spawn_shell(m_shell.c_str(), cmdline, shell_context.params, kak_env, true);
++    auto shell = spawn_shell(m_shell.c_str(),
++        flags & Flags::ScriptOnStdin ? Optional<StringView>{} : cmdline,
++        shell_context.params, kak_env, true);
+     auto wait_time = Clock::now();
+ 
+     String stdout_contents, stderr_contents;
+diff --git a/src/shell_manager.hh b/src/shell_manager.hh
+index 5b42d644..ed2d4a9f 100644
+--- a/src/shell_manager.hh
++++ b/src/shell_manager.hh
+@@ -53,7 +53,8 @@ public:
+     enum class Flags
+     {
+         None = 0,
+-        WaitForStdout = 1
++        WaitForStdout = 1,
++        ScriptOnStdin = 2
+     };
+     friend constexpr bool with_bit_ops(Meta::Type<Flags>) { return true; }
+ 

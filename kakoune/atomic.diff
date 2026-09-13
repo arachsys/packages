@@ -1,0 +1,128 @@
+diff --git a/doc/pages/mapping.asciidoc b/doc/pages/mapping.asciidoc
+index 6557dda0..aab4eeb2 100644
+--- a/doc/pages/mapping.asciidoc
++++ b/doc/pages/mapping.asciidoc
+@@ -39,6 +39,10 @@ The context of execution of the above modes is always the current one at the
+ time of execution of the mapping, except for *user* mode (always executed
+ in a 'normal' context). Refer to <<modes#,`:doc modes`>> for more details.
+ 
++The optional *-atomic* switch controls how counts affect the mapping.
++Without *-atomic*, the count is passed to the first key in the mapping.
++With *-atomic*, a count greater than one repeats the whole mapping.
++
+ An optional *-docstring* switch followed by a string can be used
+ to describe what the mapping does. This docstring will be used
+ in autoinfo boxes.
+diff --git a/src/commands.cc b/src/commands.cc
+index d6d8337b..64568137 100644
+--- a/src/commands.cc
++++ b/src/commands.cc
+@@ -1979,7 +1979,8 @@ const CommandDesc map_key_cmd = {
+     nullptr,
+     "map [<switches>] <scope> <mode> <key> <keys>: map <key> to <keys> in given <mode> in <scope>",
+     ParameterDesc{
+-        { { "docstring", { ArgCompleter{},  "specify mapping description" } } },
++        { { "atomic", { {}, "repeat whole mapping if count given" } },
++          { "docstring", { ArgCompleter{}, "specify mapping description" } } },
+         ParameterDesc::Flags::None, 4, 4
+     },
+     CommandFlags::None,
+@@ -1996,7 +1997,8 @@ const CommandDesc map_key_cmd = {
+ 
+         KeyList mapping = parse_keys(parser[3]);
+         keymaps.map_key(key[0], keymap_mode, std::move(mapping),
+-                        trim_indent(parser.get_switch("docstring").value_or("")));
++                        trim_indent(parser.get_switch("docstring").value_or("")),
++                        (bool) parser.get_switch("atomic"));
+     }
+ };
+ 
+diff --git a/src/input_handler.cc b/src/input_handler.cc
+index b46e1d8f..5f80628f 100644
+--- a/src/input_handler.cc
++++ b/src/input_handler.cc
+@@ -42,6 +42,8 @@ public:
+ 
+     virtual void refresh_ifn() {}
+ 
++    virtual unsigned int take_pending_count() { return 1; }
++
+     bool enabled() const { return &m_input_handler.current_mode() == this; }
+     Context& context() const { return m_input_handler.context(); }
+ 
+@@ -427,6 +429,13 @@ public:
+         }
+     }
+ 
++    unsigned int take_pending_count() override
++    {
++        unsigned int count = std::max(m_params.count, 1);
++        m_params.count = 0;
++        return count;
++    }
++
+     KeymapMode keymap_mode() const override { return KeymapMode::Normal; }
+ 
+     StringView name() const override { return "normal"; }
+@@ -1693,8 +1702,12 @@ void InputHandler::handle_key(Key key, bool synthesized)
+     KeymapManager& keymaps = m_context.keymaps();
+     if (keymaps.is_mapped(key, keymap_mode) and not m_context.keymaps_disabled())
+     {
+-        for (auto& k : keymaps.get_mapping_keys(key, keymap_mode))
+-            process_key(k);
++        const auto mapping = keymaps.get_mapping_keys(key, keymap_mode);
++        unsigned int count = keymaps.is_atomic(key, keymap_mode) ?
++            current_mode().take_pending_count() : 1;
++        while (count--)
++            for (auto& k : mapping)
++                process_key(k);
+     }
+     else
+         process_key(key);
+diff --git a/src/keymap_manager.cc b/src/keymap_manager.cc
+index 2c7d22fb..f1db42f4 100644
+--- a/src/keymap_manager.cc
++++ b/src/keymap_manager.cc
+@@ -9,9 +9,9 @@ namespace Kakoune
+ {
+ 
+ void KeymapManager::map_key(Key key, KeymapMode mode,
+-                            KeyList mapping, String docstring)
++                            KeyList mapping, String docstring, bool atomic)
+ {
+-    m_mapping[KeyAndMode{key, mode}] = {std::move(mapping), std::move(docstring)};
++    m_mapping[KeyAndMode{key, mode}] = {std::move(mapping), std::move(docstring), atomic};
+ }
+ 
+ void KeymapManager::unmap_key(Key key, KeymapMode mode)
+diff --git a/src/keymap_manager.hh b/src/keymap_manager.hh
+index 080e6060..3b8e8e30 100644
+--- a/src/keymap_manager.hh
++++ b/src/keymap_manager.hh
+@@ -32,7 +32,8 @@ public:
+     void reparent(KeymapManager& parent) { m_parent = &parent; }
+ 
+     using KeyList = Vector<Key, MemoryDomain::Mapping>;
+-    void map_key(Key key, KeymapMode mode, KeyList mapping, String docstring);
++    void map_key(Key key, KeymapMode mode, KeyList mapping, String docstring,
++                 bool atomic = false);
+     void unmap_key(Key key, KeymapMode mode);
+     void unmap_keys(KeymapMode mode);
+ 
+@@ -43,6 +44,8 @@ public:
+         return get_mapping(key, mode).keys;
+     }
+ 
++    bool is_atomic(Key key, KeymapMode mode) const { return get_mapping(key, mode).atomic; }
++
+     const String& get_mapping_docstring(Key key, KeymapMode mode) { return get_mapping(key, mode).docstring; }
+ 
+     using UserModeList = Vector<String>;
+@@ -58,6 +61,7 @@ private:
+     {
+         KeyList keys;
+         String docstring;
++        bool atomic = false;
+     };
+     const KeymapInfo& get_mapping(Key key, KeymapMode mode) const;
+ 

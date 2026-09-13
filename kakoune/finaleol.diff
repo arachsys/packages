@@ -1,0 +1,76 @@
+diff --git a/doc/pages/options.asciidoc b/doc/pages/options.asciidoc
+index 68b5354b..5f103eb1 100644
+--- a/doc/pages/options.asciidoc
++++ b/doc/pages/options.asciidoc
+@@ -219,7 +219,7 @@ are exclusively available to built-in options.
+     assigned to the `window` scope are ignored.
+ 
+     When set to `ifnotempty` the final end-of-line will only be written if
+-    the buffer has a single empty line.
++    the buffer has at least one non-empty line.
+ 
+ 
+ *BOM* `enum(none|utf8)`::
+diff --git a/src/buffer_manager.cc b/src/buffer_manager.cc
+index 1e16d30d..069aa29a 100644
+--- a/src/buffer_manager.cc
++++ b/src/buffer_manager.cc
+@@ -100,7 +100,7 @@ Buffer& BufferManager::get_first_buffer()
+ {
+     if (all_of(m_buffers, [](auto& b) { return (b->flags() & Buffer::Flags::Debug); }))
+         create_buffer("*scratch*", Buffer::Flags::None, {StringData::create("\n")},
+-                      ByteOrderMark::None, EolFormat::Lf, FinalEol::Present, {InvalidTime, {}, {}});
++                      ByteOrderMark::None, EolFormat::Lf, FinalEol::IfNotEmpty, {InvalidTime, {}, {}});
+ 
+     return *m_buffers.back();
+ }
+diff --git a/src/buffer_utils.cc b/src/buffer_utils.cc
+index 16fe2f0b..67a6e589 100644
+--- a/src/buffer_utils.cc
++++ b/src/buffer_utils.cc
+@@ -116,7 +116,7 @@ Buffer* create_buffer_from_string(String name, Buffer::Flags flags, StringView d
+     return BufferManager::instance().create_buffer(
+         std::move(name), flags,
+         parse_lines(data.begin(), data.end(), EolFormat::Lf),
+-        ByteOrderMark::None, EolFormat::Lf, FinalEol::Present,
++        ByteOrderMark::None, EolFormat::Lf, FinalEol::IfNotEmpty,
+         FsStatus{InvalidTime, {}, {}});
+ }
+ 
+@@ -140,8 +140,7 @@ decltype(auto) parse_file(StringView filename, Func&& func)
+     for (auto it = std::find(pos, end, '\n'); it != end; it = std::find(it+1, end, '\n'), ++line_count)
+         ((it != pos and *(it-1) == '\r') ? has_crlf : has_lf) = true;
+     auto eolformat = (has_crlf and not has_lf) ? EolFormat::Crlf : EolFormat::Lf;
+-    auto finaleol = pos == end ? FinalEol::IfNotEmpty
+-                               : *(end-1) == '\n' ? FinalEol::Present : FinalEol::Missing;
++    auto finaleol = (pos != end and *(end - 1) != '\n') ? FinalEol::Missing : FinalEol::IfNotEmpty;
+     FsStatus fs_status{file.st.st_mtim, file.st.st_size, murmur3(file.data, file.st.st_size)};
+     return func(parse_lines(pos, end, eolformat, line_count), bom, eolformat, finaleol, fs_status);
+ }
+@@ -181,8 +180,8 @@ void write_buffer_to_fd(Buffer& buffer, int fd, Optional<FinalEol> finaleol)
+         eoldata = "\r\n";
+     else
+         eoldata = "\n";
+-    bool write_eol_at_eof = *finaleol == FinalEol::Present or
+-                           (*finaleol == FinalEol::IfNotEmpty and (buffer.line_count() != 1 or buffer[0] != "\n"));
++    bool write_eol_at_eof = *finaleol == FinalEol::Present or (*finaleol == FinalEol::IfNotEmpty and
++        std::any_of(buffer.begin(), buffer.end(), [](char c) { return c != '\n'; }));
+ 
+     BufferedWriter<false> writer{fd};
+     if (buffer.options()["BOM"].get<ByteOrderMark>() == ByteOrderMark::Utf8)
+@@ -276,13 +275,13 @@ Buffer* create_fifo_buffer(String name, int fd, Buffer::Flags flags, AutoScroll
+     {
+         buffer->flags() |= Buffer::Flags::NoUndo | flags;
+         buffer->values().clear();
+-        buffer->reload({StringData::create("\n")}, ByteOrderMark::None, EolFormat::Lf, FinalEol::Present, {InvalidTime, {}, {}});
++        buffer->reload({StringData::create("\n")}, ByteOrderMark::None, EolFormat::Lf, FinalEol::IfNotEmpty, {InvalidTime, {}, {}});
+         buffer_manager.make_latest(*buffer);
+     }
+     else
+         buffer = buffer_manager.create_buffer(
+             std::move(name), flags | Buffer::Flags::Fifo | Buffer::Flags::NoUndo,
+-            {StringData::create("\n")}, ByteOrderMark::None, EolFormat::Lf, FinalEol::Present, {InvalidTime, {}, {}});
++            {StringData::create("\n")}, ByteOrderMark::None, EolFormat::Lf, FinalEol::IfNotEmpty, {InvalidTime, {}, {}});
+ 
+     struct FifoWatcher : FDWatcher
+     {

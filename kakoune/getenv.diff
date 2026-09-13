@@ -1,0 +1,37 @@
+diff --git a/src/completion.cc b/src/completion.cc
+index 52e51668..35198923 100644
+--- a/src/completion.cc
++++ b/src/completion.cc
+@@ -5,6 +5,8 @@
+ #include "option_manager.hh"
+ #include "regex.hh"
+ 
++#include <stdlib.h>
++
+ #if defined(__APPLE__)
+ #define st_mtim st_mtimespec
+ #endif
+diff --git a/src/main.cc b/src/main.cc
+index 0833d559..0e7e52e0 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -34,6 +34,7 @@
+ 
+ #include <fcntl.h>
+ #include <locale.h>
++#include <stdlib.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <unistd.h>
+diff --git a/src/remote.cc b/src/remote.cc
+index 7c71cf80..9cdb5b4d 100644
+--- a/src/remote.cc
++++ b/src/remote.cc
+@@ -17,6 +17,7 @@
+ #include <sys/un.h>
+ #include <sys/wait.h>
+ #include <unistd.h>
++#include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <pwd.h>
