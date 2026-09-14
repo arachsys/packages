@@ -4,20 +4,20 @@ enable setgid
 
 check() {
   url https://www.opensmtpd.org/archives/
-  match opensmtpd 7.8.0p1 'opensmtpd-([0-9.]+p[0-9]+)\.tar'
+  match opensmtpd 7.9.0p0 'opensmtpd-([0-9.]+p[0-9]+)\.tar'
 
   url https://github.com/void-linux/musl-fts/tags
   match musl-fts 1.2.7 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.opensmtpd.org/archives/opensmtpd-7.8.0p1.tar.gz
+  unpack https://www.opensmtpd.org/archives/opensmtpd-7.9.0p0.tar.gz
   unpack -d fts musl-fts-1.2.7.tar.gz \
     https://github.com/void-linux/musl-fts/archive/v1.2.7.tar.gz
   apply forward.diff
   apply libtls.diff
   apply paths.diff
-  tree bb5499401fefc10f3206ae83a8aea8766747da0d6b7f019fae445db938718900
+  tree b108da9c954111711c843da71202aac67fd067b4fd44f3e56dd708979b34f102
 }
 
 build() {
@@ -25,10 +25,11 @@ build() {
   cc -Ifts -O2 -Wall -c fts/fts.c -o fts/fts.o
   ar rcs fts/libfts.a fts/fts.o
 
-  auto-config --sysconfdir=/etc/mail --with-path-{pidfile,socket}=/run \
+  PKG_CONFIG=/bin/true auto-config --sysconfdir=/etc/mail \
+    --with-libfts --with-path-{pidfile,socket}=/run \
     --with-path-{empty=/run/empty,mbox=/var/mail,queue=/var/lib/smtpd} \
     --with-{group-queue,user-queue,user-smtpd}=mail \
-    --with-libfts CFLAGS=-I/src/fts LDFLAGS=-L/src/fts
+    CFLAGS=-I/src/fts LDFLAGS=-L/src/fts
   make install DESTDIR=/dst
   ln -s smtpctl /dst/bin/sendmail
   image - requires libevent
