@@ -4,9 +4,8 @@ check() {
 }
 
 prepare() {
-  unpack kakoune-2026.09.06.tar.gz \
-    https://github.com/mawww/kakoune/archive/1235028d.tar.gz
-  apply atomic.diff
+  unpack kakoune-2026.09.15.tar.gz \
+    https://github.com/mawww/kakoune/archive/f16dba30.tar.gz
   apply finaleol.diff
   apply getenv.diff
   apply init.diff
@@ -18,7 +17,7 @@ prepare() {
   apply tabs.diff
   apply windowing.diff
   find -xtype l -delete
-  tree 50d8fbdd3b35c18763ae0679f636f5eb4db797ea63e0bb9d871da143dbb2256d
+  tree a1cd682d61c47967f65b5c4e806dfe56467edf5a985aa69b26f4b78ae241e6df
 }
 
 build() {
@@ -30,7 +29,7 @@ build() {
     fi
   fi
 
-  make install DESTDIR=/dst PREFIX= version=2026.05.21 $LIBS
+  make install DESTDIR=/dst PREFIX= version=2026.09.15 $LIBS
   find /dst/lib/kak/{colors,kakrc,rc} -type f | while read FILE; do
     sed -E -e 's/rgb:[[:xdigit:]]{2}{3,4}/\L&/g' -e '/^\s*#/d' \
         -e "s/^(([^'\"#]*|'[^']*'|\"([^\"\\]|\\\\.)*\")*)\\s+#\\s.*/\\1/" \
