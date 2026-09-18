@@ -1,10 +1,10 @@
 diff --git a/src/exim.c b/src/exim.c
-index 8111a448..efcad422 100644
+index cfa27871..779cdd86 100644
 --- a/src/exim.c
 +++ b/src/exim.c
-@@ -1863,6 +1863,13 @@ extern char **environ;
- store_init();	/* Initialise the memory allocation susbsystem */
+@@ -1920,6 +1920,13 @@ store_init();	/* Initialise the memory allocation susbsystem */
  pcre_init();	/* Set up memory handling for pcre */
+ stdin_copy = stdin;
  
 +/* Correct the default exim_path using /proc/self/exe if possible */
 +if (lstat("/proc/self/exe", &statbuf) >= 0 && S_ISLNK(statbuf.st_mode)) {

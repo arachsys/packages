@@ -1,8 +1,8 @@
 diff --git a/src/globals.c b/src/globals.c
-index 3eda9762..09388cf9 100644
+index f544d9fe..78cb2ad1 100644
 --- a/src/globals.c
 +++ b/src/globals.c
-@@ -1201,13 +1201,13 @@ uschar *received_header_text   = US
+@@ -1189,13 +1189,13 @@ uschar *received_header_text   = US
       "${if def:sender_rcvhost {from $sender_rcvhost\n\t}"
         "{${if def:sender_ident {from ${quote_local_part:$sender_ident} }}"
           "${if def:sender_helo_name {(helo=$sender_helo_name)\n\t}}}}"
@@ -20,7 +20,7 @@ index 3eda9762..09388cf9 100644
       "${if def:sender_address {(envelope-from <$sender_address>)\n\t}}"
       "id $message_exim_id"
       "${if def:received_for {\n\tfor $received_for}}"
-@@ -1341,8 +1341,7 @@ int     smtp_accept_queue_per_connection = 10;
+@@ -1329,8 +1329,7 @@ int     smtp_accept_queue_per_connection = 10;
  int     smtp_accept_reserve    = 0;
  uschar *smtp_active_hostname   = NULL;
  int	smtp_backlog_monitor   = 0;
