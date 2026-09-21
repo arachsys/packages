@@ -1,22 +1,22 @@
 check() {
   url https://download.samba.org/pub/rsync/
-  match version 3.5.0 'rsync-([0-9.]+)\.tar'
+  match version 3.5.1 'rsync-([0-9.]+)\.tar'
 
   url https://github.com/Cyan4973/xxHash/tags
   match xxhash 0.8.4 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://download.samba.org/pub/rsync/rsync-3.5.0.tar.gz
+  unpack https://download.samba.org/pub/rsync/rsync-3.5.1.tar.gz
   unpack -d xxhash xxhash-0.8.4.tar.gz \
     https://github.com/Cyan4973/xxHash/archive/refs/tags/v0.8.4.tar.gz
   apply paths.diff
-  tree 6121f11bbebec6384f9460f2ac15cb21dad49b512aefaea5e5e57870df2f69f2
+  tree 4c06971b0ccd4701f368b5b14184ea7f539444e102f05eb2c7632092feeb3f50
 }
 
 build() {
   make -C xxhash libxxhash.a
-  auto-config --disable-lz4 --enable-ipv6 --enable-xxhash \
+  auto-config --disable-idn --disable-lz4 --enable-ipv6 --enable-xxhash \
     --with-included-popt --without-included-zlib \
     CPPFLAGS=-I/src/xxhash LDFLAGS=-L/src/xxhash
   make install DESTDIR=/dst
