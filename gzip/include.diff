@@ -1,0 +1,21 @@
+diff --git a/gzip.c b/gzip.c
+index 220f6fc0..ea52a64a 100644
+--- a/gzip.c
++++ b/gzip.c
+@@ -58,7 +58,6 @@ static char const license_msg[] =
+ 
+ #include "tailor.h"
+ 
+-#include "gzip.h"
+ #include "lzw.h"
+ #include "revision.h"
+ #include "version.h"
+@@ -87,6 +86,8 @@ static char const license_msg[] =
+ #include <sys/types.h>
+ #include <unistd.h>
+ 
++#include "gzip.h"
++
+ #ifndef NO_DIR
+ # define NO_DIR (!HAVE_FDOPENDIR && !HAVE_OPENDIR)
+ #endif

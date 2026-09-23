@@ -5,7 +5,8 @@ check() {
 
 prepare() {
   unpack https://ftp.gnu.org/gnu/gzip/gzip-1.15.tar.xz
-  tree 451ff78d2992f80251b5345bda86845ca5a81d20d89555cf6fa86b1c008f8dfe
+  apply include.diff
+  tree e9ef2bc6f2158cc9445a1bdeff66510e6bc263c1638db8a15445e8540b5f8e21
 }
 
 build() {
