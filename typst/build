@@ -10,7 +10,8 @@ prepare() {
     https://github.com/typst/typst/archive/refs/tags/v0.15.1.tar.gz
   cargo vendor >>.cargo/config.toml
   apply cosmetic.diff
-  tree 0d5381b8c63654f008aa91a3c3c11b5a7b3958e44fbbc460e2c3ca630415c8ac
+  apply paths.diff
+  tree 090f0ad45820f785b0250b2ad3dca75cebd6b92e7bb0b1a5c44056dee92ff2de
 }
 
 build() {

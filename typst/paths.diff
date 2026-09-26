@@ -1,0 +1,76 @@
+diff --git a/vendor/chrono/src/offset/local/tz_info/timezone.rs b/vendor/chrono/src/offset/local/tz_info/timezone.rs
+index 268739c2..75f652c4 100644
+--- a/vendor/chrono/src/offset/local/tz_info/timezone.rs
++++ b/vendor/chrono/src/offset/local/tz_info/timezone.rs
+@@ -692,8 +692,8 @@ fn find_ohos_tz_data(tz_string: &str) -> Result<Vec<u8>, Error> {
+ 
+ // Possible system timezone directories
+ #[cfg(unix)]
+-const ZONE_INFO_DIRECTORIES: [&str; 4] =
+-    ["/usr/share/zoneinfo", "/share/zoneinfo", "/etc/zoneinfo", "/usr/share/lib/zoneinfo"];
++const ZONE_INFO_DIRECTORIES: [&str; 2] =
++    ["/lib/zoneinfo", "/etc/zoneinfo"];
+ 
+ /// Number of seconds in one week
+ pub(crate) const SECONDS_PER_WEEK: i64 = SECONDS_PER_DAY * DAYS_PER_WEEK;
+diff --git a/vendor/fontdb/src/lib.rs b/vendor/fontdb/src/lib.rs
+index 6a788dec..24c0d24e 100644
+--- a/vendor/fontdb/src/lib.rs
++++ b/vendor/fontdb/src/lib.rs
+@@ -484,12 +484,10 @@ impl Database {
+     ))]
+     fn load_no_fontconfig(&mut self) {
+         let mut seen = Default::default();
+-        self.load_fonts_dir_impl("/usr/share/fonts/".as_ref(), &mut seen);
+-        self.load_fonts_dir_impl("/usr/local/share/fonts/".as_ref(), &mut seen);
++        self.load_fonts_dir_impl("/lib/fonts/".as_ref(), &mut seen);
+ 
+         if let Ok(ref home) = std::env::var("HOME") {
+             let home_path = std::path::Path::new(home);
+-            self.load_fonts_dir_impl(&home_path.join(".fonts"), &mut seen);
+             self.load_fonts_dir_impl(&home_path.join(".local/share/fonts"), &mut seen);
+         }
+     }
+diff --git a/vendor/iana-time-zone/src/tz_linux.rs b/vendor/iana-time-zone/src/tz_linux.rs
+index c0548ec0..67245c93 100644
+--- a/vendor/iana-time-zone/src/tz_linux.rs
++++ b/vendor/iana-time-zone/src/tz_linux.rs
+@@ -27,10 +27,8 @@ fn etc_localtime() -> Result<String, crate::GetTimezoneError> {
+     // <https://github.com/systemd/systemd/blob/9102c625a673a3246d7e73d8737f3494446bad4e/src/basic/time-util.c#L1493>
+ 
+     const PREFIXES: &[&str] = &[
+-        "/usr/share/zoneinfo/",   // absolute path
+-        "../usr/share/zoneinfo/", // relative path
+-        "/etc/zoneinfo/",         // absolute path for NixOS
+-        "../etc/zoneinfo/",       // relative path for NixOS
++        "/lib/zoneinfo/",   // absolute path
++        "../lib/zoneinfo/", // relative path
+     ];
+     let mut s = read_link("/etc/localtime")?
+         .into_os_string()
+diff --git a/vendor/openssl-probe/src/lib.rs b/vendor/openssl-probe/src/lib.rs
+index 8669bf00..0c860ec9 100644
+--- a/vendor/openssl-probe/src/lib.rs
++++ b/vendor/openssl-probe/src/lib.rs
+@@ -29,20 +29,8 @@ pub fn find_certs_dirs() -> Vec<PathBuf> {
+ pub fn candidate_cert_dirs() -> impl Iterator<Item = &'static Path> {
+     // see http://gagravarr.org/writing/openssl-certs/others.shtml
+     [
+-        "/var/ssl",
+-        "/usr/share/ssl",
+-        "/usr/local/ssl",
+-        "/usr/local/openssl",
+-        "/usr/local/etc/openssl",
+-        "/usr/local/share",
+-        "/usr/lib/ssl",
+-        "/usr/ssl",
+-        "/etc/openssl",
+-        "/etc/pki/ca-trust/extracted/pem",
+-        "/etc/pki/tls",
++        "/lib/ssl",
+         "/etc/ssl",
+-        "/etc/certs",
+-        "/opt/etc/ssl", // Entware
+         #[cfg(target_os = "android")]
+         "/data/data/com.termux/files/usr/etc/tls",
+         #[cfg(target_os = "haiku")]
