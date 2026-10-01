@@ -1,11 +1,11 @@
-diff --git a/src/tools/cargo/src/cargo/ops/vendor.rs b/src/tools/cargo/src/cargo/ops/vendor.rs
-index 41f35266..68495ee4 100644
---- a/src/tools/cargo/src/cargo/ops/vendor.rs
-+++ b/src/tools/cargo/src/cargo/ops/vendor.rs
+diff --git a/src/tools/cargo/src/ops/cargo_vendor.rs b/src/tools/cargo/src/ops/cargo_vendor.rs
+index 9cd5d7a0..b6f23735 100644
+--- a/src/tools/cargo/src/ops/cargo_vendor.rs
++++ b/src/tools/cargo/src/ops/cargo_vendor.rs
 @@ -18,6 +18,7 @@ use walkdir::WalkDir;
  
- use std::collections::HashSet;
- use std::collections::{BTreeMap, BTreeSet, HashMap};
+ use crate::util::data_structures::{HashMap, HashSet};
+ use std::collections::{BTreeMap, BTreeSet};
 +use std::env;
  use std::ffi::OsStr;
  use std::fs::{self, File, OpenOptions};
@@ -29,13 +29,13 @@ index 41f35266..68495ee4 100644
              "package": checksums.get(id),
              "files": file_cksums,
          });
-diff --git a/src/tools/cargo/src/cargo/sources/directory.rs b/src/tools/cargo/src/cargo/sources/directory.rs
-index b51a519a..cb109541 100644
---- a/src/tools/cargo/src/cargo/sources/directory.rs
-+++ b/src/tools/cargo/src/cargo/sources/directory.rs
+diff --git a/src/tools/cargo/src/sources/directory.rs b/src/tools/cargo/src/sources/directory.rs
+index 4fa5c00d..b1a348ac 100644
+--- a/src/tools/cargo/src/sources/directory.rs
++++ b/src/tools/cargo/src/sources/directory.rs
 @@ -1,5 +1,6 @@
+ use crate::util::data_structures::HashMap;
  use std::cell::{Cell, RefCell};
- use std::collections::HashMap;
 +use std::env;
  use std::fmt::{self, Debug, Formatter};
  use std::path::{Path, PathBuf};
