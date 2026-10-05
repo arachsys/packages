@@ -38,7 +38,9 @@ build() {
   enabled lto && CONFIG+=( -DLLVM_ENABLE_LTO=Thin )
   if [[ -f /lib/shared/libc++abi.so ]] \
       && [[ -f /lib/shared/libunwind.so ]]; then
-    CONFIG+=( -DSANITIZER_COMMON_LINK_LIBS="c++abi;unwind" )
+    CONFIG+=( -DCOMPILER_RT_USE_BUILTINS_LIBRARY=Yes )
+    CONFIG+=( -DCOMPILER_RT_USE_LIBCXX=Yes )
+    CONFIG+=( -DCOMPILER_RT_USE_LLVM_UNWINDER=Yes )
   else
     CONFIG+=( -DCOMPILER_RT_BUILD_LIBFUZZER=No )
     CONFIG+=( -DCOMPILER_RT_BUILD_MEMPROF=No )
@@ -63,8 +65,9 @@ build() {
     -DCMAKE_INSTALL_PREFIX=/ \
     -DCMAKE_SKIP_INSTALL_RPATH=Yes \
     -DCMAKE_{ASM,C,CXX}_COMPILER_TARGET=$CHOST \
-    -DLLVM_ENABLE_PROJECTS="compiler-rt;polly;clang;lld;lldb" \
-    -DLLVM_ENABLE_RUNTIMES="libunwind;libcxx;libcxxabi" \
+    -DCMAKE_CXX_STANDARD_LIBRARIES="$(clang -print-libgcc-file-name)" \
+    -DLLVM_ENABLE_PROJECTS="polly;clang;lld;lldb" \
+    -DLLVM_ENABLE_RUNTIMES="compiler-rt;libunwind;libcxx;libcxxabi" \
     -DLLVM_HOST_TRIPLE=$CHOST \
     -DLLVM_INCLUDE_TESTS=No \
     -DLLVM_INSTALL_BINUTILS_SYMLINKS=Yes \
@@ -96,6 +99,7 @@ build() {
     -Dzstd_INCLUDE_DIR=/lib/include \
     -Dzstd_LIBRARY=/lib/shared/libzstd.so \
     "${CONFIG[@]}" ../llvm
+  make cxx
   make compiler-rt
   make install DESTDIR=/dst
 
@@ -136,7 +140,7 @@ build() {
     -or -name '*.inc' -or -name '*.td' -or -delete
   rm -f -r /dst/lib/**/{.clang-format,config.h,CMake*,*.cmake,*.in,*.py}
   rm -f -r /dst/lib/{cmake,libLTO.so*,libRemarks.so*,LLVMPolly.so*}
-  rm -f -r /dst/lib/include/{clang-c,llvm-c}
+  rm -f -r /dst/lib/include/{clang-c,llvm-c} /dst/src
   mv /dst/lib/libc++.modules.json /dst/lib/clang/lib/
 
   RUNTIME=$(/src/build/bin/clang -print-libgcc-file-name)
