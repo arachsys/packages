@@ -1,16 +1,22 @@
 diff --git a/sshd.c b/sshd.c
-index 74d25fc7..31a912a4 100644
+index da2aba93..4fe6dce6 100644
 --- a/sshd.c
 +++ b/sshd.c
-@@ -1452,7 +1452,10 @@ main(int ac, char **av)
+@@ -1477,12 +1477,11 @@ main(int ac, char **av)
  		}
  	}
- 	if (!test_flag && !inetd_flag && !do_dump_cfg && !path_absolute(av[0]))
--		fatal("sshd requires execution with an absolute path");
-+		if (!(av[0] = calloc(PATH_MAX + 1, 1)) ||
-+		    readlink("/proc/self/exe", av[0], PATH_MAX) <= 0 ||
-+		    !path_absolute(av[0]))
-+			fatal("sshd requires execution with an absolute path");
  
- 	closefrom(STDERR_FILENO + 1);
- 
+-	if (getexecpath(execpath, sizeof execpath) != 0) {
+-		if (strlcpy(execpath, av[0], sizeof execpath) >=
+-		    sizeof execpath) {
+-			fprintf(stderr, "execution path is too long\n");
+-			exit(1);
+-		}
++	if ((r = readlink("/proc/self/exe", execpath, sizeof execpath)) < 0)
++		r = strlcpy(execpath, av[0], sizeof execpath);
++	if (r >= sizeof execpath) {
++		fprintf(stderr, "execution path is too long\n");
++		exit(1);
+ 	}
+ 	if (!test_flag && !inetd_flag && !do_dump_cfg && !path_absolute(execpath))
+ 		fatal("sshd requires execution with an absolute path");

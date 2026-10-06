@@ -67,10 +67,10 @@ index 033b2910..aa3a4c50 100644
  }
  
 diff --git a/pathnames.h b/pathnames.h
-index c981e9cb..31a4e68c 100644
+index 14fe125b..fd91ce52 100644
 --- a/pathnames.h
 +++ b/pathnames.h
-@@ -63,7 +63,8 @@
+@@ -64,7 +64,8 @@
   * The directory in user's home directory in which the files reside. The
   * directory should be world-readable (though not all files are).
   */
@@ -78,5 +78,5 @@ index c981e9cb..31a4e68c 100644
 +#define _PATH_SSH_USER_DIR		".config/ssh"
 +#define _PATH_CFG_USER_DIR		".config"
  
+ 
  /*
-  * Per-user file containing host keys of known hosts.  This file need not be

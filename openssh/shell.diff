@@ -1,8 +1,8 @@
 diff --git a/session.c b/session.c
-index cb8576c6..bf173f8a 100644
+index e49a69ec..9a26c649 100644
 --- a/session.c
 +++ b/session.c
-@@ -1544,6 +1544,13 @@ do_child(struct ssh *ssh, Session *s, const char *command)
+@@ -1549,6 +1549,13 @@ do_child(struct ssh *ssh, Session *s, const char *command)
  	shell = login_getcapstr(lc, "shell", (char *)shell, (char *)shell);
  #endif
  

@@ -1,8 +1,8 @@
 diff --git a/misc.c b/misc.c
-index ed3e9d31..34477eaa 100644
+index 866f7b8e..ec1fff04 100644
 --- a/misc.c
 +++ b/misc.c
-@@ -1263,6 +1263,7 @@ int
+@@ -1276,6 +1276,7 @@ int
  tilde_expand(const char *filename, uid_t uid, char **retp)
  {
  	char *ocopy = NULL, *copy, *s = NULL;
@@ -10,7 +10,7 @@ index ed3e9d31..34477eaa 100644
  	const char *path = NULL, *user = NULL;
  	struct passwd *pw;
  	size_t len;
-@@ -1300,15 +1301,19 @@ tilde_expand(const char *filename, uid_t uid, char **retp)
+@@ -1313,15 +1314,19 @@ tilde_expand(const char *filename, uid_t uid, char **retp)
  			error_f("No such user %s", user);
  			goto out;
  		}
@@ -36,10 +36,10 @@ index ed3e9d31..34477eaa 100644
  		error_f("xasprintf failed");
  		goto out;
 diff --git a/ssh-add.c b/ssh-add.c
-index 1e9eddf9..04be5f41 100644
+index 515272a3..94547942 100644
 --- a/ssh-add.c
 +++ b/ssh-add.c
-@@ -1032,8 +1032,8 @@ main(int argc, char **argv)
+@@ -1040,8 +1040,8 @@ main(int argc, char **argv)
  		}
  
  		for (i = 0; default_files[i]; i++) {
@@ -51,7 +51,7 @@ index 1e9eddf9..04be5f41 100644
  				continue;
  			if (do_file(agent_fd, deleting, key_only, cert_only,
 diff --git a/ssh-keygen.c b/ssh-keygen.c
-index 584d5a89..7e1b430d 100644
+index 5c2d645a..04049340 100644
 --- a/ssh-keygen.c
 +++ b/ssh-keygen.c
 @@ -278,7 +278,7 @@ ask_filename(struct passwd *pw, const char *prompt)
@@ -64,10 +64,10 @@ index 584d5a89..7e1b430d 100644
  	fflush(stdout);
  	if (fgets(buf, sizeof(buf), stdin) == NULL)
 diff --git a/ssh.c b/ssh.c
-index 531f28eb..4b1928c2 100644
+index fe660efb..68e8c218 100644
 --- a/ssh.c
 +++ b/ssh.c
-@@ -577,8 +577,8 @@ process_config_files(const char *host_name, struct passwd *pw,
+@@ -578,8 +578,8 @@ process_config_files(const char *host_name, struct passwd *pw,
  			fatal("Can't open user config file %.100s: "
  			    "%.100s", config, strerror(errno));
  	} else {
@@ -78,7 +78,7 @@ index 531f28eb..4b1928c2 100644
  		if (r > 0 && (size_t)r < sizeof(buf))
  			(void)read_config_file(buf, pw, host, host_name, cmd,
  			    &options, SSHCONF_CHECKPERM | SSHCONF_USERCONF |
-@@ -1429,7 +1429,7 @@ main(int ac, char **av)
+@@ -1414,7 +1414,7 @@ main(int ac, char **av)
  	    options.host_key_alias : options.host_arg);
  	cinfo->host_arg = xstrdup(options.host_arg);
  	cinfo->remhost = xstrdup(host);

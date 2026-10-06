@@ -1,5 +1,5 @@
 diff --git a/session.c b/session.c
-index 0dbe727f..eb87b9ca 100644
+index 9125cbb8..3bd07846 100644
 --- a/session.c
 +++ b/session.c
 @@ -41,6 +41,7 @@
@@ -10,7 +10,7 @@ index 0dbe727f..eb87b9ca 100644
  
  #include <arpa/inet.h>
  
-@@ -1259,10 +1260,11 @@ do_nologin(struct passwd *pw)
+@@ -1264,10 +1265,11 @@ do_nologin(struct passwd *pw)
  
  /*
   * Chroot into a directory after checking it for safety: all path components
@@ -24,7 +24,7 @@ index 0dbe727f..eb87b9ca 100644
  {
  	const char *cp;
  	char component[PATH_MAX];
-@@ -1275,9 +1277,12 @@ safely_chroot(const char *path, uid_t uid)
+@@ -1280,9 +1282,12 @@ safely_chroot(const char *path, uid_t uid)
  
  	/*
  	 * Descend the path, checking that each component is a
@@ -39,7 +39,7 @@ index 0dbe727f..eb87b9ca 100644
  		if ((cp = strchr(cp, '/')) == NULL)
  			strlcpy(component, path, sizeof(component));
  		else {
-@@ -1316,6 +1321,7 @@ void
+@@ -1321,6 +1326,7 @@ void
  do_setusercontext(struct passwd *pw)
  {
  	char uidstr[32], *chroot_path, *tmp;
@@ -47,7 +47,7 @@ index 0dbe727f..eb87b9ca 100644
  
  	platform_setusercontext(pw);
  
-@@ -1345,13 +1351,15 @@ do_setusercontext(struct passwd *pw)
+@@ -1350,13 +1356,15 @@ do_setusercontext(struct passwd *pw)
  
  		if (!in_chroot && options.chroot_directory != NULL &&
  		    strcasecmp(options.chroot_directory, "none") != 0) {

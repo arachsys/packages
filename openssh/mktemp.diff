@@ -12,10 +12,10 @@ index aa3a4c50..1e7e3540 100644
  		r = SSH_ERR_ALLOC_FAIL;
  		goto fail;
 diff --git a/misc.c b/misc.c
-index 34477eaa..f739604a 100644
+index ec1fff04..3bfc19ae 100644
 --- a/misc.c
 +++ b/misc.c
-@@ -1918,11 +1918,11 @@ mktemp_proto(char *s, size_t len)
+@@ -1931,11 +1931,11 @@ mktemp_proto(char *s, size_t len)
  	int r;
  
  	if ((tmpdir = getenv("TMPDIR")) != NULL) {
@@ -29,6 +29,28 @@ index 34477eaa..f739604a 100644
  	if (r < 0 || (size_t)r >= len)
  		fatal_f("template string too short");
  }
+diff --git a/misc-agent.c b/misc-agent.c
+index fc62dc60..cccb247c 100644
+--- a/misc-agent.c
++++ b/misc-agent.c
+@@ -167,7 +167,7 @@ agent_listener_shared(const char *parent_dir, pid_t pid, const char *tag,
+ 	mode_t prev_mask;
+ 
+ 	*pathp = *dirp = NULL;
+-	xasprintf(&dir, "%s/ssh-XXXXXXXXXXXX", parent_dir);
++	xasprintf(&dir, "%s/ssh-XXXXXX", parent_dir);
+ 	if (mkdtemp(dir) == NULL) {
+ 		error_f("failed to create temporary directory "
+ 		    "in \"%s\": %s", dir, strerror(errno));
+@@ -210,7 +210,7 @@ agent_listener_user(const char *dir, pid_t pid, const char *tag,
+ 
+ 	if ((hostnamehash = hostname_hash(SOCKET_HOSTNAME_HASHLEN)) == NULL)
+ 		return -1;
+-	xasprintf(&path, "%s/s.%s.%s.%lld.XXXXXXXXXX",
++	xasprintf(&path, "%s/s.%s.%s.%lld.XXXXXX",
+ 	    dir, hostnamehash, tag, (long long)pid);
+ 	if (mkdir_path(dir, 0700) != 0) {
+ 		error_f("failed to create agent socket parent directory");
 diff --git a/moduli.c b/moduli.c
 index e8ef9633..8f3a1743 100644
 --- a/moduli.c
@@ -43,10 +65,10 @@ index e8ef9633..8f3a1743 100644
  		logit("write_checkpoint: temp pathname too long");
  		return;
 diff --git a/session.c b/session.c
-index eb87b9ca..cb8576c6 100644
+index 3bd07846..e49a69ec 100644
 --- a/session.c
 +++ b/session.c
-@@ -245,7 +245,7 @@ prepare_auth_info_file(struct passwd *pw, struct sshbuf *info)
+@@ -250,7 +250,7 @@ prepare_auth_info_file(struct passwd *pw, struct sshbuf *info)
  		return;
  
  	temporarily_use_uid(pw);
@@ -56,10 +78,10 @@ index eb87b9ca..cb8576c6 100644
  		error_f("mkstemp: %s", strerror(errno));
  		goto out;
 diff --git a/ssh-keygen.c b/ssh-keygen.c
-index 7e1b430d..bb18ddea 100644
+index 04049340..2faea80f 100644
 --- a/ssh-keygen.c
 +++ b/ssh-keygen.c
-@@ -1046,9 +1046,9 @@ do_gen_all_hostkeys(struct passwd *pw)
+@@ -1076,9 +1076,9 @@ do_gen_all_hostkeys(struct passwd *pw)
  		 * Private key doesn't exist or is invalid; proceed with
  		 * key generation.
  		 */
@@ -71,7 +93,7 @@ index 7e1b430d..bb18ddea 100644
  		    identity_file, key_types[i].path);
  		xasprintf(&pub_file, "%s%s.pub",
  		    identity_file, key_types[i].path);
-@@ -1284,7 +1284,7 @@ do_known_hosts(struct passwd *pw, const char *name, int find_host,
+@@ -1314,7 +1314,7 @@ do_known_hosts(struct passwd *pw, const char *name, int find_host,
  	 */
  	if (!find_host && (hash_hosts || delete_host)) {
  		if (strlcpy(tmp, identity_file, sizeof(tmp)) >= sizeof(tmp) ||
