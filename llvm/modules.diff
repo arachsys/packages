@@ -1,0 +1,29 @@
+diff --git a/clang/lib/Driver/Driver.cpp b/clang/lib/Driver/Driver.cpp
+index e606cdc4..c8fa074a 100644
+--- a/clang/lib/Driver/Driver.cpp
++++ b/clang/lib/Driver/Driver.cpp
+@@ -6956,7 +6956,23 @@ std::string Driver::GetStdModuleManifestPath(const Compilation &C,
+     if (std::optional<std::string> result = evaluate("libc++.so"); result)
+       return *result;
+ 
+-    return evaluate("libc++.a").value_or(error);
++    if (std::optional<std::string> result = evaluate("libc++.a"); result)
++      return *result;
++
++    SmallVector<std::string, 2> Dirs;
++    if (std::optional<std::string> Path = TC.getRuntimePath())
++      Dirs.push_back(*Path);
++    SmallString<128> LibDir(ResourceDir);
++    llvm::sys::path::append(LibDir, "lib");
++    Dirs.push_back(std::string(LibDir));
++    for (const std::string &Dir : Dirs) {
++      SmallString<128> Path(Dir);
++      llvm::sys::path::append(Path, "libc++.modules.json");
++      if (TC.getVFS().exists(Path))
++        return std::string(Path);
++    }
++
++    return error;
+   }
+ 
+   case ToolChain::CST_Libstdcxx: {

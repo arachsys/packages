@@ -20,10 +20,10 @@ index 9590ff97..23a05a17 100644
  
    bool NoCudaLib =
 diff --git a/clang/lib/Driver/ToolChains/Gnu.cpp b/clang/lib/Driver/ToolChains/Gnu.cpp
-index 24076d88..0a10910b 100644
+index 2fad9327..a5cebf31 100644
 --- a/clang/lib/Driver/ToolChains/Gnu.cpp
 +++ b/clang/lib/Driver/ToolChains/Gnu.cpp
-@@ -2293,30 +2293,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
+@@ -2311,30 +2311,7 @@ void Generic_GCC::GCCInstallationDetector::AddDefaultGCCPrefixes(
      return;
    }
  
@@ -55,15 +55,7 @@ index 24076d88..0a10910b 100644
  }
  
  /*static*/ void Generic_GCC::GCCInstallationDetector::CollectLibDirsAndTriples(
-@@ -3290,20 +3267,16 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
-   // they contain an Android-specific target include path, otherwise they're
-   // incompatible with the NDK libraries.
-   SmallString<128> DriverIncludeDir(getDriver().Dir);
--  llvm::sys::path::append(DriverIncludeDir, "..", "include");
-+  llvm::sys::path::append(DriverIncludeDir, "include");
-   if (AddIncludePath(DriverIncludeDir,
-                      /*TargetDirRequired=*/getTriple().isAndroid()))
-     return;
+@@ -3315,13 +3292,9 @@ Generic_GCC::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
    // If this is a development, non-installed, clang, libcxx will
    // not be found at ../include/c++ but it likely to be found at
    // one of the following two locations:
@@ -80,7 +72,7 @@ index 24076d88..0a10910b 100644
      return;
  }
  
-@@ -3391,7 +3364,7 @@ bool Generic_GCC::GCCInstallCandidate::addGCCLibStdCxxIncludePaths(
+@@ -3409,7 +3382,7 @@ bool Generic_GCC::GCCInstallCandidate::addGCCLibStdCxxIncludePaths(
  
    // Try /../include/c++/$version (gcc --print-multiarch is empty).
    if (::addLibStdCXXIncludePaths(

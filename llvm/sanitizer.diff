@@ -1,16 +1,3 @@
-diff --git a/clang/lib/Driver/ToolChains/CommonArgs.cpp b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-index 08c06951..ce106e26 100644
---- a/clang/lib/Driver/ToolChains/CommonArgs.cpp
-+++ b/clang/lib/Driver/ToolChains/CommonArgs.cpp
-@@ -1619,6 +1619,8 @@ void tools::linkSanitizerRuntimeDeps(const ToolChain &TC,
-   if (TC.getTriple().isOSLinux() && !TC.getTriple().isAndroid() &&
-       !TC.getTriple().isMusl())
-     CmdArgs.push_back("-lresolv");
-+  if (TC.getTriple().isOSLinux())
-+    CmdArgs.push_back("-lunwind");
- }
- 
- static void
 diff --git a/compiler-rt/cmake/Modules/AddCompilerRT.cmake b/compiler-rt/cmake/Modules/AddCompilerRT.cmake
 index 2ae73dfb..980d6f17 100644
 --- a/compiler-rt/cmake/Modules/AddCompilerRT.cmake

@@ -43,3 +43,26 @@ index d626688c..d981fc87 100644
      else()
        set(${absvar} "${CMAKE_INSTALL_PREFIX}/${${var}}")
      endif()
+diff --git a/cmake/Utilities/std/cmext/string_view b/cmake/Utilities/std/cmext/string_view
+index 29a1cf91..adb2ce5d 100644
+--- a/cmake/Utilities/std/cmext/string_view
++++ b/cmake/Utilities/std/cmext/string_view
+@@ -25,15 +25,15 @@ class static_string_view : public string_view
+   {
+   }
+ 
+-  friend static_string_view operator"" _s(char const* data, size_t size);
++  friend static_string_view operator""_s(char const* data, size_t size);
+ };
+ 
+ /** Create a static_string_view using `""_s` literal syntax.  */
+-inline static_string_view operator"" _s(char const* data, size_t size)
++inline static_string_view operator""_s(char const* data, size_t size)
+ {
+   return string_view(data, size);
+ }
+ 
+ } // namespace cm
+ 
+-using cm::operator"" _s;
++using cm::operator""_s;
