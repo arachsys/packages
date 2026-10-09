@@ -1,8 +1,8 @@
 diff --git a/Lib/test/support/__init__.py b/Lib/test/support/__init__.py
-index 6635ec34..d1e18743 100644
+index 8e13ab4b..747b9210 100644
 --- a/Lib/test/support/__init__.py
 +++ b/Lib/test/support/__init__.py
-@@ -3215,6 +3215,9 @@ def linked_to_musl():
+@@ -3351,6 +3351,9 @@ def linked_to_musl():
      # musl platforms should add support in that module if possible.
      import platform
      lib, version = platform.libc_ver()

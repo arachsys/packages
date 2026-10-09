@@ -1,8 +1,8 @@
 diff --git a/Modules/_ssl.c b/Modules/_ssl.c
-index 417d5ca5..aca63c59 100644
+index ed6ad559..42310377 100644
 --- a/Modules/_ssl.c
 +++ b/Modules/_ssl.c
-@@ -910,7 +910,7 @@ newPySSLSocket(PySSLContext *sslctx, PySocketSockObject *sock,
+@@ -973,7 +973,7 @@ newPySSLSocket(PySSLContext *sslctx, PySocketSockObject *sock,
      }
  
      /* bpo43522 and OpenSSL < 1.1.1l: copy hostflags manually */
@@ -11,7 +11,7 @@ index 417d5ca5..aca63c59 100644
      X509_VERIFY_PARAM *ssl_verification_params = SSL_get0_param(self->ssl);
      X509_VERIFY_PARAM *ssl_ctx_verification_params = SSL_CTX_get0_param(ctx);
  
-@@ -3870,10 +3870,12 @@ _ssl__SSLContext__host_flags_get_impl(PySSLContext *self)
+@@ -4353,10 +4353,12 @@ _ssl__SSLContext__host_flags_get_impl(PySSLContext *self)
  /*[clinic end generated code: output=0f9db6654ce32582 input=8e3c49499eefd0e5]*/
  {
      X509_VERIFY_PARAM *ssl_verification_params;

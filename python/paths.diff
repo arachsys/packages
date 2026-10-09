@@ -1,8 +1,8 @@
 diff --git a/Lib/ctypes/util.py b/Lib/ctypes/util.py
-index 378f1216..32bfef62 100644
+index 015c62b3..af8493f2 100644
 --- a/Lib/ctypes/util.py
 +++ b/Lib/ctypes/util.py
-@@ -193,7 +193,7 @@ elif sys.platform == "emscripten":
+@@ -200,7 +200,7 @@ elif sys.platform == "emscripten":
          return None
  
  elif os.name == "posix":
@@ -11,7 +11,7 @@ index 378f1216..32bfef62 100644
      import re, tempfile
  
      def _is_elf(filename):
-@@ -315,7 +315,7 @@ elif os.name == "posix":
+@@ -322,7 +322,7 @@ elif os.name == "posix":
              expr = os.fsencode(expr)
  
              try:
@@ -20,6 +20,15 @@ index 378f1216..32bfef62 100644
                                          stdout=subprocess.PIPE,
                                          stderr=subprocess.DEVNULL)
              except OSError:  # E.g. command not found
+@@ -399,7 +399,7 @@ elif os.name == "posix":
+             regex = r'\s+(lib%s\.[^\s]+)\s+\(%s'
+             regex = os.fsencode(regex % (re.escape(name), abi_type))
+             try:
+-                with subprocess.Popen(['/sbin/ldconfig', '-p'],
++                with subprocess.Popen(['/bin/ldconfig', '-p'],
+                                       stdin=subprocess.DEVNULL,
+                                       stderr=subprocess.DEVNULL,
+                                       stdout=subprocess.PIPE,
 diff --git a/Lib/encodings/rot_13.py b/Lib/encodings/rot_13.py
 index 5627bfbc..80f3f99a 100755
 --- a/Lib/encodings/rot_13.py
@@ -31,7 +40,7 @@ index 5627bfbc..80f3f99a 100755
  
  This codec de/encodes from str to str.
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index 33e86d51..bf8aa891 100644
+index 6d9278bc..40ab6e20 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
 @@ -42,14 +42,6 @@ __all__ = [
@@ -50,10 +59,10 @@ index 33e86d51..bf8aa891 100644
  
  inited = False
 diff --git a/Lib/platform.py b/Lib/platform.py
-index 784b6b74..5e7ffb76 100644
+index 36489d4f..6c1016b9 100644
 --- a/Lib/platform.py
 +++ b/Lib/platform.py
-@@ -1406,8 +1406,8 @@ def platform(aliased=False, terse=False):
+@@ -1328,8 +1328,8 @@ def platform(aliased=False, terse=False):
  ### freedesktop.org os-release standard
  # https://www.freedesktop.org/software/systemd/man/os-release.html
  
@@ -65,7 +74,7 @@ index 784b6b74..5e7ffb76 100644
  
  
 diff --git a/Lib/posixpath.py b/Lib/posixpath.py
-index d38f3bd5..d2c63a85 100644
+index 8025b063..6466e90c 100644
 --- a/Lib/posixpath.py
 +++ b/Lib/posixpath.py
 @@ -18,7 +18,7 @@ pardir = '..'
@@ -78,25 +87,26 @@ index d38f3bd5..d2c63a85 100644
  devnull = '/dev/null'
  
 diff --git a/Lib/site.py b/Lib/site.py
-index 2fe897a3..fb3d2b06 100644
+index 89e136d7..2cb00807 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -328,12 +328,12 @@ def _get_path(userbase):
+@@ -682,13 +682,12 @@ def _get_path(userbase):
+     implementation = _get_implementation()
      implementation_lower = implementation.lower()
      if os.name == 'nt':
-         ver_nodot = sys.winver.replace('.', '')
+-        ver_nodot = sys.winver.replace('.', '')
 -        return f'{userbase}\\{implementation}{ver_nodot}\\site-packages'
 +        return f'{userbase}\\{implementation}\\site-packages'
  
      if sys.platform == 'darwin' and sys._framework:
          return f'{userbase}/lib/{implementation_lower}/site-packages'
  
--    return f'{userbase}/lib/python{version[0]}.{version[1]}{abi_thread}/site-packages'
-+    return f'{userbase}/lib/python{abi_thread}/site-packages'
+-    return f'{userbase}/lib/{implementation_lower}{version[0]}.{version[1]}{abi_thread}/site-packages'
++    return f'{userbase}/lib/{implementation_lower}{abi_thread}/site-packages'
  
  
  def getuserbase():
-@@ -412,7 +412,7 @@ def getsitepackages(prefixes=None):
+@@ -766,7 +765,7 @@ def getsitepackages(prefixes=None):
  
              for libdir in libdirs:
                  path = os.path.join(prefix, libdir,
@@ -106,7 +116,7 @@ index 2fe897a3..fb3d2b06 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig/__init__.py b/Lib/sysconfig/__init__.py
-index 2ecbff22..62a96ef9 100644
+index 4f8ebf15..9a2959fd 100644
 --- a/Lib/sysconfig/__init__.py
 +++ b/Lib/sysconfig/__init__.py
 @@ -27,14 +27,12 @@ _ALWAYS_STR = {
@@ -195,10 +205,10 @@ index 2ecbff22..62a96ef9 100644
              'data': '{userbase}',
              },
 diff --git a/Lib/tempfile.py b/Lib/tempfile.py
-index 5e3ccab5..3d5baf9d 100644
+index d14c187a..898c2ecb 100644
 --- a/Lib/tempfile.py
 +++ b/Lib/tempfile.py
-@@ -170,7 +170,7 @@ def _candidate_tempdir_list():
+@@ -172,7 +172,7 @@ def _candidate_tempdir_list():
                           _os.path.expandvars(r'%SYSTEMROOT%\Temp'),
                           r'c:\temp', r'c:\tmp', r'\temp', r'\tmp' ])
      else:
@@ -208,7 +218,7 @@ index 5e3ccab5..3d5baf9d 100644
      # As a last resort, the current directory.
      try:
 diff --git a/Lib/uuid.py b/Lib/uuid.py
-index 313f2fc4..dde6ff8f 100644
+index 4bdcb677..60ad4c69 100644
 --- a/Lib/uuid.py
 +++ b/Lib/uuid.py
 @@ -426,7 +426,6 @@ def _get_command_stdout(command, *args):
@@ -219,28 +229,11 @@ index 313f2fc4..dde6ff8f 100644
          executable = shutil.which(command, path=os.pathsep.join(path_dirs))
          if executable is None:
              return None
-diff --git a/Lib/venv/__init__.py b/Lib/venv/__init__.py
-index 17ee28e8..b06a42c3 100644
---- a/Lib/venv/__init__.py
-+++ b/Lib/venv/__init__.py
-@@ -191,12 +191,6 @@ class EnvBuilder:
-         create_if_needed(incpath)
-         context.lib_path = libpath
-         create_if_needed(libpath)
--        # Issue 21197: create lib64 as a symlink to lib on 64-bit non-OS X POSIX
--        if ((sys.maxsize > 2**32) and (os.name == 'posix') and
--            (sys.platform != 'darwin')):
--            link_path = os.path.join(env_dir, 'lib64')
--            if not os.path.exists(link_path):   # Issue #21643
--                os.symlink('lib', link_path)
-         context.bin_path = binpath
-         context.bin_name = os.path.relpath(binpath, env_dir)
-         context.env_exe = os.path.join(binpath, exename)
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index ba039794..4e75b780 100644
+index 965244d8..e2ebc39d 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -156,7 +156,7 @@ BINDIR=		@bindir@
+@@ -162,7 +162,7 @@ BINDIR=		@bindir@
  LIBDIR=		@libdir@
  MANDIR=		@mandir@
  INCLUDEDIR=	@includedir@
@@ -249,26 +242,24 @@ index ba039794..4e75b780 100644
  PLATLIBDIR=	@PLATLIBDIR@
  SCRIPTDIR=	$(prefix)/$(PLATLIBDIR)
  # executable name for shebangs
-@@ -166,9 +166,9 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
- 
+@@ -173,8 +173,8 @@ WHEEL_PKG_DIR=	@WHEEL_PKG_DIR@
  # Detailed destination directories
  BINLIBDEST=	@BINLIBDEST@
--LIBDEST=	$(SCRIPTDIR)/python$(VERSION)$(ABI_THREAD)
+ LIBDEST=	@LIBDEST@
 -INCLUDEPY=	$(INCLUDEDIR)/python$(LDVERSION)
 -CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(LDVERSION)
-+LIBDEST=	$(SCRIPTDIR)/python$(ABI_THREAD)
 +INCLUDEPY=	$(INCLUDEDIR)/python
 +CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python
  
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.py b/Modules/getpath.py
-index b89d7427..90768f36 100644
+index c322d5c4..8e7ea380 100644
 --- a/Modules/getpath.py
 +++ b/Modules/getpath.py
-@@ -179,9 +179,9 @@ if os_name == 'posix' or os_name == 'darwin':
+@@ -177,9 +177,9 @@ ABI_THREAD = ABI_THREAD or ''
+ if os_name == 'posix' or os_name == 'darwin':
      BUILDDIR_TXT = 'pybuilddir.txt'
-     BUILD_LANDMARK = 'Modules/Setup.local'
      DEFAULT_PROGRAM_NAME = f'python{VERSION_MAJOR}'
 -    STDLIB_SUBDIR = f'{platlibdir}/python{VERSION_MAJOR}.{VERSION_MINOR}{ABI_THREAD}'
 +    STDLIB_SUBDIR = f'{platlibdir}/python{ABI_THREAD}'
@@ -279,27 +270,17 @@ index b89d7427..90768f36 100644
      VENV_LANDMARK = 'pyvenv.cfg'
      ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}{ABI_THREAD}.zip'
 diff --git a/configure b/configure
-index d31c24df..080fceab 100755
+index a68a98c5..2e2f5c6c 100755
 --- a/configure
 +++ b/configure
-@@ -26784,7 +26784,7 @@ fi
+@@ -27685,8 +27685,8 @@ fi
  
  
  
--BINLIBDEST='$(LIBDIR)/python$(VERSION)$(ABI_THREAD)'
-+BINLIBDEST='$(LIBDIR)/python$(ABI_THREAD)'
- 
- 
- # Check for --with-platlibdir
-@@ -26822,9 +26822,9 @@ fi
+-LIBDEST='${prefix}/${PLATLIBDIR}/python$(VERSION)$(ABI_THREAD)'
+-BINLIBDEST='${exec_prefix}/${PLATLIBDIR}/python$(VERSION)$(ABI_THREAD)'
++LIBDEST='${prefix}/${PLATLIBDIR}/python$(ABI_THREAD)'
++BINLIBDEST='${exec_prefix}/${PLATLIBDIR}/python$(ABI_THREAD)'
  
  
  if test x$PLATFORM_TRIPLET = x; then
--  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${VERSION}${ABI_THREAD}/config-${LDVERSION}"
-+  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${ABI_THREAD}/config-${LDVERSION}"
- else
--  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${VERSION}${ABI_THREAD}/config-${LDVERSION}-${PLATFORM_TRIPLET}"
-+  LIBPL='$(prefix)'"/${PLATLIBDIR}/python${ABI_THREAD}/config-${LDVERSION}-${PLATFORM_TRIPLET}"
- fi
- 
- 

@@ -1,0 +1,42 @@
+diff --git a/Python/initconfig.c b/Python/initconfig.c
+index a7cd08de..a04202df 100644
+--- a/Python/initconfig.c
++++ b/Python/initconfig.c
+@@ -324,10 +324,6 @@ _Py_can_colorize(FILE *f)
+     if (getenv("FORCE_COLOR")) {
+         return 1;
+     }
+-    env = getenv("TERM");
+-    if (env && strcmp(env, "dumb") == 0) {
+-        return 0;
+-    }
+ #if defined(MS_WINDOWS) && defined(HAVE_WINDOWS_CONSOLE_IO)
+     {
+         DWORD mode = 0;
+@@ -341,7 +337,7 @@ _Py_can_colorize(FILE *f)
+         }
+     }
+ #endif
+-    return isatty(fileno(f));
++    return 0;
+ }
+ 
+ /* Walk help text, expanding markup:
+@@ -403,7 +399,7 @@ fprint_help(FILE *f, const char *text, int colorize, const wchar_t *program)
+ 
+ /* Short usage message */
+ static const char usage_line[] =
+-"#h{usage:} #P [#S{option}] #S{...} "
++"#h{Usage:} #P [#S{option}] #S{...} "
+ "[#S{-c} #B{cmd} | #S{-m} #B{mod} | #S{file} | #S{-}] "
+ "[#S{arg}] #S{...}\n"
+ ;
+@@ -411,7 +407,7 @@ static const char usage_line[] =
+ /* Long help message */
+ /* Lines sorted by option name; keep in sync with usage_envvars* below */
+ static const char usage_help[] =
+-"#h{Options (and corresponding environment variables):}\n"
++"#h{Options and corresponding environment variables:}\n"
+ "#s{-b}     : issue warnings about converting bytes/bytearray to str and comparing\n"
+ "         bytes/bytearray with str or bytes with int. (#S{-bb}: issue errors)\n"
+ "         deprecated since 3.15 and will become no-op in 3.17.\n"

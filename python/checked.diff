@@ -1,20 +1,20 @@
 diff --git a/Lib/compileall.py b/Lib/compileall.py
-index 67fe3704..c9ef5e4d 100644
+index 812a4966..a49760fd 100644
 --- a/Lib/compileall.py
 +++ b/Lib/compileall.py
-@@ -372,9 +372,7 @@ def main():
+@@ -379,9 +379,7 @@ def main():
      parser.add_argument('--invalidation-mode',
                          choices=sorted(invalidation_modes),
-                         help=('set .pyc invalidation mode; defaults to '
--                              '"checked-hash" if the SOURCE_DATE_EPOCH '
+                         help=('set `.pyc` invalidation mode; defaults to '
+-                              '`"checked-hash"` if the `SOURCE_DATE_EPOCH` '
 -                              'environment variable is set, and '
--                              '"timestamp" otherwise.'))
-+                              '"checked-hash".'))
+-                              '`"timestamp"` otherwise.'))
++                              '`"checked-hash"`.'))
      parser.add_argument('-o', action='append', type=int, dest='opt_levels',
                          help=('Optimization levels to run compilation with. '
-                               'Default is -1 which uses the optimization level '
+                               'Default is `-1` which uses the optimization level '
 diff --git a/Lib/py_compile.py b/Lib/py_compile.py
-index 43d8ec90..48b644ea 100644
+index 7ca47914..1fa64779 100644
 --- a/Lib/py_compile.py
 +++ b/Lib/py_compile.py
 @@ -70,10 +70,7 @@ class PycInvalidationMode(enum.Enum):
