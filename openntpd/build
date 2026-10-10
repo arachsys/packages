@@ -2,15 +2,15 @@ require bison
 
 check() {
   url https://github.com/arachsys/openntpd/tags
-  match version 7.9.0 'openntpd-([0-9.]+)\.tar'
+  match version 7.9.1 'openntpd-([0-9.]+)\.tar'
 
   url https://www.openbsd.org/
   match 'upstream openbsd' 7.9 'OpenBSD ([0-9.]+)'
 }
 
 prepare() {
-  unpack https://github.com/arachsys/openntpd/archive/openntpd-7.9.0.tar.gz
-  tree ea284b40cc444f2f63a8f35bd15eedc11ed40eabc82acb7651d77a9edc27bc18
+  unpack https://github.com/arachsys/openntpd/archive/openntpd-7.9.1.tar.gz
+  tree 969452c3312e4c243895f9fd47e3244aa35ac2727a6cb5e9a326fcaa75b5f39c
 }
 
 build() {
