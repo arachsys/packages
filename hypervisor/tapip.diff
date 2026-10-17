@@ -1,8 +1,8 @@
 diff --git a/net_util/src/open_tap.rs b/net_util/src/open_tap.rs
-index 6cc8b2a3..d5cdf951 100644
+index 9d342342..a365600f 100644
 --- a/net_util/src/open_tap.rs
 +++ b/net_util/src/open_tap.rs
-@@ -80,14 +80,16 @@ fn open_tap_rx_q_0(
+@@ -78,14 +78,16 @@ fn open_tap_rx_q_0(
          None => Tap::new(num_rx_q).map_err(Error::TapOpen)?,
      };
      // Don't overwrite ip configuration of existing interfaces:
@@ -26,4 +26,4 @@ index 6cc8b2a3..d5cdf951 100644
 +        }
      }
      if let Some(mac) = host_mac {
-         tap.set_mac_addr(*mac).map_err(Error::TapSetMac)?;
+         tap.set_mac_addr(mac).map_err(Error::TapSetMac)?;

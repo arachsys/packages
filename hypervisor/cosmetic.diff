@@ -1,40 +1,26 @@
 diff --git a/cloud-hypervisor/src/main.rs b/cloud-hypervisor/src/main.rs
-index 0c9b3d12..0158ee3a 100644
+index 65eb8cca..97b2863e 100644
 --- a/cloud-hypervisor/src/main.rs
 +++ b/cloud-hypervisor/src/main.rs
-@@ -15,7 +15,7 @@ use std::path::PathBuf;
+@@ -16,7 +16,7 @@
  use std::sync::mpsc::channel;
- use std::{any, cmp, env, io, num, process, str, thread};
+ use std::{any, cmp, env, io, num, process, str};
  
 -use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command};
 +use clap::{Arg, ArgAction, ArgGroup, ArgMatches, Command, ColorChoice};
  use event_monitor::event;
  use libc::EFD_NONBLOCK;
  use log::{LevelFilter, error, info, warn};
-@@ -70,11 +70,8 @@ fn handle_sigsys(info: &libc::siginfo_t) {
-         let tid = libc::syscall(libc::SYS_gettid) as i64;
-         let info = &*(info as *const libc::siginfo_t as *const SeccompSiginfo);
-         eprintln!(
--            concat!(
--                "\n==== Possible seccomp violation ====\n",
--                "Syscall number: {} (arch: {:#x}, tid: {}, thread: {})\n",
--                "Try running with `strace -ff` to identify the cause and open an issue: ",
--                "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/new",
-+            concat!("Possible seccomp violation:\n",
-+                "Syscall: {} (arch: {:#x}, tid: {}, thread: {})",
-             ),
-             info.si_syscall, info.si_arch, tid, thread_name,
-         );
-@@ -96,7 +93,7 @@ enum Error {
+@@ -146,7 +146,7 @@ enum Error {
      CreateDebugEventFd(#[source] io::Error),
      #[error("Failed to create exit EventFd")]
      CreateExitEventFd(#[source] io::Error),
 -    #[error("Failed to open hypervisor interface (is hypervisor interface available?)")]
 +    #[error("Failed to open hypervisor interface")]
      CreateHypervisor(#[source] hypervisor::HypervisorError),
-     #[error("Failed to start the VMM thread")]
-     StartVmmThread(#[source] vmm::Error),
-@@ -192,7 +189,7 @@ fn get_cli_options_sorted(
+     #[error("Failed to create main thread seccomp filter")]
+     CreateSeccompFilter(#[source] seccompiler::Error),
+@@ -246,7 +246,7 @@ fn get_cli_options_sorted(
      [
          Arg::new("api-socket")
              .long("api-socket")
@@ -43,7 +29,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(1)
              .group("vmm-config"),
          Arg::new("balloon")
-@@ -202,7 +199,7 @@ fn get_cli_options_sorted(
+@@ -256,7 +256,7 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("cmdline")
              .long("cmdline")
@@ -52,7 +38,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(1)
              .group("vm-config"),
          Arg::new("console")
-@@ -213,7 +210,7 @@ fn get_cli_options_sorted(
+@@ -267,7 +267,7 @@ fn get_cli_options_sorted(
          Arg::new("cpus")
              .long("cpus")
              .help(
@@ -61,7 +47,7 @@ index 0c9b3d12..0158ee3a 100644
                      topology=<threads_per_core>:<cores_per_die>:<dies_per_package>:<packages>,\
                      kvm_hyperv=on|off,max_phys_bits=<maximum_number_of_physical_bits>,\
                      affinity=<list_of_vcpus_with_their_associated_cpuset>,\
-@@ -225,26 +222,26 @@ fn get_cli_options_sorted(
+@@ -279,26 +279,26 @@ fn get_cli_options_sorted(
          #[cfg(feature = "dbus_api")]
          Arg::new("dbus-object-path")
              .long("dbus-object-path")
@@ -92,7 +78,7 @@ index 0c9b3d12..0158ee3a 100644
              .default_value("off,iobase=0xe9")
              .group("vm-config"),
          Arg::new("device")
-@@ -261,12 +258,12 @@ fn get_cli_options_sorted(
+@@ -315,12 +315,12 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("event-monitor")
              .long("event-monitor")
@@ -107,7 +93,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(1)
              .group("vm-payload"),
          Arg::new("fs")
-@@ -284,7 +281,7 @@ fn get_cli_options_sorted(
+@@ -338,7 +338,7 @@ fn get_cli_options_sorted(
          #[cfg(feature = "guest_debug")]
          Arg::new("gdb")
              .long("gdb")
@@ -116,7 +102,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(1)
              .group("vmm-config"),
          Arg::new("generic-vhost-user")
-@@ -296,18 +293,18 @@ fn get_cli_options_sorted(
+@@ -350,18 +350,18 @@ fn get_cli_options_sorted(
          #[cfg(feature = "igvm")]
          Arg::new("igvm")
              .long("igvm")
@@ -138,7 +124,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(1)
              .group("vm-config"),
          #[cfg(feature = "ivshmem")]
-@@ -318,16 +315,13 @@ fn get_cli_options_sorted(
+@@ -372,16 +372,13 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("kernel")
              .long("kernel")
@@ -157,7 +143,7 @@ index 0c9b3d12..0158ee3a 100644
              .action(ArgAction::SetTrue)
              .default_value("false")
              .group("vm-config"),
-@@ -339,16 +333,14 @@ fn get_cli_options_sorted(
+@@ -393,16 +390,14 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("log-file")
              .long("log-file")
@@ -177,7 +163,7 @@ index 0c9b3d12..0158ee3a 100644
              )
              .num_args(1)
              .default_value(logger::DEFAULT_FORMAT)
-@@ -356,27 +348,27 @@ fn get_cli_options_sorted(
+@@ -410,27 +405,27 @@ fn get_cli_options_sorted(
          Arg::new("memory")
              .long("memory")
              .help(
@@ -211,7 +197,7 @@ index 0c9b3d12..0158ee3a 100644
              )
              .num_args(1..)
              .action(ArgAction::Append)
-@@ -389,7 +381,7 @@ fn get_cli_options_sorted(
+@@ -443,7 +438,7 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("no-shutdown")
              .long("no-shutdown")
@@ -220,7 +206,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(0)
              .action(ArgAction::SetTrue)
              .group("vmm-config"),
-@@ -419,7 +411,7 @@ fn get_cli_options_sorted(
+@@ -473,7 +468,7 @@ fn get_cli_options_sorted(
          #[cfg(feature = "pvmemcontrol")]
          Arg::new("pvmemcontrol")
              .long("pvmemcontrol")
@@ -229,7 +215,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(0)
              .action(ArgAction::SetTrue)
              .group("vm-config"),
-@@ -453,6 +445,7 @@ fn get_cli_options_sorted(
+@@ -507,6 +502,7 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("seccomp")
              .long("seccomp")
@@ -237,7 +223,7 @@ index 0c9b3d12..0158ee3a 100644
              .num_args(1)
              .value_parser(["true", "false", "log", "errno"])
              .default_value("true"),
-@@ -474,8 +467,9 @@ fn get_cli_options_sorted(
+@@ -528,8 +524,9 @@ fn get_cli_options_sorted(
              .group("vm-config"),
          Arg::new("v")
              .short('v')
@@ -248,7 +234,7 @@ index 0c9b3d12..0158ee3a 100644
              .group("logging"),
          Arg::new("vdpa")
              .long("vdpa")
-@@ -522,7 +516,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
+@@ -576,7 +573,8 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
          // 'BUILD_VERSION' is set by the build script 'build.rs' at
          // compile time
          .author(env!("CARGO_PKG_AUTHORS"))
@@ -259,10 +245,10 @@ index 0c9b3d12..0158ee3a 100644
          .groups(groups)
          .args(args)
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index 900fd317..eb5e9134 100644
+index e1654de1..f211cafb 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -808,8 +808,8 @@ impl CpusConfig {
+@@ -851,8 +851,8 @@ pub fn parse(cpus: &str) -> Result<Self> {
  }
  
  impl PciSegmentConfig {
@@ -273,7 +259,7 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(disk: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -868,8 +868,8 @@ impl PciSegmentConfig {
+@@ -911,8 +911,8 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  impl PlatformConfig {
      pub fn syntax() -> &'static str {
          static SYNTAX: LazyLock<String> = LazyLock::new(|| {
@@ -284,7 +270,7 @@ index 900fd317..eb5e9134 100644
              iommu_address_width=<bits>,iommufd=on|off,iommufd_fd=<fd>,vfio_p2p_dma=on|off,\
              system_manufacturer=<dmi_system_manufacturer>,\
              system_product_name=<dmi_system_product_name>,system_version=<dmi_system_version>,\
-@@ -886,8 +886,6 @@ impl PlatformConfig {
+@@ -929,8 +929,6 @@ pub fn syntax() -> &'static str {
                  syntax.push_str(",sev_snp=on|off");
              }
  
@@ -293,7 +279,7 @@ index 900fd317..eb5e9134 100644
              syntax
          });
  
-@@ -1276,10 +1274,10 @@ impl MemoryConfig {
+@@ -1337,10 +1335,10 @@ pub fn hugepages_enabled(&self) -> bool {
  }
  
  impl RateLimiterGroupConfig {
@@ -307,26 +293,36 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(rate_limit_group: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1426,8 +1424,8 @@ impl PciDeviceCommonConfig {
+@@ -1490,8 +1488,8 @@ pub fn validate(&self, vm_config: &VmConfig, virtio_iommu_only: bool) -> Validat
  }
  
  impl DiskConfig {
 -    pub const SYNTAX: &'static str = "Disk parameters \
--         \"path=<disk_image_path>,readonly=on|off,direct=on|off,iommu=on|off,\
+-         \"path=<disk_image_path>,readonly=on|off,direct=on|off,iommu=off|virtio,\
 +    pub const SYNTAX: &'static str = "Add disk device: \
-+         path=<disk_image>,readonly=on|off,direct=on|off,iommu=on|off,\
++         path=<disk_image>,readonly=on|off,direct=on|off,iommu=off|virtio,\
           num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,\
           vhost_user=on|off,socket=<vhost_user_socket_path>,\
           bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
-@@ -1680,14 +1678,14 @@ impl FromStr for VhostMode {
+@@ -1501,7 +1499,7 @@ impl DiskConfig {
+          queue_affinity=<list_of_queue_indices_with_their_associated_cpuset>,\
+          serial=<serial_number>,backing_files=on|off,sparse=on|off,\
+          image_type=<raw,qcow2,vhd,vhdx,vmdk>,lock_granularity=byte-range|full,\
+-         guest_block_size=<size_in_bytes>";
++         guest_block_size=<bytes>";
+ 
+     pub fn parse(disk: &str) -> Result<Self> {
+         let mut parser = OptionParser::new();
+@@ -1801,15 +1799,15 @@ fn from_str(s: &str) -> result::Result<Self, Self::Err> {
  }
  
  impl NetConfig {
 -    pub const SYNTAX: &'static str = "Network parameters \
--    \"tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,fd=<[fd1,fd2,...]>,iommu=on|off,\
+-    \"tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,host_mac=<host_mac_addr>,\
 +    pub const SYNTAX: &'static str = "Add network device: \
-+    tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,fd=<[fd1,fd2,...]>,iommu=on|off,\
-     num_queues=<number_of_queues>,queue_size=<size_of_each_queue>,id=<device_id>,\
++    tap=<if_name>,ip=<ip_addr>,mask=<net_mask>,mac=<mac_addr>,host_mac=<host_mac_addr>,\
+     fd=<[fd1,fd2,...]>,iommu=off|virtio,mtu=<mtu>,num_queues=<number_of_queues>,\
+     queue_size=<size_of_each_queue>,id=<device_id>,\
      vhost_user=<vhost_user_enable>,socket=<vhost_user_socket_path>,vhost_mode=client|server,\
      bw_size=<bytes>,bw_one_time_burst=<bytes>,bw_refill_time=<ms>,\
      ops_size=<io_ops>,ops_one_time_burst=<io_ops>,ops_refill_time=<ms>,\
@@ -336,31 +332,31 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(net: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1902,9 +1900,9 @@ impl NetConfig {
+@@ -2025,9 +2023,9 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl RngConfig {
 -    pub const SYNTAX: &'static str = "Random number generator parameters \"\
 +    pub const SYNTAX: &'static str = "Add entropy device: \
-         src=<entropy_source_path>,iommu=on|off,pci_segment=<segment_id>,\
+         src=<entropy_source_path>,iommu=off|virtio,pci_segment=<segment_id>,\
 -        pci_device_id=<pci_slot>\"";
 +        pci_device_id=<pci_slot>";
  
      pub fn parse(rng: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1952,9 +1950,9 @@ impl RtcConfig {
+@@ -2075,9 +2073,9 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl BalloonConfig {
 -    pub const SYNTAX: &'static str = "Balloon parameters \"size=<balloon_size>,deflate_on_oom=on|off,\
 +    pub const SYNTAX: &'static str = "Add balloon device: size=<balloon_size>,deflate_on_oom=on|off,\
-         free_page_reporting=on|off,iommu=on|off,id=<device_id>,pci_segment=<segment_id>,\
+         free_page_reporting=on|off,iommu=off|virtio,id=<device_id>,pci_segment=<segment_id>,\
 -        pci_device_id=<pci_slot>\"";
 +        pci_device_id=<pci_slot>";
  
      pub fn parse(balloon: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -1997,11 +1995,11 @@ impl BalloonConfig {
+@@ -2120,11 +2118,11 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl GenericVhostUserConfig {
@@ -376,7 +372,7 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(vhost_user: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2125,10 +2123,10 @@ impl GenericVhostUserConfig {
+@@ -2248,10 +2246,10 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl FsConfig {
@@ -390,7 +386,7 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(fs: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2186,9 +2184,9 @@ impl FsConfig {
+@@ -2309,9 +2307,9 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  
  #[cfg(feature = "fw_cfg")]
  impl FwCfgConfig {
@@ -403,28 +399,29 @@ index 900fd317..eb5e9134 100644
      pub fn parse(fw_cfg_config: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
          parser
-@@ -2285,10 +2283,10 @@ impl FwCfgItem {
+@@ -2408,10 +2406,10 @@ pub fn parse(fw_cfg: &str) -> Result<Self> {
  }
  
  impl PmemConfig {
 -    pub const SYNTAX: &'static str = "Persistent memory parameters \
--    \"file=<backing_file_path>,size=<persistent_memory_size>,iommu=on|off,\
+-    \"file=<backing_file_path>,size=<persistent_memory_size>,iommu=off|virtio,\
 +    pub const SYNTAX: &'static str = "Add persistent memory device: \
-+    file=<backing_file_path>,size=<persistent_memory_size>,iommu=on|off,\
++    file=<backing_file_path>,size=<persistent_memory_size>,iommu=off|virtio,\
      discard_writes=on|off,id=<device_id>,\
 -    pci_segment=<segment_id>,pci_device_id=<pci_slot>\"";
 +    pci_segment=<segment_id>,pci_device_id=<pci_slot>";
  
      pub fn parse(pmem: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2453,11 +2451,11 @@ impl DebugConsoleConfig {
+@@ -2591,12 +2589,12 @@ pub fn parse(debug_console_ops: &str) -> Result<Self> {
  }
  
  impl DeviceConfig {
 -    pub const SYNTAX: &'static str = "Direct device assignment parameters \
--    \"path=<device_path>,fd=<vfio_cdev_fd>,iommu=on|off,id=<device_id>,\
+-    \"path=<device_path>,fd=<vfio_cdev_fd>,iommu=off|virtio|smmuv3,\
 +    pub const SYNTAX: &'static str = "Assign pass-through device to guest: \
-+    path=<device_path>,fd=<vfio_cdev_fd>,iommu=on|off,id=<device_id>,\
++    path=<device_path>,fd=<vfio_cdev_fd>,iommu=off|virtio|smmuv3,\
+     id=<device_id>,\
      pci_segment=<segment_id>,pci_device_id=<pci_slot>,\
      x_nv_gpudirect_clique=<clique_id>,\
 -    x_exclude_mmap_bars=[<bar>...]\"";
@@ -432,7 +429,7 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2526,8 +2524,8 @@ impl DeviceConfig {
+@@ -2677,8 +2675,8 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl UserDeviceConfig {
@@ -443,33 +440,33 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(user_device: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2553,9 +2551,9 @@ impl UserDeviceConfig {
+@@ -2704,9 +2702,9 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl VdpaConfig {
 -    pub const SYNTAX: &'static str = "vDPA device \
--        \"path=<device_path>,num_queues=<number_of_queues>,iommu=on|off,\
+-        \"path=<device_path>,num_queues=<number_of_queues>,iommu=off|virtio,\
 -        id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>\"";
 +    pub const SYNTAX: &'static str = "Add vDPA device: \
-+        path=<device_path>,num_queues=<number_of_queues>,iommu=on|off,\
++        path=<device_path>,num_queues=<number_of_queues>,iommu=off|virtio,\
 +        id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>";
  
      pub fn parse(vdpa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2588,9 +2586,9 @@ impl VdpaConfig {
+@@ -2739,9 +2737,9 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl VsockConfig {
 -    pub const SYNTAX: &'static str = "Virtio VSOCK parameters \
--        \"cid=<context_id>,socket=<socket_path>,iommu=on|off,id=<device_id>,\
+-        \"cid=<context_id>,socket=<socket_path>,iommu=off|virtio,id=<device_id>,\
 -        pci_segment=<segment_id>,pci_device_id=<pci_slot>\"";
 +    pub const SYNTAX: &'static str = "Add vsock device: \
-+        cid=<context_id>,socket=<socket_path>,iommu=on|off,id=<device_id>,\
++        cid=<context_id>,socket=<socket_path>,iommu=off|virtio,id=<device_id>,\
 +        pci_segment=<segment_id>,pci_device_id=<pci_slot>";
  
      pub fn parse(vsock: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2623,11 +2621,11 @@ impl VsockConfig {
+@@ -2774,11 +2772,11 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl NumaConfig {
@@ -484,26 +481,34 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(numa: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2816,15 +2814,9 @@ pub struct RestoreConfig {
+@@ -3010,23 +3008,11 @@ pub struct RestoreConfig {
  }
  
  impl RestoreConfig {
 -    pub const SYNTAX: &'static str = "Restore from a VM snapshot. \
--        \nRestore parameters \"source_url=<source_url>,prefault=on|off,memory_restore_mode=copy|ondemand,\
--        net_fds=<list_of_net_ids_with_their_associated_fds>,resume=true|false\" \
+-        \nRestore parameters \"source_url=<source_url>,prefault=on|off,memory_restore_mode=copy|ondemand|copyonwrite,\
++    pub const SYNTAX: &'static str = "Restore from snapshot: \
++        source_url=<source_url>,prefault=on|off,memory_restore_mode=copy|ondemand|copyonwrite,\
+         net_fds=<list_of_net_ids_with_their_associated_fds>,\
+         vfio_fds=<list_of_vfio_ids_with_their_associated_fd>,iommufd_fd=<fd>,resume=true|false,\
+-        zone_updates=<list_of_updates>\"
 -        \n`source_url` should be a valid URL (e.g file:///foo/bar or tcp://192.168.1.10/foo) \
 -        \n`prefault` controls eager prefaulting for the copy-based restore path (disabled by default) \
--        \n`memory_restore_mode=copy` preserves the existing eager read-copy restore behavior, while `memory_restore_mode=ondemand` enables lazy demand paging and fails restore if userfaultfd support is unavailable \
+-        \n`memory_restore_mode=copy` preserves the existing eager read-copy restore behavior, `memory_restore_mode=ondemand` enables lazy demand paging and fails restore if userfaultfd support is unavailable, and `memory_restore_mode=copyonwrite` maps the snapshot file copy-on-write (plain private RAM only; falls back to copy otherwise) \
 -        \n`net_fds` is a list of net ids with new file descriptors. \
 -        Only net devices backed by FDs directly are needed as input.\
--        \n `resume` controls whether the VM will be directly resumed after restore ";
-+    pub const SYNTAX: &'static str = "Restore from snapshot: \
-+        source_url=<source_url>,prefault=on|off,memory_restore_mode=copy|ondemand,\
-+        net_fds=<list_of_net_ids_with_their_associated_fds>,resume=true|false";
+-        \n`vfio_fds` is a list of VFIO device ids each paired with a new cdev file descriptor, \
+-        e.g. vfio_fds=[vfio0@5,vfio1@6]. Use this to restore a VFIO device onto a different \
+-        sysfs path or host. Requires `iommufd_fd`.\
+-        \n`iommufd_fd` is a new iommufd file descriptor for the restored VM. \
+-        The one saved in the snapshot does not survive serialization.\
+-        \n `resume` controls whether the VM will be directly resumed after restore \
+-        \n `zone_updates` can be used to update NUMA memory zones. Expects a list of elements in the form `id@host_numa_node`";
++        zone_updates=<list_of_updates>";
  
      pub fn parse(restore: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2928,8 +2920,8 @@ impl RestoreConfig {
+@@ -3226,8 +3212,8 @@ pub fn validate(&self, vm_config: &VmConfig) -> ValidationResult<()> {
  }
  
  impl TpmConfig {
@@ -514,7 +519,7 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(tpm: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2944,8 +2936,8 @@ impl TpmConfig {
+@@ -3242,8 +3228,8 @@ pub fn parse(tpm: &str) -> Result<Self> {
  }
  
  impl LandlockConfig {
@@ -525,7 +530,7 @@ index 900fd317..eb5e9134 100644
  
      pub fn parse(landlock_rule: &str) -> Result<Self> {
          let mut parser = OptionParser::new();
-@@ -2984,11 +2976,10 @@ impl LandlockConfig {
+@@ -3282,11 +3268,10 @@ pub fn validate(&self) -> ValidationResult<()> {
  
  #[cfg(feature = "ivshmem")]
  impl IvshmemConfig {
@@ -542,10 +547,10 @@ index 900fd317..eb5e9134 100644
          let mut parser = OptionParser::new();
          parser.add("path").add("size");
 diff --git a/vmm/src/vm_config.rs b/vmm/src/vm_config.rs
-index 04102478..ac6336bc 100644
+index d45495a8..f9de70cc 100644
 --- a/vmm/src/vm_config.rs
 +++ b/vmm/src/vm_config.rs
-@@ -685,7 +685,7 @@ pub struct SerialConfig {
+@@ -747,7 +747,7 @@ pub struct SerialConfig {
  }
  
  impl SerialConfig {
@@ -554,12 +559,12 @@ index 04102478..ac6336bc 100644
  }
  
  impl Default for SerialConfig {
-@@ -716,7 +716,7 @@ pub struct ConsoleConfig {
+@@ -778,7 +778,7 @@ pub struct ConsoleConfig {
  }
  
  impl ConsoleConfig {
--    pub const SYNTAX: &str = "Control (virtio) console: \"off|null|pty|tty|file=<path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>\"";
-+    pub const SYNTAX: &str = "Configure virtio console: off|null|pty|tty|file=<path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>";
+-    pub const SYNTAX: &str = "Control (virtio) console: \"off|null|pty|tty|file=<path>|socket=<path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>\"";
++    pub const SYNTAX: &str = "Configure virtio console: off|null|pty|tty|file=<path>|socket=<path>,iommu=on|off,id=<device_id>,pci_segment=<segment_id>,pci_device_id=<pci_slot>";
  }
  
  impl Default for ConsoleConfig {
