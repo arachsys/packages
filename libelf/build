@@ -1,15 +1,15 @@
 check() {
   url https://github.com/arachsys/libelf/tags
-  match version 0.196 'tags/v([0-9.]+)\.tar'
+  match version 0.197 'tags/v([0-9.]+)\.tar'
 
   url https://sourceware.org/elfutils/ftp/
-  match 'upstream elfutils' 0.196 '([0-9.]+)/'
+  match 'upstream elfutils' 0.197 '([0-9.]+)/'
 }
 
 prepare() {
-  unpack libelf-0.196.tar.gz \
-    https://github.com/arachsys/libelf/archive/refs/tags/v0.196.tar.gz
-  tree e04a9d37da295e266478c93ee8f580817e99c0bcc3f0a44d031d2f524656b365
+  unpack libelf-0.197.tar.gz \
+    https://github.com/arachsys/libelf/archive/refs/tags/v0.197.tar.gz
+  tree 6b0816c7ec43da04304dc000aab50c99a72ae939803a770f55a842e8e2927d1a
 }
 
 build() {
