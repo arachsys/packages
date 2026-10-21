@@ -1,11 +1,11 @@
 check() {
   url https://{,mirrorservice.org/sites/}ftp.gnu.org/gnu/nano/
-  match version 9.2 'nano-([0-9.]+)\.tar'
+  match version 9.3 'nano-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://ftp.gnu.org/gnu/nano/nano-9.2.tar.xz
-  tree 43cebd606496ad99817e5f47d82a81b8e161756d2866f763107103d90e6e824f
+  unpack https://ftp.gnu.org/gnu/nano/nano-9.3.tar.xz
+  tree 8160d30fbf1c58d83da2c5d95ef1298c3add99c7196ec26a48b61e9020f426ab
 }
 
 build() {
