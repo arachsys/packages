@@ -40,22 +40,22 @@ index 5627bfbc..80f3f99a 100755
  
  This codec de/encodes from str to str.
 diff --git a/Lib/mimetypes.py b/Lib/mimetypes.py
-index 6d9278bc..40ab6e20 100644
+index c8ca8a38..d91b8fac 100644
 --- a/Lib/mimetypes.py
 +++ b/Lib/mimetypes.py
-@@ -42,14 +42,6 @@ __all__ = [
- 
- knownfiles = [
-     "/etc/mime.types",
--    "/etc/httpd/mime.types",                    # Mac OS X
--    "/etc/httpd/conf/mime.types",               # Apache
--    "/etc/apache/mime.types",                   # Apache 1
--    "/etc/apache2/mime.types",                  # Apache 2
--    "/usr/local/etc/httpd/conf/mime.types",
--    "/usr/local/lib/netscape/mime.types",
--    "/usr/local/etc/httpd/conf/mime.types",     # Apache 1.2
--    "/usr/local/etc/mime.types",                # Apache 1.3
-     ]
+@@ -50,14 +50,6 @@ if sys.platform == "win32":
+ else:
+     knownfiles = [
+         "/etc/mime.types",
+-        "/etc/httpd/mime.types",                    # Mac OS X
+-        "/etc/httpd/conf/mime.types",               # Apache
+-        "/etc/apache/mime.types",                   # Apache 1
+-        "/etc/apache2/mime.types",                  # Apache 2
+-        "/usr/local/etc/httpd/conf/mime.types",
+-        "/usr/local/lib/netscape/mime.types",
+-        "/usr/local/etc/httpd/conf/mime.types",     # Apache 1.2
+-        "/usr/local/etc/mime.types",                # Apache 1.3
+         ]
  
  inited = False
 diff --git a/Lib/platform.py b/Lib/platform.py
@@ -87,7 +87,7 @@ index 8025b063..6466e90c 100644
  devnull = '/dev/null'
  
 diff --git a/Lib/site.py b/Lib/site.py
-index 89e136d7..2cb00807 100644
+index 02545185..442e6f85 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
 @@ -682,13 +682,12 @@ def _get_path(userbase):
@@ -116,7 +116,7 @@ index 89e136d7..2cb00807 100644
                  sitepackages.append(path)
          else:
 diff --git a/Lib/sysconfig/__init__.py b/Lib/sysconfig/__init__.py
-index 4f8ebf15..9a2959fd 100644
+index b9315513..3c965df1 100644
 --- a/Lib/sysconfig/__init__.py
 +++ b/Lib/sysconfig/__init__.py
 @@ -27,14 +27,12 @@ _ALWAYS_STR = {
@@ -218,7 +218,7 @@ index d14c187a..898c2ecb 100644
      # As a last resort, the current directory.
      try:
 diff --git a/Lib/uuid.py b/Lib/uuid.py
-index 4bdcb677..60ad4c69 100644
+index 3f10fed8..e41e0c93 100644
 --- a/Lib/uuid.py
 +++ b/Lib/uuid.py
 @@ -426,7 +426,6 @@ def _get_command_stdout(command, *args):
@@ -230,7 +230,7 @@ index 4bdcb677..60ad4c69 100644
          if executable is None:
              return None
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 965244d8..e2ebc39d 100644
+index f24b41db..5db66fdd 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
 @@ -162,7 +162,7 @@ BINDIR=		@bindir@
@@ -254,7 +254,7 @@ index 965244d8..e2ebc39d 100644
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.py b/Modules/getpath.py
-index c322d5c4..8e7ea380 100644
+index f5f928f1..603efeee 100644
 --- a/Modules/getpath.py
 +++ b/Modules/getpath.py
 @@ -177,9 +177,9 @@ ABI_THREAD = ABI_THREAD or ''
@@ -270,10 +270,10 @@ index c322d5c4..8e7ea380 100644
      VENV_LANDMARK = 'pyvenv.cfg'
      ZIP_LANDMARK = f'{platlibdir}/python{VERSION_MAJOR}{VERSION_MINOR}{ABI_THREAD}.zip'
 diff --git a/configure b/configure
-index a68a98c5..2e2f5c6c 100755
+index 5a728e8b..1000de17 100755
 --- a/configure
 +++ b/configure
-@@ -27685,8 +27685,8 @@ fi
+@@ -27782,8 +27782,8 @@ fi
  
  
  
