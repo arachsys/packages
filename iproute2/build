@@ -2,15 +2,15 @@ require bison flex
 
 check() {
   url https://www.kernel.org/pub/linux/utils/net/iproute2/
-  match version 7.2.0 'iproute2-([0-9.]+)\.tar'
+  match version 7.3.0 'iproute2-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-7.2.0.tar.xz
+  unpack https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-7.3.0.tar.xz
   apply nocompat.diff
   apply paths.diff
   apply unspec.diff
-  tree 0bb05bd35cc239c446c591f23527d8adf52d0a8f9fe597e5c20132734ac67b8c
+  tree b120076faefdbb5b1d2a4051ee2860f2a4c8d715d8328c18bf9a30d0f7b0c6f8
 }
 
 build() {
