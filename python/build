@@ -34,6 +34,7 @@ build() {
   LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/python -m wheel \
     unpack -d /tmp /dst/lib/python/ensurepip/_bundled/pip-*.whl
   apply -d /tmp/pip-* /pkg/pip.diff
+  rm /tmp/pip-*/pip/_vendor/certifi/cacert.pem
   LD_LIBRARY_PATH=/dst/lib /tmp/venv/bin/python -m wheel \
     pack -d /dst/lib/python/ensurepip/_bundled /tmp/pip-*
   LD_LIBRARY_PATH=/dst/lib /dst/bin/python3 -m ensurepip
