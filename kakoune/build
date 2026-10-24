@@ -13,11 +13,12 @@ prepare() {
   apply palette.diff
   apply paths.diff
   apply perl.diff
+  apply realloc.diff
   apply stdin.diff
   apply tabs.diff
   apply windowing.diff
   find -xtype l -delete
-  tree a1cd682d61c47967f65b5c4e806dfe56467edf5a985aa69b26f4b78ae241e6df
+  tree 0e0d243ed1627f843b8d774a6523646880eaf0819a4c934b416193abca5236ad
 }
 
 build() {

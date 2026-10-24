@@ -1,0 +1,16 @@
+diff --git a/src/command_manager.cc b/src/command_manager.cc
+index 666ff078..ee2ebd47 100644
+--- a/src/command_manager.cc
++++ b/src/command_manager.cc
+@@ -542,8 +542,9 @@ void CommandManager::execute_single_command(CommandParameters params,
+         write_to_debug_buffer(format("command {} took {} us", params[0], duration.count()));
+     }};
+ 
+-    command_it->value.func({{params.begin()+1, params.end()}, command_it->value.param_desc},
+-                           context, shell_context);
++    auto func = command_it->value.func;
++    auto param_desc = command_it->value.param_desc;
++    func({{params.begin() + 1, params.end()}, param_desc}, context, shell_context);
+ }
+ 
+ void CommandManager::execute(StringView command_line,
