@@ -1,13 +1,13 @@
 check() {
   url https://sourceware.org/ftp/lvm2/
-  match version 2.03.43 'LVM2\.([0-9.]+)\.tgz'
+  match version 2.03.44 'LVM2\.([0-9.]+)\.tgz'
 
   url https://codeberg.org/jmoyer/libaio/releases
   match libaio 0.3.113 'libaio-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack lvm2-2.03.43.tar.gz https://sourceware.org/ftp/lvm2/LVM2.2.03.43.tgz
+  unpack lvm2-2.03.44.tar.gz https://sourceware.org/ftp/lvm2/LVM2.2.03.44.tgz
   unpack -d aio \
     https://codeberg.org/jmoyer/libaio/releases/download/libaio-0.3.113/libaio-0.3.113.tar.gz
   apply basename.diff
@@ -15,7 +15,7 @@ prepare() {
   apply static.diff
   apply stdio.diff
   apply tidy.diff
-  tree 223502ef92e3a0468209d00586ad5fffed958212e76a332dada7f657dc270b31
+  tree 6393683192004c3237a259b39a30360fa3fc8bc6b6cba700a9574a7ccafc3fd2
 }
 
 build() {
