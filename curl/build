@@ -8,13 +8,13 @@ check() {
   match libpsl 0.23.3 'tags/([0-9.]+)\.tar'
 
   url https://github.com/nghttp2/nghttp2/tags
-  match nghttp2 1.70.0 'tags/v([0-9.]+)\.tar'
+  match nghttp2 1.71.0 'tags/v([0-9.]+)\.tar'
 
   url https://github.com/ngtcp2/ngtcp2/tags
-  match ngtcp2 1.25.0 'tags/v([0-9.]+)\.tar'
+  match ngtcp2 1.26.0 'tags/v([0-9.]+)\.tar'
 
   url https://github.com/ngtcp2/nghttp3/tags
-  match nghttp3 1.18.0 'tags/v([0-9.]+)\.tar'
+  match nghttp3 1.19.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
@@ -22,32 +22,34 @@ prepare() {
   unpack -d libpsl \
     https://github.com/rockdaboot/libpsl/releases/download/0.23.3/libpsl-0.23.3.tar.gz
   unpack -d nghttp2 \
-    https://github.com/nghttp2/nghttp2/releases/download/v1.70.0/nghttp2-1.70.0.tar.xz
+    https://github.com/nghttp2/nghttp2/releases/download/v1.71.0/nghttp2-1.71.0.tar.xz
   unpack -d ngtcp2 \
-    https://github.com/ngtcp2/ngtcp2/releases/download/v1.25.0/ngtcp2-1.25.0.tar.xz
+    https://github.com/ngtcp2/ngtcp2/releases/download/v1.26.0/ngtcp2-1.26.0.tar.xz
   unpack -d nghttp3 \
-    https://github.com/ngtcp2/nghttp3/releases/download/v1.18.0/nghttp3-1.18.0.tar.xz
-  tree 5933d19480de4c6786af6299c02534b5a8d10a0b064e5fb44f20b8d59f4e307b
+    https://github.com/ngtcp2/nghttp3/releases/download/v1.19.0/nghttp3-1.19.0.tar.xz
+  tree 09ca15f2e75dcf24f49259bff89e7208c2864814313b9a51e65030dbe0c9b0a7
 }
 
 build() {
   cd /src/libpsl
-  PKG_CONFIG=/bin/true auto-config --prefix=/tmp --disable-shared \
-    --enable-builtin --with-pic
+  auto-config --prefix=/tmp --disable-shared --enable-builtin --with-pic \
+    PKG_CONFIG=/bin/true
   make install
 
   cd /src/nghttp2
-  auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic
+  auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic \
+    PKG_CONFIG=/bin/true
   make install
 
   cd /src/nghttp3
-  auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic
+  auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic \
+    PKG_CONFIG=/bin/true
   make install
 
   cd /src/ngtcp2
   auto-config --prefix=/tmp --disable-shared --enable-lib-only --with-pic \
     LIBNGHTTP3_CFLAGS=-I/tmp/lib/includes LIBNGHTTP3_LIBS=-L/tmp/lib \
-    OPENSSL_CFLAGS=-I/lib/include OPENSSL_LIBS=-lssl
+    OPENSSL_CFLAGS=-I/lib/include OPENSSL_LIBS=-lssl PKG_CONFIG=/bin/true
   make install
 
   cd /src
