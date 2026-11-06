@@ -1,8 +1,8 @@
 diff --git a/runtime/autoload/dist/ft.vim b/runtime/autoload/dist/ft.vim
-index a72e91e3..17c43e27 100644
+index f3414c53..88ef074a 100644
 --- a/runtime/autoload/dist/ft.vim
 +++ b/runtime/autoload/dist/ft.vim
-@@ -1201,7 +1201,7 @@ enddef
+@@ -1229,7 +1229,7 @@ enddef
  var ft_rules_udev_rules_pattern = '^\s*\cudev_rules\s*=\s*"\([^"]\{-1,}\)/*".*'
  export def FTRules()
    var path = expand('<amatch>:p')
@@ -11,7 +11,7 @@ index a72e91e3..17c43e27 100644
      setf udevrules
      return
    endif
-@@ -1209,7 +1209,7 @@ export def FTRules()
+@@ -1237,7 +1237,7 @@ export def FTRules()
      setf conf  # Better than hog
      return
    endif
@@ -21,7 +21,7 @@ index a72e91e3..17c43e27 100644
      return
    endif
 diff --git a/runtime/autoload/dist/script.vim b/runtime/autoload/dist/script.vim
-index 3f9a5acf..6fae8576 100644
+index 853d519f..4bd2be27 100644
 --- a/runtime/autoload/dist/script.vim
 +++ b/runtime/autoload/dist/script.vim
 @@ -22,8 +22,8 @@ enddef
@@ -48,7 +48,7 @@ index 3f9a5acf..6fae8576 100644
    if line1 =~ '^#!\s*\a:[/\\]'
      name = substitute(line1, '^#!.*[/\\]\(\i\+\).*', '\1', '')
 diff --git a/runtime/filetype.vim b/runtime/filetype.vim
-index 01a51302..52cde704 100644
+index cba47277..7c0bbbcd 100644
 --- a/runtime/filetype.vim
 +++ b/runtime/filetype.vim
 @@ -82,7 +82,7 @@ au BufNewFile,BufRead .htaccess,*/etc/httpd/*.conf		setf apache
@@ -60,7 +60,7 @@ index 01a51302..52cde704 100644
  
  " APT config file
  au BufNewFile,BufRead */.aptitude/config       setf aptconf
-@@ -499,7 +499,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
+@@ -508,7 +508,7 @@ au BufNewFile,BufRead *.gp,.gprc		setf gp
  " GPG
  au BufNewFile,BufRead */.gnupg/options		setf gpg
  au BufNewFile,BufRead */.gnupg/gpg.conf		setf gpg
@@ -69,7 +69,7 @@ index 01a51302..52cde704 100644
  if !empty($GNUPGHOME)
    au BufNewFile,BufRead $GNUPGHOME/options	setf gpg
    au BufNewFile,BufRead $GNUPGHOME/gpg.conf	setf gpg
-@@ -1217,8 +1217,8 @@ au BufNewFile,BufRead */etc/udev/cdsymlinks.conf	setf sh
+@@ -1233,8 +1233,8 @@ au BufNewFile,BufRead */etc/udev/cdsymlinks.conf	setf sh
  au BufNewFile,BufRead */etc/updatedb.conf	setf updatedb
  
  " Upstart (init(8)) config files
@@ -80,7 +80,7 @@ index 01a51302..52cde704 100644
  au BufNewFile,BufRead */etc/init/*.conf,*/etc/init/*.override  setf upstart
  au BufNewFile,BufRead */.init/*.conf,*/.init/*.override	       setf upstart
  au BufNewFile,BufRead */.config/upstart/*.conf		       setf upstart
-@@ -1509,7 +1509,7 @@ au BufNewFile,BufRead .neomuttrc*,*/.neomutt/neomuttrc*	call s:StarSetf('neomutt
+@@ -1525,7 +1525,7 @@ au BufNewFile,BufRead .neomuttrc*,*/.neomutt/neomuttrc*	call s:StarSetf('neomutt
  au BufNewFile,BufRead neomuttrc*,Neomuttrc*		call s:StarSetf('neomuttrc')
  
  " Nginx
@@ -89,25 +89,6 @@ index 01a51302..52cde704 100644
  
  " Nroff macros
  au BufNewFile,BufRead tmac.*			call s:StarSetf('nroff')
-diff --git a/runtime/ftplugin/debchangelog.vim b/runtime/ftplugin/debchangelog.vim
-index f5bf432e..13fd67c1 100644
---- a/runtime/ftplugin/debchangelog.vim
-+++ b/runtime/ftplugin/debchangelog.vim
-@@ -358,12 +358,12 @@ except ImportError:
-     vim.command('echoerr \'python-launchpadlib >= 1.5.4 needs to be installed to use Launchpad bug completion\'')
- EOF
-     else
--      if ! filereadable('/usr/sbin/apt-listbugs')
-+      if ! filereadable('/bin/apt-listbugs')
-         echoerr 'apt-listbugs not found, you should install it to use Closes bug completion'
-         return
-       endif
-       let pkgsrc = DebGetPkgSrcName(line('.'))
--      let listbugs_output = system('/usr/sbin/apt-listbugs -s ' . g:debchangelog_listbugs_severities . ' list ' . shellescape(pkgsrc) . ' | grep "^ #" 2> /dev/null')
-+      let listbugs_output = system('/bin/apt-listbugs -s ' . g:debchangelog_listbugs_severities . ' list ' . shellescape(pkgsrc) . ' | grep "^ #" 2> /dev/null')
-       let bug_lines = split(listbugs_output, '\n')
-     endif
-     let completions = []
 diff --git a/runtime/ftplugin/j.vim b/runtime/ftplugin/j.vim
 index 8335ea06..f8a13ba7 100644
 --- a/runtime/ftplugin/j.vim
@@ -135,7 +116,7 @@ index 455b794c..72239722 100644
  " Matchit configuration
  if exists("loaded_matchit")
 diff --git a/runtime/syntax/sh.vim b/runtime/syntax/sh.vim
-index 044f2a9e..23fb36e8 100644
+index 48d6dbcf..11903bd7 100644
 --- a/runtime/syntax/sh.vim
 +++ b/runtime/syntax/sh.vim
 @@ -77,8 +77,6 @@ elseif !exists("b:is_kornshell") && !exists("b:is_bash") && !exists("b:is_posix"
@@ -170,10 +151,10 @@ index cb8355e2..9722af05 100644
  	:ku=\EOA:kd=\EOB:kr=\EOC:kl=\EOD:kb=^H:\
  	:ho=\E[H:k1=\EOP:k2=\EOQ:k3=\EOR:k4=\EOS:pt:sr=5\EM:vt#3:xn:\
 diff --git a/src/optiondefs.h b/src/optiondefs.h
-index f238209a..23c1645e 100644
+index 8dc3183c..83fa537b 100644
 --- a/src/optiondefs.h
 +++ b/src/optiondefs.h
-@@ -1964,7 +1964,7 @@ static struct vimoption options[] =
+@@ -1973,7 +1973,7 @@ static struct vimoption options[] =
  #if defined(AMIGA) || defined(MSWIN)
  			    (char_u *)".,,",
  #else
