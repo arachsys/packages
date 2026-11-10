@@ -1,10 +1,10 @@
 check() {
   url https://www.kernel.org/
-  match linux 7.3.3 'linux-([0-9.]+)\.tar'
+  match linux 7.3.4 'linux-([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.3.tar.xz
+  unpack https://www.kernel.org/pub/linux/kernel/v7.x/linux-7.3.4.tar.xz
   apply ifb.diff
   apply kvm.diff
   apply llvm.diff
@@ -17,7 +17,7 @@ prepare() {
     -e '1s:^#!/bin/env  *\([^ =][^ =]*\)\( \|$\):#!/bin/\1\2:' \
     -i {} +
 
-  tree 47cca28b5c64f710234bfe61f4376c24bf5f9410571e7b97733742e166e7180d
+  tree 473d131a81870c7c997e7cd4d6e6c45f150868fdf795267825b70456fbd65600
 }
 
 build() {
