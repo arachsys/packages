@@ -30,7 +30,7 @@ index 9cd5d7a0..b6f23735 100644
              "files": file_cksums,
          });
 diff --git a/src/tools/cargo/src/sources/directory.rs b/src/tools/cargo/src/sources/directory.rs
-index 4fa5c00d..b1a348ac 100644
+index 21a8c1e8..4164a797 100644
 --- a/src/tools/cargo/src/sources/directory.rs
 +++ b/src/tools/cargo/src/sources/directory.rs
 @@ -1,5 +1,6 @@
@@ -40,7 +40,7 @@ index 4fa5c00d..b1a348ac 100644
  use std::fmt::{self, Debug, Formatter};
  use std::path::{Path, PathBuf};
  
-@@ -236,6 +237,10 @@ impl<'gctx> Source for DirectorySource<'gctx> {
+@@ -239,6 +240,10 @@ impl<'gctx> Source for DirectorySource<'gctx> {
              anyhow::bail!("failed to find entry for `{}` in directory source", id);
          };
  

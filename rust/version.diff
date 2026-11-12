@@ -1,13 +1,13 @@
-diff --git a/src/bootstrap/src/lib.rs b/src/bootstrap/src/lib.rs
-index 58402e46..55f851c6 100644
---- a/src/bootstrap/src/lib.rs
-+++ b/src/bootstrap/src/lib.rs
-@@ -529,7 +529,7 @@ impl Build {
+diff --git a/src/bootstrap/src/core/session.rs b/src/bootstrap/src/core/session.rs
+index 4ad04df7..881e3f8a 100644
+--- a/src/bootstrap/src/core/session.rs
++++ b/src/bootstrap/src/core/session.rs
+@@ -364,7 +364,7 @@ impl Session {
          }
  
-         if rust_info.is_from_tarball() && config.description.is_none() {
+         if config.rust_info.is_from_tarball() && config.description.is_none() {
 -            config.description = Some("built from a source tarball".to_owned());
 +            config.description = None;
          }
  
-         let mut build = Build {
+         let mut sess = Session {

@@ -12,10 +12,10 @@ index fcec091f..92cf2914 100644
                  lib_dir = "{}/lib".format(bin_root)
                  rustlib_bin_dir = "{}/rustlib/{}/bin".format(lib_dir, self.build)
 diff --git a/src/bootstrap/src/core/build_steps/dist.rs b/src/bootstrap/src/core/build_steps/dist.rs
-index 43ac42a8..cc0b7875 100644
+index 954e5454..eee081ca 100644
 --- a/src/bootstrap/src/core/build_steps/dist.rs
 +++ b/src/bootstrap/src/core/build_steps/dist.rs
-@@ -546,7 +546,7 @@ impl CommandLineStep for Rustc {
+@@ -573,7 +573,7 @@ impl CommandLineStep for Rustc {
                  tool::RustAnalyzerProcMacroSrv::from_compilers(compilers),
                  builder.kind,
              ) {
@@ -25,10 +25,10 @@ index 43ac42a8..cc0b7875 100644
              }
  
 diff --git a/src/bootstrap/src/core/build_steps/tool.rs b/src/bootstrap/src/core/build_steps/tool.rs
-index 3605fcf5..444df8b7 100644
+index c4fae696..60c6d131 100644
 --- a/src/bootstrap/src/core/build_steps/tool.rs
 +++ b/src/bootstrap/src/core/build_steps/tool.rs
-@@ -1140,7 +1140,7 @@ impl CommandLineStep for RustAnalyzerProcMacroSrv {
+@@ -1160,7 +1160,7 @@ impl CommandLineStep for RustAnalyzerProcMacroSrv {
  
          // Copy `rust-analyzer-proc-macro-srv` to `<sysroot>/libexec/`
          // so that r-a can use it.
@@ -38,10 +38,10 @@ index 3605fcf5..444df8b7 100644
          builder.copy_link(
              &tool_result.tool_path,
 diff --git a/src/bootstrap/src/core/download.rs b/src/bootstrap/src/core/download.rs
-index 0b3f43a7..e4f0d2d1 100644
+index 86cb4614..2656c10f 100644
 --- a/src/bootstrap/src/core/download.rs
 +++ b/src/bootstrap/src/core/download.rs
-@@ -229,7 +229,7 @@ impl Config {
+@@ -228,7 +228,7 @@ impl Config {
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustc"));
                  self.fix_bin_or_dylib(&bin_root.join("bin").join("rustdoc"));
                  self.fix_bin_or_dylib(

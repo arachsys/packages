@@ -2,11 +2,11 @@ require python rust
 
 check() {
   url https://github.com/rust-lang/rust/tags
-  match version 1.99.1 'tags/([0-9.]+)\.tar'
+  match version 1.100.0 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://static.rust-lang.org/dist/rustc-1.99.1-src.tar.gz
+  unpack https://static.rust-lang.org/dist/rustc-1.100.0-src.tar.gz
   apply curl.diff       # must patch vendor/curl-sys-*
   apply home.diff       # must patch vendor/home-*, tools/cargo/crates/home
   apply libexec.diff
@@ -15,7 +15,7 @@ prepare() {
   apply target.diff
   apply vendor.diff
   apply version.diff
-  tree cbf0892276603f82d16b5f12027dc8948daafeeeba78c6e384b28f3e90c92e3e
+  tree 57c1cd4b77cd8ed92fd2c3253504014e40221b5ed0c934b9be349170bdad5d40
 }
 
 build() {
@@ -26,7 +26,8 @@ build() {
     --build=$(/lib/llvm/bin/llvm-config --host-target) \
     --llvm-libunwind=system --llvm-config=/lib/llvm/bin/llvm-config \
     --local-rust-root= --release-channel=stable --set=change-id=99999999 \
-    --set=llvm.static-libstdcpp=false --set=rust.llvm-tools=false \
+    --set=llvm.static-libstdcpp=false --set=rust.deny-warnings=false \
+    --set=rust.llvm-tools=false \
     --tools=analysis,cargo,clippy,rust-analyzer,rustfmt
 
   DESTDIR=/dst OPENSSL_INCLUDE_DIR=/lib/include OPENSSL_LIB_DIR=/lib/shared \
