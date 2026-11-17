@@ -2,12 +2,12 @@ require m4
 
 check() {
   url https://github.com/westes/flex/tags
-  match version 2.6.15 'tags/v([0-9.]+)\.tar'
+  match version 2.6.16 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack https://github.com/westes/flex/releases/download/v2.6.15/flex-2.6.15.tar.gz
-  tree ef362cedf260f7beeae223ab5cbee586676e1346f4b630699b6d8623c7d74747
+  unpack https://github.com/westes/flex/releases/download/v2.6.16/flex-2.6.16.tar.gz
+  tree bd578dda314a113bfe6b14f350b6b226bf731409372a2823caad2d4efc562471
 }
 
 build() {
