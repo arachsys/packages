@@ -2,15 +2,15 @@ require libedit python
 
 check() {
   url https://github.com/llvm/llvm-project/tags
-  match llvm 23.1.5 'llvmorg-([0-9.]+)\.tar'
+  match llvm 23.1.6 'llvmorg-([0-9.]+)\.tar'
 
   url https://github.com/Kitware/CMake/tags
   match cmake 4.5.0 'tags/v([0-9.]+)\.tar'
 }
 
 prepare() {
-  unpack llvm-23.1.5.tar.gz \
-    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-23.1.5.tar.gz
+  unpack llvm-23.1.6.tar.gz \
+    https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-23.1.6.tar.gz
   unpack -d cmake \
     https://github.com/Kitware/CMake/releases/download/v4.5.0/cmake-4.5.0.tar.gz
   apply cmake.diff
@@ -23,7 +23,7 @@ prepare() {
   apply sanitizer.diff
   apply ssp.diff
   apply tools.diff
-  tree 8a4eddcb6f93dcc538ef4ee09fd0f80e898aefdc1127706fcd7bcaeddf6ba983
+  tree 6375c4820c66f6275c462551b541b4d0790f68012501680621dd2c450f7f6be1
 }
 
 build() {
