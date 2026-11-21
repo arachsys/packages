@@ -6,17 +6,17 @@ check() {
   match version 4.0.10 'ruby-([0-9.]+)\.tar'
 
   url https://github.com/yaml/libyaml/tags
-  match version 0.2.5 'tags/([0-9.]+)\.tar'
+  match libyaml 0.2.6 'tags/([0-9.]+)\.tar'
 }
 
 prepare() {
   unpack https://cache.ruby-lang.org/pub/ruby/4.0/ruby-4.0.10.tar.gz
   unpack -d libyaml \
-    https://github.com/yaml/libyaml/releases/download/0.2.5/yaml-0.2.5.tar.gz
+    https://github.com/yaml/libyaml/releases/download/0.2.6/yaml-0.2.6.tar.gz
   apply irb.diff
   apply paths.diff
   apply plain.diff
-  tree c64978264467d369a77dc471b1b10e717662d5dedc332d04ab8ef01a66215140
+  tree 9343496e047e4917a5cd9880bd3418a982a5e7debfdd72f7c6dd6d9da1c9606d
 }
 
 build() {
