@@ -1,8 +1,8 @@
 diff --git a/vmm/src/config.rs b/vmm/src/config.rs
-index f211cafb..10948f10 100644
+index a4763a23..e483e494 100644
 --- a/vmm/src/config.rs
 +++ b/vmm/src/config.rs
-@@ -1614,7 +1614,7 @@ pub fn parse(disk: &str) -> Result<Self> {
+@@ -1725,7 +1725,7 @@ pub fn parse(disk: &str) -> Result<Self> {
              parser
                  .convert::<ImageType>("image_type")
                  .map_err(Error::ParseDisk)?
